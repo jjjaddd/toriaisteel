@@ -1119,20 +1119,20 @@ input:focus,select:focus,textarea:focus{
   background:#fff;
 }
 .rem-row[data-source="inventory"] .rem-qty{
-  min-width:88px;
+  width:100%;
+  min-width:0;
   text-align:center;
   font-weight:700;
 }
-.rem-row[data-source="inventory"] .rem-meta{
-  font-weight:600;
-  color:#5a5a78;
-}
 .rem-row[data-source="inventory"] .rem-label-title{
-  font-size:12px;
+  font-size:18px;
+  font-weight:800;
+  line-height:1.1;
 }
 .rem-row[data-source="inventory"] .rem-label-sub{
-  font-size:10px;
+  font-size:11px;
   font-weight:700;
+  color:#6b7280;
 }
 .rem-row-empty{
   display:block !important;
@@ -1143,7 +1143,45 @@ input:focus,select:focus,textarea:focus{
   font-weight:500;
 }
 .rem-row[data-source="inventory"]{
-  grid-template-columns:minmax(96px,1fr) minmax(92px,.7fr) minmax(150px,1.1fr) auto;
+  display:grid;
+  grid-template-columns:minmax(92px,1fr) minmax(112px,128px) 34px;
+  gap:10px;
+  align-items:center;
+}
+.rem-label-group{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.rem-qty-group{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.rem-qty-label{
+  font-size:11px;
+  font-weight:700;
+  color:#5a5a78;
+  white-space:nowrap;
+}
+.rem-del{
+  width:34px;
+  height:34px;
+  border:1px solid #d4d4dc;
+  border-radius:8px;
+  background:#fff;
+  color:#4b5563;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+}
+.rem-del:hover,
+.rem-del:active{
+  color:#b91c1c;
+  border-color:#efb1b1;
+  background:#fff5f5;
 }
 .b-piece span{
   display:block;
@@ -1165,9 +1203,15 @@ input:focus,select:focus,textarea:focus{
 @media (max-width: 900px){
   .rem-row,
   .rem-row[data-source="inventory"]{
-    grid-template-columns:1fr;
+    grid-template-columns:minmax(0,1fr) 92px 34px;
   }
   .rem-add-btn{
     min-width:32px;
+  }
+  .rem-row[data-source="inventory"] .rem-label-title{
+    font-size:16px;
+  }
+  .rem-qty-label{
+    font-size:10px;
   }
 }
