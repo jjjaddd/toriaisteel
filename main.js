@@ -2914,7 +2914,7 @@ function buildInventoryDropdown() {
   items.forEach(function(item) {
     var option = document.createElement('option');
     option.value = String(item.ids || []);
-    option.textContent = item.len.toLocaleString() + 'mm × ' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
+    option.textContent = item.len.toLocaleString() + 'mm / 在庫' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
     sel.appendChild(option);
   });
   updateInventoryUseButton();
@@ -2939,7 +2939,7 @@ function formatPatternSummary(pattern) {
     counts[n] = (counts[n] || 0) + 1;
   });
   return order.map(function(len) {
-    return len.toLocaleString() + ' x ' + counts[len];
+    return len.toLocaleString() + 'mm x ' + counts[len] + '本';
   }).join(' + ');
 }
 
@@ -2962,14 +2962,14 @@ function buildDisplaySegments(pattern) {
         len: segment.len,
         count: segment.count,
         total: segment.total,
-        label: segment.len.toLocaleString() + ' x ' + segment.count
+        label: '細材 ' + segment.len.toLocaleString() + 'mm x ' + segment.count + '本'
       };
     }
     return {
       len: segment.len,
       count: segment.count,
       total: segment.len,
-      label: segment.len.toLocaleString()
+      label: segment.len.toLocaleString() + 'mm'
     };
   }).reduce(function(list, segment) {
     if (segment.count >= 5) {
@@ -2981,7 +2981,7 @@ function buildDisplaySegments(pattern) {
         len: segment.len,
         count: 1,
         total: segment.len,
-        label: segment.len.toLocaleString()
+        label: segment.len.toLocaleString() + 'mm'
       });
     }
     return list;
@@ -3363,9 +3363,9 @@ function createInventoryRemnantRow(item, selectedQty) {
   row.dataset.inventoryKey = String(item.ids || []);
   row.dataset.inventoryIds = JSON.stringify(item.ids || []);
   row.innerHTML =
-    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫材</span></div>' +
+    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫 ' + (item.qty || 1) + '本</span></div>' +
     '<select class="rem-qty" id="remQty' + i + '" onchange="saveRemnants()">' + options + '</select>' +
-    '<div class="rem-meta">' + escapeHtml(item.company || item.label || '在庫から選択') + '</div>' +
+    '<div class="rem-meta">今回使う本数 / ' + escapeHtml(item.company || item.label || '在庫から選択') + '</div>' +
     '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
   list.appendChild(row);
   return row;
@@ -3426,6 +3426,10 @@ function normalizeInterfaceChrome() {
   if (remHead) remHead.textContent = '計算に使う残材';
   var invBtn = document.getElementById('invUseBtn');
   if (invBtn) invBtn.textContent = '計算に使う';
+  var invSelect = document.getElementById('invSelect');
+  if (invSelect && invSelect.options.length) {
+    invSelect.options[0].textContent = '在庫から使いたい残材を選択';
+  }
 
   ['#cartModal button[onclick="cartDoPrint()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
     var el = document.querySelector(sel);

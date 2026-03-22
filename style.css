@@ -1091,6 +1091,13 @@ input:focus,select:focus,textarea:focus{
   font-weight:600;
   color:#5a5a78;
 }
+.rem-row[data-source="inventory"] .rem-label-title{
+  font-size:12px;
+}
+.rem-row[data-source="inventory"] .rem-label-sub{
+  font-size:10px;
+  font-weight:700;
+}
 .rem-row-empty{
   display:block !important;
   padding:12px 10px;
@@ -1100,7 +1107,16 @@ input:focus,select:focus,textarea:focus{
   font-weight:500;
 }
 .rem-row[data-source="inventory"]{
-  grid-template-columns:minmax(92px,1fr) minmax(88px,.7fr) minmax(120px,1fr) auto;
+  grid-template-columns:minmax(96px,1fr) minmax(92px,.7fr) minmax(150px,1.1fr) auto;
+}
+.b-piece span{
+  display:block;
+  width:100%;
+  padding:0 4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-align:center;
 }
 .bar-pat{
   font-variant-numeric:tabular-nums;
