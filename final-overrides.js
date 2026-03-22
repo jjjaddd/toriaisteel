@@ -552,6 +552,34 @@ function deleteInventoryGroup(groupKey) {
   renderInventoryPage();
 }
 
+function bindInventoryListActions() {
+  var cont = document.getElementById('invListCont');
+  if (!cont || cont.dataset.actionsBound === '1') return;
+  cont.dataset.actionsBound = '1';
+  cont.addEventListener('click', function(e) {
+    var delBtn = e.target.closest('.inv-del-btn[data-group-key]');
+    if (delBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      deleteInventoryGroup(delBtn.dataset.groupKey || '');
+      return;
+    }
+    var editBtn = e.target.closest('.inv-note-badge[data-group-key]');
+    if (editBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleInventoryGroupNoteEditor(editBtn.dataset.groupKey || '', true);
+      return;
+    }
+    var saveBtn = e.target.closest('.inv-note-save[data-group-key]');
+    if (saveBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      saveInventoryGroupNoteFromInput(saveBtn.dataset.groupKey || '');
+    }
+  });
+}
+
 function updateInventoryGroupNote(groupKey, value) {
   var ids = String(groupKey || '').split(',').map(function(id) {
     return parseInt(id, 10);
@@ -680,20 +708,21 @@ renderInventoryPage = function() {
           '<div class="inv-note-cell" data-group-key="' + groupKey + '">' +
             '<div class="inv-note-display">' +
               '<span class="inv-note-text">' + escapeHtml(noteText || '-') + '</span>' +
-              '<button type="button" class="inv-note-badge" onclick="toggleInventoryGroupNoteEditor(\'' + groupKey + '\', true)">編集</button>' +
+              '<button type="button" class="inv-note-badge" data-group-key="' + groupKey + '">編集</button>' +
             '</div>' +
             '<div class="inv-note-editor" style="display:none">' +
               '<input class="inv-note-input" type="text" value="' + escapeHtml(noteText) + '" placeholder="メモ" onkeydown="if(event.key===\'Enter\'){saveInventoryGroupNoteFromInput(\'' + groupKey + '\')}" />' +
-              '<button type="button" class="inv-note-save" onclick="saveInventoryGroupNoteFromInput(\'' + groupKey + '\')">保存</button>' +
+              '<button type="button" class="inv-note-save" data-group-key="' + groupKey + '">保存</button>' +
             '</div>' +
           '</div>' +
           '<span class="inv-date">' + escapeHtml(item.addedDate) + '</span>' +
-          '<button type="button" onclick="deleteInventoryGroup(\'' + groupKey + '\')" class="inv-del-btn">削除</button>' +
+          '<button type="button" class="inv-del-btn" data-group-key="' + groupKey + '">削除</button>' +
         '</div>';
       }).join('') +
     '</div>';
   }).join('');
 
+  bindInventoryListActions();
   renderPager('invPagination', inventoryPage, pageData.totalPages, 'setInventoryPage');
 };
 
