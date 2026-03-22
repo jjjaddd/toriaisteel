@@ -322,6 +322,15 @@ function buildRemHtmlFromRemnants(rems) {
   }).join('') + '</div>';
 }
 
+function buildRemnantSignature(cardId, rems) {
+  return JSON.stringify([
+    cardId || '',
+    (rems || []).map(function(item) {
+      return [item.spec, item.kind, item.sl, item.len];
+    }).sort()
+  ]);
+}
+
 var _baseSaveCutHistory = typeof saveCutHistory === 'function' ? saveCutHistory : null;
 saveCutHistory = function(resultData, cardId) {
   var entry = _baseSaveCutHistory ? _baseSaveCutHistory(resultData, cardId) : null;
@@ -423,15 +432,35 @@ autoRegisterAfterPrint = function() {
   if (!cardId || typeof registerRemnants !== 'function') return;
   var rems = extractRemnantsFromBars(getBarsForSelectedCard(cardId, window._lastCalcResult));
   if (!rems.length) return;
-  var signature = JSON.stringify([
-    cardId,
-    rems.map(function(item) {
-      return [item.spec, item.kind, item.sl, item.len];
-    }).sort()
-  ]);
+  var signature = buildRemnantSignature(cardId, rems);
   if (window._lastPrintedRemnantSignature === signature) return;
   window._lastPrintedRemnantSignature = signature;
   registerRemnants(rems);
+};
+
+var _baseCartDoPrint = typeof cartDoPrint === 'function' ? cartDoPrint : null;
+cartDoPrint = function() {
+  var cartSnapshot = typeof getCart === 'function' ? getCart().slice() : [];
+  var result = _baseCartDoPrint ? _baseCartDoPrint() : undefined;
+  if (typeof registerRemnants !== 'function' || !cartSnapshot.length) return result;
+
+  var allRems = [];
+  var sigParts = [];
+  cartSnapshot.forEach(function(item) {
+    var data = item && item.data ? item.data : {};
+    var bars = Array.isArray(data.bars) && data.bars.length ? data.bars : getBarsForSelectedCard(data.cardId || item.cardId, window._lastCalcResult);
+    var rems = extractRemnantsFromBars(bars);
+    if (!rems.length) return;
+    allRems = allRems.concat(rems);
+    sigParts.push(buildRemnantSignature(data.cardId || item.cardId, rems));
+  });
+
+  if (!allRems.length) return result;
+  var signature = JSON.stringify(sigParts.sort());
+  if (window._lastPrintedRemnantSignature === signature) return result;
+  window._lastPrintedRemnantSignature = signature;
+  registerRemnants(allRems);
+  return result;
 };
 
 (function initializeFinalOverrides() {
