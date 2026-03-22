@@ -284,8 +284,6 @@ function buildBarsFromCardPattern(cardId) {
 }
 
 function getBarsForSelectedCard(cardId, resultData) {
-  var barsFromCard = buildBarsFromCardPattern(cardId);
-  if (barsFromCard.length) return barsFromCard;
   var result = resultData || window._lastCalcResult || {};
   var id = String(cardId || '');
   var labelMatch = id.match(/^card_pat_([^_]+)/);
@@ -305,6 +303,8 @@ function getBarsForSelectedCard(cardId, resultData) {
       return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || result.allDP[0].slA || 0 };
     });
   }
+  var barsFromCard = buildBarsFromCardPattern(cardId);
+  if (barsFromCard.length) return barsFromCard;
   return getCardBarsById(cardId);
 }
 
