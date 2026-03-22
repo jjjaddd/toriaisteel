@@ -472,26 +472,25 @@ footer{border-radius:0;background:rgba(15,14,23,.8)}
 
 
 /* 履歴・在庫統合タブ */
-#hip{overflow:hidden;display:none;flex-direction:column}
+#hip{overflow:hidden;display:none;flex-direction:column;background:#fff}
 #hip.show{display:flex}
-.hi-tabs{display:flex;border-bottom:2px solid var(--bd);background:#fff;position:sticky;top:0;z-index:10;flex-shrink:0}
-.hi-tab{padding:12px 28px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8888a8;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;user-select:none}
-.hi-tab:hover{color:#2a2a3e}
-.hi-tab.hi-tab-active{color:#1a1a2e;border-bottom-color:#6d28d9;background:rgba(109,40,217,.07)}
+.hi-tabs{display:flex;border-bottom:1px solid #e0e0ea;background:#fff;position:sticky;top:0;z-index:10;flex-shrink:0}
+.hi-tab{padding:12px 28px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5a5a78;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s;user-select:none;background:none;border-left:none;border-right:none;border-top:none;font-family:'Space Grotesk',sans-serif}
+.hi-tab:hover{color:#1a1a2e;background:rgba(109,40,217,.04)}
+.hi-tab.hi-tab-active{color:#1a1a2e;border-bottom-color:#6d28d9;background:#fff}
 
 
 
 /* 履歴・在庫統合ページ */
 .hi-page{display:flex;flex-direction:column;height:calc(100vh - 54px);overflow:hidden}
-.hi-tab-bar{display:flex;gap:0;border-bottom:2px solid #d4d4dc;background:#fff;flex-shrink:0;padding:0 20px}
-.hi-tab{padding:11px 22px;font-size:11px;font-weight:700;letter-spacing:.1em;cursor:pointer;border:none;background:none;color:#1a1a2e;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;text-transform:uppercase;font-family:'Space Grotesk',sans-serif}
-.hi-tab.hi-tab-active{color:#1a1a2e;border-bottom-color:#6d28d9;background:rgba(109,40,217,.07)}
-.hi-tab:hover{color:#1a1a2e;background:rgba(109,40,217,.05)}
+.hi-tab-bar{display:flex;gap:0;border-bottom:1px solid #e0e0ea;background:#fff;flex-shrink:0;padding:0 20px}
+.hi-tab.hi-tab-active{color:#1a1a2e;border-bottom-color:#6d28d9;background:#fff}
+.hi-tab:hover{color:#1a1a2e;background:rgba(109,40,217,.04)}
 .hi-panels{flex:1;overflow:hidden}
 
 
 /* ── 履歴・在庫共通レイアウト ── */
-.hi-panel{display:none;flex:1;width:100%;overflow-y:auto;box-sizing:border-box;min-height:0}
+.hi-panel{display:none;flex:1;width:100%;overflow-y:auto;box-sizing:border-box;min-height:0;background:#fff}
 .hi-page-inner{width:100%;box-sizing:border-box;padding:16px 20px}
 .hi-page-title { font-size:16px; font-weight:800; color:#1a1a2e; margin-bottom:16px; letter-spacing:.02em; }
 
@@ -500,48 +499,47 @@ footer{border-radius:0;background:rgba(15,14,23,.8)}
 .hi-field { display:flex; flex-direction:column; gap:4px; flex:1; min-width:140px; }
 .hi-field-btn { flex:0 0 auto; min-width:auto; justify-content:flex-end; }
 .hi-label { font-size:10px; font-weight:700; color:#8888a8; letter-spacing:.06em; text-transform:uppercase; }
-.hi-input { background:#f8f8fc; border:1px solid #e0e0ea; color:#1a1a2e; border-radius:8px; padding:7px 10px; font-size:12px; font-family:inherit; width:100%; box-sizing:border-box; outline:none; transition:border-color .15s; }
-.hi-
+.hi-input { background:#fff; border:1px solid #e0e0ea; color:#1a1a2e; border-radius:8px; padding:7px 10px; font-size:12px; font-family:inherit; width:100%; box-sizing:border-box; outline:none; transition:border-color .15s; }
 .hi-clear-btn { background:none; border:1px solid #e0e0ea; color:#5a5a78; border-radius:8px; padding:7px 16px; font-size:12px; cursor:pointer; font-family:inherit; white-space:nowrap; }
-.hi-clear-btn:hover { border-color:var(--br); color:var(--br); }
+.hi-clear-btn:hover { border-color:#aaa; color:#1a1a2e; }
 
 /* 手動追加ボタン */
-.hi-add-btn { width:100%; background:transparent; border:1.5px dashed var(--cy); color:var(--cy); border-radius:10px; padding:10px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; margin-bottom:10px; letter-spacing:.04em; transition:all .15s; }
-.hi-add-btn:hover { background:rgba(34,211,238,.06); }
+.hi-add-btn { width:100%; background:transparent; border:1.5px dashed #d4d4dc; color:#5a5a78; border-radius:10px; padding:10px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; margin-bottom:10px; letter-spacing:.04em; transition:all .15s; }
+.hi-add-btn:hover { background:#f4f4f6; }
 
 /* 追加フォーム */
-.hi-add-form-inner { background:#f8f8fc; border:1px solid #e0e0ea; border-radius:10px; padding:14px 16px; }
+.hi-add-form-inner { background:#fff; border:1px solid #e0e0ea; border-radius:10px; padding:14px 16px; }
 .hi-add-row { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:10px; }
 .hi-add-row:last-child { margin-bottom:0; }
-.hi-submit-btn { background:var(--br); color:#fff; border:none; border-radius:8px; padding:8px 20px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
-.hi-submit-btn:hover { opacity:.9; }
+.hi-submit-btn { background:#fff; color:#1a1a2e; border:1.5px solid #d4d4dc; border-radius:8px; padding:8px 20px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap; }
+.hi-submit-btn:hover { background:#f4f4f6; }
 
 /* 履歴リスト */
 .hist-card { background:#fff; border:1px solid #e8e8ed; border-radius:10px; margin-bottom:10px; overflow:hidden; }
-.hist-card-header { padding:8px 14px; background:#f8f8fb; display:flex; align-items:center; gap:8px; border-bottom:1px solid #ebebf0; }
+.hist-card-header { padding:8px 14px; background:#fff; display:flex; align-items:center; gap:8px; border-bottom:1px solid #ebebf0; }
 .hist-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #f0f0f6; cursor:pointer; transition:background .12s; }
 .hist-row:last-child { border-bottom:none; }
-.hist-row:hover { background:rgba(109,40,217,.03); }
+.hist-row:hover { background:#f8f8f8; }
 .hist-row-main { flex:1; min-width:0; }
 .hist-client { font-size:14px; font-weight:700; color:#1a1a2e; }
 .hist-name { font-size:12px; color:#5a5a78; margin-left:8px; }
 .hist-meta { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:3px; }
-.hist-date { font-size:10px; color:#aaa; }
+.hist-date { font-size:11px; color:#1a1a2e; font-weight:600; }
 .hist-spec-badge { font-size:10px; font-weight:700; color:#1a1a2e; background:#fff; border:1px solid #d4d4dc; padding:1px 8px; border-radius:20px; }
 .hist-desc { font-size:10px; color:#888; }
-.hist-rem { font-size:10px; color:var(--cy); }
+.hist-rem { font-size:10px; color:#5a5a78; }
 .hist-del-btn { flex-shrink:0; background:none; border:1px solid #e8e8ed; color:#bbb; border-radius:6px; padding:3px 10px; cursor:pointer; font-size:10px; font-family:inherit; }
 .hist-del-btn:hover { border-color:#f87171; color:#f87171; }
 
 /* 在庫リスト */
 .inv-card { background:#fff; border:1px solid #e8e8ed; border-radius:10px; margin-bottom:10px; overflow:hidden; }
-.inv-card-header { padding:8px 14px; background:#f8f8fb; display:flex; align-items:center; gap:8px; border-bottom:1px solid #ebebf0; }
+.inv-card-header { padding:8px 14px; background:#fff; display:flex; align-items:center; gap:8px; border-bottom:1px solid #ebebf0; }
 .inv-spec-label { font-size:12px; font-weight:700; color:#1a1a2e; }
 .inv-count-badge { font-size:10px; color:#888; background:#fff; border:1px solid #e0e0ea; padding:1px 8px; border-radius:20px; }
 .inv-col-header { display:flex; gap:10px; align-items:center; padding:4px 14px; font-size:10px; color:#aaa; font-weight:700; letter-spacing:.06em; border-bottom:1px solid #f0f0f6; }
 .inv-row { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #f0f0f6; transition:background .12s; }
 .inv-row:last-child { border-bottom:none; }
-.inv-row:hover { background:rgba(109,40,217,.03); }
+.inv-row:hover { background:#f8f8f8; }
 .inv-len { font-size:16px; font-weight:700; color:#1a1a2e; font-variant-numeric:tabular-nums; min-width:100px; }
 .inv-len-unit { font-size:10px; color:#aaa; margin-left:2px; }
 .inv-qty { font-size:11px; color:#5a5a78; background:#f0f0f6; border:1px solid #e0e0ea; border-radius:4px; padding:1px 7px; }

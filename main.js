@@ -778,19 +778,26 @@ function renderHistory() {
         .map(function(l){ return l.toLocaleString()+'mm'+(remCnt[l]>1?' ×'+remCnt[l]:''); }).join('　');
     }
     var dateLabel = friendlyDate(h.date);
+    // 切断部材リスト（切ったものを表示）
+    var pieceSummary = '';
+    if (h.result && h.result.allDP && h.result.allDP[0] && h.result.allDP[0].bA) {
+      var pieceCounts = {};
+      h.result.allDP[0].bA.forEach(function(b){
+        (b.pat||[]).forEach(function(len){ pieceCounts[len]=(pieceCounts[len]||0)+1; });
+      });
+      pieceSummary = Object.keys(pieceCounts).map(Number).sort(function(a,b){return b-a;})
+        .map(function(l){ return l.toLocaleString()+'mm'+(pieceCounts[l]>1?' ×'+pieceCounts[l]:''); }).join('　');
+    }
     return '<div class="hist-row" onclick="showHistPreview('+h.id+')">'+
       '<div class="hist-row-main">'+
-        '<div style="margin-bottom:3px">'+
-          '<span class="hist-client">'+(h.client||'—')+'</span>'+
-          (h.name?'<span class="hist-name">'+h.name+'</span>':'')+
-          (h.deadline?'<span style="font-size:10px;background:rgba(251,191,36,.15);color:var(--am);padding:1px 8px;border-radius:20px;margin-left:6px">'+h.deadline+'</span>':'')+
-        '</div>'+
-        '<div class="hist-meta">'+
-          '<span class="hist-date">'+dateLabel+'</span>'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'+
+          '<span style="font-size:12px;font-weight:800;color:#1a1a2e">'+dateLabel+'</span>'+
           (h.spec?'<span class="hist-spec-badge">'+h.spec+'</span>':'')+
-          (topDP&&topDP!=='—'?'<span class="hist-desc">'+topDP+'</span>':'')+
-          (remSizes?'<span class="hist-rem">端材: '+remSizes+'</span>':'')+
+          (h.client?'<span style="font-size:11px;color:#5a5a78">'+h.client+'</span>':'')+
+          (h.name?'<span style="font-size:11px;color:#8888a8">'+h.name+'</span>':'')+
         '</div>'+
+        (pieceSummary?'<div style="font-size:11px;color:#1a1a2e;font-family:monospace">✂ '+pieceSummary+'</div>':'')+
+        (remSizes?'<div style="font-size:10px;color:#8888a8;margin-top:2px">端材: '+remSizes+'</div>':'')+
       '</div>'+
       '<button onclick="event.stopPropagation();deleteCutHistory('+h.id+')" class="hist-del-btn">削除</button>'+
     '</div>';
