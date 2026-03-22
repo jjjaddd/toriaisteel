@@ -257,6 +257,24 @@ var _baseCartAdd = typeof cartAdd === 'function' ? cartAdd : null;
 cartAdd = function(cardId, btn) {
   var result = _baseCartAdd ? _baseCartAdd(cardId, btn) : undefined;
   var rems = extractRemnantsFromCard(cardId);
+  if (rems.length && typeof getCart === 'function' && typeof saveCart === 'function') {
+    var counts = {};
+    rems.forEach(function(item) {
+      counts[item.len] = (counts[item.len] || 0) + 1;
+    });
+    var remHtml = '<div class="rem-list">' + Object.keys(counts).map(function(len) {
+      var qty = counts[len];
+      return '<span>' + Number(len).toLocaleString() + 'mm' + (qty > 1 ? ' x ' + qty : '') + '</span>';
+    }).join('') + '</div>';
+    var cart = getCart();
+    for (var i = cart.length - 1; i >= 0; i--) {
+      if (cart[i] && cart[i].cardId === cardId && cart[i].data) {
+        cart[i].data.remHtml = remHtml;
+        break;
+      }
+    }
+    saveCart(cart);
+  }
   if (rems.length && typeof registerRemnants === 'function') {
     var signature = JSON.stringify(rems.map(function(item) {
       return [item.spec, item.kind, item.sl, item.len];
@@ -336,6 +354,59 @@ showHistPreview = function(id) {
     buildInventoryDropdown();
     syncInventoryToRemnants();
     cleanCartChrome();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind, { once: true });
+  } else {
+    bind();
+  }
+})();
+
+function extractRemnantsFromCard(cardId) {
+  var card = document.getElementById(cardId);
+  if (!card) return [];
+  var minLen = parseInt((document.getElementById('minRemnantLen') || {}).value, 10) || 500;
+  var spec = (document.getElementById('spec') || {}).value || '';
+  var kind = typeof getCurrentKind === 'function' ? getCurrentKind() : (window.curKind || '');
+  var remEl = card.querySelector('[class*="rem-section"]') || card.querySelector('.rem-list');
+  if (!remEl) return [];
+
+  var text = String(remEl.textContent || '').replace(/\s+/g, ' ');
+  var regex = /([\d,]+)\s*mm(?:\s*[x\u00d7*]\s*(\d+))?/gi;
+  var rems = [];
+  var match;
+  while ((match = regex.exec(text))) {
+    var len = parseInt(String(match[1] || '').replace(/,/g, ''), 10);
+    var qty = match[2] ? Math.max(1, parseInt(match[2], 10) || 1) : 1;
+    if (!len || len < minLen) continue;
+    for (var i = 0; i < qty; i++) {
+      rems.push({ len: len, spec: spec, kind: kind, sl: 0 });
+    }
+  }
+  return rems;
+}
+
+(function bindSpecDropdownOutsideCloseFinal() {
+  function bind() {
+    var panel = document.getElementById('specPanel');
+    var selected = document.getElementById('specSelected');
+    var list = document.getElementById('specList');
+    if (!panel || !selected || !list || selected.dataset.dropdownBound) return;
+
+    selected.dataset.dropdownBound = '1';
+    selected.addEventListener('click', function(e) {
+      e.stopPropagation();
+      list.style.display = list.style.display === 'none' ? 'block' : 'none';
+    });
+
+    panel.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!panel.contains(e.target)) list.style.display = 'none';
+    });
   }
 
   if (document.readyState === 'loading') {
