@@ -539,13 +539,11 @@ function escapeHtml(value) {
 
 function deleteInventoryGroup(groupKey) {
   var ids = String(groupKey || '').split(',').map(function(id) {
-    return parseInt(id, 10);
-  }).filter(function(id) {
-    return !isNaN(id);
-  });
+    return String(id || '').trim();
+  }).filter(Boolean);
   if (!ids.length || typeof saveInventory !== 'function' || typeof getInventory !== 'function') return;
   saveInventory(getInventory().filter(function(item) {
-    return ids.indexOf(item.id) === -1;
+    return ids.indexOf(String(item.id)) === -1;
   }));
   syncInventoryToRemnants();
   updateInvDropdown();
@@ -582,14 +580,12 @@ function bindInventoryListActions() {
 
 function updateInventoryGroupNote(groupKey, value) {
   var ids = String(groupKey || '').split(',').map(function(id) {
-    return parseInt(id, 10);
-  }).filter(function(id) {
-    return !isNaN(id);
-  });
+    return String(id || '').trim();
+  }).filter(Boolean);
   if (!ids.length || typeof saveInventory !== 'function' || typeof getInventory !== 'function') return;
   var note = String(value == null ? '' : value).trim();
   var inv = getInventory().map(function(item) {
-    if (ids.indexOf(item.id) === -1) return item;
+    if (ids.indexOf(String(item.id)) === -1) return item;
     return Object.assign({}, item, { note: note });
   });
   saveInventory(inv);
