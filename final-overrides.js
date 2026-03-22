@@ -239,17 +239,17 @@ saveCutHistory = function(resultData, cardId) {
   if (!entry || !entry.result) return entry;
 
   var selectedRemnants = extractRemnantsFromCard(cardId);
-  if (selectedRemnants.length) {
-    entry.result.remnants = selectedRemnants;
-    entry.printedCardId = cardId || entry.printedCardId || '';
-    try {
-      var hist = getCutHistory();
-      if (hist.length) {
-        hist[0] = entry;
-        localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist));
-      }
-    } catch (e) {}
-  }
+  var selectedBars = getCardBarsById(cardId);
+  entry.result.remnants = selectedRemnants;
+  entry.result.selectedBars = selectedBars;
+  entry.printedCardId = cardId || entry.printedCardId || '';
+  try {
+    var hist = getCutHistory();
+    if (hist.length) {
+      hist[0] = entry;
+      localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist));
+    }
+  } catch (e) {}
   return entry;
 };
 
@@ -299,7 +299,7 @@ showHistPreview = function(id) {
   var spec = h.spec || '';
   var endLoss = r.endLoss || 150;
   var printedId = h.printedCardId || '';
-  var bars = getHistoryBarsForPrint(r, printedId);
+  var bars = (r.selectedBars && r.selectedBars.length) ? r.selectedBars.slice() : getHistoryBarsForPrint(r, printedId);
   if (!bars.length) {
     body.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center">データがありません</div>';
     modal.style.display = 'flex';
@@ -335,6 +335,25 @@ showHistPreview = function(id) {
     barHtml: barHtml
   }]);
   modal.style.display = 'flex';
+};
+
+var _basePrintCard = typeof printCard === 'function' ? printCard : null;
+printCard = function(cardId) {
+  window._lastPrintedCardId = cardId;
+  return _basePrintCard ? _basePrintCard(cardId) : undefined;
+};
+
+autoRegisterAfterPrint = function() {
+  var cardId = window._lastPrintedCardId;
+  if (!cardId || typeof registerRemnants !== 'function') return;
+  var rems = extractRemnantsFromCard(cardId);
+  if (!rems.length) return;
+  var signature = JSON.stringify(rems.map(function(item) {
+    return [item.spec, item.kind, item.sl, item.len];
+  }).sort());
+  if (window._lastRegisteredRemnantSignature === signature) return;
+  window._lastRegisteredRemnantSignature = signature;
+  registerRemnants(rems);
 };
 
 (function initializeFinalOverrides() {
