@@ -597,7 +597,7 @@ footer{border-radius:0;background:rgba(15,14,23,.8)}
   box-shadow:0 0 0 3px rgba(15,23,42,.05);
 }
 .inv-date { font-size:10px; color:#aaa; white-space:nowrap; }
-.inv-del-btn { opacity:0; transition:opacity .15s; background:none; border:1px solid rgba(248,113,113,.3); color:#f87171; border-radius:6px; padding:3px 7px; cursor:pointer; font-size:11px; }
+.inv-del-btn { opacity:1; pointer-events:auto; transition:opacity .15s; background:#fff; border:1px solid rgba(248,113,113,.3); color:#f87171; border-radius:6px; padding:3px 7px; cursor:pointer; font-size:11px; }
 .inv-row:hover .inv-del-btn { opacity:1; }
 .inv-len{
   display:flex;
