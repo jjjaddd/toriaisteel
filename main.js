@@ -2913,7 +2913,7 @@ function buildInventoryDropdown() {
   sel.innerHTML = '<option value="">在庫から追加する残材を選択</option>';
   items.forEach(function(item) {
     var option = document.createElement('option');
-    option.value = item.len + ':' + item.qty + ':' + (item.company || item.label || '');
+    option.value = String(item.ids || []);
     option.textContent = item.len.toLocaleString() + 'mm × ' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
     sel.appendChild(option);
   });
@@ -2943,6 +2943,51 @@ function formatPatternSummary(pattern) {
   }).join(' + ');
 }
 
+function buildDisplaySegments(pattern) {
+  var segments = [];
+  (pattern || []).forEach(function(len) {
+    var n = parseInt(len, 10);
+    if (!n) return;
+    var last = segments[segments.length - 1];
+    if (last && last.len === n) {
+      last.count++;
+      last.total += n;
+    } else {
+      segments.push({ len: n, count: 1, total: n });
+    }
+  });
+  return segments.map(function(segment) {
+    if (segment.count >= 5) {
+      return {
+        len: segment.len,
+        count: segment.count,
+        total: segment.total,
+        label: segment.len.toLocaleString() + ' x ' + segment.count
+      };
+    }
+    return {
+      len: segment.len,
+      count: segment.count,
+      total: segment.len,
+      label: segment.len.toLocaleString()
+    };
+  }).reduce(function(list, segment) {
+    if (segment.count >= 5) {
+      list.push(segment);
+      return list;
+    }
+    for (var i = 0; i < segment.count; i++) {
+      list.push({
+        len: segment.len,
+        count: 1,
+        total: segment.len,
+        label: segment.len.toLocaleString()
+      });
+    }
+    return list;
+  }, []);
+}
+
 function buildCutDiagram(bars, slLen, label) {
   var grouped = groupBars(bars);
   if (!grouped.length) return '';
@@ -2956,9 +3001,9 @@ function buildCutDiagram(bars, slLen, label) {
     html += '<div class="bar-track">';
     var endHalf = (parseInt((document.getElementById('endloss') || {}).value, 10) || 150) / 2;
     html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-    (g.pat || []).forEach(function(p, idx) {
+    buildDisplaySegments(g.pat || []).forEach(function(segment, idx) {
       if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
-      html += '<div class="b-piece" style="flex:' + p + '"><span>' + Number(p).toLocaleString() + '</span></div>';
+      html += '<div class="b-piece" style="flex:' + segment.total + '"><span>' + segment.label + '</span></div>';
     });
     if (g.loss > 0) html += '<div class="' + (g.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + g.loss + '">' + Number(g.loss).toLocaleString() + '</div>';
     html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
@@ -3002,9 +3047,9 @@ function buildPrintBarHtml(bars, sl, endLoss) {
       html += '<div class="bar-pat">= ' + formatPatternSummary(bar.pat) + (bar.loss > 0 ? ' / 端材 ' + Number(bar.loss).toLocaleString() + 'mm' : '') + '</div>';
       html += '<div class="bar-track">';
       html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-      (bar.pat || []).forEach(function(p, idx) {
+      buildDisplaySegments(bar.pat || []).forEach(function(segment, idx) {
         if (idx > 0) html += '<div class="b-blade"></div>';
-        html += '<div class="b-piece" style="flex:' + p + '"><span>' + Number(p).toLocaleString() + '</span></div>';
+        html += '<div class="b-piece" style="flex:' + segment.total + '"><span>' + segment.label + '</span></div>';
       });
       if (bar.loss > 0) {
         html += '<div class="b-blade"></div>';
@@ -3268,15 +3313,11 @@ function addFromInventory() {
   var sel = document.getElementById('invSelect');
   if (!sel || !sel.value) return;
   var items = getInventoryForCurrentSpec();
-  var chosen = items.find(function(item) {
-    return (item.len + ':' + item.qty + ':' + (item.company || item.label || '')) === sel.value;
-  });
+  var chosen = items.find(function(item) { return String(item.ids || []) === sel.value; });
   if (!chosen) return;
   var selected = getSelectedInventoryRemnants();
   var key = String(chosen.ids || []);
-  selected[key] = {
-    qty: Math.max(1, Math.min(chosen.qty || 1, parseInt((selected[key] || {}).qty, 10) || 1))
-  };
+  selected[key] = { qty: 1 };
   saveSelectedInventoryRemnants(selected);
   sel.value = '';
   syncInventoryToRemnants();
