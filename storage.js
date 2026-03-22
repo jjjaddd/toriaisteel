@@ -864,9 +864,12 @@ function clearCart() {
 }
 
 function saveCutHistory(resultData, cardId) {
+  resultData = resultData || _lastCalcResult || {};
   var job = getJobInfo();
   var zones = getZoneInfo();
   var hist = getCutHistory();
+  var resultMeta = buildResultMeta(resultData);
+  var selectedBars = getSelectedBarsFromResultData(resultData, cardId);
   var entry = {
     id: Date.now(),
     date: new Date().toISOString(),
@@ -911,7 +914,9 @@ function saveCutHistory(resultData, cardId) {
           bars: resultData.patB.plan80.bars ? resultData.patB.plan80.bars.map(function(b) { return { pat: b.pat, loss: b.loss, sl: b.sl }; }) : []
         } : null
       } : null,
-      remnants: extractRemnants(resultData, cardId),
+      meta: resultMeta,
+      selectedBars: selectedBars,
+      remnants: buildRemnantsFromBars(selectedBars, resultMeta),
       blade: parseInt((document.getElementById('blade') || {}).value, 10) || 3,
       endLoss: parseInt((document.getElementById('endloss') || {}).value, 10) || 150
     }
@@ -930,35 +935,9 @@ function saveCutHistory(resultData, cardId) {
 }
 
 function extractRemnants(resultData, cardId) {
-  var minLen = parseInt((document.getElementById('minRemnantLen') || {}).value, 10) || 500;
-  var rems = [];
-  var spec = (document.getElementById('spec') || {}).value || '';
-  var kind = curKind || '';
-
-  function processBar(bar, sl) {
-    if (bar && bar.loss >= minLen) rems.push({ len: bar.loss, spec: spec, kind: kind, sl: sl || bar.sl || 0 });
-  }
-
-  function processPattern(pattern) {
-    if (!pattern || !pattern.bars || !pattern.bars.length) return false;
-    pattern.bars.forEach(function(b) { processBar(b, pattern.sl); });
-    return true;
-  }
-
-  var isPat = cardId && cardId.indexOf('card_pat') === 0;
-  if (isPat) {
-    var labelMatch = String(cardId).match(/^card_pat_([^_]+)/);
-    var label = labelMatch ? labelMatch[1] : '';
-    if (label === 'B90' && resultData.patB && resultData.patB.plan90) {
-      processPattern(resultData.patB.plan90);
-    } else if (label === 'B80' && resultData.patB && resultData.patB.plan80) {
-      processPattern(resultData.patB.plan80);
-    } else if (!processPattern(resultData.patA) && resultData.patB) {
-      processPattern(resultData.patB.plan90 || resultData.patB.plan80);
-    }
-  } else if (resultData.allDP && resultData.allDP[0]) {
-    (resultData.allDP[0].bA || []).forEach(function(b) { processBar(b, resultData.allDP[0].slA || b.sl); });
-    (resultData.allDP[0].bB || []).forEach(function(b) { processBar(b, resultData.allDP[0].slB || b.sl); });
-  }
-  return rems;
+  resultData = resultData || _lastCalcResult || {};
+  return buildRemnantsFromBars(
+    getSelectedBarsFromResultData(resultData, cardId),
+    buildResultMeta(resultData)
+  );
 }
