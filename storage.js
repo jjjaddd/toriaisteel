@@ -649,6 +649,19 @@ function saveCutHistory(resultData, cardId) {
         label:resultData.patA.label, sl:resultData.patA.sl,
         bars:resultData.patA.bars?resultData.patA.bars.map(function(b){return{pat:b.pat,loss:b.loss,sl:b.sl};}):[]
       } : null,
+      patB: resultData.patB ? {
+        label: resultData.patB.label,
+        plan90: resultData.patB.plan90 ? {
+          label: resultData.patB.plan90.label,
+          sl: resultData.patB.plan90.sl,
+          bars: resultData.patB.plan90.bars ? resultData.patB.plan90.bars.map(function(b){return{pat:b.pat,loss:b.loss,sl:b.sl};}) : []
+        } : null,
+        plan80: resultData.patB.plan80 ? {
+          label: resultData.patB.plan80.label,
+          sl: resultData.patB.plan80.sl,
+          bars: resultData.patB.plan80.bars ? resultData.patB.plan80.bars.map(function(b){return{pat:b.pat,loss:b.loss,sl:b.sl};}) : []
+        } : null
+      } : null,
       remnants: extractRemnants(resultData, cardId),
       blade: parseInt((document.getElementById('blade')||{}).value)||3,
       endLoss: parseInt((document.getElementById('endloss')||{}).value)||150
@@ -785,4 +798,104 @@ function removeFromCart(id) {
 /** カートを全クリア */
 function clearCart() {
   saveCart([]);
+}
+
+function saveCutHistory(resultData, cardId) {
+  var job = getJobInfo();
+  var zones = getZoneInfo();
+  var hist = getCutHistory();
+  var entry = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    dateLabel: new Date().toLocaleDateString('ja-JP'),
+    client: job.client,
+    name: job.name,
+    deadline: job.deadline,
+    worker: job.worker,
+    spec: job.spec,
+    kind: job.kind,
+    zones: zones,
+    result: {
+      allDP: resultData.allDP ? resultData.allDP.slice(0, 5).map(function(d) {
+        return {
+          desc: d.desc,
+          lossRate: d.lossRate,
+          lossKg: d.lossKg,
+          barKg: d.barKg,
+          slA: d.slA,
+          slB: d.slB,
+          type: d.type,
+          chg: d.chg,
+          bA: d.bA ? d.bA.map(function(b) { return { pat: b.pat, loss: b.loss, sl: b.sl }; }) : [],
+          bB: d.bB ? d.bB.map(function(b) { return { pat: b.pat, loss: b.loss, sl: b.sl }; }) : []
+        };
+      }) : [],
+      patA: resultData.patA ? {
+        label: resultData.patA.label,
+        sl: resultData.patA.sl,
+        bars: resultData.patA.bars ? resultData.patA.bars.map(function(b) { return { pat: b.pat, loss: b.loss, sl: b.sl }; }) : []
+      } : null,
+      patB: resultData.patB ? {
+        label: resultData.patB.label,
+        plan90: resultData.patB.plan90 ? {
+          label: resultData.patB.plan90.label,
+          sl: resultData.patB.plan90.sl,
+          bars: resultData.patB.plan90.bars ? resultData.patB.plan90.bars.map(function(b) { return { pat: b.pat, loss: b.loss, sl: b.sl }; }) : []
+        } : null,
+        plan80: resultData.patB.plan80 ? {
+          label: resultData.patB.plan80.label,
+          sl: resultData.patB.plan80.sl,
+          bars: resultData.patB.plan80.bars ? resultData.patB.plan80.bars.map(function(b) { return { pat: b.pat, loss: b.loss, sl: b.sl }; }) : []
+        } : null
+      } : null,
+      remnants: extractRemnants(resultData, cardId),
+      blade: parseInt((document.getElementById('blade') || {}).value, 10) || 3,
+      endLoss: parseInt((document.getElementById('endloss') || {}).value, 10) || 150
+    }
+  };
+  hist.unshift(entry);
+  var saved = false;
+  while (!saved && hist.length > 0) {
+    try {
+      localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist));
+      saved = true;
+    } catch (e) {
+      hist = hist.slice(0, Math.floor(hist.length * 0.7));
+    }
+  }
+  return entry;
+}
+
+function extractRemnants(resultData, cardId) {
+  var minLen = parseInt((document.getElementById('minRemnantLen') || {}).value, 10) || 500;
+  var rems = [];
+  var spec = (document.getElementById('spec') || {}).value || '';
+  var kind = curKind || '';
+
+  function processBar(bar, sl) {
+    if (bar && bar.loss >= minLen) rems.push({ len: bar.loss, spec: spec, kind: kind, sl: sl || bar.sl || 0 });
+  }
+
+  function processPattern(pattern) {
+    if (!pattern || !pattern.bars || !pattern.bars.length) return false;
+    pattern.bars.forEach(function(b) { processBar(b, pattern.sl); });
+    return true;
+  }
+
+  var isPat = cardId && cardId.indexOf('card_pat') === 0;
+  if (isPat) {
+    var labelMatch = String(cardId).match(/^card_pat_([^_]+)/);
+    var label = labelMatch ? labelMatch[1] : '';
+    if (label === 'B90' && resultData.patB && resultData.patB.plan90) {
+      processPattern(resultData.patB.plan90);
+    } else if (label === 'B80' && resultData.patB && resultData.patB.plan80) {
+      processPattern(resultData.patB.plan80);
+    } else if (!processPattern(resultData.patA) && resultData.patB) {
+      processPattern(resultData.patB.plan90 || resultData.patB.plan80);
+    }
+  } else if (resultData.allDP && resultData.allDP[0]) {
+    (resultData.allDP[0].bA || []).forEach(function(b) { processBar(b, resultData.allDP[0].slA || b.sl); });
+    (resultData.allDP[0].bB || []).forEach(function(b) { processBar(b, resultData.allDP[0].slB || b.sl); });
+  }
+  return rems;
 }

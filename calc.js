@@ -652,7 +652,7 @@ function runCalc() {
         patA,patB,patC,ry.yieldCard1||null,null);
 
       // 計算結果を保持（印刷時に自動登録）
-      _lastCalcResult = {allDP:ry.allDP, patA:patA, patC:patC};
+      _lastCalcResult = {allDP:ry.allDP, patA:patA, patB:patB, patC:patC};
       // 切断完了ボタン用にグローバル保存
       _lastAllDP = ry.allDP || [];
       _lastPatA = patA;
@@ -885,7 +885,7 @@ function doCalc() {
   render(single, top3, chgPlans, endLoss, remnantResult.remnantBars, kgm, allDP, calcPieces, bundlePlan, patA, patB, patC, yieldCard1, yieldCard2);
 
   // グローバル変数に保存（印刷・切断完了ボタン用）
-  _lastCalcResult = {allDP:allDP, patA:patA, patC:patC};
+  _lastCalcResult = {allDP:allDP, patA:patA, patB:patB, patC:patC};
   _lastAllDP = allDP || [];
   _lastPatA = patA;
   _lastPatB = patB;
