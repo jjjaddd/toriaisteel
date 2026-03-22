@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="400" viewBox="0 0 1480 400">
+  <defs>
+    <g id="T3"><rect x="0" y="0" width="156" height="28"/><rect x="56" y="28" width="44" height="128"/></g>
+    <g id="O3"><rect x="0" y="28" width="36" height="92"/><rect x="36" y="0" width="84" height="28"/><rect x="120" y="28" width="36" height="92"/><rect x="36" y="120" width="84" height="28"/></g>
+    <g id="R3"><rect x="0" y="0" width="36" height="148"/><rect x="36" y="0" width="84" height="28"/><rect x="120" y="28" width="36" height="36"/><rect x="36" y="64" width="84" height="28"/><rect x="64" y="92" width="40" height="28"/><rect x="92" y="120" width="40" height="28"/><rect x="120" y="148" width="36" height="28"/></g>
+    <g id="I3"><rect x="0" y="0" width="156" height="28"/><rect x="56" y="28" width="44" height="92"/><rect x="0" y="120" width="156" height="28"/></g>
+    <g id="A3"><rect x="0" y="28" width="36" height="128"/><rect x="120" y="28" width="36" height="128"/><rect x="36" y="0" width="84" height="28"/><rect x="36" y="64" width="84" height="28"/></g>
+    <g id="WORD">
+      <use href="#T3" x="0"/><use href="#O3" x="184"/><use href="#R3" x="368"/><use href="#I3" x="552"/><use href="#A3" x="736"/><use href="#I3" x="920"/>
+    </g>
+  </defs>
+  <rect width="1480" height="400" fill="#15131d"/>
+  <g transform="translate(158 112)">
+    <g fill="#3f2e8a">
+      <use href="#WORD" transform="translate(20 20)"/>
+    </g>
+    <g fill="#7f62e6">
+      <use href="#WORD" transform="translate(10 10)"/>
+    </g>
+    <g fill="#c7b3ff">
+      <use href="#WORD"/>
+    </g>
+  </g>
+</svg>

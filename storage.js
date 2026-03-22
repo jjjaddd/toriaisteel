@@ -599,6 +599,7 @@ function getJobInfo() {
     name:     (document.getElementById('jobName')    || {}).value || '',
     deadline: (document.getElementById('jobDeadline')|| {}).value || '',
     worker:   (document.getElementById('jobWorker')  || {}).value || '',
+    memo:     (document.getElementById('jobWorker')  || {}).value || '',
     spec:     (document.getElementById('spec')       || {}).value || '',
     kind:     curKind || ''
   };
@@ -702,20 +703,22 @@ function saveInventory(inv) {
 // 残材を在庫に登録（計算後ボタン）
 function registerRemnants(rems) {
   var inv = getInventory();
-  var jobClient = (document.getElementById('jobClient')||{}).value||'';
+  var job = getJobInfo();
   rems.forEach(function(r) {
     inv.push({
       id: Date.now() + Math.random(),
       len: r.len,
       spec: r.spec,
       kind: r.kind,
-      company: jobClient,
-      note: '',
+      company: job.client,
+      note: job.memo || '',
       addedDate: new Date().toLocaleDateString('ja-JP')
     });
   });
   saveInventory(inv);
   syncInventoryToRemnants();
+  if (typeof renderInventoryPage === 'function') renderInventoryPage();
+  if (typeof updateInvDropdown === 'function') updateInvDropdown();
 }
 
 function addInventoryItem() {

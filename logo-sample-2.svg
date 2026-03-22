@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="220" viewBox="0 0 720 220">
+  <rect width="720" height="220" fill="#0f1020"/>
+  <defs>
+    <linearGradient id="g2" x1="0" x2="1">
+      <stop offset="0%" stop-color="#9b7bff"/>
+      <stop offset="100%" stop-color="#ffffff"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(32 40)">
+    <text x="8" y="94" fill="#4128a4" font-family="monospace" font-weight="900" font-size="84" letter-spacing="4">TORIAI</text>
+    <text x="0" y="86" fill="url(#g2)" font-family="monospace" font-weight="900" font-size="84" letter-spacing="4">TORIAI</text>
+  </g>
+  <text x="38" y="186" fill="#dcd6ff" font-family="sans-serif" font-size="20">2. Arcade Neon</text>
+</svg>

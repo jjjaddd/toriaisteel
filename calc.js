@@ -540,6 +540,7 @@ function runCalc() {
   var btn = document.getElementById('runBtn');
   btn.innerHTML = '<span class="sp"></span> 計算中...';
   btn.disabled = true;
+  if (typeof _lastRegisteredRemnantSignature !== 'undefined') _lastRegisteredRemnantSignature = '';
   savePiecesHistory();
   saveSettings();
 
@@ -575,6 +576,12 @@ function runCalc() {
     var zEl = document.getElementById('pz' + i);
     if (!lEl) continue;
     var l = parseInt(lEl.value), q = parseInt(qEl.value);
+    if (l > 12000) {
+      alert('部材長さは12,000mm以下で入力してください。');
+      btn.innerHTML = '計算を実行する <span class="arr">→</span>';
+      btn.disabled = false;
+      return;
+    }
     if (l > 0 && q > 0) {
       for (var k = 0; k < q; k++) pieces.push(l);
       if (zEl && zEl.value) pieceZones[l] = zEl.value;
@@ -650,6 +657,7 @@ function runCalc() {
       _lastAllDP = ry.allDP || [];
       _lastPatA = patA;
       _lastPatB = patB;
+      if (typeof autoSyncResultRemnants === 'function') autoSyncResultRemnants(_lastCalcResult);
 
       // 「切断完了」ボタンを結果エリア上部に追加
       var rp = document.getElementById('result');
@@ -730,6 +738,7 @@ function doCalc() {
     if (!lEl) continue;
     l = parseInt(lEl.value);
     q = parseInt(qEl.value);
+    if (l > 12000) { alert('部材長さは12,000mm以下で入力してください。'); return; }
     if (l > 0 && q > 0) { for (k = 0; k < q; k++) pieces.push(l); }
   }
   // 部材未入力でも残材だけで計算できる（残材がある場合はOK）
@@ -880,4 +889,154 @@ function doCalc() {
   _lastAllDP = allDP || [];
   _lastPatA = patA;
   _lastPatB = patB;
+  if (typeof autoSyncResultRemnants === 'function') autoSyncResultRemnants(_lastCalcResult);
+}
+
+function scheduleCalcIdle(callback) {
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(function() { callback(); }, { timeout: 250 });
+  } else {
+    setTimeout(callback, 0);
+  }
+}
+
+function createCalcWorker() {
+  var workerCode = atob(WORKER_B64);
+  var blob = new Blob([workerCode], { type: 'application/javascript' });
+  var url = URL.createObjectURL(blob);
+  return {
+    worker: new Worker(url),
+    url: url
+  };
+}
+
+function runWorkerMode(mode, baseMsg) {
+  return new Promise(function(resolve) {
+    var handle = createCalcWorker();
+    handle.worker.onmessage = function(e) {
+      handle.worker.terminate();
+      URL.revokeObjectURL(handle.url);
+      if (e.data && e.data.ok) resolve(e.data.result || {});
+      else resolve({});
+    };
+    handle.worker.onerror = function() {
+      handle.worker.terminate();
+      URL.revokeObjectURL(handle.url);
+      resolve({});
+    };
+    handle.worker.postMessage(Object.assign({}, baseMsg, { mode: mode }));
+  });
+}
+
+function applyWorkerResults(results, stocks, minValidLen, endLoss, kgm) {
+  var ry = results.yield || {};
+  var patA = results.patA ? results.patA.patA : null;
+  var patB = results.patB ? results.patB.patB : null;
+  var patC = null;
+  var remBars = ry.remnantBars || [];
+  if (remBars.length) {
+    function mergeRemnants(pat) {
+      if (!pat || !pat.bars) return pat;
+      var merged = remBars.concat(pat.bars);
+      var sl = pat.sl || (merged[0] && merged[0].sl) || stocks[0].sl;
+      return Object.assign({}, pat, { bars: merged, metrics: calcMetrics(merged, sl, endLoss, kgm, minValidLen) });
+    }
+    if (patA) patA = mergeRemnants(patA);
+    if (patB) {
+      if (patB.plan90) patB.plan90 = mergeRemnants(patB.plan90);
+      if (patB.plan80) patB.plan80 = mergeRemnants(patB.plan80);
+    }
+  }
+  render(ry.single || [], [], ry.chgPlans || [], endLoss, remBars, kgm,
+    ry.allDP || [], ry.calcPieces || [], ry.bundlePlan || null,
+    patA, patB, patC, ry.yieldCard1 || null, null);
+  _lastCalcResult = { allDP: ry.allDP, patA: patA, patC: patC };
+  _lastAllDP = ry.allDP || [];
+  _lastPatA = patA;
+  _lastPatB = patB;
+  if (typeof autoSyncResultRemnants === 'function') autoSyncResultRemnants(_lastCalcResult);
+  var rp = document.getElementById('result');
+  var existing = document.getElementById('cutDoneBanner');
+  if (existing) existing.remove();
+  var cutBtn = document.createElement('div');
+  cutBtn.id = 'cutDoneBanner';
+  cutBtn.style.cssText = 'padding:8px 0 4px;';
+  cutBtn.innerHTML = '<button onclick="showCutDoneModal(_lastAllDP,_lastPatA,_lastPatB,null)" style="width:100%;background:rgba(167,139,250,.15);border:1px solid var(--br);color:var(--br);border-radius:10px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.05em">✂ 切断完了 → 端材を在庫に登録する</button>';
+  if (rp && rp.firstChild) rp.insertBefore(cutBtn, rp.firstChild);
+  else if (rp) rp.appendChild(cutBtn);
+}
+
+function runCalc() {
+  var btn = document.getElementById('runBtn');
+  btn.innerHTML = '<span class="sp"></span> 計算中...';
+  btn.disabled = true;
+  if (typeof _lastRegisteredRemnantSignature !== 'undefined') _lastRegisteredRemnantSignature = '';
+  savePiecesHistory();
+  saveSettings();
+
+  var blade = parseInt(document.getElementById('blade').value) || 3;
+  var endLoss = parseInt(document.getElementById('endloss').value) || 75;
+  var kgm = parseFloat(document.getElementById('kgm').value) || 0;
+  var minValidLen = parseInt(document.getElementById('minRemnantLen') ? document.getElementById('minRemnantLen').value : 500) || 500;
+
+  var stocks = [];
+  STD.forEach(function(sl, idx) {
+    if (!document.getElementById('sc' + idx).checked) return;
+    var mv = parseInt(document.getElementById('sm' + idx).value);
+    stocks.push({ sl: sl, max: isNaN(mv) || mv < 1 ? Infinity : mv });
+  });
+  if (!stocks.length) { alert('在庫ありの定尺をチェックしてください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
+
+  var sb = document.getElementById('stocksBadge');
+  if (sb) sb.textContent = '対象定尺: ' + stocks.map(function(s) { return s.sl.toLocaleString() + 'mm'; }).join(' / ');
+
+  var pieces = [];
+  for (var i = 0; i < totalRows; i++) {
+    var lEl = document.getElementById('pl' + i), qEl = document.getElementById('pq' + i);
+    if (!lEl) continue;
+    var l = parseInt(lEl.value), q = parseInt(qEl.value);
+    if (l > 12000) { alert('部材長さは12,000mm以下で入力してください。'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
+    if (l > 0 && q > 0) for (var k = 0; k < q; k++) pieces.push(l);
+  }
+  var remnants = getRemnants();
+  if (!pieces.length && !remnants.length) { alert('部材または残材を入力してください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
+  if (!pieces.length && remnants.length > 0) {
+    var remOnlyBars = remnants.slice().sort(function(a, b) { return b - a; }).map(function(rl) { return { pat: [], loss: rl, sl: rl }; });
+    render([], [], [], endLoss, remOnlyBars, kgm, [], [], null, null, null, null, null, null);
+    btn.innerHTML = '計算を実行する <span class="arr">→</span>';
+    btn.disabled = false;
+    return;
+  }
+
+  var baseMsg = { blade: blade, endLoss: endLoss, kgm: kgm, stocks: stocks, pieces: pieces, remnants: remnants, minValidLen: minValidLen };
+  var results = {};
+  runWorkerMode('yield', baseMsg).then(function(res) {
+    results.yield = res || {};
+    return new Promise(function(resolve) {
+      scheduleCalcIdle(function() {
+        runWorkerMode('patA', baseMsg).then(function(r) {
+          results.patA = r || {};
+          resolve();
+        });
+      });
+    });
+  }).then(function() {
+    return new Promise(function(resolve) {
+      scheduleCalcIdle(function() {
+        runWorkerMode('patB', baseMsg).then(function(r) {
+          results.patB = r || {};
+          resolve();
+        });
+      });
+    });
+  }).then(function() {
+    applyWorkerResults(results, stocks, minValidLen, endLoss, kgm);
+    btn.innerHTML = '計算を実行する <span class="arr">→</span>';
+    btn.disabled = false;
+  }).catch(function(err) {
+    console.warn('Worker sequential calc failed', err);
+    try { doCalc(); } catch (fallbackErr) { alert('計算エラー: ' + fallbackErr.message); }
+    btn.innerHTML = '計算を実行する <span class="arr">→</span>';
+    btn.disabled = false;
+  });
 }

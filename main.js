@@ -13,6 +13,50 @@ var remnantCount = 0;
 var pieceColorMap = {};
 var _lastCalcResult = null;
 var _lastAllDP = [], _lastPatA = null, _lastPatB = null;
+var HISTORY_PAGE_SIZE = 10;
+var INVENTORY_PAGE_SIZE = 12;
+var historyPage = 1;
+var inventoryPage = 1;
+
+function parseDateValue(value) {
+  if (!value) return 0;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date(value + 'T00:00:00').getTime();
+  var parsed = new Date(value).getTime();
+  return isNaN(parsed) ? 0 : parsed;
+}
+
+function paginateItems(items, page, size) {
+  var totalPages = Math.max(1, Math.ceil(items.length / size));
+  var safePage = Math.min(Math.max(page, 1), totalPages);
+  return {
+    page: safePage,
+    totalPages: totalPages,
+    items: items.slice((safePage - 1) * size, safePage * size)
+  };
+}
+
+function renderPager(targetId, page, totalPages, onChangeName) {
+  var el = document.getElementById(targetId);
+  if (!el) return;
+  if (totalPages <= 1) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML =
+    '<button onclick="' + onChangeName + '(' + (page - 1) + ')" ' + (page <= 1 ? 'disabled' : '') + '>前へ</button>' +
+    '<span class="pager-info">' + page + ' / ' + totalPages + '</span>' +
+    '<button onclick="' + onChangeName + '(' + (page + 1) + ')" ' + (page >= totalPages ? 'disabled' : '') + '>次へ</button>';
+}
+
+function setHistoryPage(page) {
+  historyPage = page;
+  renderHistory();
+}
+
+function setInventoryPage(page) {
+  inventoryPage = page;
+  renderInventoryPage();
+}
 
 
 // ============================================================
@@ -115,6 +159,11 @@ function init() {
   updKg();
   buildJobDatalist();
   updateCartBadge();
+  var invSelect = document.getElementById('invSelect');
+  if (invSelect) invSelect.addEventListener('change', updateInventoryUseButton);
+  var cartBulkPrintBtn = document.querySelector('#cartModal [onclick="cartDoPrint()"]');
+  if (cartBulkPrintBtn) cartBulkPrintBtn.classList.add('cart-bulk-print');
+  updateInventoryUseButton();
 }
 
 function buildPartRows(count) {
@@ -275,7 +324,7 @@ function buildInventoryDropdown() {
   var cont = document.getElementById('invDropCont');
   if (!cont) return;
   var items = getInventoryForCurrentSpec();
-  if (!items.length) { cont.style.display = 'none'; return; }
+  if (!items.length) { cont.style.display = 'none'; updateInventoryUseButton(); return; }
   // 在庫あり → バッジ＋ドロップダウン表示
   cont.style.display = 'block';
   var badge = document.getElementById('invBadge');
@@ -291,6 +340,24 @@ function buildInventoryDropdown() {
     o.textContent = it.len.toLocaleString() + 'mm × ' + it.qty + '本' + d + '  (' + it.date + ')';
     sel.appendChild(o);
   });
+  updateInventoryUseButton();
+}
+
+function updateInventoryUseButton(forceReady) {
+  var btn = document.getElementById('invUseBtn');
+  var sel = document.getElementById('invSelect');
+  if (!btn) return;
+  if (forceReady) {
+    btn.textContent = '✓追加済み';
+    btn.style.background = '#16a34a';
+    btn.style.color = '#fff';
+    btn.disabled = true;
+    return;
+  }
+  btn.textContent = '計算に使う';
+  btn.style.background = 'transparent';
+  btn.style.color = '#16a34a';
+  btn.disabled = !(sel && sel.value);
 }
 
 function addFromInventory() {
@@ -1461,7 +1528,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
         });
         // 各定尺グループ内でbarsを同一パターン数の多い順にソート
         // groupBarsで同一パターンをまとめ、cnt降順でbuildCutDiagramに渡す
-        Object.keys(slGroups).sort(function(a,b){return b-a;}).forEach(function(sl) {
+        sortStockLengthsForDisplay(Object.keys(slGroups).map(Number)).forEach(function(sl) {
           var barsInSl = slGroups[sl];
           // 同一パターン数が多い順にソート
           var grouped = groupBars(barsInSl);
@@ -1495,7 +1562,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
         if (!slGroupsCard[key]) slGroupsCard[key] = [];
         slGroupsCard[key].push(b);
       });
-      var patDetailHtml = Object.keys(slGroupsCard).sort(function(a,b){return b-a;}).map(function(sl) {
+      var patDetailHtml = sortStockLengthsForDisplay(Object.keys(slGroupsCard).map(Number)).map(function(sl) {
         var barsInSl = slGroupsCard[sl];
         var grouped2 = groupBars(barsInSl);
         var rowsHtml = grouped2.map(function(g){
@@ -1510,11 +1577,11 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
 
       var cardId2 = 'card_pat_' + pat.label + '_' + Date.now();
       // 定尺別本数サマリー（印刷用）
-      var slSummary = Object.keys(slGroupsCard).sort(function(a,b){return b-a;}).map(function(sl){
+      var slSummary = sortStockLengthsForDisplay(Object.keys(slGroupsCard).map(Number)).map(function(sl){
         return parseInt(sl).toLocaleString() + 'mm × ' + slGroupsCard[sl].length + '本';
       }).join('　＋　');
       // 定尺別本数サマリー
-      var slSummary = Object.keys(slGroupsCard).sort(function(a,b){return b-a;}).map(function(sl){
+      var slSummary = sortStockLengthsForDisplay(Object.keys(slGroupsCard).map(Number)).map(function(sl){
         return parseInt(sl).toLocaleString() + 'mm × ' + slGroupsCard[sl].length;
       }).join(' + ');
       return '<div class="cc" id="' + cardId2 + '" style="border:1.5px solid #d4d4dc">' +
@@ -1609,14 +1676,14 @@ function updatePrintHeader() {
   var spec = (document.getElementById('spec')||{}).value || '';
   hdr.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
-      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">STEEL.OPTIMIZER 作業指示書</div>' +
+      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">TORIAI 作業指示書</div>' +
       '<div style="font-size:10px;color:#666">印刷日: ' + new Date().toLocaleDateString("ja-JP") + '</div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px">' +
       '<div><span style="color:#666">顧客名</span><br><strong>' + (job.client||'—') + '</strong></div>' +
       '<div><span style="color:#666">工事名</span><br><strong>' + (job.name||'—') + '</strong></div>' +
       '<div><span style="color:#666">納期</span><br><strong>' + (job.deadline||'—') + '</strong></div>' +
-      '<div><span style="color:#666">担当者</span><br><strong>' + (job.worker||'—') + '</strong></div>' +
+      '<div><span style="color:#666">メモ</span><br><strong>' + (job.worker||'—') + '</strong></div>' +
     '</div>' +
     '<div style="margin-top:6px;font-size:11px"><span style="color:#666">鋼材規格</span>&nbsp;<strong>' + spec + '</strong></div>';
 }
@@ -1975,7 +2042,8 @@ var PRINT_CSS = [
   '.bar-track{display:flex;height:24px;border:1.5px solid #555;border-radius:3px;overflow:hidden;background:#fff}',
   '.b-blade{width:1.5px;background:#555;flex-shrink:0}',
   '.b-end{flex-shrink:0;background:repeating-linear-gradient(-45deg,#aaa,#aaa 1.5px,#fff 1.5px,#fff 5px)}',
-  '.b-piece{display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;overflow:hidden;background:#d8d8d8}',
+  '.b-piece{display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#000;overflow:hidden;background:#d8d8d8;border-left:1px solid #555}',
+  '.b-piece:first-of-type{border-left:none}',
   '.b-rem{background:repeating-linear-gradient(-45deg,#888,#888 1.5px,#ddd 1.5px,#ddd 5px);display:flex;align-items:center;justify-content:center;font-size:7px;color:#000;font-weight:700}',
   '.b-loss{background:repeating-linear-gradient(-45deg,#ccc,#ccc 1px,#fff 1px,#fff 4px);display:flex;align-items:center;justify-content:center;font-size:7px;color:#888}',
   '.cnt-badge{background:#000;color:#fff;font-size:11px;font-weight:900;padding:2px 12px;border-radius:12px;letter-spacing:.04em;border:2px solid #000}',
@@ -1992,7 +2060,7 @@ function buildPrintHeaderFull(job, pageInfo) {
   h += '<div style="display:flex;gap:18px;align-items:baseline">';
   h += '<div><span style="font-size:9px;color:#666">顧客：</span><span style="font-size:12px;font-weight:700">' + (job.client||'—') + '</span></div>';
   h += '<div><span style="font-size:9px;color:#666">現場名：</span><span style="font-size:12px;font-weight:700">' + (job.name||'—') + '</span></div>';
-  if (job.worker) h += '<div><span style="font-size:9px;color:#666">担当者：</span><span style="font-size:11px;font-weight:700">' + job.worker + '</span></div>';
+  if (job.worker) h += '<div><span style="font-size:9px;color:#666">メモ：</span><span style="font-size:11px;font-weight:700">' + job.worker + '</span></div>';
   h += '</div>';
   h += '</div>';
   h += '<div style="text-align:right">';
@@ -2175,7 +2243,7 @@ function buildPrintPages(job, sections) {
     // フッター
     html += '<div class="print-footer">';
     html += '<span>全 ' + sections.length + ' 鋼材　' + (isLast ? '以上' : '/ ' + pageNum + '枚目') + '</span>';
-    html += '<span>STEEL.OPTIMIZER β</span>';
+    html += '<span>TORIAI β</span>';
     html += '</div>';
 
     if (!isLast) html += '<div style="page-break-after:always"></div>';
@@ -2274,6 +2342,374 @@ function stkInputChange(i) {
   saveSettings();
 }
 
+var _lastRegisteredRemnantSignature = '';
+
+function getInventoryForCurrentSpec() {
+  var spec = document.getElementById('spec') ? document.getElementById('spec').value : '';
+  var inv = getInventory().filter(function(item) {
+    return item.kind === curKind && item.spec === spec;
+  });
+  var grouped = {};
+  inv.forEach(function(item) {
+    var key = [item.len, item.spec, item.kind, item.company || '', item.note || '', item.addedDate || ''].join('|');
+    if (!grouped[key]) {
+      grouped[key] = { len: item.len, spec: item.spec, kind: item.kind, qty: 0, date: item.addedDate || '', label: item.note || '', company: item.company || '', ids: [] };
+    }
+    grouped[key].qty += 1;
+    grouped[key].ids.push(item.id);
+  });
+  return Object.values(grouped).sort(function(a, b) {
+    return b.len - a.len || parseDateValue(b.date) - parseDateValue(a.date);
+  });
+}
+
+function addFromInventory() {
+  var sel = document.getElementById('invSelect');
+  if (!sel || !sel.value) return;
+  var parts = sel.value.split(':');
+  var len = parseInt(parts[0], 10);
+  var qty = parseInt(parts[1], 10);
+  if (!len || !qty) return;
+  addRemnant();
+  var i = remnantCount - 1;
+  var lenEl = document.getElementById('remLen' + i);
+  var qtyEl = document.getElementById('remQty' + i);
+  if (lenEl) lenEl.value = len;
+  if (qtyEl) qtyEl.value = qty;
+  saveRemnants();
+  sel.value = '';
+  updateInventoryUseButton(true);
+}
+
+function syncInventoryToRemnants() {
+  var list = document.getElementById('remnantList');
+  if (!list) return;
+  var grouped = getInventoryForCurrentSpec();
+  list.innerHTML = '';
+  remnantCount = 0;
+  if (!grouped.length) {
+    addRemnant();
+    return;
+  }
+  grouped.forEach(function(item) {
+    var i = remnantCount++;
+    var d = document.createElement('div');
+    d.className = 'rem-row';
+    d.id = 'remRow' + i;
+    var options = '<option value="0">0本</option>';
+    for (var q = 1; q <= item.qty; q++) options += '<option value="' + q + '"' + (q === item.qty ? ' selected' : '') + '>' + q + '本</option>';
+    d.innerHTML =
+      '<span class="rem-label">長さ</span>' +
+      '<input type="number" id="remLen' + i + '" value="' + item.len + '" min="1" style="flex:1" readonly onchange="saveRemnants()">' +
+      '<span class="rem-label">使用</span>' +
+      '<select id="remQty' + i + '" style="width:62px;font-size:11px;padding:3px 4px;border:1px solid #d4d4dc;border-radius:6px;background:#fff;color:#1a1a2e" onchange="saveRemnants()">' + options + '</select>' +
+      '<span style="font-size:10px;color:#8888a8;white-space:nowrap">/ ' + item.qty + '本</span>' +
+      '<button class="rem-del" onclick="removeGroupedInventory(' + i + ')">×</button>';
+    d.dataset.inventoryIds = JSON.stringify(item.ids);
+    list.appendChild(d);
+  });
+}
+
+function removeGroupedInventory(index) {
+  var row = document.getElementById('remRow' + index);
+  if (!row) return;
+  var ids = [];
+  try { ids = JSON.parse(row.dataset.inventoryIds || '[]'); } catch (e) {}
+  if (!ids.length) return;
+  saveInventory(getInventory().filter(function(item) { return ids.indexOf(item.id) === -1; }));
+  syncInventoryToRemnants();
+  updateInvDropdown();
+  renderInventoryPage();
+}
+
+function buildInventoryDropdown() {
+  var cont = document.getElementById('invDropCont');
+  if (!cont) return;
+  var items = getInventoryForCurrentSpec();
+  cont.style.display = items.length ? 'block' : 'none';
+  var badge = document.getElementById('invBadge');
+  if (badge) badge.textContent = '在庫 ' + items.reduce(function(sum, item) { return sum + item.qty; }, 0) + '本';
+  var sel = document.getElementById('invSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">在庫から残材を追加</option>';
+  items.forEach(function(item) {
+    var option = document.createElement('option');
+    option.value = item.len + ':' + item.qty + ':' + (item.label || '');
+    option.textContent = item.len.toLocaleString() + 'mm × ' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
+    sel.appendChild(option);
+  });
+  updateInventoryUseButton();
+}
+
+function renderInventoryPage() {
+  var cont = document.getElementById('invListCont');
+  var empty = document.getElementById('invEmptyMsg');
+  if (!cont) return;
+  var kindF = ((document.getElementById('invFilterKind') || {}).value || '');
+  var specF = ((document.getElementById('invFilterSpec') || {}).value || '');
+  var keyword = (((document.getElementById('invKeyword') || {}).value) || '').toLowerCase();
+  var dateFrom = ((document.getElementById('invDateFrom') || {}).value || '');
+  var sort = ((document.getElementById('invSort') || {}).value || 'date_desc');
+  var inv = getInventory().slice();
+  if (kindF) inv = inv.filter(function(item) { return item.kind === kindF; });
+  if (specF) inv = inv.filter(function(item) { return item.spec === specF; });
+  if (keyword) inv = inv.filter(function(item) { return [item.spec, item.kind, item.company, item.note, item.len].join(' ').toLowerCase().indexOf(keyword) >= 0; });
+  if (dateFrom) inv = inv.filter(function(item) { return parseDateValue(item.addedDate) >= parseDateValue(dateFrom); });
+  inv.sort(function(a, b) {
+    if (sort === 'date_asc') return parseDateValue(a.addedDate) - parseDateValue(b.addedDate);
+    if (sort === 'len_desc') return (b.len || 0) - (a.len || 0);
+    if (sort === 'len_asc') return (a.len || 0) - (b.len || 0);
+    if (sort === 'spec_asc') return String(a.spec || '').localeCompare(String(b.spec || ''), 'ja');
+    return parseDateValue(b.addedDate) - parseDateValue(a.addedDate);
+  });
+  if (!inv.length) {
+    cont.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    renderPager('invPagination', 1, 1, 'setInventoryPage');
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  var pageData = paginateItems(inv, inventoryPage, INVENTORY_PAGE_SIZE);
+  inventoryPage = pageData.page;
+  var groups = {};
+  pageData.items.forEach(function(item) {
+    var key = item.spec || item.kind || '未設定';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+  cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
+    return '<div class="inv-card">' +
+      '<div class="inv-card-header"><span class="inv-spec-label">' + spec + '</span><span class="inv-count-badge">' + groups[spec].length + '本</span></div>' +
+      '<div class="inv-col-header"><span>寸法</span><span>長さ</span><span>会社名</span><span>メモ</span><span>登録日</span><span></span></div>' +
+      groups[spec].map(function(item) {
+        return '<div class="inv-row">' +
+          '<span class="inv-spec">' + (item.spec || item.kind || '') + '</span>' +
+          '<span class="inv-len">' + Number(item.len || 0).toLocaleString() + '<span class="inv-len-unit">mm</span></span>' +
+          '<span class="inv-company">' + (item.company || '-') + '</span>' +
+          '<span class="inv-note">' + (item.note || '-') + '</span>' +
+          '<span class="inv-date">' + (item.addedDate || '') + '</span>' +
+          '<button onclick="deleteInventoryItem(' + item.id + ')" class="inv-del-btn">削除</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }).join('');
+  renderPager('invPagination', inventoryPage, pageData.totalPages, 'setInventoryPage');
+}
+
+function renderHistory() {
+  var cont = document.getElementById('histList');
+  var empty = document.getElementById('histEmpty');
+  if (!cont) return;
+  var hist = getCutHistory().slice();
+  var fc = (((document.getElementById('hsClient') || {}).value) || '').toLowerCase();
+  var fn = (((document.getElementById('hsName') || {}).value) || '').toLowerCase();
+  var fdf = ((document.getElementById('hsDateFrom') || {}).value || '');
+  var fdt = ((document.getElementById('hsDateTo') || {}).value || '');
+  var fs = ((document.getElementById('hsSt') || {}).value || '');
+  var fk = ((document.getElementById('hsKind') || {}).value || '');
+  var keyword = (((document.getElementById('hsKeyword') || {}).value) || '').toLowerCase();
+  var sort = ((document.getElementById('hsSort') || {}).value || 'date_desc');
+  if (fc) hist = hist.filter(function(h) { return (h.client || '').toLowerCase().indexOf(fc) >= 0; });
+  if (fn) hist = hist.filter(function(h) { return (h.name || '').toLowerCase().indexOf(fn) >= 0; });
+  if (fdf) hist = hist.filter(function(h) { return parseDateValue(h.deadline) >= parseDateValue(fdf); });
+  if (fdt) hist = hist.filter(function(h) { return parseDateValue(h.deadline) <= parseDateValue(fdt); });
+  if (fs) hist = hist.filter(function(h) { return (h.spec || '') === fs; });
+  if (fk) hist = hist.filter(function(h) { return (h.kind || '') === fk; });
+  if (keyword) hist = hist.filter(function(h) { return [h.client, h.name, h.spec, h.kind, h.worker].join(' ').toLowerCase().indexOf(keyword) >= 0; });
+  hist.sort(function(a, b) {
+    if (sort === 'date_asc') return parseDateValue(a.date) - parseDateValue(b.date);
+    if (sort === 'deadline_asc') return parseDateValue(a.deadline) - parseDateValue(b.deadline);
+    if (sort === 'spec_asc') return String(a.spec || '').localeCompare(String(b.spec || ''), 'ja');
+    return parseDateValue(b.date) - parseDateValue(a.date);
+  });
+  if (!hist.length) {
+    cont.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    renderPager('histPagination', 1, 1, 'setHistoryPage');
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  var pageData = paginateItems(hist, historyPage, HISTORY_PAGE_SIZE);
+  historyPage = pageData.page;
+  var groups = {};
+  pageData.items.forEach(function(item) {
+    var key = item.spec || '規格未設定';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
+  });
+  cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
+    return '<div class="hist-card">' +
+      '<div class="hist-card-header"><span class="inv-spec-label">' + spec + '</span><span class="inv-count-badge">' + groups[spec].length + '件</span></div>' +
+      groups[spec].map(function(h) {
+        var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
+        return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
+          '<div class="hist-row-main">' +
+            '<div><span class="hist-client">' + (h.client || '案件未設定') + '</span><span class="hist-name">' + (h.name || '') + '</span></div>' +
+            '<div class="hist-meta">' +
+              '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
+              '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
+              '<span class="hist-rem">メモ: ' + (h.worker || '-') + '</span>' +
+              '<span class="hist-rem">端材: ' + remCount + '本</span>' +
+            '</div>' +
+          '</div>' +
+          '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }).join('');
+  renderPager('histPagination', historyPage, pageData.totalPages, 'setHistoryPage');
+}
+
+function clearHistSearch() {
+  ['hsClient', 'hsName', 'hsDateFrom', 'hsDateTo', 'hsSt', 'hsKind', 'hsKeyword'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  var sortEl = document.getElementById('hsSort');
+  if (sortEl) sortEl.value = 'date_desc';
+  historyPage = 1;
+  renderHistory();
+}
+
+function autoSyncResultRemnants(resultData) {
+  if (!resultData || typeof extractRemnants !== 'function') return;
+  var remnants = extractRemnants(resultData).filter(function(item) { return item && item.len; });
+  if (!remnants.length) return;
+  var signature = JSON.stringify(remnants.map(function(item) { return [item.kind, item.spec, item.len]; }).sort());
+  if (_lastRegisteredRemnantSignature === signature) return;
+  _lastRegisteredRemnantSignature = signature;
+  registerRemnants(remnants);
+}
+
+function confirmCutDone() {
+  var modal = document.getElementById('cutDoneModal');
+  var kind = modal._kind;
+  var spec = modal._spec;
+  var items = modal._items || [];
+  var endMats = modal._endMats || {};
+  var label = (document.getElementById('cdLabel') ? document.getElementById('cdLabel').value.trim() : '');
+  items.forEach(function(len) {
+    var cb = document.getElementById('cd_' + len);
+    if (cb && cb.checked) addToInventory(kind, spec, len, endMats[len], label);
+  });
+  modal.style.display = 'none';
+  buildInventoryDropdown();
+  renderInventoryPage();
+  syncInventoryToRemnants();
+  alert('在庫に登録しました。');
+}
+
+function isStdStockLength(length) {
+  return Array.isArray(STD) && STD.indexOf(length) >= 0;
+}
+
+function buildCutSourceLabel(slLen) {
+  return isStdStockLength(slLen) ? slLen.toLocaleString() + 'mm 定尺' : '残材（L=' + slLen.toLocaleString() + 'mm）より切断';
+}
+
+function buildCutDiagram(bars, slLen, label) {
+  var grouped = groupBars(bars);
+  if (!grouped.length) return '';
+  var html = '<div class="cut-diagram">';
+  html += '<div class="cut-diagram-title">✂ 切断図</div>';
+  grouped.forEach(function(g) {
+    var sourceLabel = buildCutSourceLabel(slLen);
+    var isRemnant = !isStdStockLength(slLen);
+    html += '<div class="bar-vis' + (isRemnant ? ' remnant-source' : '') + '">';
+    html += '<div class="bar-vis-label"><strong>' + sourceLabel + '</strong><span class="bar-count">× ' + g.cnt + 'セット</span>' + (isRemnant ? '<span class="source-chip">◈ 残材使用</span>' : '') + '</div>';
+    html += '<div class="bar-track">';
+    var endHalf = (parseInt((document.getElementById('endloss') || {}).value, 10) || 150) / 2;
+    if (endHalf > 0) html += '<div class="bar-loss" style="width:' + ((endHalf / slLen) * 100).toFixed(2) + '%"></div>';
+    g.pat.forEach(function(len, idx) {
+      if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
+      html += '<div class="bar-piece p' + (idx % 10) + '" style="width:' + ((len / slLen) * 100).toFixed(2) + '%;min-width:4px" title="' + len.toLocaleString() + 'mm">' +
+        '<div class="bar-piece-inner">' + len.toLocaleString() + '</div></div>';
+    });
+    if (g.loss > 0) html += '<div class="' + (g.loss >= 500 ? 'bar-rem' : 'bar-loss') + '" style="width:' + ((g.loss / slLen) * 100).toFixed(2) + '%"><span class="bar-piece-lbl">' + g.loss.toLocaleString() + '</span></div>';
+    if (endHalf > 0) html += '<div class="bar-loss" style="width:' + ((endHalf / slLen) * 100).toFixed(2) + '%"></div>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function buildPrintHeaderFull(job, pageInfo) {
+  var h = '';
+  h += '<div class="ph-full">';
+  h += '<div>';
+  h += '<div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.06em;margin-bottom:4px">TORIAI 作業指示書</div>';
+  h += '<div style="display:flex;gap:18px;align-items:baseline">';
+  h += '<div><span style="font-size:9px;color:#666">顧客：</span><span style="font-size:12px;font-weight:700">' + (job.client || '—') + '</span></div>';
+  h += '<div><span style="font-size:9px;color:#666">現場名：</span><span style="font-size:12px;font-weight:700">' + (job.name || '—') + '</span></div>';
+  if (job.worker) h += '<div><span style="font-size:9px;color:#666">メモ：</span><span style="font-size:11px;font-weight:700">' + job.worker + '</span></div>';
+  h += '</div></div>';
+  h += '<div style="text-align:right"><div style="font-size:9px;color:#888">' + pageInfo + '</div>';
+  if (job.deadline) h += '<div style="margin-top:3px"><span style="font-size:9px;color:#666">納期：</span><span style="font-size:10px;font-weight:700">' + job.deadline + '</span></div>';
+  h += '</div></div>';
+  return h;
+}
+
+function buildPrintHeaderMini(job, pageInfo) {
+  var h = '';
+  h += '<div class="ph-mini">';
+  h += '<div><span style="font-size:9px;font-weight:700;letter-spacing:.04em">TORIAI 作業指示書</span>';
+  h += '<span style="font-size:9px;color:#555;margin-left:12px">顧客：' + (job.client || '—') + ' / 現場名：' + (job.name || '—') + '</span></div>';
+  h += '<div style="text-align:right"><div style="font-size:9px;color:#888">' + pageInfo + '</div>';
+  if (job.deadline) h += '<div style="font-size:9px"><span style="color:#666">納期：</span><strong>' + job.deadline + '</strong></div>';
+  h += '</div></div>';
+  return h;
+}
+
+function buildPrintBarHtml(bars, sl, endLoss) {
+  if (!bars || !bars.length) return '';
+  var grouped = {};
+  bars.forEach(function(bar) {
+    var key = bar.pat.slice().join(',') + '|' + (bar.loss || 0);
+    if (!grouped[key]) grouped[key] = { bar: bar, cnt: 0 };
+    grouped[key].cnt++;
+  });
+  var endHalf = (endLoss || 150) / 2;
+  var sourceLabel = buildCutSourceLabel(sl);
+  var isRemnant = !isStdStockLength(sl);
+  var html = '';
+  Object.keys(grouped).forEach(function(key) {
+    var g = grouped[key];
+    var bar = g.bar;
+    html += '<div class="bar-block">';
+    html += '<div class="bar-head"><span style="font-weight:700;font-size:10px">' + sourceLabel + '</span><span class="cnt-badge">× ' + g.cnt + 'セット</span></div>';
+    html += '<div class="bar-pat">' + (isRemnant ? '◈ 残材より切断 / ' : '') + '= ' + bar.pat.join(' + ') + (bar.loss > 0 ? ' / 端材 ' + bar.loss.toLocaleString() + 'mm' : '') + '</div>';
+    html += '<div class="bar-track">';
+    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+    bar.pat.forEach(function(len, idx) {
+      html += '<div class="b-piece" style="flex:' + len + '">' + len.toLocaleString() + '</div>';
+      if (idx < bar.pat.length - 1) html += '<div class="b-blade"></div>';
+    });
+    if (bar.loss > 0) html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + bar.loss.toLocaleString() + '</div>';
+    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+    html += '</div></div>';
+  });
+  return html;
+}
+
+function updatePrintHeader() {
+  var job = getJobInfo();
+  var hdr = document.getElementById('printJobHeader');
+  if (!hdr) return;
+  var spec = (document.getElementById('spec') || {}).value || '';
+  hdr.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">TORIAI 作業指示書</div>' +
+      '<div style="font-size:10px;color:#666">印刷日: ' + new Date().toLocaleDateString('ja-JP') + '</div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px">' +
+      '<div><span style="color:#666">顧客名</span><br><strong>' + (job.client || '—') + '</strong></div>' +
+      '<div><span style="color:#666">工事名</span><br><strong>' + (job.name || '—') + '</strong></div>' +
+      '<div><span style="color:#666">納期</span><br><strong>' + (job.deadline || '—') + '</strong></div>' +
+      '<div><span style="color:#666">メモ</span><br><strong>' + (job.worker || '—') + '</strong></div>' +
+    '</div>' +
+    '<div style="margin-top:6px;font-size:11px"><span style="color:#666">鋼材規格</span>&nbsp;<strong>' + spec + '</strong></div>';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   init();
 
@@ -2304,3 +2740,675 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('input', function(e) {
   if (e.target.id === 'kgm') updKg();
 });
+
+var MANUAL_REMNANTS_KEY = 'toriai_manual_remnants_v2';
+var INVENTORY_REMNANT_USAGE_KEY = 'toriai_inventory_remnant_usage_v2';
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function getManualRemnantDrafts() {
+  try {
+    var parsed = JSON.parse(localStorage.getItem(MANUAL_REMNANTS_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function getInventoryRemnantUsage() {
+  try {
+    var parsed = JSON.parse(localStorage.getItem(INVENTORY_REMNANT_USAGE_KEY) || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveRemnants() {
+  var manual = [];
+  var usage = {};
+  document.querySelectorAll('#remnantList .rem-row').forEach(function(row) {
+    var lenEl = row.querySelector('.rem-len');
+    var qtyEl = row.querySelector('.rem-qty');
+    var memoEl = row.querySelector('.rem-memo');
+    var len = parseInt(lenEl && lenEl.value, 10);
+    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
+    if (row.dataset.source === 'inventory') {
+      if (row.dataset.inventoryKey) usage[row.dataset.inventoryKey] = qty;
+      return;
+    }
+    if (!len || len < 1) return;
+    manual.push({
+      len: len,
+      qty: Math.max(1, qty || 1),
+      memo: memoEl ? memoEl.value || '' : ''
+    });
+  });
+  localStorage.setItem(MANUAL_REMNANTS_KEY, JSON.stringify(manual));
+  localStorage.setItem(INVENTORY_REMNANT_USAGE_KEY, JSON.stringify(usage));
+}
+
+function createManualRemnantRow(seed) {
+  var list = document.getElementById('remnantList');
+  if (!list) return null;
+  var data = seed || {};
+  var i = remnantCount++;
+  var row = document.createElement('div');
+  row.className = 'rem-row';
+  row.id = 'remRow' + i;
+  row.dataset.source = 'manual';
+  row.innerHTML =
+    '<input type="number" class="rem-len" id="remLen' + i + '" min="1" placeholder="長さ(mm)" value="' + (data.len || '') + '" onchange="saveRemnants()">' +
+    '<input type="number" class="rem-qty" id="remQty' + i + '" min="1" value="' + (data.qty || 1) + '" onchange="saveRemnants()">' +
+    '<input type="text" class="rem-memo" id="remMemo' + i + '" placeholder="メモ" value="' + escapeHtml(data.memo || '') + '" oninput="saveRemnants()">' +
+    '<button type="button" class="rem-add-inline" onclick="addRemnant()">＋</button>' +
+    '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
+  list.appendChild(row);
+  return row;
+}
+
+function createInventoryRemnantRow(item, selectedQty) {
+  var list = document.getElementById('remnantList');
+  if (!list) return null;
+  var i = remnantCount++;
+  var row = document.createElement('div');
+  var usage = Math.max(0, Math.min(item.qty || 0, selectedQty || 0));
+  var options = '<option value="0">使わない</option>';
+  for (var q = 1; q <= (item.qty || 0); q++) {
+    options += '<option value="' + q + '"' + (q === usage ? ' selected' : '') + '>' + q + '本</option>';
+  }
+  row.className = 'rem-row';
+  row.id = 'remRow' + i;
+  row.dataset.source = 'inventory';
+  row.dataset.inventoryKey = String(item.ids || []);
+  row.dataset.inventoryIds = JSON.stringify(item.ids || []);
+  row.innerHTML =
+    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫から選択</span></div>' +
+    '<select class="rem-qty" id="remQty' + i + '" onchange="saveRemnants()">' + options + '</select>' +
+    '<div class="rem-meta">' + escapeHtml((item.company || item.label || '在庫材') + (item.note ? ' / ' + item.note : '')) + '</div>' +
+    '<button type="button" class="rem-del" onclick="removeGroupedInventory(' + i + ')">×</button>';
+  list.appendChild(row);
+  return row;
+}
+
+function addRemnant(seed) {
+  var row = createManualRemnantRow(seed);
+  if (row) {
+    saveRemnants();
+    var lenEl = row.querySelector('.rem-len');
+    if (lenEl) lenEl.focus();
+  }
+}
+
+function removeRemnant(i) {
+  var row = document.getElementById('remRow' + i);
+  if (row) row.remove();
+  if (!document.querySelector('#remnantList .rem-row[data-source="manual"]')) {
+    createManualRemnantRow();
+  }
+  saveRemnants();
+}
+
+function getRemnants() {
+  var result = [];
+  document.querySelectorAll('#remnantList .rem-row').forEach(function(row) {
+    var lenEl = row.querySelector('.rem-len') || row.querySelector('[id^="remLen"]');
+    var qtyEl = row.querySelector('.rem-qty') || row.querySelector('[id^="remQty"]');
+    var len = parseInt(lenEl && lenEl.value, 10);
+    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
+    if (!len || len < 1 || !qty) return;
+    for (var k = 0; k < qty; k++) result.push(len);
+  });
+  return result;
+}
+
+function addFromInventory() {
+  var sel = document.getElementById('invSelect');
+  if (!sel || !sel.value) return;
+  var parts = sel.value.split(':');
+  var len = parseInt(parts[0], 10);
+  var qty = parseInt(parts[1], 10) || 1;
+  var note = parts.slice(2).join(':');
+  addRemnant({ len: len, qty: qty, memo: note });
+  sel.value = '';
+  updateInventoryUseButton(true);
+}
+
+function syncInventoryToRemnants() {
+  var list = document.getElementById('remnantList');
+  if (!list) return;
+  var grouped = getInventoryForCurrentSpec();
+  var manual = getManualRemnantDrafts();
+  var usage = getInventoryRemnantUsage();
+  list.innerHTML = '';
+  remnantCount = 0;
+
+  grouped.forEach(function(item) {
+    createInventoryRemnantRow(item, usage[String(item.ids || [])] || 0);
+  });
+  if (!manual.length) {
+    createManualRemnantRow();
+  } else {
+    manual.forEach(function(item) { createManualRemnantRow(item); });
+  }
+  saveRemnants();
+}
+
+function buildInventoryDropdown() {
+  var cont = document.getElementById('invDropCont');
+  if (!cont) return;
+  var items = getInventoryForCurrentSpec();
+  cont.style.display = items.length ? 'block' : 'none';
+  var badge = document.getElementById('invBadge');
+  if (badge) badge.textContent = '在庫 ' + items.reduce(function(sum, item) { return sum + item.qty; }, 0) + '本';
+  var sel = document.getElementById('invSelect');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">在庫から追加する残材を選択</option>';
+  items.forEach(function(item) {
+    var option = document.createElement('option');
+    option.value = item.len + ':' + item.qty + ':' + (item.company || item.label || '');
+    option.textContent = item.len.toLocaleString() + 'mm × ' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
+    sel.appendChild(option);
+  });
+  updateInventoryUseButton();
+}
+
+function updateCartBadge() {
+  var cart = getCart();
+  var badge = document.getElementById('cartBadge');
+  if (!badge) return;
+  var n = cart.length;
+  badge.textContent = n + '件';
+  badge.classList.toggle('empty', !n);
+}
+
+function formatPatternSummary(pattern) {
+  var order = [];
+  var counts = {};
+  (pattern || []).forEach(function(len) {
+    var n = parseInt(len, 10);
+    if (!n) return;
+    if (!counts[n]) order.push(n);
+    counts[n] = (counts[n] || 0) + 1;
+  });
+  return order.map(function(len) {
+    return len.toLocaleString() + ' x ' + counts[len];
+  }).join(' + ');
+}
+
+function buildCutDiagram(bars, slLen, label) {
+  var grouped = groupBars(bars);
+  if (!grouped.length) return '';
+  grouped.sort(function(a, b) { return (b.cnt || 0) - (a.cnt || 0); });
+  var html = '<div class="cut-diagram">';
+  grouped.forEach(function(g) {
+    var sourceLabel = buildCutSourceLabel(slLen);
+    var isRemnant = !isStdStockLength(slLen);
+    html += '<div class="bar-vis' + (isRemnant ? ' remnant-source' : '') + '">';
+    html += '<div class="bar-vis-label"><strong>' + sourceLabel + '</strong><span class="bar-count">× ' + g.cnt + 'セット</span>' + (isRemnant ? '<span class="source-chip">残材より</span>' : '') + '</div>';
+    html += '<div class="bar-track">';
+    var endHalf = (parseInt((document.getElementById('endloss') || {}).value, 10) || 150) / 2;
+    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+    (g.pat || []).forEach(function(p, idx) {
+      if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
+      html += '<div class="b-piece" style="flex:' + p + '"><span>' + Number(p).toLocaleString() + '</span></div>';
+    });
+    if (g.loss > 0) html += '<div class="' + (g.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + g.loss + '">' + Number(g.loss).toLocaleString() + '</div>';
+    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+    html += '</div>';
+    html += '<div class="bar-pat">= ' + formatPatternSummary(g.pat) + (g.loss > 0 ? ' / 端材 ' + Number(g.loss).toLocaleString() + 'mm' : '') + '</div>';
+    html += '</div>';
+  });
+  return html + '</div>';
+}
+
+function buildPrintBarHtml(bars, sl, endLoss) {
+  if (!bars || !bars.length) return '';
+  var groupsByStock = {};
+  bars.forEach(function(bar) {
+    var slKey = bar && bar.sl ? bar.sl : sl;
+    if (!groupsByStock[slKey]) groupsByStock[slKey] = [];
+    groupsByStock[slKey].push(bar);
+  });
+  var slKeys = Object.keys(groupsByStock).map(Number).sort(function(a, b) {
+    var aRem = !isStdStockLength(a);
+    var bRem = !isStdStockLength(b);
+    if (aRem !== bRem) return aRem ? -1 : 1;
+    return b - a;
+  });
+  var html = '';
+  slKeys.forEach(function(slKey) {
+    var grouped = {};
+    groupsByStock[slKey].forEach(function(bar) {
+      var key = JSON.stringify((bar.pat || []).slice()) + '|' + (bar.loss || 0);
+      if (!grouped[key]) grouped[key] = { bar: bar, cnt: 0 };
+      grouped[key].cnt++;
+    });
+    var sourceLabel = buildCutSourceLabel(slKey);
+    var isRemnant = !isStdStockLength(slKey);
+    Object.keys(grouped).forEach(function(key) {
+      var g = grouped[key];
+      var bar = g.bar;
+      var endHalf = (endLoss || 150) / 2;
+      html += '<div class="bar-group">';
+      html += '<div class="bar-head"><span style="font-weight:700;font-size:10px">' + sourceLabel + '</span><span class="cnt-badge">× ' + g.cnt + 'セット</span>' + (isRemnant ? '<span class="source-chip">残材より</span>' : '') + '</div>';
+      html += '<div class="bar-pat">= ' + formatPatternSummary(bar.pat) + (bar.loss > 0 ? ' / 端材 ' + Number(bar.loss).toLocaleString() + 'mm' : '') + '</div>';
+      html += '<div class="bar-track">';
+      html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+      (bar.pat || []).forEach(function(p, idx) {
+        if (idx > 0) html += '<div class="b-blade"></div>';
+        html += '<div class="b-piece" style="flex:' + p + '"><span>' + Number(p).toLocaleString() + '</span></div>';
+      });
+      if (bar.loss > 0) {
+        html += '<div class="b-blade"></div>';
+        html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + Number(bar.loss).toLocaleString() + '</div>';
+      }
+      html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+      html += '</div></div>';
+    });
+  });
+  return html;
+}
+
+function normalizeInterfaceChrome() {
+  document.title = 'TORIAI';
+  var head = document.querySelector('.remnant-head');
+  if (head && !head.querySelector('.rem-add-btn')) {
+    var addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'rem-add-btn';
+    addBtn.textContent = '＋';
+    addBtn.onclick = function() { addRemnant(); };
+    head.appendChild(addBtn);
+  }
+
+  var labelMap = [
+    ['#hiPanelH > div > div:first-child', '切断履歴'],
+    ['#hiPanelI > div > div:first-child', '残材在庫'],
+    ['#histModal div[style*="font-size:14px;font-weight:700"]', '入力履歴'],
+    ['#cartModal .cart-modal-hd span[style*="font-size:15px"]', '印刷カート'],
+    ['#histPreviewModal div[style*="font-size:14px;font-weight:700;color:#1a1a2e"]', '作業指示書プレビュー']
+  ];
+  labelMap.forEach(function(entry) {
+    var el = document.querySelector(entry[0]);
+    if (el) el.textContent = entry[1];
+  });
+
+  ['#cartModal button[onclick="cartDoPrint()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
+    var el = document.querySelector(sel);
+    if (el) {
+      el.textContent = 'まとめて印刷';
+      if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
+    }
+  });
+  ['#cartModal button[onclick="closeCartModal()"]', '#histPreviewModal button[onclick*="histPreviewModal"]', '#histModal button[onclick*="histModal"]'].forEach(function(sel) {
+    var el = document.querySelector(sel);
+    if (el) el.textContent = '閉じる';
+  });
+  var clearBtn = document.querySelector('#cartModal button[onclick="cartClearAll()"]');
+  if (clearBtn) {
+    clearBtn.textContent = '全クリア';
+    clearBtn.classList.add('cart-danger-btn');
+  }
+  var cartCloseBtn = document.querySelector('#cartModal button[onclick="closeCartModal()"]');
+  if (cartCloseBtn) cartCloseBtn.classList.add('cart-danger-btn');
+
+  var previewModal = document.getElementById('histPreviewModal');
+  if (previewModal && !previewModal.dataset.outsideCloseBound) {
+    previewModal.dataset.outsideCloseBound = '1';
+    previewModal.addEventListener('click', function(e) {
+      if (e.target === previewModal) previewModal.style.display = 'none';
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    normalizeInterfaceChrome();
+    syncInventoryToRemnants();
+    updateCartBadge();
+  }, 0);
+});
+
+function sortStockLengthsForDisplay(lengths) {
+  return lengths.slice().sort(function(a, b) {
+    var aRem = !isStdStockLength(a);
+    var bRem = !isStdStockLength(b);
+    if (aRem !== bRem) return aRem ? -1 : 1;
+    return b - a;
+  });
+}
+
+function parseBarsFromDiagHtml(diagHtml, fallbackSl, fallbackEndLoss) {
+  if (!diagHtml) return [];
+  var wrap = document.createElement('div');
+  wrap.innerHTML = diagHtml;
+  return Array.from(wrap.querySelectorAll('.bar-vis')).map(function(vis) {
+    var labelText = ((vis.querySelector('.bar-vis-label strong') || {}).textContent || '').trim();
+    var slMatch = labelText.match(/L=([\d,]+)mm|([\d,]+)mm/);
+    var sl = fallbackSl || 0;
+    if (slMatch) sl = parseInt((slMatch[1] || slMatch[2] || '0').replace(/,/g, ''), 10) || sl;
+    var pieces = Array.from(vis.querySelectorAll('.b-piece')).map(function(piece) {
+      return parseInt(String(piece.style.flex || '').replace(/[^\d]/g, ''), 10) || parseInt((piece.textContent || '').replace(/[^\d]/g, ''), 10) || 0;
+    }).filter(Boolean);
+    var remEl = vis.querySelector('.b-rem, .b-loss');
+    var loss = remEl ? (parseInt(String(remEl.style.flex || '').replace(/[^\d]/g, ''), 10) || parseInt((remEl.textContent || '').replace(/[^\d]/g, ''), 10) || 0) : 0;
+    if (!pieces.length && !loss) return null;
+    return { pat: pieces, loss: loss, sl: sl, endLoss: fallbackEndLoss || 150 };
+  }).filter(Boolean);
+}
+
+function cartAdd(cardId, btn) {
+  var card = document.getElementById(cardId);
+  if (!card) return;
+  var titleEl = card.querySelector('.cc-desc');
+  var title = titleEl ? titleEl.childNodes[0].textContent.trim() : '';
+  var statsEl = card.querySelector('.cc-stats');
+  var patEl = card.querySelector('.cc-pat');
+  var remEl = card.querySelector('[class*="rem-section"]') || card.querySelector('.rem-list');
+  var diagHtml = '';
+  card.querySelectorAll('[id^="diag_"]').forEach(function(d) { diagHtml += d.innerHTML; });
+  var endLoss = parseInt(((document.getElementById('endloss') || {}).value), 10) || 150;
+  var data = {
+    cardId: cardId,
+    title: title,
+    isYield: !!card.closest('.yield-card, .yield-best'),
+    isPat: !card.closest('.yield-card, .yield-best'),
+    job: getJobInfo(),
+    spec: (document.getElementById('spec') || {}).value || '',
+    kind: typeof getCurrentKind === 'function' ? getCurrentKind() : '',
+    statsHtml: statsEl ? statsEl.innerHTML : '',
+    patHtml: patEl ? patEl.innerHTML : '',
+    diagHtml: diagHtml,
+    remHtml: remEl ? remEl.outerHTML : '',
+    bars: parseBarsFromDiagHtml(diagHtml, 0, endLoss),
+    endLoss: endLoss,
+    motherSummary: Array.from(card.querySelectorAll('.pc-hd span')).map(function(el) { return (el.textContent || '').trim(); }).join(' + ')
+  };
+  addToCart(cardId, data);
+  updateCartBadge();
+  btn.textContent = '✓ 追加済み';
+  btn.classList.add('added');
+  btn.disabled = true;
+  if (_lastCalcResult) saveCutHistory(_lastCalcResult, cardId);
+}
+
+function cartDoPrint() {
+  var cart = getCart();
+  if (!cart.length) { alert('カートが空です。'); return; }
+  var job = cart[0].data.job || {};
+  var sections = [];
+  cart.forEach(function(item, ci) {
+    var d = item.data || {};
+    var patDiv = document.createElement('div');
+    patDiv.innerHTML = d.patHtml || '';
+    var sumMap = {};
+    patDiv.querySelectorAll('.pc-row').forEach(function(row) {
+      var mul = parseInt(((row.querySelector('.px') || {}).textContent || '').replace(/[^\d]/g, ''), 10) || 1;
+      var text = ((row.querySelector('.pp') || {}).textContent || '');
+      text.split('+').forEach(function(part) {
+        var m = part.match(/([\d,]+)\s*x?\s*(\d+)?/i);
+        if (!m) return;
+        var len = parseInt(m[1].replace(/,/g, ''), 10);
+        var qty = parseInt(m[2] || '1', 10);
+        if (len) sumMap[len] = (sumMap[len] || 0) + qty * mul;
+      });
+    });
+    var remTags = [];
+    if (d.remHtml) {
+      var rd = document.createElement('div');
+      rd.innerHTML = d.remHtml;
+      rd.querySelectorAll('span').forEach(function(s) {
+        var t = (s.textContent || '').trim();
+        if (t && t !== 'なし') remTags.push(t);
+      });
+    }
+    var bars = Array.isArray(d.bars) && d.bars.length ? d.bars : parseBarsFromDiagHtml(d.diagHtml || '', 0, d.endLoss || 150);
+    var barHtml = '';
+    sortStockLengthsForDisplay(bars.map(function(bar) { return bar.sl || 0; }).filter(Boolean).filter(function(v, i, a) { return a.indexOf(v) === i; }))
+      .forEach(function(slKey) {
+        barHtml += buildPrintBarHtml(bars.filter(function(bar) { return (bar.sl || 0) === slKey; }), slKey, d.endLoss || 150);
+      });
+    sections.push({
+      idx: ci + 1,
+      spec: d.spec || '',
+      motherSummary: d.motherSummary || '',
+      sumMap: sumMap,
+      remTags: remTags,
+      barHtml: barHtml
+    });
+  });
+  openPrintWindow(buildPrintPages(job, sections));
+  clearCart();
+  updateCartBadge();
+  closeCartModal();
+  document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
+    btn.textContent = '＋ 作業指示書に追加';
+    btn.classList.remove('added');
+    btn.disabled = false;
+  });
+}
+
+function showHistPreview(id) {
+  var hist = getCutHistory();
+  var h = hist.find(function(x){ return x.id===id; });
+  if (!h) return;
+  var modal = document.getElementById('histPreviewModal');
+  var body  = document.getElementById('histPreviewBody');
+  if (!modal || !body) return;
+  var r = h.result || {};
+  var job = {client:h.client||'', name:h.name||'', deadline:h.deadline||'', worker:h.worker||''};
+  var spec = h.spec || '';
+  var endLoss = r.endLoss || 150;
+  var printedId = h.printedCardId || '';
+  var bars = [];
+  if (printedId.indexOf('card_pat') === 0 && r.patA && r.patA.bars && r.patA.bars.length) {
+    bars = r.patA.bars.slice();
+  } else if (r.allDP && r.allDP[0]) {
+    bars = (r.allDP[0].bA || []).concat(r.allDP[0].bB || []).map(function(b) {
+      return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || r.allDP[0].slA || 0 };
+    });
+  } else if (r.patA && r.patA.bars && r.patA.bars.length) {
+    bars = r.patA.bars.slice();
+  }
+  if (!bars.length) {
+    body.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center">データがありません</div>';
+    modal.style.display = 'flex';
+    return;
+  }
+  var slGroups = {};
+  bars.forEach(function(b) {
+    var sl2 = b.sl || 0;
+    if (!slGroups[sl2]) slGroups[sl2] = [];
+    slGroups[sl2].push(b);
+  });
+  var orderedSls = sortStockLengthsForDisplay(Object.keys(slGroups).map(Number));
+  var motherSummary = orderedSls.map(function(s){ return s.toLocaleString()+'mm x '+slGroups[s].length; }).join(' + ');
+  var sumMap = {};
+  bars.forEach(function(b) { (b.pat||[]).forEach(function(len){ sumMap[len]=(sumMap[len]||0)+1; }); });
+  var remTags = (h.remnants||[]).filter(function(r2){ return r2.len>=500; }).map(function(r2){ return r2.len.toLocaleString()+'mm'+(r2.qty>1?' x '+r2.qty:''); });
+  var barHtml = '';
+  orderedSls.forEach(function(sl2) {
+    barHtml += buildPrintBarHtml(slGroups[sl2], sl2, endLoss);
+  });
+  body.innerHTML = buildPrintPages(job, [{
+    idx: 1,
+    spec: spec,
+    motherSummary: motherSummary,
+    sumMap: sumMap,
+    remTags: remTags,
+    barHtml: barHtml
+  }]);
+  modal.style.display = 'flex';
+}
+
+var INVENTORY_REMNANT_SELECTED_KEY = 'toriai_inventory_remnant_selected_v1';
+
+function getSelectedInventoryRemnants() {
+  try {
+    var parsed = JSON.parse(localStorage.getItem(INVENTORY_REMNANT_SELECTED_KEY) || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveSelectedInventoryRemnants(data) {
+  localStorage.setItem(INVENTORY_REMNANT_SELECTED_KEY, JSON.stringify(data || {}));
+}
+
+function addFromInventory() {
+  var sel = document.getElementById('invSelect');
+  if (!sel || !sel.value) return;
+  var items = getInventoryForCurrentSpec();
+  var chosen = items.find(function(item) {
+    return (item.len + ':' + item.qty + ':' + (item.company || item.label || '')) === sel.value;
+  });
+  if (!chosen) return;
+  var selected = getSelectedInventoryRemnants();
+  var key = String(chosen.ids || []);
+  selected[key] = {
+    qty: Math.max(1, Math.min(chosen.qty || 1, parseInt((selected[key] || {}).qty, 10) || 1))
+  };
+  saveSelectedInventoryRemnants(selected);
+  sel.value = '';
+  syncInventoryToRemnants();
+  updateInventoryUseButton(true);
+}
+
+function removeRemnant(i) {
+  var row = document.getElementById('remRow' + i);
+  if (!row || row.dataset.source !== 'inventory') {
+    if (row) row.remove();
+    return;
+  }
+  var selected = getSelectedInventoryRemnants();
+  delete selected[row.dataset.inventoryKey];
+  saveSelectedInventoryRemnants(selected);
+  syncInventoryToRemnants();
+}
+
+function saveRemnants() {
+  var selected = getSelectedInventoryRemnants();
+  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
+    var qtyEl = row.querySelector('.rem-qty');
+    selected[row.dataset.inventoryKey] = {
+      qty: Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0)
+    };
+  });
+  saveSelectedInventoryRemnants(selected);
+}
+
+function createInventoryRemnantRow(item, selectedQty) {
+  var list = document.getElementById('remnantList');
+  if (!list) return null;
+  var i = remnantCount++;
+  var row = document.createElement('div');
+  var usage = Math.max(1, Math.min(item.qty || 1, selectedQty || 1));
+  var options = '';
+  for (var q = 1; q <= (item.qty || 1); q++) {
+    options += '<option value="' + q + '"' + (q === usage ? ' selected' : '') + '>' + q + '本</option>';
+  }
+  row.className = 'rem-row';
+  row.id = 'remRow' + i;
+  row.dataset.source = 'inventory';
+  row.dataset.inventoryKey = String(item.ids || []);
+  row.dataset.inventoryIds = JSON.stringify(item.ids || []);
+  row.innerHTML =
+    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫材</span></div>' +
+    '<select class="rem-qty" id="remQty' + i + '" onchange="saveRemnants()">' + options + '</select>' +
+    '<div class="rem-meta">' + escapeHtml(item.company || item.label || '在庫から選択') + '</div>' +
+    '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
+  list.appendChild(row);
+  return row;
+}
+
+function syncInventoryToRemnants() {
+  var list = document.getElementById('remnantList');
+  if (!list) return;
+  var grouped = getInventoryForCurrentSpec();
+  var selected = getSelectedInventoryRemnants();
+  list.innerHTML = '';
+  remnantCount = 0;
+  Object.keys(selected).forEach(function(key) {
+    var item = grouped.find(function(group) { return String(group.ids || []) === key; });
+    if (item) {
+      createInventoryRemnantRow(item, selected[key].qty || 1);
+    }
+  });
+  if (!list.children.length) {
+    list.innerHTML = '<div class="rem-row rem-row-empty"><div class="rem-meta">在庫から選択した残材がここに表示されます</div></div>';
+  }
+}
+
+function getRemnants() {
+  var result = [];
+  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
+    var title = row.querySelector('.rem-label-title');
+    var qtyEl = row.querySelector('.rem-qty');
+    var len = parseInt((title && title.textContent || '').replace(/[^\d]/g, ''), 10);
+    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
+    if (!len || !qty) return;
+    for (var k = 0; k < qty; k++) result.push(len);
+  });
+  return result;
+}
+
+function normalizeInterfaceChrome() {
+  document.title = 'TORIAI';
+  var head = document.querySelector('.remnant-head');
+  if (head) {
+    var addBtn = head.querySelector('.rem-add-btn');
+    if (addBtn) addBtn.remove();
+  }
+
+  var labelMap = [
+    ['#hiPanelH > div > div:first-child', '切断履歴'],
+    ['#hiPanelI > div > div:first-child', '残材在庫'],
+    ['#histModal div[style*="font-size:14px;font-weight:700"]', '入力履歴'],
+    ['#cartModal .cart-modal-hd span[style*="font-size:15px"]', '印刷カート'],
+    ['#histPreviewModal div[style*="font-size:14px;font-weight:700;color:#1a1a2e"]', '作業指示書プレビュー']
+  ];
+  labelMap.forEach(function(entry) {
+    var el = document.querySelector(entry[0]);
+    if (el) el.textContent = entry[1];
+  });
+
+  var remHead = document.querySelector('.remnant-head span');
+  if (remHead) remHead.textContent = '計算に使う残材';
+  var invBtn = document.getElementById('invUseBtn');
+  if (invBtn) invBtn.textContent = '計算に使う';
+
+  ['#cartModal button[onclick="cartDoPrint()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
+    var el = document.querySelector(sel);
+    if (el) {
+      el.textContent = 'まとめて印刷';
+      if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
+    }
+  });
+  ['#cartModal button[onclick="closeCartModal()"]', '#histPreviewModal button[onclick*="histPreviewModal"]', '#histModal button[onclick*="histModal"]'].forEach(function(sel) {
+    var el = document.querySelector(sel);
+    if (el) el.textContent = '閉じる';
+  });
+  var clearBtn = document.querySelector('#cartModal button[onclick="cartClearAll()"]');
+  if (clearBtn) {
+    clearBtn.textContent = '全クリア';
+    clearBtn.classList.add('cart-danger-btn');
+  }
+  var cartCloseBtn = document.querySelector('#cartModal button[onclick="closeCartModal()"]');
+  if (cartCloseBtn) cartCloseBtn.classList.add('cart-danger-btn');
+  var previewModal = document.getElementById('histPreviewModal');
+  if (previewModal && !previewModal.dataset.outsideCloseBound) {
+    previewModal.dataset.outsideCloseBound = '1';
+    previewModal.addEventListener('click', function(e) {
+      if (e.target === previewModal) previewModal.style.display = 'none';
+    });
+  }
+}

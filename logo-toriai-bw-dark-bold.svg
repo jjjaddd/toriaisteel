@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320">
+  <defs>
+    <g id="BT"><rect x="0" y="0" width="108" height="18"/><rect x="42" y="18" width="24" height="108"/></g>
+    <g id="BO"><rect x="0" y="18" width="24" height="84"/><rect x="24" y="0" width="60" height="18"/><rect x="84" y="18" width="24" height="84"/><rect x="24" y="102" width="60" height="18"/></g>
+    <g id="BR"><rect x="0" y="0" width="24" height="120"/><rect x="24" y="0" width="60" height="18"/><rect x="84" y="18" width="24" height="30"/><rect x="24" y="48" width="60" height="18"/><rect x="48" y="66" width="24" height="18"/><rect x="72" y="84" width="24" height="18"/><rect x="96" y="102" width="12" height="18"/></g>
+    <g id="BI"><rect x="0" y="0" width="108" height="18"/><rect x="42" y="18" width="24" height="84"/><rect x="0" y="102" width="108" height="18"/></g>
+    <g id="BA"><rect x="0" y="18" width="24" height="102"/><rect x="84" y="18" width="24" height="102"/><rect x="24" y="0" width="60" height="18"/><rect x="24" y="48" width="60" height="18"/></g>
+  </defs>
+  <rect width="1200" height="320" fill="#161616"/>
+  <g fill="#f5f5f5" transform="translate(189 100)">
+    <use href="#BT" x="0"/><use href="#BO" x="132"/><use href="#BR" x="264"/><use href="#BI" x="396"/><use href="#BA" x="528"/><use href="#BI" x="660"/>
+  </g>
+</svg>

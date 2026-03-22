@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260">
+  <rect width="900" height="260" fill="#121117"/>
+  <g transform="translate(34 44)">
+    <text x="0" y="96" fill="#241a46" stroke="#7b5cff" stroke-width="9" font-family="monospace" font-size="92" font-weight="900" letter-spacing="4">TORIAI</text>
+    <text x="0" y="96" fill="#a78bff" font-family="monospace" font-size="92" font-weight="900" letter-spacing="4">TORIAI</text>
+  </g>
+  <g opacity="0.18" stroke="#5f46c7" stroke-width="2">
+    <path d="M42 66h812"/>
+    <path d="M42 112h812"/>
+    <path d="M42 158h812"/>
+    <path d="M42 204h812"/>
+  </g>
+  <text x="38" y="238" fill="#d8cdff" font-family="sans-serif" font-size="22">D. 紫版 Claude/Code系</text>
+</svg>
