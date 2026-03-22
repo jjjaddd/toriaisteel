@@ -233,13 +233,47 @@ function getCardBarsById(cardId) {
   return parseBarsFromDiagHtml(diagHtml, 0, endLoss);
 }
 
+function getBarsForSelectedCard(cardId, resultData) {
+  var result = resultData || window._lastCalcResult || {};
+  var id = String(cardId || '');
+  var labelMatch = id.match(/^card_pat_([^_]+)/);
+  var label = labelMatch ? labelMatch[1] : '';
+
+  if (label === 'B90' && result.patB && result.patB.plan90 && result.patB.plan90.bars) {
+    return result.patB.plan90.bars.map(function(b) { return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || result.patB.plan90.sl || 0 }; });
+  }
+  if (label === 'B80' && result.patB && result.patB.plan80 && result.patB.plan80.bars) {
+    return result.patB.plan80.bars.map(function(b) { return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || result.patB.plan80.sl || 0 }; });
+  }
+  if (id.indexOf('card_pat') === 0 && result.patA && result.patA.bars) {
+    return result.patA.bars.map(function(b) { return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || result.patA.sl || 0 }; });
+  }
+  if (result.allDP && result.allDP[0]) {
+    return (result.allDP[0].bA || []).concat(result.allDP[0].bB || []).map(function(b) {
+      return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || result.allDP[0].slA || 0 };
+    });
+  }
+  return getCardBarsById(cardId);
+}
+
+function buildRemHtmlFromRemnants(rems) {
+  var counts = {};
+  (rems || []).forEach(function(item) {
+    counts[item.len] = (counts[item.len] || 0) + 1;
+  });
+  return '<div class="rem-list">' + Object.keys(counts).sort(function(a, b) { return Number(b) - Number(a); }).map(function(len) {
+    var qty = counts[len];
+    return '<span>' + Number(len).toLocaleString() + 'mm' + (qty > 1 ? ' x ' + qty : '') + '</span>';
+  }).join('') + '</div>';
+}
+
 var _baseSaveCutHistory = typeof saveCutHistory === 'function' ? saveCutHistory : null;
 saveCutHistory = function(resultData, cardId) {
   var entry = _baseSaveCutHistory ? _baseSaveCutHistory(resultData, cardId) : null;
   if (!entry || !entry.result) return entry;
 
-  var selectedRemnants = extractRemnantsFromCard(cardId);
-  var selectedBars = getCardBarsById(cardId);
+  var selectedBars = getBarsForSelectedCard(cardId, resultData);
+  var selectedRemnants = extractRemnantsFromBars(selectedBars);
   entry.result.remnants = selectedRemnants;
   entry.result.selectedBars = selectedBars;
   entry.printedCardId = cardId || entry.printedCardId || '';
@@ -256,20 +290,15 @@ saveCutHistory = function(resultData, cardId) {
 var _baseCartAdd = typeof cartAdd === 'function' ? cartAdd : null;
 cartAdd = function(cardId, btn) {
   var result = _baseCartAdd ? _baseCartAdd(cardId, btn) : undefined;
-  var rems = extractRemnantsFromCard(cardId);
+  var selectedBars = getBarsForSelectedCard(cardId, window._lastCalcResult);
+  var rems = extractRemnantsFromBars(selectedBars);
   if (rems.length && typeof getCart === 'function' && typeof saveCart === 'function') {
-    var counts = {};
-    rems.forEach(function(item) {
-      counts[item.len] = (counts[item.len] || 0) + 1;
-    });
-    var remHtml = '<div class="rem-list">' + Object.keys(counts).map(function(len) {
-      var qty = counts[len];
-      return '<span>' + Number(len).toLocaleString() + 'mm' + (qty > 1 ? ' x ' + qty : '') + '</span>';
-    }).join('') + '</div>';
+    var remHtml = buildRemHtmlFromRemnants(rems);
     var cart = getCart();
     for (var i = cart.length - 1; i >= 0; i--) {
       if (cart[i] && cart[i].cardId === cardId && cart[i].data) {
         cart[i].data.remHtml = remHtml;
+        cart[i].data.bars = selectedBars;
         break;
       }
     }
@@ -346,7 +375,7 @@ printCard = function(cardId) {
 autoRegisterAfterPrint = function() {
   var cardId = window._lastPrintedCardId;
   if (!cardId || typeof registerRemnants !== 'function') return;
-  var rems = extractRemnantsFromCard(cardId);
+  var rems = extractRemnantsFromBars(getBarsForSelectedCard(cardId, window._lastCalcResult));
   if (!rems.length) return;
   var signature = JSON.stringify(rems.map(function(item) {
     return [item.spec, item.kind, item.sl, item.len];
