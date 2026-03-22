@@ -335,6 +335,16 @@ function buildRemnantSignature(cardId, rems) {
   ]);
 }
 
+function getLatestPrintedHistoryRemnants(cardId) {
+  if (typeof getCutHistory !== 'function') return [];
+  var hist = getCutHistory();
+  if (!hist || !hist.length) return [];
+  var latest = hist[0] || {};
+  if ((latest.printedCardId || '') !== String(cardId || '')) return [];
+  var result = latest.result || {};
+  return Array.isArray(result.remnants) ? result.remnants.slice() : [];
+}
+
 var _baseSaveCutHistory = typeof saveCutHistory === 'function' ? saveCutHistory : null;
 saveCutHistory = function(resultData, cardId) {
   var entry = _baseSaveCutHistory ? _baseSaveCutHistory(resultData, cardId) : null;
@@ -434,7 +444,8 @@ printCard = function(cardId) {
 autoRegisterAfterPrint = function() {
   var cardId = window._lastPrintedCardId;
   if (!cardId || typeof registerRemnants !== 'function') return;
-  var rems = extractRemnantsFromBars(getBarsForSelectedCard(cardId, window._lastCalcResult));
+  var rems = getLatestPrintedHistoryRemnants(cardId);
+  if (!rems.length) rems = extractRemnantsFromBars(getBarsForSelectedCard(cardId, window._lastCalcResult));
   if (!rems.length) return;
   var signature = buildRemnantSignature(cardId, rems);
   if (window._lastPrintedRemnantSignature === signature) return;
@@ -465,6 +476,31 @@ cartDoPrint = function() {
   window._lastPrintedRemnantSignature = signature;
   registerRemnants(allRems);
   return result;
+};
+
+function hydrateYieldRemnantLists() {
+  document.querySelectorAll('.cc[id^="card_yield_"]').forEach(function(card) {
+    if (card.querySelector('.rem-section')) return;
+    var rems = extractRemnantsFromBars(getBarsForSelectedCard(card.id, window._lastCalcResult));
+    var section = document.createElement('div');
+    section.className = 'rem-section';
+    section.style.cssText = 'padding:6px 14px;background:#f8f8fb;border-top:1px solid #e8e8ed';
+    section.innerHTML =
+      '<div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">端材リスト</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:2px">' +
+      (rems.length ? buildRemHtmlFromRemnants(rems).replace('<div class="rem-list">', '').replace('</div>', '') : '<span style="font-size:11px;color:#8888a8">なし</span>') +
+      '</div>';
+    var pat = card.querySelector('.cc-pat');
+    if (pat && pat.parentNode === card) pat.insertAdjacentElement('afterend', section);
+    else card.appendChild(section);
+  });
+}
+
+var _baseRender = typeof render === 'function' ? render : null;
+render = function() {
+  var out = _baseRender ? _baseRender.apply(this, arguments) : undefined;
+  hydrateYieldRemnantLists();
+  return out;
 };
 
 (function initializeFinalOverrides() {
