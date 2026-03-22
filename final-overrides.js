@@ -530,9 +530,28 @@ function renderCardRemnantSection(card, rems) {
     }
     dup = next;
   }
+  var sourceRems = extractRemnantsFromCardSection(section);
+  var finalRems = sourceRems.length ? sourceRems : rems;
   section.innerHTML =
     '<div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">端材リスト</div>' +
-    (rems.length ? buildRemHtmlFromRemnants(rems) : '<div class="rem-list"><span class="rem-pill rem-pill-empty">なし</span></div>');
+    (finalRems.length ? buildRemHtmlFromRemnants(finalRems) : '<div class="rem-list"><span class="rem-pill rem-pill-empty">なし</span></div>');
+}
+
+function extractRemnantsFromCardSection(section) {
+  if (!section) return [];
+  var spec = (document.getElementById('spec') || {}).value || '';
+  var kind = typeof getCurrentKind === 'function' ? getCurrentKind() : (window.curKind || '');
+  var text = String(section.textContent || '').replace(/\s+/g, ' ');
+  var regex = /([\d,]+)\s*mm(?:\s*[x×*]\s*(\d+))?/gi;
+  var rems = [];
+  var match;
+  while ((match = regex.exec(text))) {
+    var len = parseInt(match[1].replace(/,/g, ''), 10) || 0;
+    var qty = Math.max(1, parseInt(match[2], 10) || 1);
+    if (!len) continue;
+    rems.push({ len: len, qty: qty, spec: spec, kind: kind, sl: 0 });
+  }
+  return rems;
 }
 
 function hydrateCardRemnantLists() {
@@ -589,6 +608,30 @@ function updateInventoryGroupNote(groupKey, value) {
   syncInventoryToRemnants();
   updateInvDropdown();
   renderInventoryPage();
+}
+
+function toggleInventoryGroupNoteEditor(groupKey, forceOpen) {
+  var root = document.querySelector('.inv-note-cell[data-group-key="' + String(groupKey || '') + '"]');
+  if (!root) return;
+  var display = root.querySelector('.inv-note-display');
+  var editor = root.querySelector('.inv-note-editor');
+  var shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !(editor && editor.style.display !== 'none');
+  if (display) display.style.display = shouldOpen ? 'none' : 'flex';
+  if (editor) editor.style.display = shouldOpen ? 'flex' : 'none';
+  if (shouldOpen) {
+    var input = root.querySelector('.inv-note-input');
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }
+}
+
+function saveInventoryGroupNoteFromInput(groupKey) {
+  var root = document.querySelector('.inv-note-cell[data-group-key="' + String(groupKey || '') + '"]');
+  if (!root) return;
+  var input = root.querySelector('.inv-note-input');
+  updateInventoryGroupNote(groupKey, input ? input.value : '');
 }
 
 var _baseRenderInventoryPage = typeof renderInventoryPage === 'function' ? renderInventoryPage : null;
@@ -668,13 +711,24 @@ renderInventoryPage = function() {
       '<div class="inv-card-header"><span class="inv-spec-label">' + escapeHtml(spec) + '</span><span class="inv-count-badge">' + specGroups[spec].reduce(function(sum, row) { return sum + row.qty; }, 0) + '本</span></div>' +
       '<div class="inv-col-header"><span>寸法</span><span>長さ</span><span>会社名</span><span>メモ</span><span>登録日</span><span></span></div>' +
       specGroups[spec].map(function(item) {
+        var groupKey = item.ids.join(',');
+        var noteText = item.note === '-' ? '' : item.note;
         return '<div class="inv-row">' +
           '<span class="inv-spec">' + escapeHtml(item.spec) + '</span>' +
           '<span class="inv-len"><span class="inv-len-stack">' + Number(item.len || 0).toLocaleString() + '<span class="inv-len-unit">mm</span></span><span class="inv-qty">x ' + item.qty + '</span></span>' +
           '<span class="inv-company">' + escapeHtml(item.company) + '</span>' +
-          '<input class="inv-note-input" type="text" value="' + escapeHtml(item.note === '-' ? '' : item.note) + '" placeholder="メモ" onchange="updateInventoryGroupNote(\'' + item.ids.join(',') + '\', this.value)" />' +
+          '<div class="inv-note-cell" data-group-key="' + groupKey + '">' +
+            '<div class="inv-note-display">' +
+              '<span class="inv-note-text">' + escapeHtml(noteText || '-') + '</span>' +
+              '<button type="button" class="inv-note-badge" onclick="toggleInventoryGroupNoteEditor(\'' + groupKey + '\', true)">編集</button>' +
+            '</div>' +
+            '<div class="inv-note-editor" style="display:none">' +
+              '<input class="inv-note-input" type="text" value="' + escapeHtml(noteText) + '" placeholder="メモ" onkeydown="if(event.key===\'Enter\'){saveInventoryGroupNoteFromInput(\'' + groupKey + '\')}" />' +
+              '<button type="button" class="inv-note-save" onclick="saveInventoryGroupNoteFromInput(\'' + groupKey + '\')">保存</button>' +
+            '</div>' +
+          '</div>' +
           '<span class="inv-date">' + escapeHtml(item.addedDate) + '</span>' +
-          '<button onclick="deleteInventoryGroup(\'' + item.ids.join(',') + '\')" class="inv-del-btn">削除</button>' +
+          '<button type="button" onclick="deleteInventoryGroup(\'' + groupKey + '\')" class="inv-del-btn">削除</button>' +
         '</div>';
       }).join('') +
     '</div>';
