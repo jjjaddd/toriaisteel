@@ -308,6 +308,39 @@ function buildRemnantSignature(cardId, rems) {
   ]);
 }
 
+function getConsumedRemnantLengths(bars) {
+  return (bars || []).map(function(bar) {
+    return parseInt(bar && bar.sl, 10) || 0;
+  }).filter(function(sl) {
+    if (!sl) return false;
+    if (typeof isStdStockLength === 'function') return !isStdStockLength(sl);
+    return true;
+  });
+}
+
+function buildConsumeSignature(cardId, bars) {
+  return JSON.stringify([
+    cardId || '',
+    getConsumedRemnantLengths(bars).sort(function(a, b) { return b - a; })
+  ]);
+}
+
+function buildPrintPayload(cardId, resultData, fallbackData) {
+  var data = fallbackData && typeof fallbackData === 'object' ? fallbackData : {};
+  var bars = Array.isArray(data.bars) && data.bars.length
+    ? data.bars.slice()
+    : getBarsForSelectedCard(cardId, resultData || window._lastCalcResult);
+  var meta = data.resultMeta || (resultData && resultData.meta) || (window._lastCalcResult && window._lastCalcResult.meta) || {};
+  var rems = typeof buildRemnantsFromBars === 'function'
+    ? buildRemnantsFromBars(bars, meta)
+    : extractRemnantsFromBars(bars);
+  return {
+    bars: bars,
+    meta: meta,
+    rems: rems
+  };
+}
+
 function getLatestPrintedHistoryRemnants(cardId) {
   if (typeof getCutHistory !== 'function') return [];
   var hist = getCutHistory();
@@ -427,21 +460,18 @@ printCard = function(cardId) {
 
 autoRegisterAfterPrint = function() {
   var cardId = window._lastPrintedCardId;
-  if (!cardId || typeof registerRemnants !== 'function') return;
-  var bars = getBarsForSelectedCard(cardId, window._lastCalcResult);
-  var rems = getLatestPrintedHistoryRemnants(cardId);
-  if (!rems.length && typeof extractRemnants === 'function') rems = extractRemnants(window._lastCalcResult, cardId);
-  if (!rems.length) rems = extractRemnantsFromBars(bars);
-  if (!rems.length) return;
-  var signature = buildRemnantSignature(cardId, rems);
-  if (window._lastPrintedRemnantSignature === signature) return;
-  window._lastPrintedRemnantSignature = signature;
-  registerRemnants(rems);
-  if (typeof consumeInventoryBars === 'function') {
-    consumeInventoryBars(
-      bars,
-      window._lastCalcResult && window._lastCalcResult.meta ? window._lastCalcResult.meta : {}
-    );
+  if (!cardId) return;
+  var payload = buildPrintPayload(cardId, window._lastCalcResult);
+  var remSignature = buildRemnantSignature(cardId, payload.rems);
+  var consumeSignature = buildConsumeSignature(cardId, payload.bars);
+
+  if (payload.rems.length && typeof registerRemnants === 'function' && window._lastPrintedRemnantSignature !== remSignature) {
+    window._lastPrintedRemnantSignature = remSignature;
+    registerRemnants(payload.rems);
+  }
+  if (getConsumedRemnantLengths(payload.bars).length && typeof consumeInventoryBars === 'function' && window._lastConsumedInventorySignature !== consumeSignature) {
+    window._lastConsumedInventorySignature = consumeSignature;
+    consumeInventoryBars(payload.bars, payload.meta);
   }
 };
 
@@ -449,33 +479,42 @@ var _baseCartDoPrint = typeof cartDoPrint === 'function' ? cartDoPrint : null;
 cartDoPrint = function() {
   var cartSnapshot = typeof getCart === 'function' ? getCart().slice() : [];
   var result = _baseCartDoPrint ? _baseCartDoPrint() : undefined;
-  if (typeof registerRemnants !== 'function' || !cartSnapshot.length) return result;
+  if (!cartSnapshot.length) return result;
 
   var allRems = [];
   var sigParts = [];
+  var consumeSigParts = [];
+  var consumeBars = [];
   cartSnapshot.forEach(function(item) {
     var data = item && item.data ? item.data : {};
-    var bars = Array.isArray(data.bars) && data.bars.length ? data.bars : getBarsForSelectedCard(data.cardId || item.cardId, window._lastCalcResult);
-    var rems = Array.isArray(data.remnants) && data.remnants.length ? data.remnants.slice() : [];
-    if (!rems.length && typeof extractRemnants === 'function') rems = extractRemnants(window._lastCalcResult, data.cardId || item.cardId);
-    if (!rems.length) rems = extractRemnantsFromBars(bars);
-    if (!rems.length) return;
-    allRems = allRems.concat(rems);
-    sigParts.push(buildRemnantSignature(data.cardId || item.cardId, rems));
+    var cardId = data.cardId || item.cardId;
+    var payload = buildPrintPayload(cardId, window._lastCalcResult, data);
+    if (payload.rems.length) {
+      allRems = allRems.concat(payload.rems);
+      sigParts.push(buildRemnantSignature(cardId, payload.rems));
+    }
+    if (getConsumedRemnantLengths(payload.bars).length) {
+      consumeBars = consumeBars.concat(payload.bars);
+      consumeSigParts.push(buildConsumeSignature(cardId, payload.bars));
+    }
   });
 
-  if (!allRems.length) return result;
-  var signature = JSON.stringify(sigParts.sort());
-  if (window._lastPrintedRemnantSignature === signature) return result;
-  window._lastPrintedRemnantSignature = signature;
-  registerRemnants(allRems);
-  if (typeof consumeInventoryBars === 'function') {
-    cartSnapshot.forEach(function(item) {
-      var data = item && item.data ? item.data : {};
-      var bars = Array.isArray(data.bars) && data.bars.length ? data.bars : getBarsForSelectedCard(data.cardId || item.cardId, window._lastCalcResult);
-      var meta = data.resultMeta || (window._lastCalcResult && window._lastCalcResult.meta) || {};
-      consumeInventoryBars(bars, meta);
-    });
+  if (allRems.length && typeof registerRemnants === 'function') {
+    var signature = JSON.stringify(sigParts.sort());
+    if (window._lastPrintedRemnantSignature !== signature) {
+      window._lastPrintedRemnantSignature = signature;
+      registerRemnants(allRems);
+    }
+  }
+  if (consumeBars.length && typeof consumeInventoryBars === 'function') {
+    var consumeSignature = JSON.stringify(consumeSigParts.sort());
+    if (window._lastConsumedInventorySignature !== consumeSignature) {
+      window._lastConsumedInventorySignature = consumeSignature;
+      consumeInventoryBars(
+        consumeBars,
+        window._lastCalcResult && window._lastCalcResult.meta ? window._lastCalcResult.meta : {}
+      );
+    }
   }
   return result;
 };
