@@ -212,6 +212,34 @@ test('extractRemnants resolves B80 card without mixing B90 remnants', function()
   assert(rems[0].len === 941, 'B80 should keep its own 941 remnant');
 });
 
+test('stored selectedBars do not leak into a different card when printedCardId differs', function() {
+  const result = {
+    printedCardId: 'card_yield_0',
+    selectedBars: [{ pat: [1600, 600], loss: 29, sl: 9000 }],
+    patB: {
+      plan80: { sl: 5500, bars: [{ pat: [1600, 1600, 600, 600], loss: 941, sl: 5500 }] }
+    },
+    meta: sampleMeta()
+  };
+  const bars = getSelectedBarsFromResultData(result, 'card_pat_B80_1');
+  assert(bars.length === 1, 'different card should still resolve a single B80 bar');
+  assert(bars[0].sl === 5500, 'different card should not reuse stored yield selection');
+  assert(bars[0].loss === 941, 'different card should keep its own loss');
+});
+
+test('stored selectedBars do not leak when printedCardId is empty and a card id is requested', function() {
+  const result = {
+    selectedBars: [{ pat: [1600, 600], loss: 29, sl: 9000 }],
+    patB: {
+      plan80: { sl: 5500, bars: [{ pat: [1600, 1600, 600, 600], loss: 941, sl: 5500 }] }
+    },
+    meta: sampleMeta()
+  };
+  const bars = getSelectedBarsFromResultData(result, 'card_pat_B80_1');
+  assert(bars.length === 1, 'requested card should resolve one B80 bar');
+  assert(bars[0].sl === 5500, 'empty printedCardId should not leak stale selected bars');
+});
+
 test('consumeSelectedInventoryRemnants removes exact selected ids', function() {
   saveInventory([
     { id: 'a', len: 941, spec: 'H-100x100x6x8', kind: 'H' },
@@ -306,6 +334,26 @@ test('stress: payload resolution remains stable across many card patterns', func
 
     const b80Payload = buildCardSelectionPayload(result, 'card_pat_B80_' + i);
     assert(b80Payload.selectedBars[0].sl === 5500, 'B80 payload should resolve to 5500 stock');
+  }
+});
+
+test('stress: mismatched printed card ids never leak stale selected bars', function() {
+  for (let i = 0; i < 10000; i++) {
+    const result = {
+      printedCardId: 'card_yield_0',
+      selectedBars: [{ pat: [1600, 600], loss: 29 + (i % 13), sl: 9000 }],
+      allDP: [
+        { slA: 9000, bars: [{ pat: [1600, 600], loss: 29 + (i % 13), sl: 9000 }], bA: [], bB: [] }
+      ],
+      patB: {
+        plan80: { sl: 5500, bars: [{ pat: [1600, 1600, 600, 600], loss: 941 + (i % 7), sl: 5500 }] }
+      },
+      meta: sampleMeta()
+    };
+    const b80Bars = getSelectedBarsFromResultData(result, 'card_pat_B80_' + i);
+    assert(b80Bars.length === 1, 'mismatch stress should still resolve B80 bars');
+    assert(b80Bars[0].sl === 5500, 'mismatch stress should not leak yield bar sl');
+    assert(b80Bars[0].loss === 941 + (i % 7), 'mismatch stress should keep matching B80 loss');
   }
 });
 

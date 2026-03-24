@@ -1243,6 +1243,10 @@ function extractRemnantsFromCard(cardId) {
     buildSpec = function() {
       var out = _baseBuildSpec.apply(this, arguments);
       bindSpecPanelBehavior();
+      var list = document.getElementById('specList');
+      if (list && list.dataset.forceOpen === '1') {
+        list.style.display = 'block';
+      }
       return out;
     };
   }
@@ -1252,7 +1256,15 @@ function extractRemnantsFromCard(cardId) {
     selectKind = function(btn, k) {
       var list = document.getElementById('specList');
       if (list) list.dataset.forceOpen = '1';
-      return _baseSelectKind.apply(this, arguments);
+      var out = _baseSelectKind.apply(this, arguments);
+      setTimeout(function() {
+        var refreshedList = document.getElementById('specList');
+        if (refreshedList) {
+          refreshedList.dataset.forceOpen = '0';
+          refreshedList.style.display = 'block';
+        }
+      }, 0);
+      return out;
     };
   }
 

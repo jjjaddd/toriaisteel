@@ -713,7 +713,9 @@ function cloneBarsForCard(bars, fallbackSl) {
 function getSelectedBarsFromResultData(resultData, cardId) {
   var result = resultData && resultData.result ? resultData.result : (resultData || {});
   var id = String(cardId || result.printedCardId || '');
-  if (result.selectedBars && result.selectedBars.length && (!id || !result.printedCardId || String(result.printedCardId) === id)) {
+  var printedCardId = String(result.printedCardId || '');
+  var canUseStoredSelection = !id || (printedCardId && printedCardId === id);
+  if (result.selectedBars && result.selectedBars.length && canUseStoredSelection) {
     return cloneBarsForCard(result.selectedBars, 0);
   }
 
