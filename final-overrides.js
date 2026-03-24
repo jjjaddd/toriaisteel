@@ -360,13 +360,22 @@ function getSelectedInventoryIds(meta) {
 
 function buildPrintPayload(cardId, resultData, fallbackData) {
   var data = fallbackData && typeof fallbackData === 'object' ? fallbackData : {};
-  var bars = Array.isArray(data.bars) && data.bars.length
-    ? data.bars.slice()
-    : getBarsForSelectedCard(cardId, resultData || window._lastCalcResult);
-  var meta = data.resultMeta || (resultData && resultData.meta) || (window._lastCalcResult && window._lastCalcResult.meta) || {};
-  var rems = typeof buildRemnantsFromBars === 'function'
-    ? buildRemnantsFromBars(bars, meta)
-    : extractRemnantsFromBars(bars);
+  var payload = typeof buildCardSelectionPayload === 'function'
+    ? buildCardSelectionPayload(resultData || window._lastCalcResult || {}, cardId)
+    : null;
+  var bars = payload && payload.selectedBars && payload.selectedBars.length
+    ? payload.selectedBars.slice()
+    : (Array.isArray(data.bars) && data.bars.length
+        ? data.bars.slice()
+        : getBarsForSelectedCard(cardId, resultData || window._lastCalcResult));
+  var meta = data.resultMeta || (payload ? payload.meta : null) || (resultData && resultData.meta) || (window._lastCalcResult && window._lastCalcResult.meta) || {};
+  var rems = payload && payload.remnants && payload.remnants.length
+    ? payload.remnants.slice()
+    : (Array.isArray(data.remnants) && data.remnants.length
+        ? data.remnants.slice()
+        : (typeof buildRemnantsFromBars === 'function'
+        ? buildRemnantsFromBars(bars, meta)
+        : extractRemnantsFromBars(bars)));
   return {
     bars: bars,
     meta: meta,
@@ -492,15 +501,18 @@ saveCutHistory = function(resultData, cardId) {
   var entry = _baseSaveCutHistory ? _baseSaveCutHistory(resultData, cardId) : null;
   if (!entry || !entry.result) return entry;
 
-  var selectedBars = typeof getSelectedBarsFromResultData === 'function'
+  var payload = typeof buildCardSelectionPayload === 'function'
+    ? buildCardSelectionPayload(resultData || window._lastCalcResult || {}, cardId)
+    : null;
+  var selectedBars = payload ? payload.selectedBars.slice() : (typeof getSelectedBarsFromResultData === 'function'
     ? getSelectedBarsFromResultData(resultData, cardId)
-    : getBarsForSelectedCard(cardId, resultData);
-  var selectedRemnants = typeof extractRemnants === 'function'
+    : getBarsForSelectedCard(cardId, resultData));
+  var selectedRemnants = payload ? payload.remnants.slice() : (typeof extractRemnants === 'function'
     ? extractRemnants(resultData, cardId)
-    : extractRemnantsFromBars(selectedBars);
+    : extractRemnantsFromBars(selectedBars));
   entry.result.remnants = selectedRemnants;
   entry.result.selectedBars = selectedBars;
-  entry.result.meta = resultData && resultData.meta ? Object.assign({}, resultData.meta) : (entry.result.meta || {});
+  entry.result.meta = payload ? Object.assign({}, payload.meta) : (resultData && resultData.meta ? Object.assign({}, resultData.meta) : (entry.result.meta || {}));
   entry.printedCardId = cardId || entry.printedCardId || '';
   try {
     var hist = getCutHistory();
@@ -515,12 +527,15 @@ saveCutHistory = function(resultData, cardId) {
 var _baseCartAdd = typeof cartAdd === 'function' ? cartAdd : null;
 cartAdd = function(cardId, btn) {
   var result = _baseCartAdd ? _baseCartAdd(cardId, btn) : undefined;
-  var selectedBars = typeof getSelectedBarsFromResultData === 'function'
+  var payload = typeof buildCardSelectionPayload === 'function'
+    ? buildCardSelectionPayload(window._lastCalcResult || {}, cardId)
+    : null;
+  var selectedBars = payload ? payload.selectedBars.slice() : (typeof getSelectedBarsFromResultData === 'function'
     ? getSelectedBarsFromResultData(window._lastCalcResult, cardId)
-    : getBarsForSelectedCard(cardId, window._lastCalcResult);
-  var rems = typeof extractRemnants === 'function'
+    : getBarsForSelectedCard(cardId, window._lastCalcResult));
+  var rems = payload ? payload.remnants.slice() : (typeof extractRemnants === 'function'
     ? extractRemnants(window._lastCalcResult, cardId)
-    : extractRemnantsFromBars(selectedBars);
+    : extractRemnantsFromBars(selectedBars));
   if (typeof getCart === 'function' && typeof saveCart === 'function') {
     var remHtml = buildRemHtmlFromRemnants(rems);
     var cart = getCart();
@@ -529,7 +544,7 @@ cartAdd = function(cardId, btn) {
         cart[i].data.remHtml = remHtml;
         cart[i].data.bars = selectedBars;
         cart[i].data.remnants = rems;
-        cart[i].data.resultMeta = window._lastCalcResult && window._lastCalcResult.meta ? Object.assign({}, window._lastCalcResult.meta) : {};
+        cart[i].data.resultMeta = payload ? Object.assign({}, payload.meta) : (window._lastCalcResult && window._lastCalcResult.meta ? Object.assign({}, window._lastCalcResult.meta) : {});
         break;
       }
     }
@@ -739,9 +754,12 @@ function renderCardRemnantSection(card, rems) {
 
 function hydrateCardRemnantLists() {
   document.querySelectorAll('.cc[id]').forEach(function(card) {
-    var rems = typeof extractRemnants === 'function'
+    var payload = typeof buildCardSelectionPayload === 'function'
+      ? buildCardSelectionPayload(window._lastCalcResult || {}, card.id)
+      : null;
+    var rems = payload ? payload.remnants.slice() : (typeof extractRemnants === 'function'
       ? extractRemnants(window._lastCalcResult, card.id)
-      : extractRemnantsFromBars(getBarsForSelectedCard(card.id, window._lastCalcResult));
+      : extractRemnantsFromBars(getBarsForSelectedCard(card.id, window._lastCalcResult)));
     renderCardRemnantSection(card, rems);
   });
 }
@@ -992,30 +1010,46 @@ function extractRemnantsFromCard(cardId) {
 }
 
 (function bindSpecDropdownOutsideCloseFinal() {
-  function bind() {
+  function bindSpecPanelBehavior() {
     var panel = document.getElementById('specPanel');
     var selected = document.getElementById('specSelected');
     var list = document.getElementById('specList');
-    if (!panel || !selected || !list || selected.dataset.dropdownBound) return;
+    if (!panel || !selected || !list) return;
 
-    selected.dataset.dropdownBound = '1';
-    selected.addEventListener('click', function(e) {
-      e.stopPropagation();
-      list.style.display = list.style.display === 'none' ? 'block' : 'none';
-    });
+    if (selected.dataset.dropdownBound !== '1') {
+      selected.dataset.dropdownBound = '1';
+      selected.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        list.style.display = list.style.display === 'block' ? 'none' : 'block';
+      });
+    }
 
-    panel.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
+    if (panel.dataset.dropdownBound !== '1') {
+      panel.dataset.dropdownBound = '1';
+      panel.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      document.addEventListener('click', function(e) {
+        if (!panel.contains(e.target)) list.style.display = 'none';
+      });
+    }
 
-    document.addEventListener('click', function(e) {
-      if (!panel.contains(e.target)) list.style.display = 'none';
-    });
+    list.style.display = 'none';
+  }
+
+  var _baseBuildSpec = typeof buildSpec === 'function' ? buildSpec : null;
+  if (_baseBuildSpec) {
+    buildSpec = function() {
+      var out = _baseBuildSpec.apply(this, arguments);
+      bindSpecPanelBehavior();
+      return out;
+    };
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bind, { once: true });
+    document.addEventListener('DOMContentLoaded', bindSpecPanelBehavior, { once: true });
   } else {
-    bind();
+    bindSpecPanelBehavior();
   }
 })();

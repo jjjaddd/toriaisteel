@@ -713,13 +713,16 @@ function cloneBarsForCard(bars, fallbackSl) {
 function getSelectedBarsFromResultData(resultData, cardId) {
   var result = resultData && resultData.result ? resultData.result : (resultData || {});
   var id = String(cardId || result.printedCardId || '');
-  if (result.selectedBars && result.selectedBars.length) {
+  if (result.selectedBars && result.selectedBars.length && (!id || !result.printedCardId || String(result.printedCardId) === id)) {
     return cloneBarsForCard(result.selectedBars, 0);
   }
 
   var yieldMatch = id.match(/^card_yield_(\d+)/);
   if (yieldMatch && result.allDP && result.allDP[parseInt(yieldMatch[1], 10)]) {
     var yieldCard = result.allDP[parseInt(yieldMatch[1], 10)];
+    if (yieldCard && yieldCard.bars && yieldCard.bars.length) {
+      return cloneBarsForCard(yieldCard.bars || [], yieldCard.slA);
+    }
     return cloneBarsForCard(yieldCard.bA || [], yieldCard.slA).concat(cloneBarsForCard(yieldCard.bB || [], yieldCard.slB));
   }
 
@@ -735,9 +738,24 @@ function getSelectedBarsFromResultData(resultData, cardId) {
     return cloneBarsForCard(result.patA.bars || [], result.patA.sl);
   }
   if (result.allDP && result.allDP[0]) {
+    if (result.allDP[0].bars && result.allDP[0].bars.length) {
+      return cloneBarsForCard(result.allDP[0].bars || [], result.allDP[0].slA);
+    }
     return cloneBarsForCard(result.allDP[0].bA || [], result.allDP[0].slA).concat(cloneBarsForCard(result.allDP[0].bB || [], result.allDP[0].slB));
   }
   return [];
+}
+
+function buildCardSelectionPayload(resultData, cardId) {
+  var result = resultData && resultData.result ? resultData.result : (resultData || {});
+  var meta = buildResultMeta(result);
+  var selectedBars = getSelectedBarsFromResultData(result, cardId);
+  return {
+    cardId: String(cardId || result.printedCardId || ''),
+    selectedBars: selectedBars,
+    meta: meta,
+    remnants: buildRemnantsFromBars(selectedBars, meta)
+  };
 }
 
 function buildRemnantsFromBars(bars, meta) {
@@ -1018,8 +1036,9 @@ function saveCutHistory(resultData, cardId) {
   var job = getJobInfo();
   var zones = getZoneInfo();
   var hist = getCutHistory();
-  var resultMeta = buildResultMeta(resultData);
-  var selectedBars = getSelectedBarsFromResultData(resultData, cardId);
+  var payload = buildCardSelectionPayload(resultData, cardId);
+  var resultMeta = payload.meta;
+  var selectedBars = payload.selectedBars;
   var entry = {
     id: Date.now(),
     date: new Date().toISOString(),
@@ -1066,7 +1085,7 @@ function saveCutHistory(resultData, cardId) {
       } : null,
       meta: resultMeta,
       selectedBars: selectedBars,
-      remnants: buildRemnantsFromBars(selectedBars, resultMeta),
+      remnants: payload.remnants,
       blade: parseInt((document.getElementById('blade') || {}).value, 10) || 3,
       endLoss: parseInt((document.getElementById('endloss') || {}).value, 10) || 150
     }
@@ -1086,8 +1105,5 @@ function saveCutHistory(resultData, cardId) {
 
 function extractRemnants(resultData, cardId) {
   resultData = resultData || _lastCalcResult || {};
-  return buildRemnantsFromBars(
-    getSelectedBarsFromResultData(resultData, cardId),
-    buildResultMeta(resultData)
-  );
+  return buildCardSelectionPayload(resultData, cardId).remnants;
 }
