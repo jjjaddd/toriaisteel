@@ -717,11 +717,20 @@ function getSelectedBarsFromResultData(resultData, cardId) {
     return cloneBarsForCard(result.selectedBars, 0);
   }
 
+  if (id.indexOf('card_remonly_') === 0) {
+    return cloneBarsForCard(((result.meta || {}).remnantBars) || [], 0);
+  }
+
   var yieldMatch = id.match(/^card_yield_(\d+)/);
   if (yieldMatch && result.allDP && result.allDP[parseInt(yieldMatch[1], 10)]) {
     var yieldCard = result.allDP[parseInt(yieldMatch[1], 10)];
     if (yieldCard && yieldCard.bars && yieldCard.bars.length) {
-      return cloneBarsForCard(yieldCard.bars || [], yieldCard.slA);
+      var baseBars = cloneBarsForCard(yieldCard.bars || [], yieldCard.slA);
+      var remnantBars = cloneBarsForCard(((result.meta || {}).remnantBars) || [], 0);
+      var hasRemnantBars = baseBars.some(function(bar) {
+        return bar && bar.sl && typeof isStdStockLength === 'function' && !isStdStockLength(bar.sl);
+      });
+      return hasRemnantBars ? baseBars : remnantBars.concat(baseBars);
     }
     return cloneBarsForCard(yieldCard.bA || [], yieldCard.slA).concat(cloneBarsForCard(yieldCard.bB || [], yieldCard.slB));
   }

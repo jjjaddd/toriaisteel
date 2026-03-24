@@ -130,6 +130,24 @@ test('yield payload uses yield bars before bA fallback', function() {
   assert(payload.selectedBars[0].loss === 29, 'expected yield bar loss 29');
 });
 
+test('yield payload prepends remnant bars when yield bars are standard stock only', function() {
+  const result = {
+    allDP: [{
+      slA: 9000,
+      bars: [{ pat: [1600, 600], loss: 29, sl: 9000 }],
+      bA: [],
+      bB: []
+    }],
+    meta: sampleMeta({
+      remnantBars: [{ pat: [300, 300], loss: 188, sl: 941 }]
+    })
+  };
+  const payload = buildCardSelectionPayload(result, 'card_yield_0');
+  assert(payload.selectedBars.length === 2, 'yield payload should include remnant and standard bars');
+  assert(payload.selectedBars[0].sl === 941, 'first bar should be remnant source');
+  assert(payload.selectedBars[1].sl === 9000, 'second bar should be standard source');
+});
+
 test('pattern B90 payload resolves correct plan bars', function() {
   const result = {
     patA: { sl: 7000, bars: [{ pat: [1600], loss: 400, sl: 7000 }] },
@@ -238,6 +256,57 @@ test('buildPrintPayload prefers result payload over stale fallback bars', functi
   });
   assert(payload.bars.length === 1 && payload.bars[0].sl === 9000, 'print payload should use result bars');
   assert(payload.rems.length === 0, '29mm loss should not become remnant');
+});
+
+test('buildPrintPayload falls back to stored cart data when calcId differs', function() {
+  const oldBars = [{ pat: [1600, 600], loss: 941, sl: 5500 }];
+  const payload = buildPrintPayload('card_pat_B80_9', {
+    allDP: [{ slA: 9000, bars: [{ pat: [1], loss: 29, sl: 9000 }], bA: [], bB: [] }],
+    meta: sampleMeta({ calcId: 'calc_new' })
+  }, {
+    bars: oldBars,
+    resultMeta: sampleMeta({ calcId: 'calc_old' }),
+    remnants: [{ len: 941, spec: 'H-100x100x6x8', kind: 'H', sl: 5500, qty: 1 }]
+  });
+  assert(payload.bars.length === 1 && payload.bars[0].sl === 5500, 'stale live result should not overwrite stored cart data');
+  assert(payload.rems.length === 1 && payload.rems[0].len === 941, 'stored remnants should remain when calcId differs');
+});
+
+test('stress: payload resolution remains stable across many card patterns', function() {
+  const specs = ['H-100x100x6x8', 'RB-6', 'L-65x65x6'];
+  for (let i = 0; i < 3000; i++) {
+    const spec = specs[i % specs.length];
+    const yieldBars0 = [{ pat: [1600, 600], loss: 29 + (i % 3), sl: 9000 }];
+    const yieldBars1 = [{ pat: [1600, 1600], loss: 617 + (i % 11), sl: 11000 }];
+    const b90Bars = [{ pat: [1600, 600], loss: 3147 + (i % 7), sl: 7000 }];
+    const b80Bars = [{ pat: [1600, 1600, 600, 600], loss: 941 + (i % 5), sl: 5500 }];
+    const remBars = [{ pat: [300, 300], loss: 188 + (i % 9), sl: 941 + (i % 13) }];
+    const result = {
+      allDP: [
+        { slA: 9000, bars: yieldBars0, bA: [], bB: [] },
+        { slA: 11000, bars: yieldBars1, bA: [], bB: [] }
+      ],
+      patA: { sl: 7000, bars: b90Bars.slice() },
+      patB: {
+        plan90: { sl: 7000, bars: b90Bars.slice() },
+        plan80: { sl: 5500, bars: b80Bars.slice() }
+      },
+      meta: sampleMeta({ spec, remnantBars: remBars })
+    };
+
+    const yieldPayload = buildCardSelectionPayload(result, 'card_yield_0');
+    assert(yieldPayload.selectedBars.length >= 1, 'yield payload should not be empty');
+    assert(yieldPayload.selectedBars[yieldPayload.selectedBars.length - 1].sl === 9000, 'yield payload should keep selected yield stock');
+
+    const yield2Payload = buildCardSelectionPayload(result, 'card_yield_1');
+    assert(yield2Payload.selectedBars[yield2Payload.selectedBars.length - 1].sl === 11000, 'yield second payload should keep second stock');
+
+    const b90Payload = buildCardSelectionPayload(result, 'card_pat_B90_' + i);
+    assert(b90Payload.selectedBars[0].sl === 7000, 'B90 payload should resolve to 7000 stock');
+
+    const b80Payload = buildCardSelectionPayload(result, 'card_pat_B80_' + i);
+    assert(b80Payload.selectedBars[0].sl === 5500, 'B80 payload should resolve to 5500 stock');
+  }
 });
 
 console.log('All verification cases passed.');

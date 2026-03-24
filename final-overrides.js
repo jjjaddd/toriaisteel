@@ -360,8 +360,15 @@ function getSelectedInventoryIds(meta) {
 
 function buildPrintPayload(cardId, resultData, fallbackData) {
   var data = fallbackData && typeof fallbackData === 'object' ? fallbackData : {};
-  var payload = typeof buildCardSelectionPayload === 'function'
-    ? buildCardSelectionPayload(resultData || window._lastCalcResult || {}, cardId)
+  var liveResult = resultData || window._lastCalcResult || {};
+  var liveMeta = liveResult && liveResult.meta ? liveResult.meta : {};
+  var fallbackMeta = data.resultMeta || {};
+  var canUseLiveResult = !Object.keys(data).length ||
+    !fallbackMeta.calcId ||
+    !liveMeta.calcId ||
+    String(fallbackMeta.calcId) === String(liveMeta.calcId);
+  var payload = canUseLiveResult && typeof buildCardSelectionPayload === 'function'
+    ? buildCardSelectionPayload(liveResult, cardId)
     : null;
   var bars = payload
     ? payload.selectedBars.slice()
@@ -565,7 +572,12 @@ showHistPreview = function(id) {
   var spec = h.spec || '';
   var endLoss = r.endLoss || 150;
   var printedId = h.printedCardId || '';
-  var bars = (r.selectedBars && r.selectedBars.length) ? r.selectedBars.slice() : getHistoryBarsForPrint(r, printedId);
+  var payload = typeof buildCardSelectionPayload === 'function'
+    ? buildCardSelectionPayload(r, printedId)
+    : null;
+  var bars = payload && payload.selectedBars && payload.selectedBars.length
+    ? payload.selectedBars.slice()
+    : ((r.selectedBars && r.selectedBars.length) ? r.selectedBars.slice() : getHistoryBarsForPrint(r, printedId));
   if (!bars.length) {
     body.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center">データがありません</div>';
     modal.style.display = 'flex';
@@ -585,7 +597,8 @@ showHistPreview = function(id) {
       sumMap[len] = (sumMap[len] || 0) + 1;
     });
   });
-  var remTags = ((r.remnants || h.remnants) || []).filter(function(r2) { return r2.len >= 500; }).map(function(r2) {
+  var remList = payload && payload.remnants ? payload.remnants.slice() : ((r.remnants || h.remnants) || []);
+  var remTags = remList.filter(function(r2) { return r2.len >= 500; }).map(function(r2) {
     return r2.len.toLocaleString() + 'mm' + (r2.qty > 1 ? ' x ' + r2.qty : '');
   });
   var barHtml = '';
@@ -764,6 +777,23 @@ function hydrateCardRemnantLists() {
   });
 }
 
+function focusFirstPieceRow() {
+  var target = null;
+  for (var i = 0; typeof totalRows !== 'undefined' && i < totalRows; i++) {
+    var input = document.getElementById('pl' + i);
+    if (!input) continue;
+    if (!String(input.value || '').trim()) {
+      target = input;
+      break;
+    }
+    if (!target) target = input;
+  }
+  if (target) {
+    target.focus();
+    if (typeof target.select === 'function') target.select();
+  }
+}
+
 var _renderAfterRemnantOverride = render;
 render = function() {
   var out = _renderAfterRemnantOverride ? _renderAfterRemnantOverride.apply(this, arguments) : undefined;
@@ -812,6 +842,20 @@ function bindInventoryListActions() {
       e.stopPropagation();
       saveInventoryGroupNoteFromInput(saveBtn.dataset.groupKey || '');
     }
+  });
+}
+
+function bindRemnantQtyEnter() {
+  var list = document.getElementById('remnantList');
+  if (!list || list.dataset.enterBound === '1') return;
+  list.dataset.enterBound = '1';
+  list.addEventListener('keydown', function(e) {
+    var target = e.target;
+    if (!target || !target.classList || !target.classList.contains('rem-qty')) return;
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (typeof saveRemnants === 'function') saveRemnants();
+    focusFirstPieceRow();
   });
 }
 
@@ -975,6 +1019,7 @@ renderInventoryPage = function() {
 
     buildInventoryDropdown();
     syncInventoryToRemnants();
+    bindRemnantQtyEnter();
     cleanCartChrome();
   }
 
@@ -1035,7 +1080,12 @@ function extractRemnantsFromCard(cardId) {
       });
     }
 
-    list.style.display = 'none';
+    if (list.dataset.forceOpen === '1') {
+      list.style.display = 'block';
+      list.dataset.forceOpen = '0';
+    } else {
+      list.style.display = 'none';
+    }
   }
 
   var _baseBuildSpec = typeof buildSpec === 'function' ? buildSpec : null;
@@ -1044,6 +1094,15 @@ function extractRemnantsFromCard(cardId) {
       var out = _baseBuildSpec.apply(this, arguments);
       bindSpecPanelBehavior();
       return out;
+    };
+  }
+
+  var _baseSelectKind = typeof selectKind === 'function' ? selectKind : null;
+  if (_baseSelectKind) {
+    selectKind = function(btn, k) {
+      var list = document.getElementById('specList');
+      if (list) list.dataset.forceOpen = '1';
+      return _baseSelectKind.apply(this, arguments);
     };
   }
 

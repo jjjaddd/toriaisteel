@@ -960,7 +960,10 @@ function applyWorkerResults(results, stocks, minValidLen, endLoss, kgm) {
     stocks: (stocks || []).map(function(stock) { return { sl: stock.sl, max: stock.max }; }),
     selectedInventoryRemnants: typeof getSelectedInventoryRemnantDetails === 'function'
       ? getSelectedInventoryRemnantDetails()
-      : []
+      : [],
+    remnantBars: (remBars || []).map(function(bar) {
+      return { pat: (bar.pat || []).slice(), loss: bar.loss || 0, sl: bar.sl || 0 };
+    })
   };
   var remBars = ry.remnantBars || [];
   if (remBars.length) {
@@ -1031,6 +1034,28 @@ function runCalc() {
   if (!pieces.length && !remnants.length) { alert('部材または残材を入力してください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
   if (!pieces.length && remnants.length > 0) {
     var remOnlyBars = remnants.slice().sort(function(a, b) { return b - a; }).map(function(rl) { return { pat: [], loss: rl, sl: rl }; });
+    _lastCalcResult = {
+      allDP: [],
+      patA: null,
+      patB: null,
+      patC: null,
+      meta: {
+        calcId: 'calc_' + Date.now(),
+        spec: (document.getElementById('spec') || {}).value || '',
+        kind: (typeof getCurrentKind === 'function' ? getCurrentKind() : (typeof curKind !== 'undefined' ? curKind : '')) || '',
+        minRemnantLen: minValidLen,
+        blade: blade,
+        endLoss: endLoss,
+        job: typeof getJobInfo === 'function' ? getJobInfo() : {},
+        stocks: (stocks || []).map(function(stock) { return { sl: stock.sl, max: stock.max }; }),
+        selectedInventoryRemnants: typeof getSelectedInventoryRemnantDetails === 'function'
+          ? getSelectedInventoryRemnantDetails()
+          : [],
+        remnantBars: remOnlyBars.map(function(bar) {
+          return { pat: (bar.pat || []).slice(), loss: bar.loss || 0, sl: bar.sl || 0 };
+        })
+      }
+    };
     render([], [], [], endLoss, remOnlyBars, kgm, [], [], null, null, null, null, null, null);
     btn.innerHTML = '計算を実行する <span class="arr">→</span>';
     btn.disabled = false;
