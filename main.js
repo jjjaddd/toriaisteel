@@ -1364,7 +1364,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
       '<div class="res-hd"><div class="res-ttl">手持ち残材リスト</div></div>' +
       '<div class="cc yield-card r1" id="' + remOnlyCardId + '">' +
         '<div class="cc-hd">' +
-          '<div class="cc-desc" style="color:var(--cy)">残材一覧</div>' +
+          '<div class="cc-desc" style="color:var(--cy)">残材活用</div>' +
           '<div class="cc-stats">' +
             '<div class="cs"><div class="cl">残材本数</div><div class="cv">' + remnantBars.length + ' 本</div></div>' +
           '</div>' +
