@@ -7,6 +7,28 @@ function saveSelectedInventoryRemnants(data) {
   persistSelectedInventoryRemnantsState();
 }
 
+function getSelectedInventoryRemnantDetails() {
+  var grouped = typeof getInventoryForCurrentSpec === 'function' ? getInventoryForCurrentSpec() : [];
+  var state = getSelectedInventoryRemnants();
+  return Object.keys(state).map(function(key) {
+    var item = grouped.find(function(group) {
+      return getRemnantInventoryKey(group) === key;
+    });
+    if (!item) return null;
+    var qty = Math.max(1, Math.min(item.qty || 1, parseInt((state[key] || {}).qty, 10) || 1));
+    return {
+      key: key,
+      len: parseInt(item.len, 10) || 0,
+      qty: qty,
+      ids: (item.ids || []).slice(0, qty).map(function(id) { return String(id); }),
+      spec: item.spec || '',
+      kind: item.kind || '',
+      company: item.company || '',
+      note: item.note || ''
+    };
+  }).filter(Boolean);
+}
+
 function updateInventoryUseButton() {
   var btn = document.getElementById('invUseBtn');
   var sel = document.getElementById('invSelect');
@@ -341,6 +363,48 @@ function buildPrintPayload(cardId, resultData, fallbackData) {
   };
 }
 
+function getCartPurchaseSummary(cart) {
+  var grouped = {};
+  (cart || []).forEach(function(item) {
+    var data = item && item.data ? item.data : {};
+    var spec = data.spec || '';
+    (data.bars || []).forEach(function(bar) {
+      var sl = parseInt(bar && bar.sl, 10) || 0;
+      if (!sl || (typeof isStdStockLength === 'function' && !isStdStockLength(sl))) return;
+      var key = spec + '::' + sl;
+      if (!grouped[key]) grouped[key] = { spec: spec, sl: sl, qty: 0 };
+      grouped[key].qty += 1;
+    });
+  });
+  return Object.keys(grouped).map(function(key) { return grouped[key]; }).sort(function(a, b) {
+    if (a.spec !== b.spec) return String(a.spec).localeCompare(String(b.spec), 'ja');
+    return b.sl - a.sl;
+  });
+}
+
+function buildPurchaseMailto(summary, cart) {
+  if (!summary.length) return '';
+  var first = cart && cart[0] && cart[0].data ? cart[0].data : {};
+  var job = first.job || {};
+  var lines = [
+    'お世話になっております。',
+    '',
+    '下記鋼材の手配をお願いいたします。',
+    '',
+    '案件名: ' + (job.name || ''),
+    '希望納期: ',
+    '',
+    '【発注明細】'
+  ];
+  summary.forEach(function(item) {
+    lines.push('・' + (item.spec || '規格未設定') + ' / ' + Number(item.sl || 0).toLocaleString() + 'mm × ' + item.qty + '本');
+  });
+  lines.push('');
+  lines.push('よろしくお願いいたします。');
+  var subject = 'TORIAI 材料手配依頼';
+  return 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+}
+
 function getLatestPrintedHistoryRemnants(cardId) {
   if (typeof getCutHistory !== 'function') return [];
   var hist = getCutHistory();
@@ -483,8 +547,7 @@ cartDoPrint = function() {
 
   var allRems = [];
   var sigParts = [];
-  var consumeSigParts = [];
-  var consumeBars = [];
+  var consumePayloads = [];
   cartSnapshot.forEach(function(item) {
     var data = item && item.data ? item.data : {};
     var cardId = data.cardId || item.cardId;
@@ -494,8 +557,7 @@ cartDoPrint = function() {
       sigParts.push(buildRemnantSignature(cardId, payload.rems));
     }
     if (getConsumedRemnantLengths(payload.bars).length) {
-      consumeBars = consumeBars.concat(payload.bars);
-      consumeSigParts.push(buildConsumeSignature(cardId, payload.bars));
+      consumePayloads.push({ cardId: cardId, bars: payload.bars, meta: payload.meta });
     }
   });
 
@@ -506,17 +568,43 @@ cartDoPrint = function() {
       registerRemnants(allRems);
     }
   }
-  if (consumeBars.length && typeof consumeInventoryBars === 'function') {
-    var consumeSignature = JSON.stringify(consumeSigParts.sort());
+  if (consumePayloads.length && typeof consumeInventoryBars === 'function') {
+    var consumeSignature = JSON.stringify(consumePayloads.map(function(item) {
+      return buildConsumeSignature(item.cardId, item.bars);
+    }).sort());
     if (window._lastConsumedInventorySignature !== consumeSignature) {
       window._lastConsumedInventorySignature = consumeSignature;
-      consumeInventoryBars(
-        consumeBars,
-        window._lastCalcResult && window._lastCalcResult.meta ? window._lastCalcResult.meta : {}
-      );
+      consumePayloads.forEach(function(item) {
+        consumeInventoryBars(item.bars, item.meta);
+      });
     }
   }
   return result;
+};
+
+var _baseRenderCartModal = typeof renderCartModal === 'function' ? renderCartModal : null;
+renderCartModal = function() {
+  var out = _baseRenderCartModal ? _baseRenderCartModal.apply(this, arguments) : undefined;
+  var body = document.getElementById('cartModalBody');
+  if (!body) return out;
+  var cart = typeof getCart === 'function' ? getCart() : [];
+  if (!cart.length) return out;
+  var summary = getCartPurchaseSummary(cart);
+  var existing = document.getElementById('cartPurchaseSection');
+  if (existing) existing.remove();
+  var section = document.createElement('div');
+  section.id = 'cartPurchaseSection';
+  section.className = 'cart-purchase-section';
+  section.innerHTML =
+    '<div class="cart-purchase-title">材料手配</div>' +
+    (summary.length
+      ? '<div class="cart-purchase-list">' + summary.map(function(item) {
+          return '<div class="cart-purchase-row"><span class="cart-purchase-spec">' + escapeHtml(item.spec || '規格未設定') + '</span><span class="cart-purchase-stock">' + Number(item.sl || 0).toLocaleString() + 'mm × ' + item.qty + '本</span></div>';
+        }).join('') + '</div>' +
+        '<button type="button" class="cart-purchase-mail" onclick="window.location.href=\'' + buildPurchaseMailto(summary, cart).replace(/'/g, '%27') + '\'">発注書メール作成</button>'
+      : '<div class="cart-purchase-empty">今回発注が必要な定尺材はありません。</div>');
+  body.appendChild(section);
+  return out;
 };
 
 function hydrateYieldRemnantLists() {

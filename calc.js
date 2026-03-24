@@ -957,7 +957,10 @@ function applyWorkerResults(results, stocks, minValidLen, endLoss, kgm) {
     blade: parseInt((document.getElementById('blade') || {}).value, 10) || 3,
     endLoss: endLoss,
     job: typeof getJobInfo === 'function' ? getJobInfo() : {},
-    stocks: (stocks || []).map(function(stock) { return { sl: stock.sl, max: stock.max }; })
+    stocks: (stocks || []).map(function(stock) { return { sl: stock.sl, max: stock.max }; }),
+    selectedInventoryRemnants: typeof getSelectedInventoryRemnantDetails === 'function'
+      ? getSelectedInventoryRemnantDetails()
+      : []
   };
   var remBars = ry.remnantBars || [];
   if (remBars.length) {

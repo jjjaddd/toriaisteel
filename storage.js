@@ -812,7 +812,31 @@ function consumeInventoryBars(bars, meta) {
   if (!lengths.length) return [];
 
   var consumed = [];
+  var remainingByLen = {};
   lengths.forEach(function(len) {
+    remainingByLen[len] = (remainingByLen[len] || 0) + 1;
+  });
+
+  var selected = Array.isArray(context.selectedInventoryRemnants) ? context.selectedInventoryRemnants : [];
+  selected.forEach(function(sel) {
+    var len = parseInt(sel && sel.len, 10) || 0;
+    var need = Math.min(remainingByLen[len] || 0, Math.max(0, parseInt(sel && sel.qty, 10) || 0));
+    if (!len || !need) return;
+    var ids = (sel.ids || []).map(function(id) { return String(id); });
+    for (var i = 0; i < ids.length && need > 0; i++) {
+      var idx = inv.findIndex(function(item) {
+        return String(item && item.id) === ids[i];
+      });
+      if (idx < 0) continue;
+      consumed.push(inv[idx]);
+      inv.splice(idx, 1);
+      need--;
+      remainingByLen[len] = Math.max(0, (remainingByLen[len] || 0) - 1);
+    }
+  });
+
+  lengths.forEach(function(len) {
+    if (!(remainingByLen[len] > 0)) return;
     var idx = inv.findIndex(function(item) {
       return Number(item && item.len) === len &&
         (!context.spec || item.spec === context.spec) &&
@@ -836,6 +860,7 @@ function consumeInventoryBars(bars, meta) {
     if (idx < 0) return;
     consumed.push(inv[idx]);
     inv.splice(idx, 1);
+    remainingByLen[len] = Math.max(0, (remainingByLen[len] || 0) - 1);
   });
 
   if (!consumed.length) return [];
