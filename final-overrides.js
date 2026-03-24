@@ -1180,6 +1180,75 @@ renderInventoryPage = function() {
   }
 })();
 
+(function enforceHistoryNewestFirst() {
+  var _baseRenderHistory = typeof renderHistory === 'function' ? renderHistory : null;
+  if (!_baseRenderHistory) return;
+
+  renderHistory = function() {
+    var cont = document.getElementById('histList');
+    var empty = document.getElementById('histEmpty');
+    if (!cont) return _baseRenderHistory.apply(this, arguments);
+
+    var hist = getCutHistory().slice();
+    var fc = (((document.getElementById('hsClient') || {}).value) || '').toLowerCase();
+    var fn = (((document.getElementById('hsName') || {}).value) || '').toLowerCase();
+    var fdf = ((document.getElementById('hsDateFrom') || {}).value || '');
+    var fdt = ((document.getElementById('hsDateTo') || {}).value || '');
+    var fs = ((document.getElementById('hsSt') || {}).value || '');
+    var fk = ((document.getElementById('hsKind') || {}).value || '');
+    var keyword = (((document.getElementById('hsKeyword') || {}).value) || '').toLowerCase();
+
+    if (fc) hist = hist.filter(function(h) { return (h.client || '').toLowerCase().indexOf(fc) >= 0; });
+    if (fn) hist = hist.filter(function(h) { return (h.name || '').toLowerCase().indexOf(fn) >= 0; });
+    if (fdf) hist = hist.filter(function(h) { return parseDateValue(h.deadline) >= parseDateValue(fdf); });
+    if (fdt) hist = hist.filter(function(h) { return parseDateValue(h.deadline) <= parseDateValue(fdt); });
+    if (fs) hist = hist.filter(function(h) { return (h.spec || '') === fs; });
+    if (fk) hist = hist.filter(function(h) { return (h.kind || '') === fk; });
+    if (keyword) hist = hist.filter(function(h) { return [h.client, h.name, h.spec, h.kind, h.worker].join(' ').toLowerCase().indexOf(keyword) >= 0; });
+
+    hist.sort(function(a, b) {
+      return parseDateValue(b.date) - parseDateValue(a.date);
+    });
+
+    var sortEl = document.getElementById('hsSort');
+    if (sortEl) sortEl.value = 'date_desc';
+
+    if (!hist.length) {
+      cont.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      renderPager('histPagination', 1, 1, 'setHistoryPage');
+      return;
+    }
+
+    if (empty) empty.style.display = 'none';
+    var pageData = paginateItems(hist, historyPage, HISTORY_PAGE_SIZE);
+    historyPage = pageData.page;
+
+    cont.innerHTML = pageData.items.map(function(h) {
+      var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
+      var specLabel = h.spec || '規格未設定';
+      var clientLabel = h.client || '顧客未設定';
+      return '<div class="hist-card">' +
+        '<div class="hist-card-header"><span class="inv-spec-label">' + specLabel + '</span><span class="inv-count-badge">1件</span></div>' +
+        '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
+          '<div class="hist-row-main">' +
+            '<div><span class="hist-client">' + clientLabel + '</span><span class="hist-name">' + (h.name || '') + '</span></div>' +
+            '<div class="hist-meta">' +
+              '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
+              '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
+              '<span class="hist-rem">メモ: ' + (h.worker || '-') + '</span>' +
+              '<span class="hist-rem">端材 ' + remCount + '本</span>' +
+            '</div>' +
+          '</div>' +
+          '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    renderPager('histPagination', historyPage, pageData.totalPages, 'setHistoryPage');
+  };
+})();
+
 function extractRemnantsFromCard(cardId) {
   var card = document.getElementById(cardId);
   if (!card) return [];
