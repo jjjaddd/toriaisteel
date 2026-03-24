@@ -1406,7 +1406,11 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           patRows(barsInSl) + '</div>';
       });
       var yDiag2 = '';
-      if (remnantBars && remnantBars.length) {
+      var hasRemnantBarsInYield = allBarsY.some(function(bar) {
+        var sl = (bar && bar.sl) || yb.slA || 0;
+        return sl && typeof isStdStockLength === 'function' && !isStdStockLength(sl);
+      });
+      if (remnantBars && remnantBars.length && !hasRemnantBarsInYield) {
         var rgy2 = {};
         remnantBars.forEach(function(rb){ var k=rb.sl; if(!rgy2[k]) rgy2[k]=[]; rgy2[k].push(rb); });
         Object.keys(rgy2).forEach(function(sl){ yDiag2 += buildCutDiagram(rgy2[sl], parseInt(sl), '残材 ' + parseInt(sl).toLocaleString() + 'mm'); });
