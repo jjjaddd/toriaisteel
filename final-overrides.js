@@ -363,6 +363,35 @@ function buildPrintPayload(cardId, resultData, fallbackData) {
   };
 }
 
+function getConsumedInventoryLengths(bars, meta) {
+  var selected = Array.isArray(meta && meta.selectedInventoryRemnants) ? meta.selectedInventoryRemnants : [];
+  var selectedByLen = {};
+  selected.forEach(function(item) {
+    var len = parseInt(item && item.len, 10) || 0;
+    var qty = Math.max(0, parseInt(item && item.qty, 10) || 0);
+    if (!len || !qty) return;
+    selectedByLen[len] = (selectedByLen[len] || 0) + qty;
+  });
+  return (bars || []).map(function(bar) {
+    return parseInt(bar && bar.sl, 10) || 0;
+  }).filter(function(sl) {
+    if (!sl) return false;
+    if (selectedByLen[sl] > 0) {
+      selectedByLen[sl]--;
+      return true;
+    }
+    if (typeof isStdStockLength === 'function') return !isStdStockLength(sl);
+    return true;
+  });
+}
+
+function buildInventoryConsumeSignature(cardId, bars, meta) {
+  return JSON.stringify([
+    cardId || '',
+    getConsumedInventoryLengths(bars, meta).sort(function(a, b) { return b - a; })
+  ]);
+}
+
 function getCartPurchaseSummary(cart) {
   var grouped = {};
   (cart || []).forEach(function(item) {
@@ -403,6 +432,34 @@ function buildPurchaseMailto(summary, cart) {
   lines.push('よろしくお願いいたします。');
   var subject = 'TORIAI 材料手配依頼';
   return 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+}
+
+function buildPurchaseGmailUrl(summary, cart) {
+  if (!summary.length) return '';
+  var first = cart && cart[0] && cart[0].data ? cart[0].data : {};
+  var job = first.job || {};
+  var lines = [
+    'お世話になっております。',
+    '',
+    '下記鋼材の手配をお願いいたします。',
+    '',
+    '案件名: ' + (job.name || ''),
+    '希望納期: ',
+    '',
+    '【発注明細】'
+  ];
+  summary.forEach(function(item) {
+    lines.push('・' + (item.spec || '規格未設定') + ' / ' + Number(item.sl || 0).toLocaleString() + 'mm × ' + item.qty + '本');
+  });
+  lines.push('');
+  lines.push('よろしくお願いいたします。');
+  var params = [
+    'view=cm',
+    'fs=1',
+    'su=' + encodeURIComponent('TORIAI 材料手配依頼'),
+    'body=' + encodeURIComponent(lines.join('\n'))
+  ];
+  return 'https://mail.google.com/mail/?' + params.join('&');
 }
 
 function getLatestPrintedHistoryRemnants(cardId) {
@@ -527,13 +584,13 @@ autoRegisterAfterPrint = function() {
   if (!cardId) return;
   var payload = buildPrintPayload(cardId, window._lastCalcResult);
   var remSignature = buildRemnantSignature(cardId, payload.rems);
-  var consumeSignature = buildConsumeSignature(cardId, payload.bars);
+  var consumeSignature = buildInventoryConsumeSignature(cardId, payload.bars, payload.meta);
 
   if (payload.rems.length && typeof registerRemnants === 'function' && window._lastPrintedRemnantSignature !== remSignature) {
     window._lastPrintedRemnantSignature = remSignature;
     registerRemnants(payload.rems);
   }
-  if (getConsumedRemnantLengths(payload.bars).length && typeof consumeInventoryBars === 'function' && window._lastConsumedInventorySignature !== consumeSignature) {
+  if (getConsumedInventoryLengths(payload.bars, payload.meta).length && typeof consumeInventoryBars === 'function' && window._lastConsumedInventorySignature !== consumeSignature) {
     window._lastConsumedInventorySignature = consumeSignature;
     consumeInventoryBars(payload.bars, payload.meta);
   }
@@ -556,7 +613,7 @@ cartDoPrint = function() {
       allRems = allRems.concat(payload.rems);
       sigParts.push(buildRemnantSignature(cardId, payload.rems));
     }
-    if (getConsumedRemnantLengths(payload.bars).length) {
+    if (getConsumedInventoryLengths(payload.bars, payload.meta).length) {
       consumePayloads.push({ cardId: cardId, bars: payload.bars, meta: payload.meta });
     }
   });
@@ -570,7 +627,7 @@ cartDoPrint = function() {
   }
   if (consumePayloads.length && typeof consumeInventoryBars === 'function') {
     var consumeSignature = JSON.stringify(consumePayloads.map(function(item) {
-      return buildConsumeSignature(item.cardId, item.bars);
+      return buildInventoryConsumeSignature(item.cardId, item.bars, item.meta);
     }).sort());
     if (window._lastConsumedInventorySignature !== consumeSignature) {
       window._lastConsumedInventorySignature = consumeSignature;
@@ -601,7 +658,10 @@ renderCartModal = function() {
       ? '<div class="cart-purchase-list">' + summary.map(function(item) {
           return '<div class="cart-purchase-row"><span class="cart-purchase-spec">' + escapeHtml(item.spec || '規格未設定') + '</span><span class="cart-purchase-stock">' + Number(item.sl || 0).toLocaleString() + 'mm × ' + item.qty + '本</span></div>';
         }).join('') + '</div>' +
-        '<button type="button" class="cart-purchase-mail" onclick="window.location.href=\'' + buildPurchaseMailto(summary, cart).replace(/'/g, '%27') + '\'">発注書メール作成</button>'
+        '<div class="cart-purchase-actions">' +
+          '<button type="button" class="cart-purchase-mail" onclick="window.location.href=\'' + buildPurchaseMailto(summary, cart).replace(/'/g, '%27') + '\'">発注書メール作成</button>' +
+          '<button type="button" class="cart-purchase-mail" onclick="window.open(\'' + buildPurchaseGmailUrl(summary, cart).replace(/'/g, '%27') + '\', \'_blank\')">Gmailで開く</button>' +
+        '</div>'
       : '<div class="cart-purchase-empty">今回発注が必要な定尺材はありません。</div>');
   body.appendChild(section);
   return out;

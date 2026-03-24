@@ -801,23 +801,38 @@ function consumeInventoryBars(bars, meta) {
   var context = buildResultMeta({ meta: meta || {} });
   var inv = getInventory().slice();
   var lengths = [];
+  var selected = Array.isArray(context.selectedInventoryRemnants) ? context.selectedInventoryRemnants : [];
+  var selectedByLen = {};
 
   (bars || []).forEach(function(bar) {
     var sl = parseInt(bar && bar.sl, 10) || 0;
     if (!sl) return;
-    if (typeof isStdStockLength === 'function' && isStdStockLength(sl)) return;
     lengths.push(sl);
   });
 
-  if (!lengths.length) return [];
+  selected.forEach(function(sel) {
+    var len = parseInt(sel && sel.len, 10) || 0;
+    var qty = Math.max(0, parseInt(sel && sel.qty, 10) || 0);
+    if (!len || !qty) return;
+    selectedByLen[len] = (selectedByLen[len] || 0) + qty;
+  });
+
+  var filteredLengths = lengths.filter(function(len) {
+    if (selectedByLen[len] > 0) {
+      selectedByLen[len]--;
+      return true;
+    }
+    if (typeof isStdStockLength === 'function' && isStdStockLength(len)) return false;
+    return true;
+  });
+
+  if (!filteredLengths.length) return [];
 
   var consumed = [];
   var remainingByLen = {};
-  lengths.forEach(function(len) {
+  filteredLengths.forEach(function(len) {
     remainingByLen[len] = (remainingByLen[len] || 0) + 1;
   });
-
-  var selected = Array.isArray(context.selectedInventoryRemnants) ? context.selectedInventoryRemnants : [];
   selected.forEach(function(sel) {
     var len = parseInt(sel && sel.len, 10) || 0;
     var need = Math.min(remainingByLen[len] || 0, Math.max(0, parseInt(sel && sel.qty, 10) || 0));
