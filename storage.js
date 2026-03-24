@@ -720,6 +720,9 @@ function getSelectedBarsFromResultData(resultData, cardId) {
   var yieldMatch = id.match(/^card_yield_(\d+)/);
   if (yieldMatch && result.allDP && result.allDP[parseInt(yieldMatch[1], 10)]) {
     var yieldCard = result.allDP[parseInt(yieldMatch[1], 10)];
+    if (yieldCard.bars && yieldCard.bars.length) {
+      return cloneBarsForCard(yieldCard.bars, yieldCard.slA || 0);
+    }
     return cloneBarsForCard(yieldCard.bA || [], yieldCard.slA).concat(cloneBarsForCard(yieldCard.bB || [], yieldCard.slB));
   }
 
@@ -735,6 +738,9 @@ function getSelectedBarsFromResultData(resultData, cardId) {
     return cloneBarsForCard(result.patA.bars || [], result.patA.sl);
   }
   if (result.allDP && result.allDP[0]) {
+    if (result.allDP[0].bars && result.allDP[0].bars.length) {
+      return cloneBarsForCard(result.allDP[0].bars, result.allDP[0].slA || 0);
+    }
     return cloneBarsForCard(result.allDP[0].bA || [], result.allDP[0].slA).concat(cloneBarsForCard(result.allDP[0].bB || [], result.allDP[0].slB));
   }
   return [];
