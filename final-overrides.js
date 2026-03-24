@@ -390,6 +390,63 @@ function buildPrintPayload(cardId, resultData, fallbackData) {
   };
 }
 
+function buildPrintSectionFromPayload(sectionIndex, spec, payload, endLoss) {
+  var bars = Array.isArray(payload && payload.bars) ? payload.bars.slice() : [];
+  var rems = Array.isArray(payload && payload.rems) ? payload.rems.slice() : [];
+  var slGroups = {};
+  var sumMap = {};
+
+  bars.forEach(function(bar) {
+    var sl = parseInt(bar && bar.sl, 10) || 0;
+    if (!sl) return;
+    if (!slGroups[sl]) slGroups[sl] = [];
+    slGroups[sl].push(bar);
+    (bar.pat || []).forEach(function(len) {
+      sumMap[len] = (sumMap[len] || 0) + 1;
+    });
+  });
+
+  var orderedSls = typeof sortStockLengthsForDisplay === 'function'
+    ? sortStockLengthsForDisplay(Object.keys(slGroups).map(Number))
+    : Object.keys(slGroups).map(Number).sort(function(a, b) { return b - a; });
+
+  var motherSummary = orderedSls.map(function(sl) {
+    return Number(sl).toLocaleString() + 'mm x ' + slGroups[sl].length;
+  }).join(' + ');
+
+  var barHtml = '';
+  orderedSls.forEach(function(sl) {
+    barHtml += buildPrintBarHtml(slGroups[sl], sl, endLoss);
+  });
+
+  var remCounts = {};
+  rems.forEach(function(rem) {
+    var len = parseInt(rem && rem.len, 10) || 0;
+    if (!len) return;
+    remCounts[len] = (remCounts[len] || 0) + Math.max(1, parseInt(rem && rem.qty, 10) || 1);
+  });
+  var remTags = Object.keys(remCounts).map(Number).sort(function(a, b) {
+    return b - a;
+  }).map(function(len) {
+    return Number(len).toLocaleString() + 'mm' + (remCounts[len] > 1 ? ' x ' + remCounts[len] : '');
+  });
+
+  return {
+    idx: sectionIndex,
+    spec: spec || '',
+    motherSummary: motherSummary,
+    sumMap: sumMap,
+    remTags: remTags,
+    barHtml: barHtml
+  };
+}
+
+function buildSinglePrintHtml(job, spec, payload, endLoss) {
+  return buildPrintPages(job || {}, [
+    buildPrintSectionFromPayload(1, spec, payload, endLoss || 150)
+  ]);
+}
+
 function getConsumedInventoryLengths(bars, meta) {
   var selected = Array.isArray(meta && meta.selectedInventoryRemnants) ? meta.selectedInventoryRemnants : [];
   var selectedByLen = {};
@@ -667,10 +724,22 @@ showHistPreview = function(id) {
   modal.style.display = 'flex';
 };
 
-var _basePrintCard = typeof printCard === 'function' ? printCard : null;
 printCard = function(cardId) {
   window._lastPrintedCardId = cardId;
-  return _basePrintCard ? _basePrintCard(cardId) : undefined;
+  var payload = buildPrintPayload(cardId, window._lastCalcResult);
+  if (!payload.bars.length) return;
+  var meta = payload.meta || {};
+  var job = meta.job || (typeof getJobInfo === 'function' ? getJobInfo() : {});
+  var spec = meta.spec || ((document.getElementById('spec') || {}).value || '');
+  var endLoss = parseInt(meta.endLoss, 10) || parseInt(((document.getElementById('endloss') || {}).value), 10) || 150;
+
+  openPrintWindow(buildSinglePrintHtml(job, spec, payload, endLoss));
+
+  if (window._lastCalcResult && typeof saveCutHistory === 'function') {
+    saveCutHistory(window._lastCalcResult, cardId);
+  }
+  autoRegisterAfterPrint();
+  return;
 };
 
 autoRegisterAfterPrint = function() {
@@ -694,19 +763,28 @@ autoRegisterAfterPrint = function() {
   }
 };
 
-var _baseCartDoPrint = typeof cartDoPrint === 'function' ? cartDoPrint : null;
 cartDoPrint = function() {
   var cartSnapshot = typeof getCart === 'function' ? getCart().slice() : [];
-  var result = _baseCartDoPrint ? _baseCartDoPrint() : undefined;
-  if (!cartSnapshot.length) return result;
+  if (!cartSnapshot.length) {
+    alert('印刷カートが空です。');
+    return;
+  }
 
   var allRems = [];
   var sigParts = [];
   var consumePayloads = [];
+  var sections = [];
+  var firstJob = null;
   cartSnapshot.forEach(function(item) {
     var data = item && item.data ? item.data : {};
     var cardId = data.cardId || item.cardId;
     var payload = buildPrintPayload(cardId, window._lastCalcResult, data);
+    var meta = payload.meta || data.resultMeta || {};
+    var job = meta.job || data.job || {};
+    if (!firstJob) firstJob = job;
+    var spec = meta.spec || data.spec || '';
+    var endLoss = parseInt(meta.endLoss, 10) || parseInt(data.endLoss, 10) || 150;
+    sections.push(buildPrintSectionFromPayload(sections.length + 1, spec, payload, endLoss));
     if (payload.rems.length) {
       allRems = allRems.concat(payload.rems);
       sigParts.push(buildRemnantSignature(cardId, payload.rems));
@@ -715,6 +793,10 @@ cartDoPrint = function() {
       consumePayloads.push({ cardId: cardId, bars: payload.bars, meta: payload.meta });
     }
   });
+
+  if (sections.length) {
+    openPrintWindow(buildPrintPages(firstJob || {}, sections));
+  }
 
   if (allRems.length && typeof registerRemnants === 'function') {
     var signature = JSON.stringify(sigParts.sort());
@@ -738,7 +820,15 @@ cartDoPrint = function() {
       });
     }
   }
-  return result;
+  if (typeof clearCart === 'function') clearCart();
+  if (typeof updateCartBadge === 'function') updateCartBadge();
+  if (typeof closeCartModal === 'function') closeCartModal();
+  document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
+    btn.textContent = '＋作業指示書に追加';
+    btn.classList.remove('added');
+    btn.disabled = false;
+  });
+  return;
 };
 
 var _baseRenderCartModal = typeof renderCartModal === 'function' ? renderCartModal : null;

@@ -64,6 +64,7 @@ global.document = {
 };
 
 global.navigator = {};
+global.alert = function() {};
 global.curKind = 'H';
 global.totalRows = 0;
 global.remnantCount = 0;
@@ -81,6 +82,16 @@ global.isStdStockLength = function(len) {
 global.sortStockLengthsForDisplay = function(lengths) {
   return lengths.slice().sort(function(a, b) { return Number(b) - Number(a); });
 };
+global.buildPrintBarHtml = function(bars, sl) {
+  return 'BAR:' + sl + ':' + (bars || []).length;
+};
+global.buildPrintPages = function(job, sections) {
+  return JSON.stringify({ job: job, sections: sections });
+};
+global.openPrintWindow = function() {};
+global.closeCartModal = function() {};
+global.clearCart = function() {};
+global.updateCartBadge = function() {};
 
 vm.runInThisContext(fs.readFileSync('storage.js', 'utf8'), { filename: 'storage.js' });
 vm.runInThisContext(fs.readFileSync('final-overrides.js', 'utf8'), { filename: 'final-overrides.js' });
@@ -300,6 +311,22 @@ test('buildPrintPayload falls back to stored cart data when calcId differs', fun
   assert(payload.rems.length === 1 && payload.rems[0].len === 941, 'stored remnants should remain when calcId differs');
 });
 
+test('print section preserves remnant stock bars alongside standard stock bars', function() {
+  const payload = {
+    bars: [
+      { pat: [300, 300], loss: 188, sl: 941 },
+      { pat: [500, 500, 500, 500, 500], loss: 2838, sl: 5500 }
+    ],
+    rems: [
+      { len: 2838, spec: 'H-100x100x6x8', kind: 'H', sl: 5500, qty: 1 }
+    ]
+  };
+  const section = buildPrintSectionFromPayload(1, 'H-100x100x6x8', payload, 150);
+  assert(section.motherSummary.indexOf('941mm x 1') >= 0, 'mother summary should include remnant stock');
+  assert(section.motherSummary.indexOf('5,500mm x 1') >= 0, 'mother summary should include standard stock');
+  assert(section.barHtml.indexOf('941') >= 0, 'bar html should include remnant stock length');
+});
+
 test('stress: payload resolution remains stable across many card patterns', function() {
   const specs = ['H-100x100x6x8', 'RB-6', 'L-65x65x6'];
   for (let i = 0; i < 3000; i++) {
@@ -354,6 +381,24 @@ test('stress: mismatched printed card ids never leak stale selected bars', funct
     assert(b80Bars.length === 1, 'mismatch stress should still resolve B80 bars');
     assert(b80Bars[0].sl === 5500, 'mismatch stress should not leak yield bar sl');
     assert(b80Bars[0].loss === 941 + (i % 7), 'mismatch stress should keep matching B80 loss');
+  }
+});
+
+test('stress: print section generation keeps remnant bars visible', function() {
+  for (let i = 0; i < 5000; i++) {
+    const payload = {
+      bars: [
+        { pat: [300, 300], loss: 188 + (i % 9), sl: 941 + (i % 17) },
+        { pat: [500, 500, 500, 500, 500], loss: 2838 + (i % 11), sl: 5500 }
+      ],
+      rems: [
+        { len: 2838 + (i % 11), spec: 'H-100x100x6x8', kind: 'H', sl: 5500, qty: 1 }
+      ]
+    };
+    const section = buildPrintSectionFromPayload(1, 'H-100x100x6x8', payload, 150);
+    assert(section.motherSummary.indexOf('5,500mm x 1') >= 0, 'print section stress should keep standard stock summary');
+    assert(section.motherSummary.indexOf('mm x 1') >= 0, 'print section stress should include remnant stock summary');
+    assert(section.barHtml.length > 0, 'print section stress should produce html');
   }
 });
 
