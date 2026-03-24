@@ -347,6 +347,17 @@ function buildConsumeSignature(cardId, bars) {
   ]);
 }
 
+function getSelectedInventoryIds(meta) {
+  var selected = Array.isArray(meta && meta.selectedInventoryRemnants) ? meta.selectedInventoryRemnants : [];
+  var ids = [];
+  selected.forEach(function(item) {
+    (item && item.ids ? item.ids : []).forEach(function(id) {
+      ids.push(String(id));
+    });
+  });
+  return ids;
+}
+
 function buildPrintPayload(cardId, resultData, fallbackData) {
   var data = fallbackData && typeof fallbackData === 'object' ? fallbackData : {};
   var bars = Array.isArray(data.bars) && data.bars.length
@@ -386,6 +397,10 @@ function getConsumedInventoryLengths(bars, meta) {
 }
 
 function buildInventoryConsumeSignature(cardId, bars, meta) {
+  var selectedIds = getSelectedInventoryIds(meta);
+  if (selectedIds.length) {
+    return JSON.stringify([cardId || '', selectedIds.sort()]);
+  }
   return JSON.stringify([
     cardId || '',
     getConsumedInventoryLengths(bars, meta).sort(function(a, b) { return b - a; })
@@ -590,7 +605,11 @@ autoRegisterAfterPrint = function() {
     window._lastPrintedRemnantSignature = remSignature;
     registerRemnants(payload.rems);
   }
-  if (getConsumedInventoryLengths(payload.bars, payload.meta).length && typeof consumeInventoryBars === 'function' && window._lastConsumedInventorySignature !== consumeSignature) {
+  var selectedIds = getSelectedInventoryIds(payload.meta);
+  if (selectedIds.length && typeof consumeSelectedInventoryRemnants === 'function' && window._lastConsumedInventorySignature !== consumeSignature) {
+    window._lastConsumedInventorySignature = consumeSignature;
+    consumeSelectedInventoryRemnants(payload.meta.selectedInventoryRemnants);
+  } else if (getConsumedInventoryLengths(payload.bars, payload.meta).length && typeof consumeInventoryBars === 'function' && window._lastConsumedInventorySignature !== consumeSignature) {
     window._lastConsumedInventorySignature = consumeSignature;
     consumeInventoryBars(payload.bars, payload.meta);
   }
@@ -613,7 +632,7 @@ cartDoPrint = function() {
       allRems = allRems.concat(payload.rems);
       sigParts.push(buildRemnantSignature(cardId, payload.rems));
     }
-    if (getConsumedInventoryLengths(payload.bars, payload.meta).length) {
+    if (getSelectedInventoryIds(payload.meta).length || getConsumedInventoryLengths(payload.bars, payload.meta).length) {
       consumePayloads.push({ cardId: cardId, bars: payload.bars, meta: payload.meta });
     }
   });
@@ -632,7 +651,11 @@ cartDoPrint = function() {
     if (window._lastConsumedInventorySignature !== consumeSignature) {
       window._lastConsumedInventorySignature = consumeSignature;
       consumePayloads.forEach(function(item) {
-        consumeInventoryBars(item.bars, item.meta);
+        if (getSelectedInventoryIds(item.meta).length && typeof consumeSelectedInventoryRemnants === 'function') {
+          consumeSelectedInventoryRemnants(item.meta.selectedInventoryRemnants);
+        } else if (typeof consumeInventoryBars === 'function') {
+          consumeInventoryBars(item.bars, item.meta);
+        }
       });
     }
   }
