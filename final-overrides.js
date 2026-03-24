@@ -430,7 +430,7 @@ function buildPurchaseMailto(summary, cart) {
   });
   lines.push('');
   lines.push('よろしくお願いいたします。');
-  var subject = 'TORIAI 材料手配依頼';
+  var subject = '';
   return 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
 }
 
@@ -456,7 +456,7 @@ function buildPurchaseGmailUrl(summary, cart) {
   var params = [
     'view=cm',
     'fs=1',
-    'su=' + encodeURIComponent('TORIAI 材料手配依頼'),
+    'su=' + encodeURIComponent(''),
     'body=' + encodeURIComponent(lines.join('\n'))
   ];
   return 'https://mail.google.com/mail/?' + params.join('&');
