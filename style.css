@@ -1470,9 +1470,9 @@ input:focus,select:focus,textarea:focus{
   border:1px solid #d4d4dc;
   color:#2a2a3e;
   border-radius:var(--r-sm);
-  padding:5px 30px 5px 9px;
+  padding:4px 30px 4px 9px;
   box-sizing:border-box;
-  min-height:28px;
+  min-height:26px;
   font-family:'Space Grotesk',monospace;
   font-size:12px;
   font-weight:500;
