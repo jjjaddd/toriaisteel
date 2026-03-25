@@ -327,6 +327,23 @@ test('print section preserves remnant stock bars alongside standard stock bars',
   assert(section.barHtml.indexOf('941') >= 0, 'bar html should include remnant stock length');
 });
 
+test('extractRemnantsFromCard resolves from canonical payload instead of DOM text', function() {
+  global._lastCalcResult = {
+    patB: {
+      plan80: { sl: 5500, bars: [{ pat: [1600, 1600, 600, 600], loss: 941, sl: 5500 }] }
+    },
+    meta: sampleMeta()
+  };
+  const rems = extractRemnantsFromCard('card_pat_B80_1');
+  assert(rems.length === 1, 'extractRemnantsFromCard should read canonical payload');
+  assert(rems[0].len === 941, 'extractRemnantsFromCard should keep canonical remnant');
+});
+
+test('buildCutSourceLabel omits legacy wording', function() {
+  assert(buildCutSourceLabel(5500).indexOf('定尺') >= 0, 'standard stock label should remain');
+  assert(buildCutSourceLabel(941).indexOf('より切断') < 0, 'remnant label should omit legacy wording');
+});
+
 test('stress: payload resolution remains stable across many card patterns', function() {
   const specs = ['H-100x100x6x8', 'RB-6', 'L-65x65x6'];
   for (let i = 0; i < 3000; i++) {

@@ -447,6 +447,58 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
   ]);
 }
 
+(function hardenDataDrivenCutFlow() {
+  extractRemnantsFromCard = function(cardId) {
+    return buildPrintPayload(cardId, window._lastCalcResult).rems.slice();
+  };
+
+  getCardBarsById = function(cardId) {
+    return buildPrintPayload(cardId, window._lastCalcResult).bars.slice();
+  };
+
+  buildBarsFromCardPattern = function(cardId) {
+    return getCardBarsById(cardId);
+  };
+
+  buildCutSourceLabel = function(slLen) {
+    return isStdStockLength(slLen)
+      ? slLen.toLocaleString() + 'mm 定尺'
+      : '残材 L=' + slLen.toLocaleString() + 'mm';
+  };
+
+  buildPrintBarHtml = function(bars, sl, endLoss) {
+    if (!bars || !bars.length) return '';
+    var grouped = {};
+    bars.forEach(function(bar) {
+      var key = (bar.pat || []).slice().join(',') + '|' + (bar.loss || 0);
+      if (!grouped[key]) grouped[key] = { bar: bar, cnt: 0 };
+      grouped[key].cnt++;
+    });
+    var endHalf = (endLoss || 150) / 2;
+    var sourceLabel = buildCutSourceLabel(sl);
+    var html = '';
+    Object.keys(grouped).forEach(function(key) {
+      var g = grouped[key];
+      var bar = g.bar;
+      html += '<div class="bar-block">';
+      html += '<div class="bar-head"><span style="font-weight:700;font-size:10px">' + sourceLabel + '</span><span class="cnt-badge">× ' + g.cnt + 'セット</span></div>';
+      html += '<div class="bar-pat">= ' + (bar.pat || []).join(' + ') + (bar.loss > 0 ? ' / 端材 ' + bar.loss.toLocaleString() + 'mm' : '') + '</div>';
+      html += '<div class="bar-track">';
+      html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+      (bar.pat || []).forEach(function(len, idx) {
+        html += '<div class="b-piece" style="flex:' + len + '">' + len.toLocaleString() + '</div>';
+        if (idx < bar.pat.length - 1) html += '<div class="b-blade"></div>';
+      });
+      if (bar.loss > 0) {
+        html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + bar.loss.toLocaleString() + '</div>';
+      }
+      html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+      html += '</div></div>';
+    });
+    return html;
+  };
+})();
+
 function getConsumedInventoryLengths(bars, meta) {
   var selected = Array.isArray(meta && meta.selectedInventoryRemnants) ? meta.selectedInventoryRemnants : [];
   var selectedByLen = {};
