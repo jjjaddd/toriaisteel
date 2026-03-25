@@ -1478,10 +1478,12 @@ input:focus,select:focus,textarea:focus{
   font-weight:500;
 }
 #jobWorker{
+  height:26px;
   min-height:26px;
   padding-top:4px;
   padding-bottom:4px;
   box-sizing:border-box;
+  line-height:1.2;
 }
 .deadline-sep{
   font-size:12px;

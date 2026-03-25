@@ -1941,3 +1941,24 @@ function extractRemnantsFromCard(cardId) {
     init();
   }
 })();
+
+(function ensureDeadlineEnterToMemo() {
+  function bind() {
+    var dayInput = document.getElementById('jobDeadlineDay');
+    var memoInput = document.getElementById('jobWorker');
+    if (!dayInput || !memoInput || dayInput.dataset.memoEnterBound === '1') return;
+    dayInput.dataset.memoEnterBound = '1';
+    dayInput.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      memoInput.focus();
+      if (typeof memoInput.select === 'function') memoInput.select();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind, { once: true });
+  } else {
+    bind();
+  }
+})();
