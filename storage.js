@@ -697,6 +697,8 @@ function buildResultMeta(resultData) {
   if (!meta.blade) meta.blade = parseInt((document.getElementById('blade') || {}).value, 10) || 3;
   if (!meta.endLoss) meta.endLoss = parseInt((document.getElementById('endloss') || {}).value, 10) || 150;
   if (!meta.job && typeof getJobInfo === 'function') meta.job = getJobInfo();
+  if (!Array.isArray(meta.origPieces) && Array.isArray(resultData && resultData.origPieces)) meta.origPieces = resultData.origPieces.slice();
+  if (!Array.isArray(meta.calcPieces) && Array.isArray(resultData && resultData.calcPieces)) meta.calcPieces = resultData.calcPieces.slice();
   return meta;
 }
 
@@ -726,15 +728,19 @@ function getSelectedBarsFromResultData(resultData, cardId) {
   var yieldMatch = id.match(/^card_yield_(\d+)/);
   if (yieldMatch && result.allDP && result.allDP[parseInt(yieldMatch[1], 10)]) {
     var yieldCard = result.allDP[parseInt(yieldMatch[1], 10)];
+    var remnantBars = cloneBarsForCard(((result.meta || {}).remnantBars) || [], 0);
     if (yieldCard && yieldCard.bars && yieldCard.bars.length) {
       var baseBars = cloneBarsForCard(yieldCard.bars || [], yieldCard.slA);
-      var remnantBars = cloneBarsForCard(((result.meta || {}).remnantBars) || [], 0);
       var hasRemnantBars = baseBars.some(function(bar) {
         return bar && bar.sl && typeof isStdStockLength === 'function' && !isStdStockLength(bar.sl);
       });
       return hasRemnantBars ? baseBars : remnantBars.concat(baseBars);
     }
-    return cloneBarsForCard(yieldCard.bA || [], yieldCard.slA).concat(cloneBarsForCard(yieldCard.bB || [], yieldCard.slB));
+    var fallbackBars = cloneBarsForCard(yieldCard.bA || [], yieldCard.slA).concat(cloneBarsForCard(yieldCard.bB || [], yieldCard.slB));
+    var hasFallbackRemnants = fallbackBars.some(function(bar) {
+      return bar && bar.sl && typeof isStdStockLength === 'function' && !isStdStockLength(bar.sl);
+    });
+    return hasFallbackRemnants ? fallbackBars : remnantBars.concat(fallbackBars);
   }
 
   var patMatch = id.match(/^card_pat_([^_]+)/);

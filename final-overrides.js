@@ -375,7 +375,7 @@ function buildPrintPayload(cardId, resultData, fallbackData) {
     : (Array.isArray(data.bars) && data.bars.length
         ? data.bars.slice()
         : getBarsForSelectedCard(cardId, resultData || window._lastCalcResult));
-  var meta = data.resultMeta || (payload ? payload.meta : null) || (resultData && resultData.meta) || (window._lastCalcResult && window._lastCalcResult.meta) || {};
+  var meta = (payload ? payload.meta : null) || data.resultMeta || (resultData && resultData.meta) || (window._lastCalcResult && window._lastCalcResult.meta) || {};
   var rems = payload
     ? payload.remnants.slice()
     : (Array.isArray(data.remnants) && data.remnants.length
@@ -383,6 +383,15 @@ function buildPrintPayload(cardId, resultData, fallbackData) {
         : (typeof buildRemnantsFromBars === 'function'
         ? buildRemnantsFromBars(bars, meta)
         : extractRemnantsFromBars(bars)));
+  if (String(cardId || '').indexOf('card_yield_') === 0 && meta && Array.isArray(meta.remnantBars) && meta.remnantBars.length) {
+    var remnantBars = meta.remnantBars.map(function(bar) {
+      return { pat: (bar.pat || []).slice(), loss: bar.loss || 0, sl: bar.sl || 0 };
+    });
+    var hasRemnantBars = bars.some(function(bar) {
+      return bar && bar.sl && typeof isStdStockLength === 'function' && !isStdStockLength(bar.sl);
+    });
+    if (!hasRemnantBars) bars = remnantBars.concat(bars);
+  }
   return {
     bars: bars,
     meta: meta,
@@ -395,16 +404,30 @@ function buildPrintSectionFromPayload(sectionIndex, spec, payload, endLoss) {
   var rems = Array.isArray(payload && payload.rems) ? payload.rems.slice() : [];
   var slGroups = {};
   var sumMap = {};
+  var origPieces = payload && payload.meta && Array.isArray(payload.meta.origPieces)
+    ? payload.meta.origPieces.slice()
+    : [];
 
   bars.forEach(function(bar) {
     var sl = parseInt(bar && bar.sl, 10) || 0;
     if (!sl) return;
     if (!slGroups[sl]) slGroups[sl] = [];
     slGroups[sl].push(bar);
-    (bar.pat || []).forEach(function(len) {
-      sumMap[len] = (sumMap[len] || 0) + 1;
-    });
   });
+
+  if (origPieces.length) {
+    origPieces.forEach(function(len) {
+      var pieceLen = parseInt(len, 10) || 0;
+      if (!pieceLen) return;
+      sumMap[pieceLen] = (sumMap[pieceLen] || 0) + 1;
+    });
+  } else {
+    bars.forEach(function(bar) {
+      (bar.pat || []).forEach(function(len) {
+        sumMap[len] = (sumMap[len] || 0) + 1;
+      });
+    });
+  }
 
   var orderedSls = typeof sortStockLengthsForDisplay === 'function'
     ? sortStockLengthsForDisplay(Object.keys(slGroups).map(Number))

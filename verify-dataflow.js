@@ -159,6 +159,24 @@ test('yield payload prepends remnant bars when yield bars are standard stock onl
   assert(payload.selectedBars[1].sl === 9000, 'second bar should be standard source');
 });
 
+test('yield payload prepends remnant bars when yield falls back to bA and bB only', function() {
+  const result = {
+    allDP: [{
+      slA: 9000,
+      slB: null,
+      bA: [{ pat: [1600, 600], loss: 29, sl: 9000 }],
+      bB: []
+    }],
+    meta: sampleMeta({
+      remnantBars: [{ pat: [300, 300], loss: 188, sl: 941 }]
+    })
+  };
+  const payload = buildCardSelectionPayload(result, 'card_yield_0');
+  assert(payload.selectedBars.length === 2, 'yield fallback should include remnant and standard bars');
+  assert(payload.selectedBars[0].sl === 941, 'yield fallback should prepend remnant source');
+  assert(payload.selectedBars[1].sl === 9000, 'yield fallback should keep standard source');
+});
+
 test('pattern B90 payload resolves correct plan bars', function() {
   const result = {
     patA: { sl: 7000, bars: [{ pat: [1600], loss: 400, sl: 7000 }] },
@@ -325,6 +343,45 @@ test('print section preserves remnant stock bars alongside standard stock bars',
   assert(section.motherSummary.indexOf('941mm x 1') >= 0, 'mother summary should include remnant stock');
   assert(section.motherSummary.indexOf('5,500mm x 1') >= 0, 'mother summary should include standard stock');
   assert(section.barHtml.indexOf('941') >= 0, 'bar html should include remnant stock length');
+});
+
+test('print section uses original requested pieces for cut-list counts before bar-derived fallback', function() {
+  const payload = {
+    bars: [
+      { pat: [300, 300], loss: 188, sl: 941 },
+      { pat: [500, 500, 500, 500, 500], loss: 2838, sl: 5500 }
+    ],
+    rems: [{ len: 2838, spec: 'H-100x100x6x8', kind: 'H', sl: 5500, qty: 1 }],
+    meta: Object.assign(sampleMeta(), {
+      origPieces: [500, 500, 500, 500, 500]
+    })
+  };
+  const section = buildPrintSectionFromPayload(1, 'H-100x100x6x8', payload, 150);
+  assert(section.sumMap[500] === 5, 'cut-list count should come from original requested pieces');
+  assert(!section.sumMap[300], 'cut-list should not be inflated by remnant-only helper bars');
+});
+
+test('buildPrintPayload prefers canonical live meta over fallback cart meta', function() {
+  const result = {
+    allDP: [{
+      slA: 9000,
+      bars: [{ pat: [1600, 600], loss: 29, sl: 9000 }],
+      bA: [],
+      bB: []
+    }],
+    meta: sampleMeta({
+      calcId: 'calc_live',
+      origPieces: [1600, 600],
+      remnantBars: [{ pat: [300, 300], loss: 188, sl: 941 }]
+    })
+  };
+  global._lastCalcResult = result;
+  const payload = buildPrintPayload('card_yield_0', result, {
+    bars: [{ pat: [1], loss: 1, sl: 1 }],
+    resultMeta: sampleMeta({ calcId: 'calc_live' })
+  });
+  assert(Array.isArray(payload.meta.origPieces) && payload.meta.origPieces.length === 2, 'canonical live meta should win over stale cart meta');
+  assert(payload.bars[0].sl === 941, 'yield print payload should still keep remnant source first');
 });
 
 test('extractRemnantsFromCard resolves from canonical payload instead of DOM text', function() {

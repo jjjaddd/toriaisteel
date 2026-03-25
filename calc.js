@@ -958,6 +958,8 @@ function applyWorkerResults(results, stocks, minValidLen, endLoss, kgm) {
     endLoss: endLoss,
     job: typeof getJobInfo === 'function' ? getJobInfo() : {},
     stocks: (stocks || []).map(function(stock) { return { sl: stock.sl, max: stock.max }; }),
+    origPieces: (ry.origPieces || []).slice(),
+    calcPieces: (ry.calcPieces || []).slice(),
     selectedInventoryRemnants: typeof getSelectedInventoryRemnantDetails === 'function'
       ? getSelectedInventoryRemnantDetails()
       : [],
@@ -1048,6 +1050,8 @@ function runCalc() {
         endLoss: endLoss,
         job: typeof getJobInfo === 'function' ? getJobInfo() : {},
         stocks: (stocks || []).map(function(stock) { return { sl: stock.sl, max: stock.max }; }),
+        origPieces: pieces.slice(),
+        calcPieces: [],
         selectedInventoryRemnants: typeof getSelectedInventoryRemnantDetails === 'function'
           ? getSelectedInventoryRemnantDetails()
           : [],
