@@ -1717,3 +1717,86 @@ function extractRemnantsFromCard(cardId) {
     init();
   }
 })();
+
+(function refineDeadlineSplitUi() {
+  function pad2(v) {
+    v = String(v || '').replace(/[^\d]/g, '');
+    return v ? v.padStart(2, '0') : '';
+  }
+
+  function syncDeadlineValue(hidden, monthInput, dayInput) {
+    if (!hidden) return;
+    var mm = pad2(monthInput && monthInput.value);
+    var dd = pad2(dayInput && dayInput.value);
+    hidden.value = (mm && dd) ? ('2026-' + mm + '-' + dd) : '';
+    if (typeof saveSettings === 'function') saveSettings();
+  }
+
+  function openDeadlinePicker(hidden, monthInput, dayInput) {
+    var picker = document.createElement('input');
+    picker.type = 'date';
+    picker.value = hidden.value || '2026-01-01';
+    picker.style.position = 'fixed';
+    picker.style.left = '-9999px';
+    picker.style.opacity = '0';
+    document.body.appendChild(picker);
+    picker.addEventListener('change', function() {
+      var m = String(picker.value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (m) {
+        monthInput.value = String(parseInt(m[2], 10));
+        dayInput.value = String(parseInt(m[3], 10));
+        syncDeadlineValue(hidden, monthInput, dayInput);
+      }
+      picker.remove();
+    }, { once: true });
+    picker.addEventListener('blur', function() {
+      setTimeout(function() {
+        if (picker.isConnected) picker.remove();
+      }, 0);
+    }, { once: true });
+    picker.focus();
+    if (typeof picker.showPicker === 'function') picker.showPicker();
+    else picker.click();
+  }
+
+  function init() {
+    var hidden = document.getElementById('jobDeadline');
+    var wrap = document.querySelector('.deadline-split');
+    var monthInput = document.getElementById('jobDeadlineMonth');
+    var dayInput = document.getElementById('jobDeadlineDay');
+    if (!hidden || !wrap || !monthInput || !dayInput) return;
+
+    monthInput.placeholder = '月';
+    dayInput.placeholder = '日';
+
+    if (!document.getElementById('jobDeadlinePicker')) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'jobDeadlinePicker';
+      btn.className = 'deadline-picker-btn';
+      btn.setAttribute('aria-label', 'カレンダーを開く');
+      btn.textContent = '日付';
+      btn.addEventListener('click', function() {
+        openDeadlinePicker(hidden, monthInput, dayInput);
+      });
+      wrap.appendChild(btn);
+    }
+
+    [monthInput, dayInput].forEach(function(input) {
+      if (input.dataset.deadlineSyncBound === '1') return;
+      input.dataset.deadlineSyncBound = '1';
+      input.addEventListener('input', function() {
+        syncDeadlineValue(hidden, monthInput, dayInput);
+      });
+      input.addEventListener('blur', function() {
+        syncDeadlineValue(hidden, monthInput, dayInput);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+})();

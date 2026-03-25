@@ -1463,14 +1463,15 @@ input:focus,select:focus,textarea:focus{
 .deadline-split{
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:6px;
   width:100%;
   background:#fff;
   border:1px solid #d4d4dc;
   color:#2a2a3e;
   border-radius:var(--r-sm);
-  padding:6px 9px;
+  padding:7px 10px;
   box-sizing:border-box;
+  min-height:38px;
 }
 .deadline-year{
   font-family:'Space Grotesk',monospace;
@@ -1484,8 +1485,9 @@ input:focus,select:focus,textarea:focus{
   color:#8888a8;
 }
 .deadline-split input{
-  width:42px !important;
-  min-width:42px;
+  width:24px !important;
+  min-width:24px;
+  flex:0 0 24px;
   border:0 !important;
   background:transparent !important;
   padding:0 !important;
@@ -1498,4 +1500,21 @@ input:focus,select:focus,textarea:focus{
 }
 .deadline-split input:focus{
   outline:none;
+}
+.deadline-picker-btn{
+  margin-left:auto;
+  background:#fff;
+  border:1px solid #d4d4dc;
+  color:#4b5563;
+  border-radius:999px;
+  padding:3px 9px;
+  font-size:10px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:inherit;
+  line-height:1.2;
+}
+.deadline-picker-btn:hover{
+  background:#f4f4f6;
+  color:#1a1a2e;
 }
