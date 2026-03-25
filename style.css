@@ -1473,21 +1473,14 @@ input:focus,select:focus,textarea:focus{
   box-sizing:border-box;
   min-height:38px;
 }
-.deadline-year{
-  font-family:'Space Grotesk',monospace;
-  font-size:12px;
-  font-weight:700;
-  color:#1a1a2e;
-}
 .deadline-sep{
   font-size:12px;
   font-weight:700;
   color:#8888a8;
+  flex:0 0 auto;
 }
-.deadline-split input{
-  width:24px !important;
-  min-width:24px;
-  flex:0 0 24px;
+.deadline-year-input,
+.deadline-part-input{
   border:0 !important;
   background:transparent !important;
   padding:0 !important;
@@ -1498,23 +1491,40 @@ input:focus,select:focus,textarea:focus{
   color:#1a1a2e;
   border-radius:0 !important;
 }
-.deadline-split input:focus{
+.deadline-year-input{
+  width:42px !important;
+  min-width:42px;
+  flex:0 0 42px;
+}
+.deadline-part-input{
+  width:20px !important;
+  min-width:20px;
+  flex:0 0 20px;
+}
+.deadline-year-input:focus,
+.deadline-part-input:focus{
   outline:none;
 }
 .deadline-picker-btn{
   margin-left:auto;
   background:#fff;
-  border:1px solid #d4d4dc;
+  border:0;
   color:#4b5563;
-  border-radius:999px;
-  padding:3px 9px;
-  font-size:10px;
-  font-weight:700;
+  border-radius:8px;
+  width:20px;
+  height:20px;
+  padding:0;
   cursor:pointer;
-  font-family:inherit;
-  line-height:1.2;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 .deadline-picker-btn:hover{
   background:#f4f4f6;
   color:#1a1a2e;
+}
+.deadline-picker-btn svg{
+  width:14px;
+  height:14px;
+  fill:currentColor;
 }

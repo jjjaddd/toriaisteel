@@ -1800,3 +1800,138 @@ function extractRemnantsFromCard(cardId) {
     init();
   }
 })();
+
+(function rebuildDeadlineUiFinal() {
+  function digits(v, max) {
+    return String(v || '').replace(/[^\d]/g, '').slice(0, max);
+  }
+
+  function pad2(v) {
+    v = digits(v, 2);
+    return v ? v.padStart(2, '0') : '';
+  }
+
+  function syncDeadline(hidden, yearInput, monthInput, dayInput) {
+    if (!hidden) return;
+    var yyyy = digits(yearInput && yearInput.value, 4) || '2026';
+    var mm = pad2(monthInput && monthInput.value);
+    var dd = pad2(dayInput && dayInput.value);
+    yearInput.value = yyyy;
+    if (monthInput) monthInput.value = mm ? String(parseInt(mm, 10)) : '';
+    if (dayInput) dayInput.value = dd ? String(parseInt(dd, 10)) : '';
+    hidden.value = (mm && dd) ? (yyyy + '-' + mm + '-' + dd) : '';
+    if (typeof saveSettings === 'function') saveSettings();
+  }
+
+  function bindEnter(input, next) {
+    if (!input || input.dataset.deadlineEnterBound === '1') return;
+    input.dataset.deadlineEnterBound = '1';
+    input.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      if (next) {
+        next.focus();
+        if (typeof next.select === 'function') next.select();
+      }
+    });
+  }
+
+  function bindClamp(input, maxLen, maxValue) {
+    if (!input || input.dataset.deadlineClampBound === '1') return;
+    input.dataset.deadlineClampBound = '1';
+    input.addEventListener('input', function() {
+      var raw = digits(input.value, maxLen);
+      var num = parseInt(raw || '0', 10);
+      if (raw && maxValue && num > maxValue) num = maxValue;
+      input.value = raw ? String(num) : '';
+    });
+  }
+
+  function openPicker(hidden, yearInput, monthInput, dayInput) {
+    var picker = document.createElement('input');
+    picker.type = 'date';
+    picker.value = hidden.value || ((digits(yearInput.value, 4) || '2026') + '-01-01');
+    picker.style.position = 'fixed';
+    picker.style.left = '-9999px';
+    picker.style.opacity = '0';
+    document.body.appendChild(picker);
+    picker.addEventListener('change', function() {
+      var m = String(picker.value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (m) {
+        yearInput.value = String(parseInt(m[1], 10));
+        monthInput.value = String(parseInt(m[2], 10));
+        dayInput.value = String(parseInt(m[3], 10));
+        syncDeadline(hidden, yearInput, monthInput, dayInput);
+      }
+      picker.remove();
+    }, { once: true });
+    picker.addEventListener('blur', function() {
+      setTimeout(function() {
+        if (picker.isConnected) picker.remove();
+      }, 0);
+    }, { once: true });
+    picker.focus();
+    if (typeof picker.showPicker === 'function') picker.showPicker();
+    else picker.click();
+  }
+
+  function init() {
+    var hidden = document.getElementById('jobDeadline');
+    var wrap = document.querySelector('.deadline-split');
+    if (!hidden || !wrap || wrap.dataset.deadlineRebuilt === '1') return;
+    wrap.dataset.deadlineRebuilt = '1';
+
+    var match = String(hidden.value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    var yyyy = match ? String(parseInt(match[1], 10)) : '2026';
+    var mm = match ? String(parseInt(match[2], 10)) : '';
+    var dd = match ? String(parseInt(match[3], 10)) : '';
+
+    wrap.innerHTML =
+      '<input type="text" id="jobDeadlineYear" class="deadline-year-input" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="2026">' +
+      '<span class="deadline-sep">/</span>' +
+      '<input type="text" id="jobDeadlineMonth" class="deadline-part-input" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="月">' +
+      '<span class="deadline-sep">/</span>' +
+      '<input type="text" id="jobDeadlineDay" class="deadline-part-input" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="日">' +
+      '<button type="button" id="jobDeadlinePicker" class="deadline-picker-btn" aria-label="カレンダーを開く"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2Zm11 8H6v10h12V10ZM6 8h12V6H6v2Z"/></svg></button>';
+
+    var yearInput = document.getElementById('jobDeadlineYear');
+    var monthInput = document.getElementById('jobDeadlineMonth');
+    var dayInput = document.getElementById('jobDeadlineDay');
+    var pickerBtn = document.getElementById('jobDeadlinePicker');
+    var memoInput = document.getElementById('jobWorker');
+
+    yearInput.value = yyyy;
+    monthInput.value = mm;
+    dayInput.value = dd;
+
+    bindClamp(yearInput, 4, 0);
+    bindClamp(monthInput, 2, 12);
+    bindClamp(dayInput, 2, 31);
+    bindEnter(yearInput, monthInput);
+    bindEnter(monthInput, dayInput);
+    bindEnter(dayInput, memoInput);
+
+    [yearInput, monthInput, dayInput].forEach(function(input) {
+      input.addEventListener('input', function() {
+        syncDeadline(hidden, yearInput, monthInput, dayInput);
+      });
+      input.addEventListener('blur', function() {
+        syncDeadline(hidden, yearInput, monthInput, dayInput);
+      });
+    });
+
+    if (pickerBtn) {
+      pickerBtn.addEventListener('click', function() {
+        openPicker(hidden, yearInput, monthInput, dayInput);
+      });
+    }
+
+    syncDeadline(hidden, yearInput, monthInput, dayInput);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+})();
