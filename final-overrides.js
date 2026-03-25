@@ -534,6 +534,58 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
   };
 })();
 
+(function forceHeaderNavOrder() {
+  var observer = null;
+  var ordering = false;
+
+  function applyOrder() {
+    if (ordering) return;
+    var nav = document.querySelector('header nav');
+    if (!nav) return;
+    ordering = true;
+    if (observer) observer.disconnect();
+    var cartBadge = document.getElementById('cartBadge');
+    var calc = document.getElementById('na');
+    var hist = document.getElementById('nhi');
+    var contact = document.getElementById('nc') || document.getElementById('ncontact');
+    [cartBadge, calc, hist, contact].forEach(function(node) {
+      if (node && node.parentNode === nav) nav.appendChild(node);
+    });
+    if (cartBadge) {
+      var digits = String(cartBadge.textContent || '').replace(/[^\d]/g, '');
+      cartBadge.textContent = (digits || '0') + '件';
+    }
+    if (observer) observer.observe(nav, { childList: true, subtree: false });
+    ordering = false;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyOrder, { once: true });
+  } else {
+    applyOrder();
+  }
+
+  window.addEventListener('load', applyOrder);
+  setTimeout(applyOrder, 0);
+  setTimeout(applyOrder, 200);
+  setTimeout(applyOrder, 800);
+  function bindObserver() {
+    var nav = document.querySelector('header nav');
+    if (!nav || observer) return;
+    observer = new MutationObserver(function() {
+      applyOrder();
+    });
+    observer.observe(nav, { childList: true, subtree: false });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindObserver, { once: true });
+  } else {
+    bindObserver();
+  }
+  window.addEventListener('load', bindObserver);
+})();
+
 function getConsumedInventoryLengths(bars, meta) {
   var selected = Array.isArray(meta && meta.selectedInventoryRemnants) ? meta.selectedInventoryRemnants : [];
   var selectedByLen = {};
