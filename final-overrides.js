@@ -1272,7 +1272,7 @@ renderInventoryPage = function() {
 (function injectContactPage() {
   function ensureContactNav() {
     var nav = document.querySelector('header nav');
-    if (!nav || document.getElementById('ncontact')) return;
+    if (!nav || document.getElementById('ncontact') || document.getElementById('nc')) return;
     var cartBadge = document.getElementById('cartBadge');
     var link = document.createElement('a');
     link.id = 'ncontact';
@@ -1340,7 +1340,7 @@ renderInventoryPage = function() {
       ensureContactNav();
       var navCalc = document.getElementById('na');
       var navHist = document.getElementById('nhi');
-      var navContact = document.getElementById('ncontact');
+      var navContact = document.getElementById('nc') || document.getElementById('ncontact');
       if (p === 'contact') {
         document.querySelectorAll('.pg').forEach(function(el) { el.classList.remove('show'); });
         var contactPage = document.getElementById('cop') || document.getElementById('contactp');
@@ -1358,6 +1358,36 @@ renderInventoryPage = function() {
   function initContactPage() {
     ensureContactNav();
     if (!document.getElementById('cop')) ensureContactPage();
+    var cartBadge = document.getElementById('cartBadge');
+    if (cartBadge) {
+      cartBadge.textContent = (cartBadge.textContent || '').replace(/[^\d件]/g, '').trim() || '0件';
+    }
+    var page = document.getElementById('cop');
+    if (page) {
+      var title = page.querySelector('div[style*="font-size:20px"]');
+      if (title) title.textContent = 'お問い合わせ';
+      var lead = page.querySelector('div[style*="font-size:12px;color:#8888a8"]');
+      if (lead) lead.textContent = 'ご質問やご要望をお送りください。内容を確認後、担当者よりご連絡いたします。';
+      var subject = document.getElementById('contactSubject');
+      if (subject && subject.tagName !== 'SELECT') {
+        var select = document.createElement('select');
+        select.id = 'contactSubject';
+        select.required = true;
+        select.style.cssText = subject.style.cssText;
+        select.innerHTML =
+          '<option value="">選択してください</option>' +
+          '<option value="機能についての質問">機能についての質問</option>' +
+          '<option value="不具合の報告">不具合の報告</option>' +
+          '<option value="改善要望">改善要望</option>' +
+          '<option value="その他">その他</option>';
+        subject.parentNode.replaceChild(select, subject);
+      }
+      Array.from(page.querySelectorAll('*')).forEach(function(el) {
+        if (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3) {
+          el.textContent = el.textContent.replace(/[^\S\r\n]*[\uE000-\uF8FF\u2190-\u27BF\uD83C-\uDBFF\uDC00-\uDFFF]+/g, '').trim() || el.textContent;
+        }
+      });
+    }
   }
 
   if (document.readyState === 'loading') {
