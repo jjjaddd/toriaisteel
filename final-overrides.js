@@ -1286,7 +1286,7 @@ renderInventoryPage = function() {
   }
 
   function ensureContactPage() {
-    if (document.getElementById('contactp')) return;
+    if (document.getElementById('cop') || document.getElementById('contactp')) return;
     var page = document.createElement('div');
     page.id = 'contactp';
     page.className = 'pg';
@@ -1338,13 +1338,12 @@ renderInventoryPage = function() {
   if (_baseGoPage) {
     goPage = function(p) {
       ensureContactNav();
-      ensureContactPage();
       var navCalc = document.getElementById('na');
       var navHist = document.getElementById('nhi');
       var navContact = document.getElementById('ncontact');
       if (p === 'contact') {
         document.querySelectorAll('.pg').forEach(function(el) { el.classList.remove('show'); });
-        var contactPage = document.getElementById('contactp');
+        var contactPage = document.getElementById('cop') || document.getElementById('contactp');
         if (contactPage) contactPage.classList.add('show');
         if (navCalc) navCalc.classList.remove('active');
         if (navHist) navHist.classList.remove('active');
@@ -1358,7 +1357,7 @@ renderInventoryPage = function() {
 
   function initContactPage() {
     ensureContactNav();
-    ensureContactPage();
+    if (!document.getElementById('cop')) ensureContactPage();
   }
 
   if (document.readyState === 'loading') {

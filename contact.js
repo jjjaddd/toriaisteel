@@ -6,16 +6,26 @@
  */
 var GAS_URL = 'https://script.google.com/macros/s/AKfycby0sGxXqDuSagHSiwapu38yRhtjnE7THRKp4lLiR8E0aAkLnxuXuy0i1t1hFq6NVAQMIg/exec';
 
+function getContactFormPayload() {
+  return {
+    name: (document.getElementById('contactName').value || '').trim(),
+    email: (document.getElementById('contactEmail').value || '').trim(),
+    subject: (document.getElementById('contactSubject').value || '').trim(),
+    message: (document.getElementById('contactMessage').value || '').trim()
+  };
+}
+
 /**
  * フォーム送信処理
  */
 function submitContactForm(event) {
   event.preventDefault();
 
-  var name    = (document.getElementById('contactName').value    || '').trim();
-  var email   = (document.getElementById('contactEmail').value   || '').trim();
-  var subject = (document.getElementById('contactSubject').value || '').trim();
-  var message = (document.getElementById('contactMessage').value || '').trim();
+  var payload = getContactFormPayload();
+  var name = payload.name;
+  var email = payload.email;
+  var subject = payload.subject;
+  var message = payload.message;
 
   // ─── バリデーション ───────────────────────────────────
   if (!name || !email || !subject || !message) {
@@ -44,12 +54,7 @@ function submitContactForm(event) {
     method: 'POST',
     mode: 'no-cors',            // GAS側でCORSヘッダー不要
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name:    name,
-      email:   email,
-      subject: subject,
-      message: message
-    })
+    body: JSON.stringify(payload)
   })
   .then(function() {
     // no-cors では response body は読めないが、送信自体は完了している

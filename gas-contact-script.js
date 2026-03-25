@@ -18,7 +18,7 @@
  */
 
 // ★ ここを自分のGmailアドレスに変更する
-var adminEmail = 'gentayomogi14@gmail.com';
+var adminEmail = 'konoshima@inoue-kouzai.co.jp';
 
 // ============================================================
 //  doPost  —  PWAからのフォームデータを受け取る
