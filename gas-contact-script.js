@@ -1,4 +1,4 @@
-var ADMIN_EMAIL = 'konoshima@inoue-kouzai.co.jp';
+var ADMIN_EMAIL = 'support.toriai@gmail.com';
 
 function buildMailPayload(data) {
   var now = new Date();

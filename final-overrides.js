@@ -664,7 +664,7 @@ function buildPurchaseMailto(summary, cart) {
   lines.push('');
   lines.push('よろしくお願いいたします。');
   var subject = '';
-  return 'mailto:konoshima@inoue-kouzai.co.jp?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+  return 'mailto:support.toriai@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
 }
 
 function buildPurchaseGmailUrl(summary, cart) {
@@ -689,7 +689,7 @@ function buildPurchaseGmailUrl(summary, cart) {
   var params = [
     'view=cm',
     'fs=1',
-    'to=' + encodeURIComponent('konoshima@inoue-kouzai.co.jp'),
+    'to=' + encodeURIComponent('support.toriai@gmail.com'),
     'su=' + encodeURIComponent(''),
     'body=' + encodeURIComponent(lines.join('\n'))
   ];
@@ -724,14 +724,14 @@ function buildFeedbackBody() {
 }
 
 function buildFeedbackMailto() {
-  return 'mailto:konoshima@inoue-kouzai.co.jp?subject=' + encodeURIComponent('TORIAI お問い合わせ') + '&body=' + encodeURIComponent(buildFeedbackBody());
+  return 'mailto:support.toriai@gmail.com?subject=' + encodeURIComponent('TORIAI お問い合わせ') + '&body=' + encodeURIComponent(buildFeedbackBody());
 }
 
 function buildFeedbackGmailUrl() {
   var params = [
     'view=cm',
     'fs=1',
-    'to=' + encodeURIComponent('konoshima@inoue-kouzai.co.jp'),
+    'to=' + encodeURIComponent('support.toriai@gmail.com'),
     'su=' + encodeURIComponent('TORIAI お問い合わせ'),
     'body=' + encodeURIComponent(buildFeedbackBody())
   ];
@@ -1380,7 +1380,7 @@ renderInventoryPage = function() {
             '<button type="button" class="cart-purchase-mail" onclick="openFeedbackMailDefault()">既定のメールで開く</button>' +
             '<button type="button" class="cart-purchase-mail" onclick="openFeedbackMailGmail()">Gmailで開く</button>' +
           '</div>' +
-          '<div class="contact-destination">送信先: konoshima@inoue-kouzai.co.jp</div>' +
+          '<div class="contact-destination">送信先: support.toriai@gmail.com</div>' +
         '</div>' +
       '</div>';
 
