@@ -263,6 +263,66 @@ input[type=checkbox]{width:13px;height:13px;accent-color:#1a1a2e;cursor:pointer;
 @keyframes rot{to{transform:rotate(360deg)}}
 @keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 .an{animation:fi .2s ease both}.d1{animation-delay:.05s}.d2{animation-delay:.1s}
+.calc-loading-overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(16,10,6,.54);
+  backdrop-filter:blur(6px);
+  z-index:1200;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease;
+}
+.calc-loading-overlay.show{
+  opacity:1;
+  pointer-events:auto;
+}
+.calc-loading-card{
+  min-width:240px;
+  padding:24px 26px 22px;
+  border-radius:20px;
+  background:linear-gradient(180deg,#fff8ef 0%,#ffe6c5 100%);
+  border:1px solid rgba(104,54,18,.18);
+  box-shadow:0 22px 50px rgba(43,18,4,.28);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+}
+.calc-loading-pizza{
+  font-size:54px;
+  line-height:1;
+  animation:pizza-spin 1.8s linear infinite;
+  filter:drop-shadow(0 6px 14px rgba(120,56,7,.24));
+  transform-origin:center;
+}
+.calc-loading-spinner{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  border:3px solid rgba(120,56,7,.2);
+  border-top-color:#b45309;
+  animation:rot .7s linear infinite;
+}
+.calc-loading-title{
+  font-size:16px;
+  font-weight:800;
+  color:#2b1608;
+  letter-spacing:.04em;
+}
+.calc-loading-sub{
+  font-size:12px;
+  color:#8a5a2b;
+  text-align:center;
+  line-height:1.6;
+}
+@keyframes pizza-spin{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
 
 /* ── HISTORY PAGE ── */
 .h-hero{position:relative;height:400px;display:flex;align-items:flex-end;padding:52px 64px;overflow:hidden;background:#f4f4f6}

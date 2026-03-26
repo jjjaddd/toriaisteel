@@ -537,6 +537,7 @@ function calcChargeMin(pieces, stocks, blade, endLoss, kgm) {
 }
 
 function runCalc() {
+  showCalcLoadingOverlay();
   var btn = document.getElementById('runBtn');
   btn.innerHTML = '<span class="sp"></span> 計算中...';
   btn.disabled = true;
@@ -556,7 +557,7 @@ function runCalc() {
     var mv = parseInt(document.getElementById('sm' + i).value);
     stocks.push({ sl: sl, max: isNaN(mv) || mv < 1 ? Infinity : mv });
   });
-  if (!stocks.length) { alert('在庫ありの定尺をチェックしてください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
+  if (!stocks.length) { alert('在庫ありの定尺をチェックしてください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; hideCalcLoadingOverlay(); return; }
   // 定尺バッジ更新
   var sb = document.getElementById('stocksBadge');
   if (sb) sb.textContent = '対象定尺: ' + stocks.map(function(s){return s.sl.toLocaleString()+'mm';}).join(' / ');;
@@ -580,6 +581,7 @@ function runCalc() {
       alert('部材長さは12,000mm以下で入力してください。');
       btn.innerHTML = '計算を実行する <span class="arr">→</span>';
       btn.disabled = false;
+      hideCalcLoadingOverlay();
       return;
     }
     if (l > 0 && q > 0) {
@@ -701,6 +703,7 @@ function runCalc() {
       try { doCalc(); } catch(err) { alert('計算エラー: ' + err.message); }
       btn.innerHTML = '計算を実行する <span class="arr">→</span>';
       btn.disabled = false;
+      hideCalcLoadingOverlay();
     }, 30);
   }
 }
@@ -916,6 +919,32 @@ function scheduleCalcIdle(callback) {
   }
 }
 
+function ensureCalcLoadingOverlay() {
+  var overlay = document.getElementById('calcLoadingOverlay');
+  if (overlay) return overlay;
+  overlay = document.createElement('div');
+  overlay.id = 'calcLoadingOverlay';
+  overlay.className = 'calc-loading-overlay';
+  overlay.innerHTML =
+    '<div class="calc-loading-card">' +
+      '<div class="calc-loading-pizza" aria-hidden="true">🍕</div>' +
+      '<div class="calc-loading-spinner" aria-hidden="true"></div>' +
+      '<div class="calc-loading-title">計算中です</div>' +
+      '<div class="calc-loading-sub">取り合いパターンを整理しています...</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function showCalcLoadingOverlay() {
+  ensureCalcLoadingOverlay().classList.add('show');
+}
+
+function hideCalcLoadingOverlay() {
+  var overlay = document.getElementById('calcLoadingOverlay');
+  if (overlay) overlay.classList.remove('show');
+}
+
 function createCalcWorker() {
   var workerCode = atob(WORKER_B64);
   var blob = new Blob([workerCode], { type: 'application/javascript' });
@@ -1001,6 +1030,7 @@ function applyWorkerResults(results, stocks, minValidLen, endLoss, kgm) {
 }
 
 function runCalc() {
+  showCalcLoadingOverlay();
   var btn = document.getElementById('runBtn');
   btn.innerHTML = '<span class="sp"></span> 計算中...';
   btn.disabled = true;
@@ -1019,7 +1049,7 @@ function runCalc() {
     var mv = parseInt(document.getElementById('sm' + idx).value);
     stocks.push({ sl: sl, max: isNaN(mv) || mv < 1 ? Infinity : mv });
   });
-  if (!stocks.length) { alert('在庫ありの定尺をチェックしてください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
+  if (!stocks.length) { alert('在庫ありの定尺をチェックしてください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; hideCalcLoadingOverlay(); return; }
 
   var sb = document.getElementById('stocksBadge');
   if (sb) sb.textContent = '対象定尺: ' + stocks.map(function(s) { return s.sl.toLocaleString() + 'mm'; }).join(' / ');
@@ -1029,11 +1059,11 @@ function runCalc() {
     var lEl = document.getElementById('pl' + i), qEl = document.getElementById('pq' + i);
     if (!lEl) continue;
     var l = parseInt(lEl.value), q = parseInt(qEl.value);
-    if (l > 12000) { alert('部材長さは12,000mm以下で入力してください。'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
+    if (l > 12000) { alert('部材長さは12,000mm以下で入力してください。'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; hideCalcLoadingOverlay(); return; }
     if (l > 0 && q > 0) for (var k = 0; k < q; k++) pieces.push(l);
   }
   var remnants = getRemnants();
-  if (!pieces.length && !remnants.length) { alert('部材または残材を入力してください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; return; }
+  if (!pieces.length && !remnants.length) { alert('部材または残材を入力してください'); btn.innerHTML = '計算を実行する <span class="arr">→</span>'; btn.disabled = false; hideCalcLoadingOverlay(); return; }
   if (!pieces.length && remnants.length > 0) {
     var remOnlyBars = remnants.slice().sort(function(a, b) { return b - a; }).map(function(rl) { return { pat: [], loss: rl, sl: rl }; });
     _lastCalcResult = {
@@ -1063,6 +1093,7 @@ function runCalc() {
     render([], [], [], endLoss, remOnlyBars, kgm, [], [], null, null, null, null, null, null);
     btn.innerHTML = '計算を実行する <span class="arr">→</span>';
     btn.disabled = false;
+    hideCalcLoadingOverlay();
     return;
   }
 
@@ -1091,10 +1122,12 @@ function runCalc() {
     applyWorkerResults(results, stocks, minValidLen, endLoss, kgm);
     btn.innerHTML = '計算を実行する <span class="arr">→</span>';
     btn.disabled = false;
+    hideCalcLoadingOverlay();
   }).catch(function(err) {
     console.warn('Worker sequential calc failed', err);
     try { doCalc(); } catch (fallbackErr) { alert('計算エラー: ' + fallbackErr.message); }
     btn.innerHTML = '計算を実行する <span class="arr">→</span>';
     btn.disabled = false;
+    hideCalcLoadingOverlay();
   });
 }
