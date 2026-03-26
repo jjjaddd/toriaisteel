@@ -1,4 +1,28 @@
-var ADMIN_EMAIL = 'support.toriai@gmail.com';
+var ADMIN_EMAIL = 'konoshima@inoue-kouzai.co.jp';
+var SENDER_ALIAS = 'support.toriai@gmail.com';
+
+function sendContactMail(subject, body) {
+  var options = {
+    name: 'TORIAI'
+  };
+
+  try {
+    var aliases = GmailApp.getAliases();
+    if (aliases && aliases.indexOf(SENDER_ALIAS) !== -1) {
+      options.from = SENDER_ALIAS;
+      options.replyTo = SENDER_ALIAS;
+    }
+  } catch (err) {
+    // Alias lookup failed; fall back to the executing account.
+  }
+
+  GmailApp.sendEmail(
+    ADMIN_EMAIL,
+    '【TORIAIお問い合わせ】' + subject,
+    body,
+    options
+  );
+}
 
 function buildMailPayload(data) {
   var now = new Date();
@@ -18,11 +42,7 @@ function buildMailPayload(data) {
     '受付日時: ' + Utilities.formatDate(now, 'Asia/Tokyo', 'yyyy/MM/dd HH:mm:ss')
   ].join('\n');
 
-  MailApp.sendEmail({
-    to: ADMIN_EMAIL,
-    subject: '【TORIAIお問い合わせ】' + subject,
-    body: body
-  });
+  sendContactMail(subject, body);
 }
 
 function jsonpResponse(callback, payload) {
