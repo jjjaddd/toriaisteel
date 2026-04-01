@@ -539,7 +539,7 @@ function calcChargeMin(pieces, stocks, blade, endLoss, kgm) {
 function runCalc() {
   showCalcLoadingOverlay();
   var btn = document.getElementById('runBtn');
-  btn.innerHTML = '<span class="calc-run-pizza" aria-hidden="true"></span> 計算中...';
+  btn.innerHTML = '<span class="sp"></span> 計算中...';
   btn.disabled = true;
   if (typeof _lastRegisteredRemnantSignature !== 'undefined') _lastRegisteredRemnantSignature = '';
   savePiecesHistory();
@@ -1018,7 +1018,7 @@ function applyWorkerResults(results, stocks, minValidLen, endLoss, kgm) {
 function runCalc() {
   showCalcLoadingOverlay();
   var btn = document.getElementById('runBtn');
-  btn.innerHTML = '<span class="calc-run-pizza" aria-hidden="true"></span> 計算中...';
+  btn.innerHTML = '<span class="sp"></span> 計算中...';
   btn.disabled = true;
   if (typeof _lastRegisteredRemnantSignature !== 'undefined') _lastRegisteredRemnantSignature = '';
   savePiecesHistory();
