@@ -22,6 +22,16 @@ function wInit() {
 
   wOnKind();
   wRenderRows();
+
+  // メモ入力チェックマーク
+  var memoEl = document.getElementById('wMemo');
+  if (memoEl && !memoEl.dataset.wired) {
+    memoEl.addEventListener('input', function() {
+      var check = document.getElementById('wMemoCheck');
+      if (check) check.style.opacity = this.value.trim() ? '1' : '0';
+    });
+    memoEl.dataset.wired = '1';
+  }
 }
 
 function wSetupEnter() {
@@ -414,9 +424,4 @@ function wAddToCart() {
       }, 2500);
     }
   }
-}
-
-function wMemoInput(el) {
-  var check = document.getElementById('wMemoCheck');
-  if (check) check.style.opacity = el.value.trim() ? '1' : '0';
 }

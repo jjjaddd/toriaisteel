@@ -434,10 +434,10 @@
             <span>部材名・メモ（任意）</span>
             <span id="wMemoCheck" style="color:#16a34a;font-weight:700;font-size:13px;opacity:0;transition:opacity .2s">✓</span>
           </label>
-          <input type="text" id="wMemo" placeholder="例：柱材、梁材、胴縁など" maxlength="40" oninput="wMemoInput(this)">
+          <input type="text" id="wMemo" placeholder="例：柱材、梁材、胴縁など" maxlength="40">
         </div>
       </section>
-      <button onclick="wAddRow()" style="width:100%;background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:var(--r,8px);font-family:'Space Grotesk','Noto Sans JP',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;margin-top:4px">
+      <button onclick="wAddRow()" class="run" style="margin-top:6px">
         ＋ リストに追加
       </button>
       <button onclick="wClearAll()" class="sm-btn del" style="width:100%;margin-top:6px;padding:7px">
