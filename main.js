@@ -70,6 +70,13 @@ function hiSwitch(tab) {
   if (panI) panI.style.display = showH ? 'none' : 'block';
   document.getElementById('hiTabH').classList.toggle('hi-tab-active', showH);
   document.getElementById('hiTabI').classList.toggle('hi-tab-active', !showH);
+  // ナビもハイライト更新
+  ['na','nhi','nw'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('active');
+  });
+  var navEl = document.getElementById(showH ? 'nhi' : 'ninv');
+  if (navEl) navEl.classList.add('active');
   if (showH) { buildHistSpecDropdown(); renderHistory(); }
   else { buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
 }
@@ -77,7 +84,7 @@ function hiSwitch(tab) {
 function goPage(p) {
   document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('show'); });
   // ナビ全リセット
-  ['na','nhi','nc'].forEach(function(id){
+  ['na','nhi','nw'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
@@ -85,14 +92,17 @@ function goPage(p) {
   if (p === 'c') {
     document.getElementById('cp').classList.add('show');
     document.getElementById('na').classList.add('active');
+  } else if (p === 'w') {
+    document.getElementById('wpp').classList.add('show');
+    document.getElementById('nw').classList.add('active');
+    if (typeof wInit === 'function') wInit();
   } else if (p === 'contact') {
-    document.getElementById('cop').classList.add('show');
-    document.getElementById('nc').classList.add('active');
+    var cop = document.getElementById('cop');
+    if (cop) cop.classList.add('show');
   } else {
     document.getElementById('hip').classList.add('show');
     document.getElementById('nhi').classList.add('active');
-    // タブ切り替え
-    var showH = (p === 'h' || p === 'hi');
+    var showH = (p !== 'i');
     document.getElementById('hiPanelH').style.display = showH ? 'block' : 'none';
     document.getElementById('hiPanelI').style.display = showH ? 'none' : 'block';
     document.getElementById('hiTabH').classList.toggle('hi-tab-active', showH);
@@ -3781,14 +3791,24 @@ function getRemnants() {
     var items = getInventoryForCurrentSpec();
     cont.style.display = items.length ? 'block' : 'none';
     var badge = document.getElementById('invBadge');
-    if (badge) badge.textContent = '在庫 ' + items.reduce(function(sum, item) { return sum + item.qty; }, 0) + '本';
+    if (badge) {
+      var totalQty = items.reduce(function(sum, item) {
+        var qty = item && item.qty != null && !isNaN(item.qty) ? Number(item.qty) : 0;
+        return sum + qty;
+      }, 0);
+      badge.textContent = '在庫 ' + totalQty + '本';
+    }
     var sel = document.getElementById('invSelect');
     if (!sel) return;
     sel.innerHTML = '<option value="">在庫から使いたい残材を選択</option>';
     items.forEach(function(item) {
+      var qty = item && item.qty != null && !isNaN(item.qty) ? Number(item.qty) : 0;
+      var len = item && item.len != null && !isNaN(item.len) ? Number(item.len) : 0;
+      var spec = item && item.spec ? item.spec : '不明';
+      var company = item && item.company ? item.company : '';
       var option = document.createElement('option');
       option.value = keyOf(item);
-      option.textContent = item.len.toLocaleString() + 'mm / 在庫' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
+      option.textContent = len.toLocaleString() + 'mm × ' + qty + '本 (' + spec + ')' + (company ? ' [' + company + ']' : '');
       sel.appendChild(option);
     });
     updateInventoryUseButton();

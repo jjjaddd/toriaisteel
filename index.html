@@ -1,27 +1,19 @@
 <!DOCTYPE html>
-<!-- saved from url=(0041)file:///C:/Users/c3pob/Desktop/index.html -->
-<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#111111">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="鋼材最適化">
-<link rel="manifest" href="file:///C:/Users/c3pob/Desktop/manifest.json">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="驪ｼ譚占ｨ育ｮ・>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TORIAI β</title>
-<link href="./STEEL.OPTIMIZER β_files/css2" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css">
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#111111">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="鋼材計算">
-  <link rel="apple-touch-icon" href="icon-192.png">
+<title>TORIAI ・趣ｽｲ</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -30,10 +22,10 @@
     <img class="logo-image" src="logo-toriai-outline-3d-black-transparent.svg" alt="TORIAI">
   </div>
   <nav>
-    <a id="na" class="" onclick="goPage(&#39;c&#39;)">計算</a>
-    <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">履歴・在庫</a>
-    <a id="nc" onclick="goPage(&#39;contact&#39;)" class="">お問い合わせ</a>
-    <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">🛒 0件</button>
+    <a id="na" onclick="goPage('c')">險育ｮ・/a>
+    <a id="nhi" onclick="goPage('hi'); hiSwitch('h')">螻･豁ｴ繝ｻ蝨ｨ蠎ｫ</a>
+    <a id="nw" onclick="goPage('w')">驥埼㍼</a>
+    <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">將 0莉ｶ</button>
   </nav>
 </header>
 
@@ -44,41 +36,41 @@
 <aside class="sb">
   <section>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div class="shd" style="margin-bottom:0">設定</div>
-      <button id="settingToggleBtn" onclick="toggleSection(&#39;settingBody&#39;,&#39;settingToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+      <div class="shd" style="margin-bottom:0">髫ｪ・ｭ陞ｳ繝ｻ/div>
+      <button id="settingToggleBtn" onclick="toggleSection(&#39;settingBody&#39;,&#39;settingToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">繝ｻ繝ｻ/button>
     </div>
     <div id="settingBody" style="display:none">
       <div class="r2">
-        <div class="field"><label>刃厚 (mm)</label><input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()"></div>
-        <div class="field"><label>端部ロス (mm)</label><input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()"></div>
+        <div class="field"><label>陋ｻ繝ｻ蟄・(mm)</label><input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()"></div>
+        <div class="field"><label>驕ｶ・ｯ鬩幢ｽｨ郢晢ｽｭ郢ｧ・ｹ (mm)</label><input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()"></div>
       </div>
-      <div class="field"><label>端材 最小有効長さ (mm)</label><input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()"></div>
+      <div class="field"><label>驕ｶ・ｯ隴壹・隴崢陝・ｹ玲剰怏・ｹ鬮滂ｽｷ邵ｺ繝ｻ(mm)</label><input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="關薙・500" oninput="saveSettings()"></div>
     </div>
   </section>
-  <!-- ジョブ情報 -->
+  <!-- 郢ｧ・ｸ郢晢ｽｧ郢晏戟繝･陜｣・ｱ -->
   <section>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div class="shd" style="margin-bottom:0">作業情報</div>
-      <button id="jobToggleBtn" onclick="toggleSection(&#39;jobBody&#39;,&#39;jobToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">－</button>
+      <div class="shd" style="margin-bottom:0">闖ｴ諛茨ｽ･・ｭ隲繝ｻ・ｰ・ｱ</div>
+      <button id="jobToggleBtn" onclick="toggleSection(&#39;jobBody&#39;,&#39;jobToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">繝ｻ繝ｻ/button>
     </div>
     <div id="jobBody" style="display: block;">
-      <div class="field"><label>顧客名</label><input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off"><datalist id="clientHistList"></datalist></div>
-      <div class="field"><label>工事名</label><input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off"><datalist id="nameHistList"></datalist></div>
+      <div class="field"><label>鬯假ｽｧ陞ｳ・｢陷ｷ繝ｻ/label><input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off"><datalist id="clientHistList"></datalist></div>
+      <div class="field"><label>陝ｾ・･闔蜿･骭・/label><input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off"><datalist id="nameHistList"></datalist></div>
       <div class="r2">
-        <div class="field"><label>納期</label><input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()"></div>
-        <div class="field"><label>メモ</label><input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()"></div>
+        <div class="field"><label>驍剰ざ謔・/label><input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()"></div>
+        <div class="field"><label>郢晢ｽ｡郢晢ｽ｢</label><input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()"></div>
       </div>
     </div>
   </section>
   <section>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
-      <div class="shd" style="margin-bottom:0">鋼材種類・規格</div>
-      <button id="steelToggleBtn" onclick="toggleSection(&#39;steelBody&#39;,&#39;steelToggleBtn&#39;,&#39;&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">－</button>
+      <div class="shd" style="margin-bottom:0">鬩ｪ・ｼ隴壼鴻・ｨ・ｮ鬯俶ｧｭ繝ｻ髫穂ｹ暦｣ｰ・ｼ</div>
+      <button id="steelToggleBtn" onclick="toggleSection(&#39;steelBody&#39;,&#39;steelToggleBtn&#39;,&#39;&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">繝ｻ繝ｻ/button>
     </div>
     <div id="steelBody" style="display:block">
-      <!-- 種類ボタン：横並びグリッド（元のスタイル） -->
+      <!-- 驕橸ｽｮ鬯俶ｧｭ繝ｻ郢ｧ・ｿ郢晢ｽｳ繝ｻ螢ｽ・ｨ・ｪ闕ｳ・ｦ邵ｺ・ｳ郢ｧ・ｰ郢晢ｽｪ郢昴・繝ｩ繝ｻ莠･繝ｻ邵ｺ・ｮ郢ｧ・ｹ郢ｧ・ｿ郢ｧ・､郢晢ｽｫ繝ｻ繝ｻ-->
       <div class="tgrid" id="tgrid"></div>
-      <!-- 規格パネル：横幅いっぱい・スクロール -->
+      <!-- 髫穂ｹ暦｣ｰ・ｼ郢昜ｻ｣繝ｭ郢晢ｽｫ繝ｻ螢ｽ・ｨ・ｪ陝ｷ繝ｻ・樒ｸｺ・｣邵ｺ・ｱ邵ｺ繝ｻ繝ｻ郢ｧ・ｹ郢ｧ・ｯ郢晢ｽｭ郢晢ｽｼ郢晢ｽｫ -->
       <div id="specPanel" style="margin-top:8px;background:#fff;border:1px solid #d4d4dc;border-radius:8px;overflow:hidden">
         <div id="specList" style="max-height:160px;overflow-y:auto"></div>
         <div id="specSelected" style="padding:4px 10px;border-top:1px solid #e0e0ea;display:flex;align-items:center;justify-content:space-between;background:#fff"><span id="specName" style="font-size:11px;color:#1a1a2e;font-weight:700"></span><span id="specKgm" style="font-size:11px;color:#8888a8;font-weight:400"></span></div>
@@ -90,219 +82,218 @@
   </section>
   <section>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
-      <div class="shd" style="margin-bottom:0">在庫定尺</div>
-      <button id="stockToggleBtn" onclick="toggleSection(&#39;stockBody&#39;,&#39;stockToggleBtn&#39;,&#39;var(--br)&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+      <div class="shd" style="margin-bottom:0">陜ｨ・ｨ陟趣ｽｫ陞ｳ螢ｼ・ｰ・ｺ</div>
+      <button id="stockToggleBtn" onclick="toggleSection(&#39;stockBody&#39;,&#39;stockToggleBtn&#39;,&#39;var(--br)&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">繝ｻ繝ｻ/button>
     </div>
     <div id="stockBody" style="display:none">
-      <div id="stkList"><div class="stk-row" id="sr0" style="cursor: pointer;"><input type="checkbox" id="sc0" checked="" onchange="togStk(0);saveSettings()"><span class="stk-nm">5,500</span><input type="number" class="stk-mx" id="sm0" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr1" style="cursor: pointer;"><input type="checkbox" id="sc1" checked="" onchange="togStk(1);saveSettings()"><span class="stk-nm">6,000</span><input type="number" class="stk-mx" id="sm1" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr2" style="cursor: pointer;"><input type="checkbox" id="sc2" checked="" onchange="togStk(2);saveSettings()"><span class="stk-nm">7,000</span><input type="number" class="stk-mx" id="sm2" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr3" style="cursor: pointer;"><input type="checkbox" id="sc3" checked="" onchange="togStk(3);saveSettings()"><span class="stk-nm">8,000</span><input type="number" class="stk-mx" id="sm3" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr4" style="cursor: pointer;"><input type="checkbox" id="sc4" checked="" onchange="togStk(4);saveSettings()"><span class="stk-nm">9,000</span><input type="number" class="stk-mx" id="sm4" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr5" style="cursor: pointer;"><input type="checkbox" id="sc5" checked="" onchange="togStk(5);saveSettings()"><span class="stk-nm">10,000</span><input type="number" class="stk-mx" id="sm5" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr6" style="cursor: pointer;"><input type="checkbox" id="sc6" checked="" onchange="togStk(6);saveSettings()"><span class="stk-nm">11,000</span><input type="number" class="stk-mx" id="sm6" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr7" style="cursor: pointer;"><input type="checkbox" id="sc7" checked="" onchange="togStk(7);saveSettings()"><span class="stk-nm">12,000</span><input type="number" class="stk-mx" id="sm7" placeholder="∞" min="1" onchange="saveSettings()"></div></div>
-      <div style="font-size:10px;color:#8888a8;margin-top:3px">☑ 対象　右=上限本数</div>
+      <div id="stkList"><div class="stk-row" id="sr0" style="cursor: pointer;"><input type="checkbox" id="sc0" checked="" onchange="togStk(0);saveSettings()"><span class="stk-nm">5,500</span><input type="number" class="stk-mx" id="sm0" placeholder="遶上・ min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr1" style="cursor: pointer;"><input type="checkbox" id="sc1" checked="" onchange="togStk(1);saveSettings()"><span class="stk-nm">6,000</span><input type="number" class="stk-mx" id="sm1" placeholder="遶上・ min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr2" style="cursor: pointer;"><input type="checkbox" id="sc2" checked="" onchange="togStk(2);saveSettings()"><span class="stk-nm">7,000</span><input type="number" class="stk-mx" id="sm2" placeholder="遶上・ min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr3" style="cursor: pointer;"><input type="checkbox" id="sc3" checked="" onchange="togStk(3);saveSettings()"><span class="stk-nm">8,000</span><input type="number" class="stk-mx" id="sm3" placeholder="遶上・ min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr4" style="cursor: pointer;"><input type="checkbox" id="sc4" checked="" onchange="togStk(4);saveSettings()"><span class="stk-nm">9,000</span><input type="number" class="stk-mx" id="sm4" placeholder="遶上・ min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr5" style="cursor: pointer;"><input type="checkbox" id="sc5" checked="" onchange="togStk(5);saveSettings()"><span class="stk-nm">10,000</span><input type="number" class="stk-mx" id="sm5" placeholder="遶上・ min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr6" style="cursor: pointer;"><input type="checkbox" id="sc6" checked="" onchange="togStk(6);saveSettings()"><span class="stk-nm">11,000</span><input type="number" class="stk-mx" id="sm6" placeholder="遶上・ min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr7" style="cursor: pointer;"><input type="checkbox" id="sc7" checked="" onchange="togStk(7);saveSettings()"><span class="stk-nm">12,000</span><input type="number" class="stk-mx" id="sm7" placeholder="遶上・ min="1" onchange="saveSettings()"></div></div>
+      <div style="font-size:10px;color:#8888a8;margin-top:3px">隨倥・陝・ｽｾ髮趣ｽ｡邵ｲﾂ陷ｿ・ｳ=闕ｳ莨∝応隴幢ｽｬ隰ｨ・ｰ</div>
     </div>
   </section>
 
-  <!-- ★ 残材（端材）セクション -->
+  <!-- 隨倥・隹ｿ蛹ｺ謾昴・閧ｲ・ｫ・ｯ隴壽腸・ｼ蟲ｨ縺晉ｹｧ・ｯ郢ｧ・ｷ郢晢ｽｧ郢晢ｽｳ -->
   <section>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
-      <div class="shd" style="margin-bottom:0">手持ち残材</div>
-      <button id="remnantToggleBtn" onclick="toggleSection(&#39;remnantBody&#39;,&#39;remnantToggleBtn&#39;,&#39;var(--cy)&#39;);updateInvDropdown()" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+      <div class="shd" style="margin-bottom:0">隰・玄謌溽ｸｺ・｡隹ｿ蛹ｺ謾・/div>
+      <button id="remnantToggleBtn" onclick="toggleSection(&#39;remnantBody&#39;,&#39;remnantToggleBtn&#39;,&#39;var(--cy)&#39;);updateInvDropdown()" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">繝ｻ繝ｻ/button>
     </div>
     <div id="remnantBody" style="display:none">
-      <!-- 在庫から追加 -->
+      <!-- 陜ｨ・ｨ陟趣ｽｫ邵ｺ荵晢ｽ蛾恆・ｽ陷会｣ｰ -->
       <div id="invDropCont" style="display: block; margin-bottom: 8px; padding: 8px; background: rgba(34, 211, 238, 0.06); border: 1px solid rgba(34, 211, 238, 0.2); border-radius: 8px;">
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-          <span id="invBadge" style="font-size:10px;font-weight:700;color:var(--cy);background:rgba(34,211,238,.12);padding:2px 8px;border-radius:20px;border:1px solid var(--cy)">在庫 NaN本</span>
+          <span id="invBadge" style="font-size:10px;font-weight:700;color:var(--cy);background:rgba(34,211,238,.12);padding:2px 8px;border-radius:20px;border:1px solid var(--cy)">陜ｨ・ｨ陟趣ｽｫ NaN隴幢ｽｬ</span>
           
         </div>
         <div class="remnant-inventory-picker">
-          <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8fc;border:1px solid #d4d4dc;color:#2a2a3e;border-radius:6px;padding:4px 6px"><option value="">── 在庫から残材に追加 ──</option><option value="333:undefined:">333mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option></select>
-          <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#16a34a;border:1.5px solid #16a34a;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
+          <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8fc;border:1px solid #d4d4dc;color:#2a2a3e;border-radius:6px;padding:4px 6px"><option value="">隨渉隨渉 陜ｨ・ｨ陟趣ｽｫ邵ｺ荵晢ｽ芽ｰｿ蛹ｺ謾晉ｸｺ・ｫ髴托ｽｽ陷会｣ｰ 隨渉隨渉</option><option value="333:undefined:">333mm ・・・undefined隴幢ｽｬ  (undefined)</option><option value="555:undefined:">555mm ・・・undefined隴幢ｽｬ  (undefined)</option><option value="555:undefined:">555mm ・・・undefined隴幢ｽｬ  (undefined)</option><option value="555:undefined:">555mm ・・・undefined隴幢ｽｬ  (undefined)</option></select>
+          <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#16a34a;border:1.5px solid #16a34a;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">繝ｻ繝ｻ髫ｪ閧ｲ・ｮ蜉ｱ竊楢抄・ｿ邵ｺ繝ｻ/button>
         </div>
       </div>
       <div class="remnant-area">
         <div class="remnant-head">
-          <span>計算に使う残材</span>
+          <span>髫ｪ閧ｲ・ｮ蜉ｱ竊楢抄・ｿ邵ｺ繝ｻ・ｮ蛹ｺ謾・/span>
         </div>
         <div id="remnantList"></div>
       </div>
     </div>
   </section>
 
-  <!-- 切り出し部材リスト -->
+  <!-- 陋ｻ繝ｻ・願怎・ｺ邵ｺ驤ｴﾎ夊ｭ夊・ﾎ懃ｹｧ・ｹ郢昴・-->
   <section style="flex:1">
     <div class="parts-header">
-      <div class="shd" style="margin-bottom:0">切り出し部材リスト</div>
+      <div class="shd" style="margin-bottom:0">陋ｻ繝ｻ・願怎・ｺ邵ｺ驤ｴﾎ夊ｭ夊・ﾎ懃ｹｧ・ｹ郢昴・/div>
       <div class="parts-btns">
-        <button class="sm-btn paste" onclick="togglePaste()">📋</button>
-        <button class="sm-btn add" onclick="addPartRow()">＋</button>
-        <button class="sm-btn del" onclick="clearParts()">✕</button>
+        <button class="sm-btn paste" onclick="togglePaste()">﨟樊政</button>
+        <button class="sm-btn add" onclick="addPartRow()">繝ｻ繝ｻ/button>
+        <button class="sm-btn del" onclick="clearParts()">隨ｨ繝ｻ/button>
       </div>
     </div>
 
-    <!-- ★ コピペ入力エリア -->
+    <!-- 隨倥・郢ｧ・ｳ郢晄鱒繝ｻ陷茨ｽ･陷牙ｸ吶♀郢晢ｽｪ郢ｧ・｢ -->
     <div class="paste-area" id="pasteArea">
       <div class="paste-hint">
-        <strong>Excel / CAD からコピペ対応</strong><br>
-        タブ区切り（長さ[TAB]数量）の形式で貼り付けてください。<br>
-        例: <code style="font-size:11px;background:#f8f8fc;padding:1px 4px">1200[TAB]5</code>（1行1部材）
-      </div>
-      <textarea id="pasteText" placeholder="ここにExcel/CADのデータを貼り付け
+        <strong>Excel / CAD 邵ｺ荵晢ｽ臥ｹｧ・ｳ郢晄鱒繝ｻ陝・ｽｾ陟｢繝ｻ/strong><br>
+        郢ｧ・ｿ郢晞摩邇・崕繝ｻ・翫・逎ｯ閨樒ｸｺ逾ｨTAB]隰ｨ・ｰ鬩･謫ｾ・ｼ蟲ｨ繝ｻ陟厄ｽ｢陟台ｸ翫帝寞・ｼ郢ｧ雍具ｽｻ蛟･・邵ｺ・ｦ邵ｺ荳岩味邵ｺ霈費ｼ樒ｸｲ繝ｻbr>
+        關薙・ <code style="font-size:11px;background:#f8f8fc;padding:1px 4px">1200[TAB]5</code>繝ｻ繝ｻ髯ｦ繝ｻ鬩幢ｽｨ隴壽腸・ｼ繝ｻ      </div>
+      <textarea id="pasteText" placeholder="邵ｺ阮呻ｼ・ｸｺ・ｫExcel/CAD邵ｺ・ｮ郢昴・繝ｻ郢ｧ・ｿ郢ｧ螳夲ｽｲ・ｼ郢ｧ雍具ｽｻ蛟･・
 1200	5
 2400	3
 3600	2"></textarea>
       <div class="paste-btns">
-        <button class="paste-exec" onclick="executePaste()">▶ 一括入力</button>
-        <button class="paste-cancel" onclick="togglePaste()">キャンセル</button>
+        <button class="paste-exec" onclick="executePaste()">隨・ｽｶ 闕ｳﾂ隲｡・ｬ陷茨ｽ･陷峨・/button>
+        <button class="paste-cancel" onclick="togglePaste()">郢ｧ・ｭ郢晢ｽ｣郢晢ｽｳ郢ｧ・ｻ郢晢ｽｫ</button>
       </div>
     </div>
 
     <div class="pt-wrap">
-      <div class="pt-hd"><span></span><span>長さ (mm)</span><span style="text-align:right">数量</span><span style="text-align:right;padding-right:6px">重量</span></div>
+      <div class="pt-hd"><span></span><span>鬮滂ｽｷ邵ｺ繝ｻ(mm)</span><span style="text-align:right">隰ｨ・ｰ鬩･繝ｻ/span><span style="text-align:right;padding-right:6px">鬩･蝓ｼ纃ｼ</span></div>
       <div id="ptList"></div>
-  <div class="tot"><span class="tot-l">部材合計重量</span><span class="tot-v" id="totkg">21030.04 kg</span></div>
+  <div class="tot"><span class="tot-l">鬩幢ｽｨ隴壻ｻ咏ｲ矩坎逎ｯ纃ｾ鬩･繝ｻ/span><span class="tot-v" id="totkg">21030.04 kg</span></div>
   </section>
-  <div class="calc-note">本ソフトは計算支援を目的としたツールです。計算結果や切断指示は、実作業前に必ずご確認ください。</div>
-  <button class="run" id="runBtn" onclick="runCalc()">計算を実行する <span class="arr">→</span></button>
+  <div class="calc-note">隴幢ｽｬ郢ｧ・ｽ郢晁ｼ斐Κ邵ｺ・ｯ髫ｪ閧ｲ・ｮ邇ｲ鬮ｪ隰・ｴ郢ｧ蝣､蟯ｼ騾ｧ繝ｻ竊堤ｸｺ蜉ｱ笳・ｹ昴・繝ｻ郢晢ｽｫ邵ｺ・ｧ邵ｺ蜷ｶﾂ繧奇ｽｨ閧ｲ・ｮ遉ｼ・ｵ蜈域｣｡郢ｧ繝ｻ繝ｻ隴・ｽｭ隰悶・・､・ｺ邵ｺ・ｯ邵ｲ竏晢ｽｮ貊会ｽｽ諛茨ｽ･・ｭ陷鷹亂竊楢｢繝ｻ笘・ｸｺ逧ｮ・｢・ｺ髫ｱ髦ｪ・･邵ｺ・ｰ邵ｺ霈費ｼ樒ｸｲ繝ｻ/div>
+  <button class="run" id="runBtn" onclick="runCalc()">髫ｪ閧ｲ・ｮ蜉ｱ・定楜貅ｯ・｡蠕娯・郢ｧ繝ｻ<span class="arr">遶翫・/span></button>
 </aside>
 
 
-<!-- 作業指示書ヘッダー（印刷時のみ表示） -->
+<!-- 闖ｴ諛茨ｽ･・ｭ隰悶・・､・ｺ隴厄ｽｸ郢晏･繝｣郢敖郢晢ｽｼ繝ｻ莠･鬲り崕・ｷ隴弱ｅ繝ｻ邵ｺ・ｿ髯ｦ・ｨ驕会ｽｺ繝ｻ繝ｻ-->
 <div id="printJobHeader" class="print-job-hdr" style="display:none;padding:12px 16px;border-bottom:2px solid #000;margin-bottom:8px">
 </div>
 <main class="mn" id="rp">
   <div class="ph" id="ph">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
-    <p>設定・部材を入力して「計算を実行する」を押してください</p>
-    <small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>
+    <p>髫ｪ・ｭ陞ｳ螢ｹ繝ｻ鬩幢ｽｨ隴夊・・定怦・･陷牙ｸ呻ｼ邵ｺ・ｦ邵ｲ迹夲ｽｨ閧ｲ・ｮ蜉ｱ・定楜貅ｯ・｡蠕娯・郢ｧ荵敖髦ｪ・定ｬ夲ｽｼ邵ｺ蜉ｱ窶ｻ邵ｺ荳岩味邵ｺ霈費ｼ・/p>
+    <small>陋ｻ繝ｻ蟄礼ｹ晢ｽｻ驕ｶ・ｯ鬩幢ｽｨ郢晢ｽｭ郢ｧ・ｹ郢晢ｽｻ鬩ｪ・ｼ隴壼頃・ｦ荵暦｣ｰ・ｼ郢晢ｽｻ陞ｳ螢ｼ・ｰ・ｺ郢ｧ蝣､・｢・ｺ髫ｱ髦ｪ・邵ｺ・ｦ邵ｺ荵晢ｽ芽楜貅ｯ・｡繝ｻ/small>
   </div>
 </main>
 </div>
 </div>
 </div><!-- /cp -->
 
-<!-- HISTORY PAGE / 切断履歴 -->
-<!-- 履歴・在庫統合ページ -->
+<!-- HISTORY PAGE / 陋ｻ繝ｻ螯呵椽・･雎・ｽｴ -->
+<!-- 陞ｻ・･雎・ｽｴ郢晢ｽｻ陜ｨ・ｨ陟趣ｽｫ驍ｨ・ｱ陷ｷ蛹ｻ繝ｻ郢晢ｽｼ郢ｧ・ｸ -->
 <div id="hip" class="pg show">
   <div class="hi-tabs">
-    <div class="hi-tab hi-tab-active" id="hiTabH" onclick="hiSwitch(&#39;h&#39;)">切断履歴</div>
-    <div class="hi-tab" id="hiTabI" onclick="hiSwitch(&#39;i&#39;)">残材在庫</div>
+    <div class="hi-tab hi-tab-active" id="hiTabH" onclick="hiSwitch(&#39;h&#39;)">陋ｻ繝ｻ螯呵椽・･雎・ｽｴ</div>
+    <div class="hi-tab" id="hiTabI" onclick="hiSwitch(&#39;i&#39;)">隹ｿ蛹ｺ謾晁舉・ｨ陟趣ｽｫ</div>
   </div>
   <div id="hiPanelH" class="hi-panel">
     <div style="padding:16px 20px;width:100%;box-sizing:border-box">
-      <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:16px">📋 切断履歴</div>
+      <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:16px">﨟樊政 陋ｻ繝ｻ螯呵椽・･雎・ｽｴ</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">顧客名</div>
+          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鬯假ｽｧ陞ｳ・｢陷ｷ繝ｻ/div>
           <input type="text" id="hsClient" placeholder="" oninput="renderHistory()" list="hsClientList" autocomplete="off" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
           <datalist id="hsClientList"></datalist>
         </div>
         <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">工事名</div>
+          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">陝ｾ・･闔蜿･骭・/div>
           <input type="text" id="hsName" placeholder="" oninput="renderHistory()" list="hsNameList" autocomplete="off" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
           <datalist id="hsNameList"></datalist>
         </div>
         <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">期間</div>
+          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">隴帶ｻ・ｿ｣</div>
           <div style="display:flex;gap:4px;align-items:center">
             <input type="date" id="hsDateFrom" oninput="renderHistory()" style="flex:1;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:6px 8px;font-size:11px;box-sizing:border-box;outline:none">
-            <span style="color:#bbb;font-size:11px">〜</span>
+            <span style="color:#bbb;font-size:11px">邵ｲ繝ｻ/span>
             <input type="date" id="hsDateTo" oninput="renderHistory()" style="flex:1;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:6px 8px;font-size:11px;box-sizing:border-box;outline:none">
           </div>
         </div>
         <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材種類</div>
+          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鬩ｪ・ｼ隴壼鴻・ｨ・ｮ鬯倥・/div>
           <select id="hsKind" onchange="buildHistSpecDropdown();renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
+            <option value="">邵ｺ蜷ｶ竏狗ｸｺ・ｦ</option>
           </select>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
         <div style="flex:1">
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材規格</div>
+          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鬩ｪ・ｼ隴壼頃・ｦ荵暦｣ｰ・ｼ</div>
           <select id="hsSt" onchange="renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
+            <option value="">邵ｺ蜷ｶ竏狗ｸｺ・ｦ</option>
           </select>
         </div>
-        <button onclick="clearHistSearch()" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">クリア</button>
+        <button onclick="clearHistSearch()" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">郢ｧ・ｯ郢晢ｽｪ郢ｧ・｢</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 180px;gap:8px;margin-bottom:16px">
-        <input type="text" id="hsKeyword" placeholder="顧客名・工事名・規格で検索" oninput="renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
+        <input type="text" id="hsKeyword" placeholder="鬯假ｽｧ陞ｳ・｢陷ｷ髦ｪ繝ｻ陝ｾ・･闔蜿･骭千ｹ晢ｽｻ髫穂ｹ暦｣ｰ・ｼ邵ｺ・ｧ隶諛・ｽｴ・｢" oninput="renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
         <select id="hsSort" onchange="renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-          <option value="date_desc">新しい順</option>
-          <option value="date_asc">古い順</option>
-          <option value="deadline_asc">納期が近い順</option>
-          <option value="spec_asc">規格順</option>
+          <option value="date_desc">隴・ｽｰ邵ｺ蜉ｱ・樣ｬ・・/option>
+          <option value="date_asc">陷ｿ・､邵ｺ繝ｻ・ｰ繝ｻ/option>
+          <option value="deadline_asc">驍剰ざ謔・ｸｺ迹夲ｽｿ莉｣・樣ｬ・・/option>
+          <option value="spec_asc">髫穂ｹ暦｣ｰ・ｼ鬯・・/option>
         </select>
       </div>
       <div id="histList"></div>
       <div id="histPagination" class="pager"></div>
-      <div id="histEmpty" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">履歴がありません</div>
+      <div id="histEmpty" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">陞ｻ・･雎・ｽｴ邵ｺ蠕娯旺郢ｧ鄙ｫ竏ｪ邵ｺ蟶呻ｽ・/div>
     </div>
   </div>
 
   <div id="hiPanelI" class="hi-panel" style="display:none">
     <div style="padding:16px 20px;width:100%;box-sizing:border-box">
-      <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:16px">🗄 残材在庫管理</div>
+      <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:16px">﨟樊ｷ 隹ｿ蛹ｺ謾晁舉・ｨ陟趣ｽｫ驍ゑｽ｡騾・・/div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
         <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材種類</div>
+          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鬩ｪ・ｼ隴壼鴻・ｨ・ｮ鬯倥・/div>
           <select id="invFilterKind" onchange="buildInvFilterSpec();renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
+            <option value="">邵ｺ蜷ｶ竏狗ｸｺ・ｦ</option>
           </select>
         </div>
         <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材規格</div>
+          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鬩ｪ・ｼ隴壼頃・ｦ荵暦｣ｰ・ｼ</div>
           <select id="invFilterSpec" onchange="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
+            <option value="">邵ｺ蜷ｶ竏狗ｸｺ・ｦ</option>
           </select>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 180px;gap:8px;margin-bottom:12px">
-        <input type="text" id="invKeyword" placeholder="会社名・メモ・規格で検索" oninput="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
+        <input type="text" id="invKeyword" placeholder="闔ｨ螟ゑｽ､・ｾ陷ｷ髦ｪ繝ｻ郢晢ｽ｡郢晢ｽ｢郢晢ｽｻ髫穂ｹ暦｣ｰ・ｼ邵ｺ・ｧ隶諛・ｽｴ・｢" oninput="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
         <input type="date" id="invDateFrom" oninput="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
         <select id="invSort" onchange="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-          <option value="date_desc">登録が新しい順</option>
-          <option value="date_asc">登録が古い順</option>
-          <option value="len_desc">長さが長い順</option>
-          <option value="len_asc">長さが短い順</option>
-          <option value="spec_asc">規格順</option>
+          <option value="date_desc">騾具ｽｻ鬪ｭ・ｲ邵ｺ譴ｧ逵邵ｺ蜉ｱ・樣ｬ・・/option>
+          <option value="date_asc">騾具ｽｻ鬪ｭ・ｲ邵ｺ謔溷膚邵ｺ繝ｻ・ｰ繝ｻ/option>
+          <option value="len_desc">鬮滂ｽｷ邵ｺ霈披ｲ鬮滂ｽｷ邵ｺ繝ｻ・ｰ繝ｻ/option>
+          <option value="len_asc">鬮滂ｽｷ邵ｺ霈披ｲ驕擾ｽｭ邵ｺ繝ｻ・ｰ繝ｻ/option>
+          <option value="spec_asc">髫穂ｹ暦｣ｰ・ｼ鬯・・/option>
         </select>
       </div>
       <div style="border:1px solid #e0e0ea;border-radius:10px;margin-bottom:14px;overflow:hidden">
         <div onclick="var f=document.getElementById('invAddFormInner');f.style.display=f.style.display==='none'?'block':'none'" style="padding:10px 14px;background:#f8f8fc;font-size:11px;font-weight:700;color:#5a5a78;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none">
-          ＋ 手動で残材を追加
+          繝ｻ繝ｻ隰・唱陌夂ｸｺ・ｧ隹ｿ蛹ｺ謾晉ｹｧ螳夲ｽｿ・ｽ陷会｣ｰ
         </div>
         <div id="invAddFormInner" style="display:none;padding:14px;border-top:1px solid #e0e0ea">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
             <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鋼材種類</div>
+              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鬩ｪ・ｼ隴壼鴻・ｨ・ｮ鬯倥・/div>
               <select id="invAddKind" onchange="buildInvAddSpec()" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none"></select>
             </div>
             <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鋼材規格</div>
+              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鬩ｪ・ｼ隴壼頃・ｦ荵暦｣ｰ・ｼ</div>
               <select id="invAddSpec" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none"></select>
             </div>
             <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">長さ (mm)</div>
+              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鬮滂ｽｷ邵ｺ繝ｻ(mm)</div>
               <input type="number" id="invAddLen" min="1" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
             </div>
             <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">本数</div>
+              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">隴幢ｽｬ隰ｨ・ｰ</div>
               <input type="number" id="invAddQty" value="1" min="1" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
             </div>
             <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">会社名・現場名（任意）</div>
+              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">闔ｨ螟ゑｽ､・ｾ陷ｷ髦ｪ繝ｻ霑ｴ・ｾ陜｣・ｴ陷ｷ謳ｾ・ｼ莠包ｽｻ・ｻ隲｢謫ｾ・ｼ繝ｻ/div>
               <input type="text" id="invAddCompany" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
             </div>
             <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">メモ（任意）</div>
+              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">郢晢ｽ｡郢晢ｽ｢繝ｻ莠包ｽｻ・ｻ隲｢謫ｾ・ｼ繝ｻ/div>
               <input type="text" id="invAddNote" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
             </div>
           </div>
-          <button onclick="manualAddInventory();document.getElementById('invAddFormInner').style.display='none'" style="width:100%;background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">在庫に追加</button>
+          <button onclick="manualAddInventory();document.getElementById('invAddFormInner').style.display='none'" style="width:100%;background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">陜ｨ・ｨ陟趣ｽｫ邵ｺ・ｫ髴托ｽｽ陷会｣ｰ</button>
         </div>
       </div>
       <div id="invListCont"></div>
       <div id="invPagination" class="pager"></div>
-      <div id="invEmptyMsg" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">在庫がありません</div>
+      <div id="invEmptyMsg" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">陜ｨ・ｨ陟趣ｽｫ邵ｺ蠕娯旺郢ｧ鄙ｫ竏ｪ邵ｺ蟶呻ｽ・/div>
     </div>
   </div></div><!-- /hip -->
 
@@ -311,12 +302,12 @@
 
 
 
-    <!-- 履歴モーダル -->
+    <!-- 陞ｻ・･雎・ｽｴ郢晢ｽ｢郢晢ｽｼ郢敖郢晢ｽｫ -->
     <div id="histModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center">
       <div style="background:#fff;border:1px solid #d4d4dc;border-radius:16px;width:min(420px,92vw);max-height:70vh;display:flex;flex-direction:column;overflow:hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #ebebf0">
-          <div style="font-size:14px;font-weight:700;color:#2a2a3e">📋 入力履歴</div>
-          <button onclick="document.getElementById(&#39;histModal&#39;).style.display=&#39;none&#39;" style="background:none;border:none;color:#5a5a78;font-size:18px;cursor:pointer;padding:0">✕</button>
+          <div style="font-size:14px;font-weight:700;color:#2a2a3e">﨟樊政 陷茨ｽ･陷牙ｸ幢ｽｱ・･雎・ｽｴ</div>
+          <button onclick="document.getElementById(&#39;histModal&#39;).style.display=&#39;none&#39;" style="background:none;border:none;color:#5a5a78;font-size:18px;cursor:pointer;padding:0">隨ｨ繝ｻ/button>
         </div>
         <div class="hist-body" style="overflow-y:auto;padding:8px"></div>
       </div>
@@ -325,17 +316,17 @@
   
     </div>
 
-    <!-- 切断完了モーダル -->
+    <!-- 陋ｻ繝ｻ螯呵楜蠕｡・ｺ繝ｻﾎ皮ｹ晢ｽｼ郢敖郢晢ｽｫ -->
     <div id="cutDoneModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center">
       <div style="background:#fff;border:1px solid #d4d4dc;border-radius:16px;width:min(400px,92vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #ebebf0">
-          <div style="font-size:14px;font-weight:700;color:#2a2a3e">✂ 切断完了 → 端材を在庫登録</div>
-          <button onclick="document.getElementById(&#39;cutDoneModal&#39;).style.display=&#39;none&#39;" style="background:none;border:none;color:#5a5a78;font-size:18px;cursor:pointer">✕</button>
+          <div style="font-size:14px;font-weight:700;color:#2a2a3e">隨ｨ繝ｻ陋ｻ繝ｻ螯呵楜蠕｡・ｺ繝ｻ遶翫・驕ｶ・ｯ隴夊・・定舉・ｨ陟趣ｽｫ騾具ｽｻ鬪ｭ・ｲ</div>
+          <button onclick="document.getElementById(&#39;cutDoneModal&#39;).style.display=&#39;none&#39;" style="background:none;border:none;color:#5a5a78;font-size:18px;cursor:pointer">隨ｨ繝ｻ/button>
         </div>
         <div class="cutdone-body" style="overflow-y:auto;padding:14px 16px;flex:1"></div>
         <div style="padding:12px 16px;border-top:1px solid #ebebf0;display:flex;gap:8px">
-          <button onclick="confirmCutDone()" style="flex:1;background:var(--br);color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">在庫に登録する</button>
-          <button onclick="document.getElementById(&#39;cutDoneModal&#39;).style.display=&#39;none&#39;" style="background:#f8f8fc;color:#5a5a78;border:1px solid #d4d4dc;border-radius:8px;padding:10px 14px;font-size:12px;cursor:pointer">キャンセル</button>
+          <button onclick="confirmCutDone()" style="flex:1;background:var(--br);color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">陜ｨ・ｨ陟趣ｽｫ邵ｺ・ｫ騾具ｽｻ鬪ｭ・ｲ邵ｺ蜷ｶ・・/button>
+          <button onclick="document.getElementById(&#39;cutDoneModal&#39;).style.display=&#39;none&#39;" style="background:#f8f8fc;color:#5a5a78;border:1px solid #d4d4dc;border-radius:8px;padding:10px 14px;font-size:12px;cursor:pointer">郢ｧ・ｭ郢晢ｽ｣郢晢ｽｳ郢ｧ・ｻ郢晢ｽｫ</button>
         </div>
       </div>
     
@@ -345,65 +336,160 @@
   
 <!-- /hip -->
 
-<!-- CONTACT PAGE / お問い合わせ -->
+<!-- CONTACT PAGE / 邵ｺ髮∵牒邵ｺ繝ｻ邊狗ｹｧ荳岩雷 -->
 <div id="cop" class="pg">
   <div style="max-width:560px;margin:0 auto;padding:24px 16px;width:100%;box-sizing:border-box">
-    <div style="font-size:20px;font-weight:800;color:#1a1a2e;margin-bottom:6px">お問い合わせ</div>
-    <div style="font-size:12px;color:#8888a8;margin-bottom:24px">ご質問・ご要望などお気軽にどうぞ。</div>
+    <div style="font-size:20px;font-weight:800;color:#1a1a2e;margin-bottom:6px">邵ｺ髮∵牒邵ｺ繝ｻ邊狗ｹｧ荳岩雷</div>
+    <div style="font-size:12px;color:#8888a8;margin-bottom:24px">邵ｺ遒托ｽｳ・ｪ陜荳翫・邵ｺ遒托ｽｦ竏ｵ謔咲ｸｺ・ｪ邵ｺ・ｩ邵ｺ鬆托ｽｰ闍難ｽｻ・ｽ邵ｺ・ｫ邵ｺ・ｩ邵ｺ繝ｻ笳・ｸｲ繝ｻ/div>
 
     <form id="contactForm" onsubmit="submitContactForm(event)" novalidate>
       <div style="margin-bottom:14px">
-        <label class="contact-pen-label" style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">ペンネーム <span style="color:#e05">*</span></label>
+        <label class="contact-pen-label" style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">郢晏｣ｹﾎｦ郢晞亂繝ｻ郢晢｣ｰ <span style="color:#e05">*</span></label>
         <input type="text" id="contactName" required
           style="width:100%;background:#f8f8fc;border:1px solid #d4d4dc;color:#1a1a2e;border-radius:8px;padding:10px 12px;font-size:13px;box-sizing:border-box;outline:none;font-family:inherit">
       </div>
       <div style="margin-bottom:14px">
-        <label style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">件名 <span style="color:#e05">*</span></label>
+        <label style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">闔会ｽｶ陷ｷ繝ｻ<span style="color:#e05">*</span></label>
         <select id="contactSubject" required
           style="width:100%;background:#f8f8fc;border:1px solid #d4d4dc;color:#1a1a2e;border-radius:8px;padding:10px 12px;font-size:13px;box-sizing:border-box;outline:none;font-family:inherit">
-          <option value="">選択してください</option>
-          <option value="機能についての質問">機能についての質問</option>
-          <option value="不具合の報告">不具合の報告</option>
-          <option value="改善要望">改善要望</option>
-          <option value="その他">その他</option>
+          <option value="">鬩包ｽｸ隰壽ｧｭ・邵ｺ・ｦ邵ｺ荳岩味邵ｺ霈費ｼ・/option>
+          <option value="隶匁ｺｯ繝ｻ邵ｺ・ｫ邵ｺ・､邵ｺ繝ｻ窶ｻ邵ｺ・ｮ髮会ｽｪ陜繝ｻ>隶匁ｺｯ繝ｻ邵ｺ・ｫ邵ｺ・､邵ｺ繝ｻ窶ｻ邵ｺ・ｮ髮会ｽｪ陜繝ｻ/option>
+          <option value="闕ｳ讎翫・陷ｷ蛹ｻ繝ｻ陜｣・ｱ陷ｻ繝ｻ>闕ｳ讎翫・陷ｷ蛹ｻ繝ｻ陜｣・ｱ陷ｻ繝ｻ/option>
+          <option value="隰ｾ・ｹ陜溘・・ｦ竏ｵ謔・>隰ｾ・ｹ陜溘・・ｦ竏ｵ謔・/option>
+          <option value="邵ｺ譏ｴ繝ｻ闔峨・>邵ｺ譏ｴ繝ｻ闔峨・/option>
         </select>
       </div>
       <div style="margin-bottom:20px">
-        <label style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">お問い合わせ内容 <span style="color:#e05">*</span></label>
-        <textarea id="contactMessage" placeholder="お問い合わせ内容をご記入ください" required rows="6"
+        <label style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">邵ｺ髮∵牒邵ｺ繝ｻ邊狗ｹｧ荳岩雷陷繝ｻ・ｮ・ｹ <span style="color:#e05">*</span></label>
+        <textarea id="contactMessage" placeholder="邵ｺ髮∵牒邵ｺ繝ｻ邊狗ｹｧ荳岩雷陷繝ｻ・ｮ・ｹ郢ｧ蛛ｵ・・坎莨懊・邵ｺ荳岩味邵ｺ霈費ｼ・ required rows="6"
           style="width:100%;background:#f8f8fc;border:1px solid #d4d4dc;color:#1a1a2e;border-radius:8px;padding:10px 12px;font-size:13px;box-sizing:border-box;outline:none;font-family:inherit;resize:vertical;min-height:120px"></textarea>
       </div>
       <button type="submit" id="contactSubmitBtn"
         style="width:100%;background:#6d28d9;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s">
-        送信する →
-      </button>
+        鬨ｾ竏ｽ・ｿ・｡邵ｺ蜷ｶ・・遶翫・      </button>
     </form>
 
-    <!-- 送信ステータス表示エリア -->
+    <!-- 鬨ｾ竏ｽ・ｿ・｡郢ｧ・ｹ郢昴・繝ｻ郢ｧ・ｿ郢ｧ・ｹ髯ｦ・ｨ驕会ｽｺ郢ｧ・ｨ郢晢ｽｪ郢ｧ・｢ -->
     <div id="contactStatus" style="display:none;margin-top:16px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;text-align:center"></div>
 
     <div style="margin-top:20px;padding:14px;background:#f8f8fc;border:1px solid #e0e0ea;border-radius:10px;font-size:11px;color:#8888a8;line-height:1.7">
-      ご入力いただいた情報は、お問い合わせへの回答にのみ使用し、第三者への提供は行いません。
-    </div>
+      邵ｺ豕後・陷牙ｸ呻ｼ樒ｸｺ貅倪味邵ｺ繝ｻ笳・ｫ繝ｻ・ｰ・ｱ邵ｺ・ｯ邵ｲ竏壺凰陜荳奇ｼ櫁惺蛹ｻ・冗ｸｺ蟶吮・邵ｺ・ｮ陜玲ｨ抵ｽｭ譁絶・邵ｺ・ｮ邵ｺ・ｿ闖ｴ・ｿ騾包ｽｨ邵ｺ蜉ｱﾂ竏ｫ・ｬ・ｬ闕ｳ闃ｽﾂ繝ｻ竏育ｸｺ・ｮ隰陜会ｽｾ蟶吶・髯ｦ蠕鯉ｼ樒ｸｺ・ｾ邵ｺ蟶呻ｽ鍋ｸｲ繝ｻ    </div>
   </div>
 </div>
 <!-- /cop -->
 
-<!-- 切断履歴プレビューモーダル -->
+<!-- 驥埼㍼繧ｷ繝溘Η繝ｬ繝ｼ繧ｿ繝ｼ -->
+<div id="wpp" class="pg">
+  <div class="layout">
+    <aside class="sb">
+      <section>
+        <div class="shd">驪ｼ譚千ｨｮ鬘・/div>
+        <select id="wKind" onchange="wOnKind()"></select>
+      </section>
+      <section>
+        <div class="shd">隕乗ｼ</div>
+        <select id="wSpec" onchange="wOnSpec()"></select>
+        <div id="wKgmDisp" style="font-size:11px;color:#8888a8;margin-top:6px"></div>
+      </section>
+      <section>
+        <div class="field">
+          <label>髟ｷ縺・(mm)</label>
+          <input type="number" id="wLen" value="6000" min="1">
+        </div>
+        <div class="field">
+          <label>譛ｬ謨ｰ</label>
+          <input type="number" id="wQty" value="1" min="1">
+        </div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="wPriceOn" onchange="wTogglePrice()">
+            蜊倅ｾ｡ (蜀・kg) 繧貞・蜉帙☆繧・
+          </label>
+          <input type="number" id="wPrice" placeholder="萓具ｼ・20" min="0" disabled style="opacity:.4">
+        </div>
+        <div class="field">
+          <label>kg/m・域焔蜍募､画峩蜿ｯ・・/label>
+          <input type="number" id="wKgm" step="0.01" min="0.01">
+        </div>
+      </section>
+      <section id="wPreviewBox" style="display:none; background:#f4f4fa; border-radius:10px; padding:12px; font-size:12px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="color:#5a5a78">1譛ｬ驥埼㍼</span>
+          <span id="wPrev1kg" style="font-weight:700;color:#1a1a2e">窶・/span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="color:#5a5a78">蜷郁ｨ磯㍾驥・/span>
+          <span id="wPrevTotalKg" style="font-weight:700;color:#6d28d9">窶・/span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="color:#5a5a78">蝪苓｣・擇遨・蜷郁ｨ・</span>
+          <span id="wPrevTotalM2" style="font-weight:700;color:#0891b2">窶・/span>
+        </div>
+        <div id="wPrevPriceRow" style="display:none;justify-content:space-between">
+          <span style="color:#5a5a78">讎らｮ鈴≡鬘・/span>
+          <span id="wPrevPrice" style="font-weight:700;color:#16a34a">窶・/span>
+        </div>
+      </section>
+      <button onclick="wAddRow()"
+        style="background:#6d28d9;color:#fff;border:none;border-radius:10px;padding:10px;
+               font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-top:4px">
+        ・・繝ｪ繧ｹ繝医↓霑ｽ蜉
+      </button>
+      <button onclick="wClearAll()"
+        style="background:transparent;color:#aaa;border:1px solid #ddd;border-radius:10px;
+               padding:7px;font-size:11px;font-weight:600;cursor:pointer;width:100%;margin-top:6px">
+        繝ｪ繧ｹ繝医ｒ繧ｯ繝ｪ繧｢
+      </button>
+      <p style="font-size:10px;color:#aaaabc;margin-top:6px">
+        窶ｻ 驥埼㍼縺ｯ JIS kg/m ﾃ・髟ｷ縺輔ょ｡苓｣・擇遨阪・譁ｭ髱｢蜻ｨ髟ｷ ﾃ・髟ｷ縺包ｼ域ｦらｮ怜､・峨・
+      </p>
+    </aside>
+    <main class="mn" id="wMain">
+      <div id="wEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#c0c0d0;gap:12px;min-height:300px">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".35">
+          <circle cx="12" cy="12" r="8"/><path d="M12 8v4l2 2"/>
+        </svg>
+        <p style="font-size:13px">蟾ｦ縺ｮ蜈･蜉帶ｬ・〒險ｭ螳壹＠縺ｦ縲後Μ繧ｹ繝医↓霑ｽ蜉縲阪ｒ謚ｼ縺励※縺上□縺輔＞</p>
+      </div>
+      <div id="wTableWrap" style="display:none;overflow-x:auto">
+        <table id="wTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px">
+          <thead>
+            <tr style="background:#f4f4fa;border-bottom:2px solid #e0e0ea">
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:#5a5a78">#</th>
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:#5a5a78">遞ｮ鬘・/th>
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:#5a5a78">隕乗ｼ</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">髟ｷ縺・mm)</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">譛ｬ謨ｰ</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">kg/m</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">1譛ｬ驥埼㍼(kg)</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#6d28d9;font-weight:700">蜷郁ｨ磯㍾驥・kg)</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#0891b2">蝪苓｣・譛ｬ(mﾂｲ)</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#0891b2;font-weight:700">蝪苓｣・粋險・mﾂｲ)</th>
+              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#16a34a">讎らｮ鈴≡鬘・蜀・</th>
+              <th style="padding:8px 6px;width:28px"></th>
+            </tr>
+          </thead>
+          <tbody id="wTbody"></tbody>
+          <tfoot id="wTfoot"></tfoot>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
 <div id="histPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;overflow:auto;padding:16px 12px;box-sizing:border-box">
   <div style="max-width:1100px;min-width:700px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <!-- モーダルヘッダー -->
+    <!-- 郢晢ｽ｢郢晢ｽｼ郢敖郢晢ｽｫ郢晏･繝｣郢敖郢晢ｽｼ -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #e8e8ed;background:#f8f8fb;position:sticky;top:0;z-index:1">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:14px">📋</span>
-        <span style="font-size:14px;font-weight:700;color:#1a1a2e">作業指示書プレビュー</span>
+        <span style="font-size:14px">﨟樊政</span>
+        <span style="font-size:14px;font-weight:700;color:#1a1a2e">闖ｴ諛茨ｽ･・ｭ隰悶・・､・ｺ隴厄ｽｸ郢晏干ﾎ樒ｹ晁侭ﾎ礼ｹ晢ｽｼ</span>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="printHistoryPreview()" style="background:#6d28d9;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">印刷する</button>
-        <button onclick="document.getElementById('histPreviewModal').style.display='none'" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit">× 閉じる</button>
+        <button onclick="printHistoryPreview()" style="background:#6d28d9;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">陷奇ｽｰ陋ｻ・ｷ邵ｺ蜷ｶ・・/button>
+        <button onclick="document.getElementById('histPreviewModal').style.display='none'" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit">・・・鬮｢蟲ｨﾂｧ郢ｧ繝ｻ/button>
       </div>
     </div>
-    <!-- プレビュー本体 -->
+    <!-- 郢晏干ﾎ樒ｹ晁侭ﾎ礼ｹ晢ｽｼ隴幢ｽｬ闖ｴ繝ｻ-->
     <div id="histPreviewBody" style="padding:16px 20px;font-family:sans-serif;font-size:11px;color:#000;line-height:1.4;overflow-x:auto"></div>
   </div>
 </div>
@@ -415,20 +501,21 @@
   <script src="main.js"></script>
   <script src="contact.js"></script>
   <script src="final-overrides.js"></script>
+  <script src="weight.js"></script>
 
-<!-- 🛒 カートモーダル -->
+<!-- 﨟槫ｰ・郢ｧ・ｫ郢晢ｽｼ郢晏現ﾎ皮ｹ晢ｽｼ郢敖郢晢ｽｫ -->
 <div id="cartModal">
   <div class="cart-modal-inner">
     <div class="cart-modal-hd">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:16px">🛒</span>
-        <span style="font-size:15px;font-weight:700;color:#1a1a2e">印刷カート</span>
+        <span style="font-size:16px">﨟槫ｰ・/span>
+        <span style="font-size:15px;font-weight:700;color:#1a1a2e">陷奇ｽｰ陋ｻ・ｷ郢ｧ・ｫ郢晢ｽｼ郢昴・/span>
         <span id="cartModalCount" style="font-size:11px;color:#888"></span>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="cartClearAll()" style="background:none;border:1px solid #e8e8ed;color:#f87171;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit">全クリア</button>
-        <button onclick="cartDoPrint()" style="background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:8px;padding:6px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🖨 まとめて印刷</button>
-        <button onclick="closeCartModal()" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit">× 閉じる</button>
+        <button onclick="cartClearAll()" style="background:none;border:1px solid #e8e8ed;color:#f87171;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit">陷茨ｽｨ郢ｧ・ｯ郢晢ｽｪ郢ｧ・｢</button>
+        <button onclick="cartDoPrint()" style="background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:8px;padding:6px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">﨟櫁惧 邵ｺ・ｾ邵ｺ・ｨ郢ｧ竏壺ｻ陷奇ｽｰ陋ｻ・ｷ</button>
+        <button onclick="closeCartModal()" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit">・・・鬮｢蟲ｨﾂｧ郢ｧ繝ｻ/button>
       </div>
     </div>
     <div id="cartModalBody" style="max-height:60vh;overflow-y:auto;padding:8px 0"></div>
