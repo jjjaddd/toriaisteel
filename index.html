@@ -386,6 +386,21 @@
 <div id="wpp" class="pg">
   <div class="layout">
     <aside class="sb">
+      <div id="wSumBox" style="display:none;background:linear-gradient(135deg,#6d28d9,#4c1d95);color:#fff;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px">
+        <div style="font-size:10px;opacity:.75;margin-bottom:6px;font-weight:600;letter-spacing:.05em">リスト合計</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="opacity:.85">合計重量</span>
+          <span id="wSumKg" style="font-weight:800;font-size:14px">— kg</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="opacity:.85">塗装面積</span>
+          <span id="wSumM2" style="font-weight:700">— m2</span>
+        </div>
+        <div id="wSumAmtRow" style="display:none;justify-content:space-between">
+          <span style="opacity:.85">概算金額</span>
+          <span id="wSumAmt" style="font-weight:700;color:#86efac">— 円</span>
+        </div>
+      </div>
       <section>
         <div class="shd">鋼材種類</div>
         <select id="wKind" onchange="wOnKind()"></select>
@@ -411,9 +426,10 @@
           </label>
           <input type="number" id="wPrice" placeholder="例：120" min="0" disabled style="opacity:.4">
         </div>
+        <input type="hidden" id="wKgm">
         <div class="field">
-          <label>kg/m（手動変更可）</label>
-          <input type="number" id="wKgm" step="0.01" min="0.01">
+          <label>部材名・メモ（任意）</label>
+          <input type="text" id="wMemo" placeholder="例：柱材、梁材、胴縁など" maxlength="40">
         </div>
       </section>
       <section id="wPreviewBox" style="display:none;background:#f4f4fa;border-radius:10px;padding:12px;font-size:12px">
@@ -440,6 +456,9 @@
       <button onclick="wClearAll()" style="background:transparent;color:#aaa;border:1px solid #ddd;border-radius:10px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;width:100%;margin-top:6px">
         リストをクリア
       </button>
+      <button onclick="wPrint()" id="wPrintBtn" style="display:none;background:transparent;color:#6d28d9;border:1.5px solid #6d28d9;border-radius:10px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;width:100%;margin-top:6px">
+        🖨️ 印刷する
+      </button>
       <p style="font-size:10px;color:#aaaabc;margin-top:6px">
         ※ 重量は JIS kg/m × 長さ。塗装面積は断面周長 × 長さ（概算値）。
       </p>
@@ -454,11 +473,11 @@
           <thead>
             <tr style="background:#f4f4fa;border-bottom:2px solid #e0e0ea">
               <th style="padding:8px 10px;text-align:left;font-size:10px;color:#5a5a78">#</th>
+              <th style="padding:8px 10px;text-align:left;font-size:10px;color:#5a5a78">部材名</th>
               <th style="padding:8px 10px;text-align:left;font-size:10px;color:#5a5a78">種類</th>
               <th style="padding:8px 10px;text-align:left;font-size:10px;color:#5a5a78">規格</th>
               <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">長さ(mm)</th>
               <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">本数</th>
-              <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">kg/m</th>
               <th style="padding:8px 10px;text-align:right;font-size:10px;color:#5a5a78">1本重量(kg)</th>
               <th style="padding:8px 10px;text-align:right;font-size:10px;color:#6d28d9;font-weight:700">合計重量(kg)</th>
               <th style="padding:8px 10px;text-align:right;font-size:10px;color:#0891b2">塗装1本(m2)</th>

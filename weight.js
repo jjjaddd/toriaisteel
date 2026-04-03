@@ -63,7 +63,7 @@ function wSetupEnter() {
     });
   }
 
-  ['wLen', 'wQty', 'wPrice', 'wKgm'].forEach(function(id) {
+  ['wLen', 'wQty', 'wPrice'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener('input', wPreview);
   });
@@ -110,7 +110,7 @@ function wOnSpec() {
   var kgm = hit ? Number(hit[1]) : 0;
 
   kgmEl.value = kgm > 0 ? String(kgm) : '';
-  dispEl.textContent = specName ? specName + (kgm > 0 ? '  (' + kgm + ' kg/m)' : '') : '';
+  dispEl.textContent = specName || '';
   wPreview();
 }
 
@@ -212,6 +212,7 @@ function wAddRow() {
   _wRows.push({
     kind: kind,
     spec: spec,
+    memo: document.getElementById('wMemo') ? (document.getElementById('wMemo').value || '') : '',
     len: len,
     qty: qty,
     kgm: kgm,
@@ -222,6 +223,8 @@ function wAddRow() {
     amount: price > 0 ? kg * price : null
   });
 
+  var memoEl = document.getElementById('wMemo');
+  if (memoEl) memoEl.value = '';
   wRenderRows();
   lenEl.focus();
   lenEl.select();
@@ -244,15 +247,24 @@ function wRenderRows() {
   var tableWrap = document.getElementById('wTableWrap');
   var tbody = document.getElementById('wTbody');
   var tfoot = document.getElementById('wTfoot');
+  var printBtn = document.getElementById('wPrintBtn');
+  var sumBox = document.getElementById('wSumBox');
+  var sumKgEl = document.getElementById('wSumKg');
+  var sumM2El = document.getElementById('wSumM2');
+  var sumAmtRow = document.getElementById('wSumAmtRow');
+  var sumAmtEl = document.getElementById('wSumAmt');
   if (!empty || !tableWrap || !tbody || !tfoot) return;
 
   if (_wRows.length === 0) {
     empty.style.display = 'flex';
     tableWrap.style.display = 'none';
+    if (printBtn) printBtn.style.display = 'none';
+    if (sumBox) sumBox.style.display = 'none';
     return;
   }
   empty.style.display = 'none';
   tableWrap.style.display = 'block';
+  if (printBtn) printBtn.style.display = 'block';
 
   var anyPrice = _wRows.some(function(r) { return r.amount !== null; });
   var sumKg = 0;
@@ -271,11 +283,11 @@ function wRenderRows() {
     return (
       '<tr style="border-bottom:1px solid #f0f0f6;' + (i % 2 === 1 ? 'background:#fafafa' : '') + '">' +
       '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' + (i + 1) + '</td>' +
+      '<td style="padding:7px 10px;font-size:11px;color:#5a5a78;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + _esc(r.memo) + '">' + _esc(r.memo || '—') + '</td>' +
       '<td style="' + _tdL + '">' + _esc(r.kind) + '</td>' +
       '<td style="' + _tdL + 'font-weight:600">' + _esc(r.spec) + '</td>' +
       '<td style="' + _tdR + '">' + r.len.toLocaleString() + '</td>' +
       '<td style="' + _tdR + '">' + r.qty.toLocaleString() + '</td>' +
-      '<td style="' + _tdR + 'color:#8888a8">' + r.kgm + '</td>' +
       '<td style="' + _tdR + '">' + _wFmt(r.kg1, 0) + '</td>' +
       '<td style="' + _tdR + 'color:#6d28d9;font-weight:700">' + _wFmt(r.kgTotal, 0) + '</td>' +
       '<td style="' + _tdR + 'color:#0891b2">' + _wFmt(r.m2_1, 2) + '</td>' +
@@ -289,6 +301,14 @@ function wRenderRows() {
       '</tr>'
     );
   }).join('');
+
+  if (sumBox) {
+    sumBox.style.display = 'block';
+    if (sumKgEl) sumKgEl.textContent = Math.round(sumKg).toLocaleString() + ' kg';
+    if (sumM2El) sumM2El.textContent = _wFmt(sumM2, 2) + ' m2';
+    if (sumAmtRow) sumAmtRow.style.display = anyPrice ? 'flex' : 'none';
+    if (sumAmtEl) sumAmtEl.textContent = _wFmt(sumAmt, 0) + ' 円';
+  }
 
   var totalAmtCell = anyPrice
     ? '<td style="' + _tdR + 'color:#16a34a;font-weight:800;font-size:13px">' + _wFmt(sumAmt, 0) + '</td>'
@@ -318,4 +338,58 @@ function _wFmt(v, dec) {
 
 function _esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function wPrint() {
+  if (_wRows.length === 0) return;
+  var anyPrice = _wRows.some(function(r) { return r.amount !== null; });
+  var sumKg = 0;
+  var sumM2 = 0;
+  var sumAmt = 0;
+  _wRows.forEach(function(r) {
+    sumKg += r.kgTotal;
+    sumM2 += r.m2Total;
+    if (r.amount !== null) sumAmt += r.amount;
+  });
+
+  var rows = _wRows.map(function(r, i) {
+    return '<tr style="border-bottom:1px solid #eee">' +
+      '<td style="padding:5px 8px">' + (i + 1) + '</td>' +
+      '<td style="padding:5px 8px">' + _esc(r.memo || '—') + '</td>' +
+      '<td style="padding:5px 8px">' + _esc(r.kind) + '</td>' +
+      '<td style="padding:5px 8px">' + _esc(r.spec) + '</td>' +
+      '<td style="padding:5px 8px;text-align:right">' + r.len.toLocaleString() + '</td>' +
+      '<td style="padding:5px 8px;text-align:right">' + r.qty + '</td>' +
+      '<td style="padding:5px 8px;text-align:right;font-weight:700">' + Math.round(r.kgTotal).toLocaleString() + '</td>' +
+      '<td style="padding:5px 8px;text-align:right">' + _wFmt(r.m2Total, 2) + '</td>' +
+      (anyPrice ? '<td style="padding:5px 8px;text-align:right">' + (r.amount !== null ? _wFmt(r.amount, 0) : '—') + '</td>' : '') +
+    '</tr>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">' +
+    '<title>重量計算リスト</title>' +
+    '<style>body{font-family:sans-serif;font-size:12px;padding:16px}' +
+    'h2{font-size:15px;margin-bottom:8px}' +
+    'table{width:100%;border-collapse:collapse}' +
+    'th{background:#f0f0f6;padding:5px 8px;text-align:left;border-bottom:2px solid #ccc;font-size:11px}' +
+    '.tot{font-size:13px;font-weight:800;margin-top:12px;padding:8px 12px;background:#f4f4fa;border-radius:6px}' +
+    '@media print{button{display:none}}</style></head><body>' +
+    '<h2>重量計算リスト</h2>' +
+    '<table><thead><tr>' +
+    '<th>#</th><th>部材名</th><th>種類</th><th>規格</th>' +
+    '<th style="text-align:right">長さ(mm)</th>' +
+    '<th style="text-align:right">本数</th>' +
+    '<th style="text-align:right">合計重量(kg)</th>' +
+    '<th style="text-align:right">塗装面積(m2)</th>' +
+    (anyPrice ? '<th style="text-align:right">概算金額(円)</th>' : '') +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="tot">合計重量：' + Math.round(sumKg).toLocaleString() + ' kg　／　塗装面積：' + _wFmt(sumM2, 2) + ' m2' +
+    (anyPrice ? '　／　概算金額：' + _wFmt(sumAmt, 0) + ' 円' : '') + '</div>' +
+    '<script>window.onload=function(){window.print();}<\/script></body></html>';
+
+  var w = window.open('', '_blank');
+  if (w) {
+    w.document.write(html);
+    w.document.close();
+  }
 }
