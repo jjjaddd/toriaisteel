@@ -549,8 +549,9 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
     var cartBadge = document.getElementById('cartBadge');
     var calc = document.getElementById('na');
     var hist = document.getElementById('nhi');
+    var weight = document.getElementById('nw');
     var contact = document.getElementById('nc') || document.getElementById('ncontact');
-    [calc, hist, cartBadge, contact].forEach(function(node) {
+    [calc, hist, weight, contact, cartBadge].forEach(function(node) {
       if (node && node.parentNode === nav) nav.appendChild(node);
     });
     if (cartBadge) {
@@ -664,7 +665,7 @@ function buildPurchaseMailto(summary, cart) {
   lines.push('');
   lines.push('よろしくお願いいたします。');
   var subject = '';
-  return 'mailto:support.toriai@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+  return 'mailto:konoshima@inoue-kouzai.co.jp?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
 }
 
 function buildPurchaseGmailUrl(summary, cart) {
@@ -689,7 +690,7 @@ function buildPurchaseGmailUrl(summary, cart) {
   var params = [
     'view=cm',
     'fs=1',
-    'to=' + encodeURIComponent('support.toriai@gmail.com'),
+    'to=' + encodeURIComponent('konoshima@inoue-kouzai.co.jp'),
     'su=' + encodeURIComponent(''),
     'body=' + encodeURIComponent(lines.join('\n'))
   ];
