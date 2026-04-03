@@ -90,7 +90,7 @@ function wOnKind() {
   specs.forEach(function(item) {
     var opt = document.createElement('option');
     opt.value = item[0];
-    opt.textContent = item[0] + '  (' + item[1] + ' kg/m)';
+    opt.textContent = item[0];
     specEl.appendChild(opt);
   });
   wOnSpec();
@@ -100,8 +100,8 @@ function wOnSpec() {
   var kindEl = document.getElementById('wKind');
   var specEl = document.getElementById('wSpec');
   var kgmEl = document.getElementById('wKgm');
-  var dispEl = document.getElementById('wKgmDisp');
-  if (!kindEl || !specEl || !kgmEl || !dispEl || !STEEL) return;
+  var kgmValEl = document.getElementById('wKgmVal');
+  if (!kindEl || !specEl || !kgmEl || !STEEL) return;
 
   var kind = kindEl.value;
   var specName = specEl.value;
@@ -110,7 +110,7 @@ function wOnSpec() {
   var kgm = hit ? Number(hit[1]) : 0;
 
   kgmEl.value = kgm > 0 ? String(kgm) : '';
-  dispEl.textContent = specName || '';
+  if (kgmValEl) kgmValEl.textContent = kgm > 0 ? kgm + ' kg/m' : '';
   wPreview();
 }
 
@@ -144,48 +144,15 @@ function wGetPaintPerM(kind, specName) {
 }
 
 function wPreview() {
-  var kindEl = document.getElementById('wKind');
-  var specEl = document.getElementById('wSpec');
   var kgmEl = document.getElementById('wKgm');
   var lenEl = document.getElementById('wLen');
   var qtyEl = document.getElementById('wQty');
-  var priceEl = document.getElementById('wPrice');
-  var box = document.getElementById('wPreviewBox');
-  if (!kindEl || !specEl || !kgmEl || !lenEl || !qtyEl || !priceEl || !box) return;
+  if (!kgmEl || !lenEl || !qtyEl) return;
 
   var kgm = parseFloat(kgmEl.value) || 0;
   var len = parseFloat(lenEl.value) || 0;
   var qty = parseFloat(qtyEl.value) || 0;
-  var price = parseFloat(priceEl.value) || 0;
-
-  if (kgm <= 0 || len <= 0 || qty <= 0) {
-    box.style.display = 'none';
-    return;
-  }
-
-  var kg1 = kgm * len / 1000;
-  var kgTotal = kg1 * qty;
-  var ppm = wGetPaintPerM(kindEl.value, specEl.value);
-  var m2Total = ppm * len / 1000 * qty;
-
-  box.style.display = 'block';
-  document.getElementById('wPrev1kg').textContent = _wFmt(kg1, 0) + ' kg';
-  document.getElementById('wPrevTotalKg').textContent = _wFmt(kgTotal, 0) + ' kg';
-  document.getElementById('wPrevTotalM2').textContent = _wFmt(m2Total, 2) + ' m2';
-
-  var priceRow = document.getElementById('wPrevPriceRow');
-  var pricePerKgRow = document.getElementById('wPrevPricePerKgRow');
-  var prevPricePerKg = document.getElementById('wPrevPricePerKg');
-  if (prevPricePerKg) prevPricePerKg.textContent = price > 0 ? _wFmt(price, 0) + ' 円/kg' : '—';
-
-  if (price > 0) {
-    document.getElementById('wPrevPrice').textContent = _wFmt(kgTotal * price, 0) + ' 円';
-    if (pricePerKgRow) pricePerKgRow.style.display = 'flex';
-    if (priceRow) priceRow.style.display = 'flex';
-  } else {
-    if (pricePerKgRow) pricePerKgRow.style.display = 'none';
-    if (priceRow) priceRow.style.display = 'none';
-  }
+  if (kgm <= 0 || len <= 0 || qty <= 0) return;
 }
 
 function wAddRow() {
@@ -441,10 +408,15 @@ function wAddToCart() {
       btn.classList.add('added');
       btn.disabled = true;
       setTimeout(function() {
-        btn.textContent = '＋ 作業指示書に追加';
+        btn.textContent = '＋ 追加';
         btn.classList.remove('added');
         btn.disabled = false;
       }, 2500);
     }
   }
+}
+
+function wMemoInput(el) {
+  var check = document.getElementById('wMemoCheck');
+  if (check) check.style.opacity = el.value.trim() ? '1' : '0';
 }

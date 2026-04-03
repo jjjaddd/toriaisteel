@@ -408,7 +408,9 @@
       <section>
         <div class="shd">規格</div>
         <select id="wSpec" onchange="wOnSpec()"></select>
-        <div id="wKgmDisp" style="font-size:11px;color:#8888a8;margin-top:6px"></div>
+        <div id="wKgmDisp" style="display:flex;justify-content:flex-end;margin-top:4px">
+          <span id="wKgmVal" style="font-size:11px;color:#b0b0c8;font-weight:600"></span>
+        </div>
       </section>
       <section>
         <div class="field">
@@ -432,29 +434,7 @@
             <span>部材名・メモ（任意）</span>
             <span id="wMemoCheck" style="color:#16a34a;font-weight:700;font-size:13px;opacity:0;transition:opacity .2s">✓</span>
           </label>
-          <input type="text" id="wMemo" placeholder="例：柱材、梁材、胴縁など" maxlength="40" oninput="document.getElementById('wMemoCheck').style.opacity=this.value.trim()?'1':'0'">
-        </div>
-      </section>
-      <section id="wPreviewBox" style="display:none;background:#f4f4fa;border-radius:10px;padding:12px;font-size:12px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="color:#5a5a78">1本重量</span>
-          <span id="wPrev1kg" style="font-weight:700;color:#1a1a2e">—</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="color:#5a5a78">合計重量</span>
-          <span id="wPrevTotalKg" style="font-weight:700;color:#6d28d9">—</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="color:#5a5a78">塗装面積(合計)</span>
-          <span id="wPrevTotalM2" style="font-weight:700;color:#0891b2">—</span>
-        </div>
-        <div id="wPrevPricePerKgRow" style="display:none;justify-content:space-between;margin-bottom:4px">
-          <span style="color:#5a5a78">単価</span>
-          <span id="wPrevPricePerKg" style="font-weight:600;color:#5a5a78">—</span>
-        </div>
-        <div id="wPrevPriceRow" style="display:none;justify-content:space-between">
-          <span style="color:#5a5a78">概算金額</span>
-          <span id="wPrevPrice" style="font-weight:700;color:#16a34a">—</span>
+          <input type="text" id="wMemo" placeholder="例：柱材、梁材、胴縁など" maxlength="40" oninput="wMemoInput(this)">
         </div>
       </section>
       <button onclick="wAddRow()" style="width:100%;background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:var(--r,8px);font-family:'Space Grotesk','Noto Sans JP',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;margin-top:4px">
@@ -474,7 +454,7 @@
       </div>
       <div id="wMainHd" style="display:none;padding:8px 12px 6px;justify-content:flex-end;align-items:center;border-bottom:1px solid #ebebf0">
         <button id="wCartBtn" onclick="wAddToCart()" class="cc-btn-add">
-          ＋ 作業指示書に追加
+          ＋ 追加
         </button>
       </div>
       <div id="wTableWrap" style="display:none;overflow-x:auto">

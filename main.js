@@ -1395,7 +1395,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           '<div class="cc-stats">' +
             '<div class="cs"><div class="cl">残材本数</div><div class="cv">' + remnantBars.length + ' 本</div></div>' +
           '</div>' +
-          '<div class="cc-btns"><button class="cc-btn-add" id="add_' + remOnlyCardId + '" onclick="cartAdd(\'' + remOnlyCardId + '\',this)">＋ 作業指示書に追加</button></div>' +
+'<div class="cc-btns"><button class="cc-btn-add" id="add_' + remOnlyCardId + '" onclick="cartAdd(\'' + remOnlyCardId + '\',this)">＋ 追加</button></div>' +
         '</div>' +
         '<div class="rem-section" style="padding:6px 12px;background:#f8f8fc;border-top:1px solid #ebebf0">' +
           '<div style="font-size:10px;color:#5a5a78;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">端材リスト</div>' +
@@ -1460,7 +1460,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
             '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + Math.round(yb.lossKg) + ' kg</div></div>' +
             '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + barCount + ' 本</div></div>' +
           '</div>' +
-          '<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + yCardId2 + '" onclick="cartAdd(\'' + yCardId2 + '\',this)">＋ 作業指示書に追加</button>' + '</div>' +
+'<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + yCardId2 + '" onclick="cartAdd(\'' + yCardId2 + '\',this)">＋ 追加</button>' + '</div>' +
         '</div>' +
         '<div class="cc-pat"><div class="pgrid">' + yPatHtml + '</div></div>' +
         (yDiag2 ? '<button class="diag-toggle" onclick="toggleDiag(&quot;' + yDiagId2 + '&quot;,this)">✂ 切断図を表示 ▼</button><div id="' + yDiagId2 + '" style="display:none">' + yDiag2 + '</div>' : '') +
@@ -1630,7 +1630,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
             '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + Math.round(m.lossKg||0) + ' kg</div></div>' +
             '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + m.barCount + ' 本</div></div>' +
           '</div>' +
-          '<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + cardId2 + '" onclick="cartAdd(\'' + cardId2 + '\',this)">＋ 作業指示書に追加</button>' + '</div>' +
+'<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + cardId2 + '" onclick="cartAdd(\'' + cardId2 + '\',this)">＋ 追加</button>' + '</div>' +
         '</div>' +
         '<div class="cc-pat"><div class="pgrid">' + patDetailHtml + '</div></div>' +
         '<div style="padding:6px 14px;background:#f8f8fb;border-top:1px solid #e8e8ed">' +
@@ -1847,7 +1847,7 @@ function renderCartModal() {
 
   if (!cart.length) {
     body.innerHTML = '<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">' +
-      'カートは空です。各カードの「＋ 作業指示書に追加」を押してください。</div>';
+      'カートは空です。各カードの「＋ 追加」を押してください。</div>';
     return;
   }
 
@@ -1880,7 +1880,7 @@ function cartRemoveItem(id) {
     var cardId = btn.id.replace('add_', '');
     var stillInCart = getCart().some(function(x){ return x.data.cardId === cardId; });
     if (!stillInCart) {
-      btn.textContent = '＋ 作業指示書に追加';
+      btn.textContent = '＋ 追加';
       btn.classList.remove('added');
       btn.disabled = false;
     }
@@ -1895,7 +1895,7 @@ function cartClearAll() {
   renderCartModal();
   // 全addボタンをリセット
   document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
-    btn.textContent = '＋ 作業指示書に追加';
+    btn.textContent = '＋ 追加';
     btn.classList.remove('added');
     btn.disabled = false;
   });
@@ -1905,7 +1905,7 @@ function cartClearAll() {
 function cartPrint() {
   var cart = getCart();
   if (!cart.length) {
-    alert('先に「＋ 作業指示書に追加」でカートに追加してください。');
+    alert('先に「＋ 追加」でカートに追加してください。');
     return;
   }
   openCartModal();
@@ -2043,7 +2043,7 @@ function legacyCartDoPrint() {
   updateCartBadge();
   closeCartModal();
   document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
-    btn.textContent = '＋ 作業指示書に追加';
+    btn.textContent = '＋ 追加';
     btn.classList.remove('added');
     btn.disabled = false;
   });
