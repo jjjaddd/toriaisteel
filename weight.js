@@ -256,6 +256,7 @@ function wRenderRows() {
   var tbody = document.getElementById('wTbody');
   var tfoot = document.getElementById('wTfoot');
   var printBtn = document.getElementById('wPrintBtn');
+  var cartBtn = document.getElementById('wCartBtn');
   var sumBox = document.getElementById('wSumBox');
   var sumKgEl = document.getElementById('wSumKg');
   var sumM2El = document.getElementById('wSumM2');
@@ -267,12 +268,14 @@ function wRenderRows() {
     empty.style.display = 'flex';
     tableWrap.style.display = 'none';
     if (printBtn) printBtn.style.display = 'none';
+    if (cartBtn) cartBtn.style.display = 'none';
     if (sumBox) sumBox.style.display = 'none';
     return;
   }
   empty.style.display = 'none';
   tableWrap.style.display = 'block';
   if (printBtn) printBtn.style.display = 'block';
+  if (cartBtn) cartBtn.style.display = 'block';
 
   var anyPrice = _wRows.some(function(r) { return r.amount !== null; });
   var sumKg = 0;
@@ -397,5 +400,49 @@ function wPrint() {
   if (w) {
     w.document.write(html);
     w.document.close();
+  }
+}
+
+function wAddToCart() {
+  if (_wRows.length === 0) return;
+
+  var sumKg = 0;
+  var sumM2 = 0;
+  var sumAmt = 0;
+  var anyPrice = _wRows.some(function(r) { return r.amount !== null; });
+  _wRows.forEach(function(r) {
+    sumKg += r.kgTotal;
+    sumM2 += r.m2Total;
+    if (r.amount !== null) sumAmt += r.amount;
+  });
+
+  var cartId = 'weight_' + Date.now();
+  var data = {
+    cardId: cartId,
+    isWeight: true,
+    title: '重量計算リスト（' + _wRows.length + '件）',
+    rows: JSON.parse(JSON.stringify(_wRows)),
+    sumKg: sumKg,
+    sumM2: sumM2,
+    sumAmt: anyPrice ? sumAmt : null,
+    anyPrice: anyPrice
+  };
+
+  if (typeof addToCart === 'function') {
+    addToCart(cartId, data);
+    if (typeof updateCartBadge === 'function') updateCartBadge();
+
+    var btn = document.getElementById('wCartBtn');
+    if (btn) {
+      var orig = btn.textContent;
+      btn.textContent = '✓ カートに追加しました';
+      btn.disabled = true;
+      btn.style.background = '#15803d';
+      setTimeout(function() {
+        btn.textContent = orig;
+        btn.disabled = false;
+        btn.style.background = '#16a34a';
+      }, 2000);
+    }
   }
 }

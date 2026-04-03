@@ -2269,7 +2269,7 @@ function buildPrintPages(job, sections) {
 
     // セクション
     secSlice.forEach(function(sec) {
-      html += buildPrintSection(sec.idx, sec);
+      html += sec.customHtml || buildPrintSection(sec.idx, sec);
     });
 
     // フッター
@@ -3915,11 +3915,20 @@ function getRemnants() {
       return;
     }
     body.innerHTML = cart.map(function(item) {
-      var d = item.data;
+      var d = item.data || {};
+      var typeLabel = d.isWeight
+        ? '重量計算リスト'
+        : (d.isYield ? '歩留まり最大' : '取り合いパターン');
+      var subLabel = d.isWeight
+        ? (Math.round(d.sumKg || 0).toLocaleString() + ' kg　' +
+           (d.anyPrice ? '概算 ' + Number(d.sumAmt || 0).toLocaleString() + ' 円' : ''))
+        : ((d.spec || '') + '　' + (((d.job || {}).client) || '') + '　' + (((d.job || {}).name) || ''));
       return '<div class="cart-item">' +
         '<div style="flex:1;min-width:0">' +
-          '<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">' + (d.title || '') + '</div>' +
-          '<div style="font-size:11px;color:#8888a8">' + (d.spec || '') + ' ' + ((d.job || {}).client || '') + ' ' + ((d.job || {}).name || '') + '</div>' +
+          '<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">' +
+            typeLabel + ' - ' + (d.title || '') +
+          '</div>' +
+          '<div style="font-size:11px;color:#8888a8">' + subLabel + '</div>' +
         '</div>' +
         '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">削除</button>' +
       '</div>';
@@ -4011,6 +4020,45 @@ function cartDoPrint() {
   var sections = [];
   cart.forEach(function(item, ci) {
     var d = item.data || {};
+    if (d.isWeight) {
+      var rowsHtml = (d.rows || []).map(function(r, idx) {
+        return '<tr style="border-bottom:1px solid #eee">' +
+          '<td style="padding:4px 8px">' + (idx + 1) + '</td>' +
+          '<td style="padding:4px 8px">' + (r.memo || '—') + '</td>' +
+          '<td style="padding:4px 8px">' + r.kind + '</td>' +
+          '<td style="padding:4px 8px">' + r.spec + '</td>' +
+          '<td style="padding:4px 8px;text-align:right">' + r.len.toLocaleString() + '</td>' +
+          '<td style="padding:4px 8px;text-align:right">' + r.qty + '</td>' +
+          '<td style="padding:4px 8px;text-align:right;font-weight:700">' + Math.round(r.kgTotal).toLocaleString() + ' kg</td>' +
+          (d.anyPrice ? '<td style="padding:4px 8px;text-align:right">' +
+            (r.amount !== null ? Number(r.amount).toLocaleString() + ' 円' : '—') + '</td>' : '') +
+          '</tr>';
+      }).join('');
+      sections.push({
+        idx: ci + 1,
+        customHtml: '<div style="margin-bottom:16px;border:1px solid #ddd;border-radius:8px;overflow:hidden">' +
+          '<div style="background:#f0fdf4;padding:8px 12px;font-weight:700;font-size:13px;border-bottom:1px solid #ddd">' +
+            '重量計算リスト - ' + d.title +
+          '</div>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
+          '<thead><tr style="background:#f4f4fa">' +
+            '<th style="padding:4px 8px;text-align:left">#</th>' +
+            '<th style="padding:4px 8px;text-align:left">部材名</th>' +
+            '<th style="padding:4px 8px;text-align:left">種類</th>' +
+            '<th style="padding:4px 8px;text-align:left">規格</th>' +
+            '<th style="padding:4px 8px;text-align:right">長さ(mm)</th>' +
+            '<th style="padding:4px 8px;text-align:right">本数</th>' +
+            '<th style="padding:4px 8px;text-align:right">合計重量(kg)</th>' +
+            (d.anyPrice ? '<th style="padding:4px 8px;text-align:right">概算金額(円)</th>' : '') +
+          '</tr></thead><tbody>' + rowsHtml + '</tbody>' +
+          '<tfoot><tr style="background:#f4f4fa;font-weight:700">' +
+            '<td colspan="6" style="padding:6px 8px">合　計</td>' +
+            '<td style="padding:6px 8px;text-align:right">' + Math.round(d.sumKg).toLocaleString() + ' kg</td>' +
+            (d.anyPrice ? '<td style="padding:6px 8px;text-align:right">' + Number(d.sumAmt).toLocaleString() + ' 円</td>' : '') +
+          '</tr></tfoot></table></div>'
+      });
+      return;
+    }
     var patDiv = document.createElement('div');
     patDiv.innerHTML = d.patHtml || '';
     var sumMap = {};
