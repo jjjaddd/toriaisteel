@@ -1,4 +1,4 @@
-const CACHE_NAME = 'toriai-20260404';
+const CACHE_NAME = 'toriai-20260404b';
 const ASSETS = ['./', './index.html', './style.css', './main.js', './calc.js', './storage.js', './weight.js', './final-overrides.js'];
 
 self.addEventListener('install', e => {
