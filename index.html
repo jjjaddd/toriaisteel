@@ -545,7 +545,7 @@
   <script>
     var _swReg = null;
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
         _swReg = reg;
         reg.addEventListener('updatefound', function() {
           var nw = reg.installing;
@@ -569,7 +569,9 @@
       if (_swReg && _swReg.waiting) {
         _swReg.waiting.postMessage('SKIP_WAITING');
       } else {
-        window.location.reload(true);
+        caches.keys().then(function(keys) {
+          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+        }).then(function() { window.location.reload(true); });
       }
     }
   </script>
