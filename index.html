@@ -535,44 +535,5 @@
   </div>
 </div>
 
-
-  <!-- 更新通知バナー -->
-  <div id="updateBanner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#ede9fe;color:#4c1d95;padding:12px 20px;border-radius:10px;border:1.5px solid #6d28d9;z-index:9999;align-items:center;gap:12px;font-family:'Space Grotesk','Noto Sans JP',sans-serif;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(109,40,217,.2);">
-    <span>🔄 新しい更新があります</span>
-    <button onclick="doUpdate()" style="background:#6d28d9;color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">更新する</button>
-  </div>
-
-  <script>
-    var _swReg = null;
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
-        _swReg = reg;
-        reg.addEventListener('updatefound', function() {
-          var nw = reg.installing;
-          nw.addEventListener('statechange', function() {
-            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-              var b = document.getElementById('updateBanner');
-              if (b) b.style.display = 'flex';
-            }
-          });
-        });
-        if (reg.waiting) {
-          var b = document.getElementById('updateBanner');
-          if (b) b.style.display = 'flex';
-        }
-      });
-      navigator.serviceWorker.addEventListener('controllerchange', function() {
-        window.location.reload();
-      });
-    }
-    function doUpdate() {
-      if (_swReg && _swReg.waiting) {
-        _swReg.waiting.postMessage('SKIP_WAITING');
-      } else {
-        caches.keys().then(function(keys) {
-          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-        }).then(function() { window.location.reload(true); });
-      }
-    }
-  </script>
+  <script src="update-notifier.js"></script>
 </body></html>
