@@ -3146,39 +3146,6 @@ function normalizeInterfaceChrome() {
   }
 }
 
-function resetZaiAddButton() {
-  var zaiBtn = document.getElementById('zaiAddBtn');
-  if (zaiBtn) {
-    zaiBtn.classList.remove('added');
-    zaiBtn.textContent = '＋ 追加';
-  }
-}
-
-function updateInventoryUseButton(forceReady) {
-  var btn = document.getElementById('zaiAddBtn');
-  var sel = document.getElementById('invSelect');
-  if (!btn) return;
-  if (forceReady) {
-    btn.classList.add('added');
-    btn.textContent = '✓ 追加済み';
-    btn.disabled = true;
-    return;
-  }
-  btn.classList.remove('added');
-  btn.textContent = '＋ 追加';
-  btn.disabled = !(sel && sel.value);
-}
-
-var _origSyncInventoryToRemnants = syncInventoryToRemnants;
-syncInventoryToRemnants = function() {
-  _origSyncInventoryToRemnants();
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  if (!list.querySelector('.rem-row[data-source="inventory"]')) {
-    resetZaiAddButton();
-  }
-};
-
 // Final remnant UI behavior override. This block must stay at EOF so stale
 // duplicated definitions earlier in the file cannot win.
 function legacyGetSelectedInventoryRemnants_v1() {
