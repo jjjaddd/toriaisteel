@@ -107,7 +107,7 @@
         </div>
         <div class="remnant-inventory-picker">
           <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8fc;border:1px solid #d4d4dc;color:#2a2a3e;border-radius:6px;padding:4px 6px"><option value="">── 在庫から残材に追加 ──</option><option value="333:undefined:">333mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option></select>
-          <button id="invUseBtn" class="cc-btn-add" onclick="(function(btn){ btn.classList.add('added'); addFromInventory(); })(this)">＋ 追加</button>
+          <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#16a34a;border:1.5px solid #16a34a;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
         </div>
       </div>
       <div class="remnant-area">
@@ -429,18 +429,12 @@
           <input type="number" id="wPrice" placeholder="例：120" min="0" disabled style="opacity:.4">
         </div>
         <input type="hidden" id="wKgm">
-        <div>
-          <label style="font-size:12px;font-weight:600;color:#5a5a78;margin-bottom:4px;display:block;">
-            部材名・メモ（任意）
+        <div class="field">
+          <label style="display:flex;align-items:center;justify-content:space-between">
+            <span>部材名・メモ（任意）</span>
+            <span id="wMemoCheck" style="color:#16a34a;font-weight:700;font-size:13px;opacity:0;transition:opacity .2s">✓</span>
           </label>
-          <div style="position:relative;">
-            <textarea id="wMemo" rows="2"
-              placeholder="例：柱材、梁材、胴縁など"
-              style="width:100%;box-sizing:border-box;border:1.5px solid #d4d4dc;border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Noto Sans JP',sans-serif;resize:none;"
-              oninput="this.nextElementSibling.style.opacity=this.value.trim()?'1':'0'"
-            ></textarea>
-            <span style="position:absolute;right:10px;top:8px;color:#16a34a;font-size:15px;font-weight:700;opacity:0;transition:opacity .15s;pointer-events:none;">✓</span>
-          </div>
+          <input type="text" id="wMemo" placeholder="例：柱材、梁材、胴縁など" maxlength="40">
         </div>
       </section>
       <button onclick="wAddRow()" class="run" style="margin-top:6px">
@@ -535,5 +529,14 @@
   </div>
 </div>
 
-  <script src="update-notifier.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(function(reg) { console.log('SW registered:', reg.scope); })
+          .catch(function(err) { console.log('SW error:', err); });
+      });
+    }
+  </script>
 </body></html>
