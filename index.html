@@ -107,7 +107,7 @@
         </div>
         <div class="remnant-inventory-picker">
           <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8fc;border:1px solid #d4d4dc;color:#2a2a3e;border-radius:6px;padding:4px 6px"><option value="">── 在庫から残材に追加 ──</option><option value="333:undefined:">333mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option></select>
-          <button id="invUseBtn" class="cc-btn-add" onclick="addFromInventory()">＋ 追加</button>
+          <button id="invUseBtn" class="cc-btn-add" onclick="(function(btn){ btn.classList.add('added'); addFromInventory(); })(this)">＋ 追加</button>
         </div>
       </div>
       <div class="remnant-area">
@@ -535,6 +535,5 @@
   </div>
 </div>
 
-  <script src="remnant-fixes.js"></script>
   <script src="update-notifier.js"></script>
 </body></html>

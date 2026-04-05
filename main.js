@@ -3146,45 +3146,6 @@ function normalizeInterfaceChrome() {
   }
 }
 
-function resetInventoryUseButton() {
-  var btn = document.getElementById('invUseBtn');
-  var sel = document.getElementById('invSelect');
-  if (!btn) return;
-  btn.classList.remove('added');
-  btn.textContent = '＋ 追加';
-  btn.style.background = '#fff';
-  btn.style.color = '#16a34a';
-  btn.disabled = !(sel && sel.value);
-}
-
-function updateInventoryUseButton(forceReady) {
-  var btn = document.getElementById('invUseBtn');
-  if (!btn) return;
-  if (forceReady) {
-    btn.classList.add('added');
-    btn.textContent = '✓ 追加済み';
-    btn.disabled = true;
-    return;
-  }
-  resetInventoryUseButton();
-}
-
-var _origSyncInventoryToRemnants = syncInventoryToRemnants;
-syncInventoryToRemnants = function() {
-  _origSyncInventoryToRemnants();
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  if (!list.querySelector('.rem-row[data-source="inventory"]')) {
-    resetInventoryUseButton();
-  }
-};
-
-var _origNormalizeInterfaceChrome = normalizeInterfaceChrome;
-normalizeInterfaceChrome = function() {
-  _origNormalizeInterfaceChrome();
-  resetInventoryUseButton();
-};
-
 // Final remnant UI behavior override. This block must stay at EOF so stale
 // duplicated definitions earlier in the file cannot win.
 function legacyGetSelectedInventoryRemnants_v1() {
