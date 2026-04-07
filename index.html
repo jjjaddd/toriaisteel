@@ -36,34 +36,6 @@
 
 <aside class="sb">
   <section>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div class="shd" style="margin-bottom:0">設定</div>
-      <button id="settingToggleBtn" onclick="toggleSection(&#39;settingBody&#39;,&#39;settingToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
-    </div>
-    <div id="settingBody" style="display:none">
-      <div class="r2">
-        <div class="field"><label>刃厚 (mm)</label><input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()"></div>
-        <div class="field"><label>端部ロス (mm)</label><input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()"></div>
-      </div>
-      <div class="field"><label>端材 最小有効長さ (mm)</label><input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()"></div>
-    </div>
-  </section>
-  <!-- ジョブ情報 -->
-  <section>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <div class="shd" style="margin-bottom:0">作業情報</div>
-      <button id="jobToggleBtn" onclick="toggleSection(&#39;jobBody&#39;,&#39;jobToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">－</button>
-    </div>
-    <div id="jobBody" style="display: block;">
-      <div class="field"><label>顧客名</label><input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off"><datalist id="clientHistList"></datalist></div>
-      <div class="field"><label>工事名</label><input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off"><datalist id="nameHistList"></datalist></div>
-      <div class="r2">
-        <div class="field"><label>納期</label><input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()"></div>
-        <div class="field"><label>メモ</label><input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()"></div>
-      </div>
-    </div>
-  </section>
-  <section>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
       <div class="shd" style="margin-bottom:0">鋼材種類・規格</div>
       <button id="steelToggleBtn" onclick="toggleSection(&#39;steelBody&#39;,&#39;steelToggleBtn&#39;,&#39;&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">－</button>
@@ -81,46 +53,7 @@
     </div>
     <input type="hidden" id="kgm" onkeydown="enterNext(event,'pl0')" value="16.9">
   </section>
-  <section>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
-      <div class="shd" style="margin-bottom:0">在庫定尺</div>
-      <button id="stockToggleBtn" onclick="toggleSection(&#39;stockBody&#39;,&#39;stockToggleBtn&#39;,&#39;var(--br)&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
-    </div>
-    <div id="stockBody" style="display:none">
-      <div id="stkList"><div class="stk-row" id="sr0" style="cursor: pointer;"><input type="checkbox" id="sc0" checked="" onchange="togStk(0);saveSettings()"><span class="stk-nm">5,500</span><input type="number" class="stk-mx" id="sm0" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr1" style="cursor: pointer;"><input type="checkbox" id="sc1" checked="" onchange="togStk(1);saveSettings()"><span class="stk-nm">6,000</span><input type="number" class="stk-mx" id="sm1" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr2" style="cursor: pointer;"><input type="checkbox" id="sc2" checked="" onchange="togStk(2);saveSettings()"><span class="stk-nm">7,000</span><input type="number" class="stk-mx" id="sm2" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr3" style="cursor: pointer;"><input type="checkbox" id="sc3" checked="" onchange="togStk(3);saveSettings()"><span class="stk-nm">8,000</span><input type="number" class="stk-mx" id="sm3" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr4" style="cursor: pointer;"><input type="checkbox" id="sc4" checked="" onchange="togStk(4);saveSettings()"><span class="stk-nm">9,000</span><input type="number" class="stk-mx" id="sm4" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr5" style="cursor: pointer;"><input type="checkbox" id="sc5" checked="" onchange="togStk(5);saveSettings()"><span class="stk-nm">10,000</span><input type="number" class="stk-mx" id="sm5" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr6" style="cursor: pointer;"><input type="checkbox" id="sc6" checked="" onchange="togStk(6);saveSettings()"><span class="stk-nm">11,000</span><input type="number" class="stk-mx" id="sm6" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr7" style="cursor: pointer;"><input type="checkbox" id="sc7" checked="" onchange="togStk(7);saveSettings()"><span class="stk-nm">12,000</span><input type="number" class="stk-mx" id="sm7" placeholder="∞" min="1" onchange="saveSettings()"></div></div>
-      <div style="font-size:10px;color:#8888a8;margin-top:3px">☑ 対象　右=上限本数</div>
-    </div>
-  </section>
-
-  <!-- ★ 残材（端材）セクション -->
-  <section>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
-      <div class="shd" style="margin-bottom:0">手持ち残材</div>
-      <button id="remnantToggleBtn" onclick="toggleSection(&#39;remnantBody&#39;,&#39;remnantToggleBtn&#39;,&#39;var(--cy)&#39;);updateInvDropdown()" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
-    </div>
-    <div id="remnantBody" style="display:none">
-      <!-- 在庫から追加 -->
-      <div id="invDropCont" style="display: block; margin-bottom: 8px; padding: 8px; background: rgba(34, 211, 238, 0.06); border: 1px solid rgba(34, 211, 238, 0.2); border-radius: 8px;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-          <span id="invBadge" style="font-size:10px;font-weight:700;color:var(--cy);background:rgba(34,211,238,.12);padding:2px 8px;border-radius:20px;border:1px solid var(--cy)">在庫 NaN本</span>
-          
-        </div>
-        <div class="remnant-inventory-picker">
-          <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8fc;border:1px solid #d4d4dc;color:#2a2a3e;border-radius:6px;padding:4px 6px"><option value="">── 在庫から残材に追加 ──</option><option value="333:undefined:">333mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option></select>
-          <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#16a34a;border:1.5px solid #16a34a;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
-        </div>
-      </div>
-      <div class="remnant-area">
-        <div class="remnant-head">
-          <span>計算に使う残材</span>
-        </div>
-        <div id="remnantList"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 切り出し部材リスト -->
-  <section style="flex:1">
+<section style="flex:1">
     <div class="parts-header">
       <div class="shd" style="margin-bottom:0">切り出し部材リスト</div>
       <div class="parts-btns">
@@ -151,6 +84,68 @@
       <div class="pt-hd"><span></span><span>長さ (mm)</span><span style="text-align:right">数量</span><span style="text-align:right;padding-right:6px">重量</span></div>
       <div id="ptList"></div>
   <div class="tot"><span class="tot-l">部材合計重量</span><span class="tot-v" id="totkg">21030.04 kg</span></div>
+  </section>
+<section>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
+      <div class="shd" style="margin-bottom:0">在庫定尺</div>
+      <button id="stockToggleBtn" onclick="toggleSection(&#39;stockBody&#39;,&#39;stockToggleBtn&#39;,&#39;var(--br)&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+    </div>
+    <div id="stockBody" style="display:none">
+      <div id="stkList"><div class="stk-row" id="sr0" style="cursor: pointer;"><input type="checkbox" id="sc0" checked="" onchange="togStk(0);saveSettings()"><span class="stk-nm">5,500</span><input type="number" class="stk-mx" id="sm0" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr1" style="cursor: pointer;"><input type="checkbox" id="sc1" checked="" onchange="togStk(1);saveSettings()"><span class="stk-nm">6,000</span><input type="number" class="stk-mx" id="sm1" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr2" style="cursor: pointer;"><input type="checkbox" id="sc2" checked="" onchange="togStk(2);saveSettings()"><span class="stk-nm">7,000</span><input type="number" class="stk-mx" id="sm2" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr3" style="cursor: pointer;"><input type="checkbox" id="sc3" checked="" onchange="togStk(3);saveSettings()"><span class="stk-nm">8,000</span><input type="number" class="stk-mx" id="sm3" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr4" style="cursor: pointer;"><input type="checkbox" id="sc4" checked="" onchange="togStk(4);saveSettings()"><span class="stk-nm">9,000</span><input type="number" class="stk-mx" id="sm4" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row" id="sr5" style="cursor: pointer;"><input type="checkbox" id="sc5" checked="" onchange="togStk(5);saveSettings()"><span class="stk-nm">10,000</span><input type="number" class="stk-mx" id="sm5" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr6" style="cursor: pointer;"><input type="checkbox" id="sc6" checked="" onchange="togStk(6);saveSettings()"><span class="stk-nm">11,000</span><input type="number" class="stk-mx" id="sm6" placeholder="∞" min="1" onchange="saveSettings()"></div><div class="stk-row off" id="sr7" style="cursor: pointer;"><input type="checkbox" id="sc7" checked="" onchange="togStk(7);saveSettings()"><span class="stk-nm">12,000</span><input type="number" class="stk-mx" id="sm7" placeholder="∞" min="1" onchange="saveSettings()"></div></div>
+      <div style="font-size:10px;color:#8888a8;margin-top:3px">☑ 対象　右=上限本数</div>
+    </div>
+  </section>
+<section>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
+      <div class="shd" style="margin-bottom:0">手持ち残材</div>
+      <button id="remnantToggleBtn" onclick="toggleSection(&#39;remnantBody&#39;,&#39;remnantToggleBtn&#39;,&#39;var(--cy)&#39;);updateInvDropdown()" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+    </div>
+    <div id="remnantBody" style="display:none">
+      <!-- 在庫から追加 -->
+      <div id="invDropCont" style="display: block; margin-bottom: 8px; padding: 8px; background: rgba(34, 211, 238, 0.06); border: 1px solid rgba(34, 211, 238, 0.2); border-radius: 8px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <span id="invBadge" style="font-size:10px;font-weight:700;color:var(--cy);background:rgba(34,211,238,.12);padding:2px 8px;border-radius:20px;border:1px solid var(--cy)">在庫 NaN本</span>
+          
+        </div>
+        <div class="remnant-inventory-picker">
+          <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8fc;border:1px solid #d4d4dc;color:#2a2a3e;border-radius:6px;padding:4px 6px"><option value="">── 在庫から残材に追加 ──</option><option value="333:undefined:">333mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option><option value="555:undefined:">555mm × undefined本  (undefined)</option></select>
+          <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#16a34a;border:1.5px solid #16a34a;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
+        </div>
+      </div>
+      <div class="remnant-area">
+        <div class="remnant-head">
+          <span>計算に使う残材</span>
+        </div>
+        <div id="remnantList"></div>
+      </div>
+    </div>
+  </section>
+<section>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="shd" style="margin-bottom:0">作業情報</div>
+      <button id="jobToggleBtn" onclick="toggleSection(&#39;jobBody&#39;,&#39;jobToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+    </div>
+    <div id="jobBody" style="display:none">
+      <div class="field"><label>顧客名</label><input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off"><datalist id="clientHistList"></datalist></div>
+      <div class="field"><label>工事名</label><input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off"><datalist id="nameHistList"></datalist></div>
+      <div class="r2">
+        <div class="field"><label>納期</label><input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()"></div>
+        <div class="field"><label>メモ</label><input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()"></div>
+      </div>
+    </div>
+  </section>
+<section>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="shd" style="margin-bottom:0">設定</div>
+      <button id="settingToggleBtn" onclick="toggleSection(&#39;settingBody&#39;,&#39;settingToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+    </div>
+    <div id="settingBody" style="display:none">
+      <div class="r2">
+        <div class="field"><label>刃厚 (mm)</label><input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()"></div>
+        <div class="field"><label>端部ロス (mm)</label><input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()"></div>
+      </div>
+      <div class="field"><label>端材 最小有効長さ (mm)</label><input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()"></div>
+    </div>
   </section>
   <div class="calc-note">本ソフトは計算支援を目的としたツールです。計算結果や切断指示は、実作業前に必ずご確認ください。</div>
   <button class="run" id="runBtn" onclick="runCalc()">計算を実行する <span class="arr">→</span></button>
