@@ -126,19 +126,6 @@ function goPage(p) {
 // 初期化
 // ============================================================
 function init() {
-  // 種類ボタン
-  var KIND_ICONS = {'H形鋼':'🏗','等辺山形鋼':'📐','不等辺山形鋼':'📏','溝形鋼':'⊏','I形鋼':'I','平鋼':'▬','丸鋼':'●'};
-  var tg = document.getElementById('tgrid');
-  if(tg) tg.innerHTML='';
-  var kinds = Object.keys(STEEL);
-  kinds.forEach(function(k) {
-    var b = document.createElement('button');
-    b.className = 'tbtn' + (k === curKind ? ' on' : '');
-    b.innerHTML = '<span>' + k + '</span>';
-    b.onclick = function() { selectKind(b, k); };
-    tg.appendChild(b);
-  });
-
   // 在庫定尺
   var sl = document.getElementById('stkList');
   if(sl) sl.innerHTML='';
@@ -172,12 +159,6 @@ function init() {
   totalRows = 0;
   buildPartRows(ROWS);
 
-  // 規格リスト
-  buildSpec();
-  // 初期状態でspecPanelを表示
-  var panel = document.getElementById('specPanel');
-  if (panel) panel.style.display = 'block';
-
   updKg();
 
   // localStorage読み込み（設定・残材）
@@ -191,6 +172,13 @@ function init() {
   var cartBulkPrintBtn = document.querySelector('#cartModal [onclick="cartDoPrint()"]');
   if (cartBulkPrintBtn) cartBulkPrintBtn.classList.add('cart-bulk-print');
   updateInventoryUseButton();
+
+  // 初期規格を自動選択（H形鋼の最初の規格）
+  var firstKind = Object.keys(STEEL)[0];
+  if (firstKind && STEEL[firstKind] && STEEL[firstKind][0]) {
+    cmdSelect({ kind: firstKind, spec: STEEL[firstKind][0][0], kgm: STEEL[firstKind][0][1] });
+    document.getElementById('cmdInput').value = '';
+  }
 }
 
 function buildPartRows(count) {
@@ -248,90 +236,120 @@ function addPartRow() {
   pt.scrollTop = pt.scrollHeight;
 }
 
-function selectKind(btn, k) {
-  curKind = k;
-  document.querySelectorAll('.tbtn').forEach(function(b) { b.classList.remove('on'); });
-  btn.classList.add('on');
-  buildSpec();
+// コマンドパレット：全候補リストを生成
+function cmdBuildAll() {
+  var items = [];
+  Object.keys(STEEL).forEach(function(kind) {
+    (STEEL[kind] || []).forEach(function(row) {
+      items.push({ kind: kind, spec: row[0], kgm: row[1] });
+    });
+  });
+  return items;
 }
 
-function buildSpec() {
+// コマンドパレット：ドロップダウンを開く
+function cmdOpen() {
+  cmdFilter();
+  document.getElementById('cmdDropdown').style.display = 'block';
+  document.addEventListener('mousedown', cmdOutside);
+}
+
+// コマンドパレット：外クリックで閉じる
+function cmdOutside(e) {
+  var wrap = document.getElementById('cmdPaletteWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('cmdDropdown').style.display = 'none';
+    document.removeEventListener('mousedown', cmdOutside);
+  }
+}
+
+// コマンドパレット：絞り込み描画
+function cmdFilter() {
+  var input = document.getElementById('cmdInput');
+  var dd = document.getElementById('cmdDropdown');
+  if (!input || !dd) return;
+  var q = (input.value || '').trim().toLowerCase();
+  var all = cmdBuildAll();
+  var filtered = q ? all.filter(function(it) {
+    return it.kind.toLowerCase().indexOf(q) >= 0 ||
+           it.spec.toLowerCase().indexOf(q) >= 0 ||
+           it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+  }) : all;
+
+  dd.innerHTML = '';
+  var lastKind = '';
+  filtered.slice(0, 60).forEach(function(it, idx) {
+    if (it.kind !== lastKind) {
+      var cat = document.createElement('div');
+      cat.className = 'cmd-cat';
+      cat.textContent = it.kind;
+      dd.appendChild(cat);
+      lastKind = it.kind;
+    }
+    var row = document.createElement('div');
+    row.className = 'cmd-item';
+    row.dataset.idx = idx;
+    row.innerHTML = '<span>' + it.spec + '</span><span class="cmd-sub">' + it.kgm + ' kg/m</span>';
+    row.onmousedown = function(e) { e.preventDefault(); cmdSelect(it); };
+    dd.appendChild(row);
+  });
+  dd.style.display = 'block';
+}
+
+// コマンドパレット：規格を選択
+function cmdSelect(it) {
+  curKind = it.kind;
   var sel = document.getElementById('spec');
-  var specListEl = document.getElementById('specList');
-  if (!sel || !specListEl) return;
-
-  var list = STEEL[curKind] || [];
-
-  // hidden select を更新（計算用）
+  if (!sel) return;
   sel.innerHTML = '';
-  list.forEach(function(row) {
+  (STEEL[curKind] || []).forEach(function(row) {
     var o = document.createElement('option');
     o.value = o.textContent = row[0];
     sel.appendChild(o);
   });
+  sel.value = it.spec;
 
-  // 規格パネルに一覧表示
-  specListEl.innerHTML = '';
-  list.forEach(function(row) {
-    var btn = document.createElement('button');
-    btn.className = 'spec-item';
-    btn.textContent = row[0];
-    btn.setAttribute('data-spec', row[0]);
-    btn.onkeydown = function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        btn.click(); // クリックと同じ動作（選択＋pl0フォーカス）
-      }
-    };
-    btn.onclick = function() {
-      sel.value = row[0];
-      // 一覧を閉じて選択規格だけ表示
-      var sl2 = document.getElementById('specList');
-      if (sl2) sl2.style.display = 'none';
-      var sd = document.getElementById('specSelected');
-      if (sd) {
-        var sn = document.getElementById('specName');
-        var sk = document.getElementById('specKgm');
-        if (sn) sn.textContent = row[0];
-        if (sk) sk.textContent = row[1] + ' kg/m';
-        sd.style.borderTop = 'none';
-        sd.style.cursor = 'pointer';
-        sd.title = 'クリックして規格を変更';
-        sd.onclick = function() {
-          if (sl2) sl2.style.display = 'block';
-        };
-      }
-      onSpec();
-      // 規格選択後 → 部材リスト1行目へ自動フォーカス
-      setTimeout(function() {
-        var pl0 = document.getElementById('pl0');
-        if (pl0) { pl0.focus(); pl0.select(); }
-      }, 50);
-    };
-    specListEl.appendChild(btn);
-  });
-
-  // 最初の規格を選択状態に・一覧は開いた状態
-  var sl2 = document.getElementById('specList');
-  if (sl2) sl2.style.display = 'block';
-  if (list.length) {
-    sel.value = list[0][0];
-    var firstBtn = specListEl.querySelector('.spec-item');
-    if (firstBtn) firstBtn.classList.add('on');
-    var sd = document.getElementById('specSelected');
-    if (sd) {
-      var sn = document.getElementById('specName');
-      var sk = document.getElementById('specKgm');
-      if (sn) sn.textContent = list[0][0];
-      if (sk) sk.textContent = list[0][1] + ' kg/m';
-      sd.style.cursor = 'pointer';
-      sd.title = 'クリックして規格を変更';
-      sd.onclick = function() {
-        if (sl2) sl2.style.display = 'block';
-      };
-    }
+  var cmdInput = document.getElementById('cmdInput');
+  var cmdDropdown = document.getElementById('cmdDropdown');
+  if (cmdInput) cmdInput.value = it.kind + '  ' + it.spec;
+  if (cmdDropdown) cmdDropdown.style.display = 'none';
+  var selBox = document.getElementById('cmdSelected');
+  if (selBox) {
+    document.getElementById('cmdSelName').textContent = it.kind + ' ' + it.spec;
+    document.getElementById('cmdSelKgm').textContent = it.kgm + ' kg/m';
+    selBox.style.display = 'flex';
   }
+  document.removeEventListener('mousedown', cmdOutside);
   onSpec();
+  setTimeout(function() {
+    var pl0 = document.getElementById('pl0');
+    if (pl0) { pl0.focus(); pl0.select(); }
+  }, 50);
+}
+
+// コマンドパレット：キーボード操作（↑↓Enter）
+function cmdKey(e) {
+  var dd = document.getElementById('cmdDropdown');
+  if (!dd) return;
+  var items = dd.querySelectorAll('.cmd-item');
+  var focused = dd.querySelector('.cmd-item.cmd-focus');
+  var idx = focused ? Array.from(items).indexOf(focused) : -1;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (focused) focused.classList.remove('cmd-focus');
+    var next = items[Math.min(idx + 1, items.length - 1)];
+    if (next) { next.classList.add('cmd-focus'); next.scrollIntoView({block:'nearest'}); }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (focused) focused.classList.remove('cmd-focus');
+    var prev = items[Math.max(idx - 1, 0)];
+    if (prev) { prev.classList.add('cmd-focus'); prev.scrollIntoView({block:'nearest'}); }
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (focused && focused.onmousedown) focused.onmousedown(e);
+  } else if (e.key === 'Escape') {
+    dd.style.display = 'none';
+  }
 }
 
 function onSpec() {

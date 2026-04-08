@@ -47,16 +47,24 @@
         <button id="steelToggleBtn" onclick="toggleSection(&#39;steelBody&#39;,&#39;steelToggleBtn&#39;,&#39;&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">－</button>
       </div>
       <div id="steelBody" style="display:block">
-        <!-- 種類ボタン：横並びグリッド（元のスタイル） -->
-        <div class="tgrid" id="tgrid"></div>
-        <!-- 規格パネル：横幅いっぱい・スクロール -->
-        <div id="specPanel" style="margin-top:8px;background:#fff;border:1px solid #d4d4dc;border-radius:8px;overflow:hidden">
-          <div id="specList" style="max-height:160px;overflow-y:auto"></div>
-          <div id="specSelected" style="padding:4px 10px;border-top:1px solid #e0e0ea;display:flex;align-items:center;justify-content:space-between;background:#fff"><span id="specName" style="font-size:11px;color:#1a1a2e;font-weight:700"></span><span id="specKgm" style="font-size:11px;color:#8888a8;font-weight:400"></span></div>
+        <div style="position:relative" id="cmdPaletteWrap">
+          <input type="text" id="cmdInput"
+            placeholder="🔍  鋼材を検索… 例：H100、平9、丸32"
+            autocomplete="off"
+            style="width:100%;box-sizing:border-box;border:1.5px solid #d4d4dc;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;transition:border .15s;"
+            onfocus="cmdOpen()" oninput="cmdFilter()"
+            onkeydown="cmdKey(event)">
+          <div id="cmdDropdown"
+            style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #6d28d9;border-radius:8px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 4px 20px rgba(109,40,217,.12)">
+          </div>
+        </div>
+        <div id="cmdSelected" style="display:none;margin-top:6px;padding:5px 10px;background:#f8f8fc;border:1px solid #e0e0ea;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:11px;">
+          <span id="cmdSelName" style="font-weight:700;color:#1a1a2e"></span>
+          <span id="cmdSelKgm" style="color:#aaa"></span>
         </div>
         <select id="spec" onchange="onSpec()" style="display:none"></select>
       </div>
-      <input type="hidden" id="kgm" onkeydown="enterNext(event,'pl0')" value="16.9">
+      <input type="hidden" id="kgm" value="16.9">
     </section>
 
     <section style="margin-bottom:16px">

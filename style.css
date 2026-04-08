@@ -46,6 +46,12 @@ nav a:hover,nav a.active{color:#1a1a2e;background:rgba(109,40,217,.1);text-shado
 .sb-tab.active { color:#1a1a2e; background:#ede9fe; }
 .sb-panel { display:none; }
 .sb-panel.active { display:flex; flex-direction:column; flex:1; }
+#cmdInput:focus { border-color:#6d28d9; background:#faf5ff; }
+.cmd-item { padding:8px 12px; font-size:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f4f4f8; color:#1a1a2e; }
+.cmd-item:last-child { border-bottom:none; }
+.cmd-item:hover, .cmd-item.cmd-focus { background:#ede9fe; color:#1a1a2e; }
+.cmd-item .cmd-sub { font-size:10px; color:#aaa; }
+.cmd-cat { padding:5px 12px; font-size:10px; font-weight:700; color:#aaa; background:#f8f8fc; letter-spacing:.06em; text-transform:uppercase; }
 .mn{padding:20px;overflow-y:auto;background:#ffffff;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 54px)}
 
 /* SIDEBAR COMPONENTS */
