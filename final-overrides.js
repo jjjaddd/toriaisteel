@@ -1506,7 +1506,10 @@ renderInventoryPage = function() {
       return '<div class="hi-card" onclick="showHistPreview(' + h.id + ')">' +
         '<div class="hi-card-top">' +
           '<div class="hi-card-client">' + escapeHtml(clientLabel) + '</div>' +
-          '<div class="hi-card-date">' + escapeHtml(h.dateLabel || '') + '</div>' +
+          '<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0">' +
+            '<div class="hi-card-date">' + escapeHtml(h.dateLabel || '') + '</div>' +
+            '<button onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')" class="hist-del-btn">削除</button>' +
+          '</div>' +
         '</div>' +
         '<div class="hi-tags">' +
           '<span class="hi-tag hi-tag-kind">' + escapeHtml(h.kind || '鋼材') + '</span>' +
