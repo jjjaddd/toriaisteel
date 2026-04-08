@@ -55,9 +55,9 @@ nav a:hover,nav a.active{color:#1a1a2e;background:rgba(109,40,217,.1);text-shado
 .mn{padding:20px;overflow-y:auto;background:#ffffff;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 54px)}
 
 /* 履歴・在庫 新UI */
-.hi-tabs { background: #f4f4f8; padding: 8px 16px 0; display: flex; gap: 4px; border-bottom: 1px solid #e0e0ea; }
-.hi-tab { padding: 7px 16px; font-size: 12px; font-weight: 700; color: #aaa; cursor: pointer; border-radius: 8px 8px 0 0; border: 1px solid transparent; border-bottom: none; background: transparent; transition: all .15s; }
-.hi-tab-active { color: #1a1a2e; background: #fff; border-color: #e0e0ea; }
+.hi-tabs { background: #f4f4f8; padding: 8px 16px 0; display: flex; gap: 4px; }
+.hi-tab { padding: 7px 16px; font-size: 12px; font-weight: 700; color: #aaa; cursor: pointer; border-radius: 8px 8px 0 0; background: transparent; transition: all .15s; border: none; }
+.hi-tab-active { color: #1a1a2e; background: #fff; }
 .hi-search-bar { padding: 12px 16px; display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #f0f0f5; }
 .hi-search-wrap { flex: 1; position: relative; }
 .hi-search-wrap::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; pointer-events: none; }
@@ -622,7 +622,7 @@ footer{border-radius:0;background:rgba(15,14,23,.8)}
 .hist-spec-badge { font-size:10px; font-weight:700; color:#1a1a2e; background:#fff; border:1px solid #d4d4dc; padding:1px 8px; border-radius:20px; }
 .hist-desc { font-size:10px; color:#888; }
 .hist-rem { font-size:10px; color:#5a5a78; }
-.hist-del-btn { flex-shrink:0; background:none; border:1px solid #e8e8ed; color:#bbb; border-radius:6px; padding:3px 10px; cursor:pointer; font-size:10px; font-family:inherit; }
+.hist-del-btn { flex-shrink:0; background:none; border:1px solid #e8e8ed; color:#bbb; border-radius:6px; padding:3px 10px; cursor:pointer; font-size:10px; font-family:inherit; margin-left:8px; }
 .hist-del-btn:hover { border-color:#f87171; color:#f87171; }
 
 /* 在庫リスト */
