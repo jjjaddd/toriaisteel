@@ -526,6 +526,17 @@ function toggleSection(bodyId, btnId, color) {
   btn.textContent = opening ? '－' : '＋';
 }
 
+function sbSwitch(n) {
+  var panel1 = document.getElementById('sbPanel1');
+  var panel2 = document.getElementById('sbPanel2');
+  var tab1 = document.getElementById('sbTab1');
+  var tab2 = document.getElementById('sbTab2');
+  if (panel1) panel1.classList.toggle('active', n === 1);
+  if (panel2) panel2.classList.toggle('active', n === 2);
+  if (tab1) tab1.classList.toggle('active', n === 1);
+  if (tab2) tab2.classList.toggle('active', n === 2);
+}
+
 function addRemnant() {
   var list = document.getElementById('remnantList');
   var i = remnantCount++;
