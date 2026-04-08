@@ -1229,6 +1229,8 @@ renderInventoryPage = function() {
   if (!inv.length) {
     cont.innerHTML = '';
     if (empty) empty.style.display = 'block';
+    var invCountEmpty = document.getElementById('invCountLabel');
+    if (invCountEmpty) invCountEmpty.textContent = '0件';
     renderPager('invPagination', 1, 1, 'setInventoryPage');
     return;
   }
@@ -1269,32 +1271,20 @@ renderInventoryPage = function() {
     specGroups[item.spec].push(item);
   });
 
+  var invCountLabel = document.getElementById('invCountLabel');
+  if (invCountLabel) invCountLabel.textContent = rows.length.toLocaleString() + '件';
   cont.innerHTML = Object.keys(specGroups).sort().map(function(spec) {
-    return '<div class="inv-card">' +
-      '<div class="inv-card-header"><span class="inv-spec-label">' + escapeHtml(spec) + '</span><span class="inv-count-badge">' + specGroups[spec].reduce(function(sum, row) { return sum + row.qty; }, 0) + '本</span></div>' +
-      '<div class="inv-col-header"><span>寸法</span><span>長さ</span><span>会社名</span><span>メモ</span><span>登録日</span><span></span></div>' +
-      specGroups[spec].map(function(item) {
-        var groupKey = item.ids.join(',');
-        var noteText = item.note === '-' ? '' : item.note;
-        return '<div class="inv-row">' +
-          '<span class="inv-spec">' + escapeHtml(item.spec) + '</span>' +
-          '<span class="inv-len"><span class="inv-len-stack">' + Number(item.len || 0).toLocaleString() + '<span class="inv-len-unit">mm</span></span><span class="inv-qty">x ' + item.qty + '</span></span>' +
-          '<span class="inv-company">' + escapeHtml(item.company) + '</span>' +
-          '<div class="inv-note-cell" data-group-key="' + groupKey + '">' +
-            '<div class="inv-note-display">' +
-              '<span class="inv-note-text">' + escapeHtml(noteText || '-') + '</span>' +
-              '<button type="button" class="inv-note-badge" data-group-key="' + groupKey + '">編集</button>' +
-            '</div>' +
-            '<div class="inv-note-editor" style="display:none">' +
-              '<input class="inv-note-input" type="text" value="' + escapeHtml(noteText) + '" placeholder="メモ" onkeydown="if(event.key===\'Enter\'){saveInventoryGroupNoteFromInput(\'' + groupKey + '\')}" />' +
-              '<button type="button" class="inv-note-save" data-group-key="' + groupKey + '">保存</button>' +
-            '</div>' +
-          '</div>' +
-          '<span class="inv-date">' + escapeHtml(item.addedDate) + '</span>' +
-          '<div class="inv-action"><button type="button" class="inv-del-btn" data-group-key="' + groupKey + '" onclick="deleteInventoryGroup(\'' + groupKey + '\')">削除</button></div>' +
-        '</div>';
-      }).join('') +
-    '</div>';
+    return specGroups[spec].map(function(item) {
+      return '<div class="inv-card-new">' +
+        '<div class="inv-len">' + Number(item.len || 0).toLocaleString() + '<span> mm</span></div>' +
+        '<div class="inv-detail">' +
+          '<div class="inv-spec-label">' + escapeHtml(spec) + '</div>' +
+          '<div class="inv-meta">' + escapeHtml(item.company || '会社名なし') + ' / ' + escapeHtml(item.note || 'メモなし') + ' / ' + escapeHtml(item.addedDate || '') + '</div>' +
+        '</div>' +
+        '<span class="inv-qty-badge">' + item.qty + '本</span>' +
+        '<button type="button" class="inv-del-btn" data-group-key="' + item.ids.join(',') + '" onclick="deleteInventoryGroup(\'' + item.ids.join(',') + '\')">削除</button>' +
+      '</div>';
+    }).join('');
   }).join('');
 
   bindInventoryListActions();
@@ -1477,6 +1467,7 @@ renderInventoryPage = function() {
     var fs = ((document.getElementById('hsSt') || {}).value || '');
     var fk = ((document.getElementById('hsKind') || {}).value || '');
     var keyword = (((document.getElementById('hsKeyword') || {}).value) || '').toLowerCase();
+    var sort = ((document.getElementById('hsSort') || {}).value || 'date_desc');
 
     if (fc) hist = hist.filter(function(h) { return (h.client || '').toLowerCase().indexOf(fc) >= 0; });
     if (fn) hist = hist.filter(function(h) { return (h.name || '').toLowerCase().indexOf(fn) >= 0; });
@@ -1487,15 +1478,17 @@ renderInventoryPage = function() {
     if (keyword) hist = hist.filter(function(h) { return [h.client, h.name, h.spec, h.kind, h.worker].join(' ').toLowerCase().indexOf(keyword) >= 0; });
 
     hist.sort(function(a, b) {
+      if (sort === 'date_asc') return parseDateValue(a.date) - parseDateValue(b.date);
+      if (sort === 'deadline_asc') return parseDateValue(a.deadline) - parseDateValue(b.deadline);
+      if (sort === 'spec_asc') return String(a.spec || '').localeCompare(String(b.spec || ''), 'ja');
       return parseDateValue(b.date) - parseDateValue(a.date);
     });
-
-    var sortEl = document.getElementById('hsSort');
-    if (sortEl) sortEl.value = 'date_desc';
 
     if (!hist.length) {
       cont.innerHTML = '';
       if (empty) empty.style.display = 'block';
+      var countEmpty = document.getElementById('hiCountLabel');
+      if (countEmpty) countEmpty.textContent = '0件';
       renderPager('histPagination', 1, 1, 'setHistoryPage');
       return;
     }
@@ -1504,23 +1497,23 @@ renderInventoryPage = function() {
     var pageData = paginateItems(hist, historyPage, HISTORY_PAGE_SIZE);
     historyPage = pageData.page;
 
+    var countLabel = document.getElementById('hiCountLabel');
+    if (countLabel) countLabel.textContent = hist.length.toLocaleString() + '件';
     cont.innerHTML = pageData.items.map(function(h) {
       var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
       var specLabel = h.spec || '規格未設定';
       var clientLabel = h.client || '顧客未設定';
-      return '<div class="hist-card">' +
-        '<div class="hist-card-header"><span class="inv-spec-label">' + specLabel + '</span><span class="inv-count-badge">1件</span></div>' +
-        '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
-          '<div class="hist-row-main">' +
-            '<div><span class="hist-client">' + clientLabel + '</span><span class="hist-name">' + (h.name || '') + '</span></div>' +
-            '<div class="hist-meta">' +
-              '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
-              '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
-              '<span class="hist-rem">メモ: ' + (h.worker || '-') + '</span>' +
-              '<span class="hist-rem">端材 ' + remCount + '本</span>' +
-            '</div>' +
-          '</div>' +
-          '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+      return '<div class="hi-card" onclick="showHistPreview(' + h.id + ')">' +
+        '<div class="hi-card-top">' +
+          '<div class="hi-card-client">' + escapeHtml(clientLabel) + '</div>' +
+          '<div class="hi-card-date">' + escapeHtml(h.dateLabel || '') + '</div>' +
+        '</div>' +
+        '<div class="hi-tags">' +
+          '<span class="hi-tag hi-tag-kind">' + escapeHtml(h.kind || '鋼材') + '</span>' +
+          '<span class="hi-tag">' + escapeHtml(specLabel) + '</span>' +
+          '<span class="hi-tag">工事: ' + escapeHtml(h.name || '-') + '</span>' +
+          '<span class="hi-tag">納期: ' + escapeHtml(h.deadline || '-') + '</span>' +
+          '<span class="hi-tag">端材: ' + remCount + '本</span>' +
         '</div>' +
       '</div>';
     }).join('');

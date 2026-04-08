@@ -57,10 +57,7 @@
             style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #6d28d9;border-radius:8px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 4px 20px rgba(109,40,217,.12)">
           </div>
         </div>
-        <div id="cmdSelected" style="display:none;margin-top:6px;padding:5px 10px;background:#f8f8fc;border:1px solid #e0e0ea;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-size:11px;">
-          <span id="cmdSelName" style="font-weight:700;color:#1a1a2e"></span>
-          <span id="cmdSelKgm" style="color:#aaa"></span>
-        </div>
+        <div id="cmdKgm" style="text-align:right;font-size:11px;color:#aaa;margin-top:3px;min-height:16px;padding-right:2px"></div>
         <select id="spec" onchange="onSpec()" style="display:none"></select>
       </div>
       <input type="hidden" id="kgm" value="16.9">
@@ -211,79 +208,101 @@
     <div class="hi-tab" id="hiTabI" onclick="hiSwitch(&#39;i&#39;)">残材在庫</div>
   </div>
   <div id="hiPanelH" class="hi-panel">
-    <div style="padding:16px 20px;width:100%;box-sizing:border-box">
-      <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:16px">📋 切断履歴</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">顧客名</div>
-          <input type="text" id="hsClient" placeholder="" oninput="renderHistory()" list="hsClientList" autocomplete="off" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-          <datalist id="hsClientList"></datalist>
+    <div style="padding:0 0 8px">
+      <div class="hi-search-bar">
+        <div class="hi-search-wrap">
+          <input type="text" id="hsKeyword" placeholder="顧客名・規格・工事名で検索" oninput="renderHistory()">
         </div>
-        <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">工事名</div>
-          <input type="text" id="hsName" placeholder="" oninput="renderHistory()" list="hsNameList" autocomplete="off" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-          <datalist id="hsNameList"></datalist>
-        </div>
-        <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">期間</div>
-          <div style="display:flex;gap:4px;align-items:center">
-            <input type="date" id="hsDateFrom" oninput="renderHistory()" style="flex:1;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:6px 8px;font-size:11px;box-sizing:border-box;outline:none">
-            <span style="color:#bbb;font-size:11px">〜</span>
-            <input type="date" id="hsDateTo" oninput="renderHistory()" style="flex:1;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:6px 8px;font-size:11px;box-sizing:border-box;outline:none">
+        <button class="hi-filter-btn" id="hiFilterBtn" onclick="hiToggleFilter()">絞り込み ▾</button>
+      </div>
+
+      <div id="hiFilterPanel" style="display:none;padding:10px 16px;background:#f8f8fc;border-bottom:1px solid #eee;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">顧客名</div>
+            <input type="text" id="hsClient" oninput="renderHistory()" list="hsClientList" autocomplete="off" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <datalist id="hsClientList"></datalist>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">工事名</div>
+            <input type="text" id="hsName" oninput="renderHistory()" list="hsNameList" autocomplete="off" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <datalist id="hsNameList"></datalist>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">期間</div>
+            <div style="display:flex;gap:4px;align-items:center">
+              <input type="date" id="hsDateFrom" oninput="renderHistory()" style="flex:1;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:5px 6px;font-size:11px;box-sizing:border-box;outline:none">
+              <span style="color:#bbb;font-size:11px">〜</span>
+              <input type="date" id="hsDateTo" oninput="renderHistory()" style="flex:1;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:5px 6px;font-size:11px;box-sizing:border-box;outline:none">
+            </div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材種類</div>
+            <select id="hsKind" onchange="buildHistSpecDropdown();renderHistory()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              <option value="">すべて</option>
+            </select>
+          </div>
+          <div style="grid-column:1/-1">
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材規格</div>
+            <select id="hsSt" onchange="renderHistory()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              <option value="">すべて</option>
+            </select>
           </div>
         </div>
-        <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材種類</div>
-          <select id="hsKind" onchange="buildHistSpecDropdown();renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
-          </select>
-        </div>
+        <button onclick="clearHistSearch()" style="font-size:11px;background:none;border:1px solid #e0e0ea;border-radius:8px;padding:5px 14px;color:#5a5a78;cursor:pointer">クリア</button>
       </div>
-      <div style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
-        <div style="flex:1">
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材規格</div>
-          <select id="hsSt" onchange="renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
-          </select>
-        </div>
-        <button onclick="clearHistSearch()" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">クリア</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 180px;gap:8px;margin-bottom:16px">
-        <input type="text" id="hsKeyword" placeholder="顧客名・工事名・規格で検索" oninput="renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-        <select id="hsSort" onchange="renderHistory()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
+
+      <div class="hi-sort-row">
+        <span class="hi-count" id="hiCountLabel"></span>
+        <select id="hsSort" class="hi-sort" onchange="renderHistory()">
           <option value="date_desc">新しい順</option>
           <option value="date_asc">古い順</option>
           <option value="deadline_asc">納期が近い順</option>
           <option value="spec_asc">規格順</option>
         </select>
       </div>
-      <div id="histList"></div>
-      <div id="histPagination" class="pager"></div>
-      <div id="histEmpty" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">履歴がありません</div>
+
+      <div style="padding:0 16px">
+        <div id="histList"></div>
+        <div id="histPagination" class="pager"></div>
+        <div id="histEmpty" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">履歴がありません</div>
+      </div>
     </div>
   </div>
 
   <div id="hiPanelI" class="hi-panel" style="display:none">
-    <div style="padding:16px 20px;width:100%;box-sizing:border-box">
-      <div style="font-size:16px;font-weight:800;color:#1a1a2e;margin-bottom:16px">🗄 残材在庫管理</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材種類</div>
-          <select id="invFilterKind" onchange="buildInvFilterSpec();renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
-          </select>
+    <div style="padding:0 0 8px">
+      <div class="hi-search-bar">
+        <div class="hi-search-wrap">
+          <input type="text" id="invKeyword" placeholder="会社名・メモ・規格で検索" oninput="renderInventoryPage()">
         </div>
-        <div>
-          <div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.06em;margin-bottom:4px">鋼材規格</div>
-          <select id="invFilterSpec" onchange="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-            <option value="">すべて</option>
-          </select>
+        <button class="hi-filter-btn" id="invFilterBtn" onclick="invToggleFilter()">絞り込み ▾</button>
+      </div>
+
+      <div id="invFilterPanel" style="display:none;padding:10px 16px;background:#f8f8fc;border-bottom:1px solid #eee;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材種類</div>
+            <select id="invFilterKind" onchange="buildInvFilterSpec();renderInventoryPage()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              <option value="">すべて</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材規格</div>
+            <select id="invFilterSpec" onchange="renderInventoryPage()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              <option value="">すべて</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">登録日</div>
+            <input type="date" id="invDateFrom" oninput="renderInventoryPage()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:5px 6px;font-size:11px;box-sizing:border-box;outline:none">
+          </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 180px;gap:8px;margin-bottom:12px">
-        <input type="text" id="invKeyword" placeholder="会社名・メモ・規格で検索" oninput="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-        <input type="date" id="invDateFrom" oninput="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
-        <select id="invSort" onchange="renderInventoryPage()" style="width:100%;background:#f8f8fc;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:8px;padding:7px 10px;font-size:12px;box-sizing:border-box;outline:none">
+
+      <div class="hi-sort-row">
+        <span class="hi-count" id="invCountLabel"></span>
+        <select id="invSort" class="hi-sort" onchange="renderInventoryPage()">
           <option value="date_desc">登録が新しい順</option>
           <option value="date_asc">登録が古い順</option>
           <option value="len_desc">長さが長い順</option>
@@ -291,43 +310,46 @@
           <option value="spec_asc">規格順</option>
         </select>
       </div>
-      <div style="border:1px solid #e0e0ea;border-radius:10px;margin-bottom:14px;overflow:hidden">
-        <div onclick="var f=document.getElementById('invAddFormInner');f.style.display=f.style.display==='none'?'block':'none'" style="padding:10px 14px;background:#f8f8fc;font-size:11px;font-weight:700;color:#5a5a78;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none">
-          ＋ 手動で残材を追加
-        </div>
-        <div id="invAddFormInner" style="display:none;padding:14px;border-top:1px solid #e0e0ea">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鋼材種類</div>
-              <select id="invAddKind" onchange="buildInvAddSpec()" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none"></select>
-            </div>
-            <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鋼材規格</div>
-              <select id="invAddSpec" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none"></select>
-            </div>
-            <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">長さ (mm)</div>
-              <input type="number" id="invAddLen" min="1" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
-            </div>
-            <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">本数</div>
-              <input type="number" id="invAddQty" value="1" min="1" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
-            </div>
-            <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">会社名・現場名（任意）</div>
-              <input type="text" id="invAddCompany" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
-            </div>
-            <div>
-              <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">メモ（任意）</div>
-              <input type="text" id="invAddNote" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
-            </div>
+
+      <div style="padding:0 16px">
+        <div style="border:1px solid #e0e0ea;border-radius:10px;margin-bottom:14px;overflow:hidden">
+          <div onclick="var f=document.getElementById('invAddFormInner');f.style.display=f.style.display==='none'?'block':'none'" style="padding:10px 14px;background:#f8f8fc;font-size:11px;font-weight:700;color:#5a5a78;cursor:pointer;display:flex;align-items:center;gap:6px;user-select:none">
+            ＋ 手動で残材を追加
           </div>
-          <button onclick="manualAddInventory();document.getElementById('invAddFormInner').style.display='none'" style="width:100%;background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">在庫に追加</button>
+          <div id="invAddFormInner" style="display:none;padding:14px;border-top:1px solid #e0e0ea">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+              <div>
+                <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鋼材種類</div>
+                <select id="invAddKind" onchange="buildInvAddSpec()" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none"></select>
+              </div>
+              <div>
+                <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">鋼材規格</div>
+                <select id="invAddSpec" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none"></select>
+              </div>
+              <div>
+                <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">長さ (mm)</div>
+                <input type="number" id="invAddLen" min="1" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              </div>
+              <div>
+                <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">本数</div>
+                <input type="number" id="invAddQty" value="1" min="1" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              </div>
+              <div>
+                <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">会社名・現場名（任意）</div>
+                <input type="text" id="invAddCompany" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              </div>
+              <div>
+                <div style="font-size:10px;color:#8888a8;font-weight:700;margin-bottom:3px">メモ（任意）</div>
+                <input type="text" id="invAddNote" placeholder="" style="width:100%;background:#fff;border:1px solid #e0e0ea;color:#1a1a2e;border-radius:6px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+              </div>
+            </div>
+            <button onclick="manualAddInventory();document.getElementById('invAddFormInner').style.display='none'" style="width:100%;background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">在庫に追加</button>
+          </div>
         </div>
+        <div id="invListCont"></div>
+        <div id="invPagination" class="pager"></div>
+        <div id="invEmptyMsg" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">在庫がありません</div>
       </div>
-      <div id="invListCont"></div>
-      <div id="invPagination" class="pager"></div>
-      <div id="invEmptyMsg" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">在庫がありません</div>
     </div>
   </div></div><!-- /hip -->
 

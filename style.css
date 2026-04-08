@@ -54,6 +54,41 @@ nav a:hover,nav a.active{color:#1a1a2e;background:rgba(109,40,217,.1);text-shado
 .cmd-cat { padding:5px 12px; font-size:10px; font-weight:700; color:#aaa; background:#f8f8fc; letter-spacing:.06em; text-transform:uppercase; }
 .mn{padding:20px;overflow-y:auto;background:#ffffff;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 54px)}
 
+/* 履歴・在庫 新UI */
+.hi-tabs { background:#f4f4f8; padding:8px 16px 0; display:flex; gap:4px; border-bottom:1px solid #e0e0ea; }
+.hi-tab { padding:7px 16px; font-size:12px; font-weight:700; color:#aaa; cursor:pointer; border-radius:8px 8px 0 0; border:1px solid transparent; border-bottom:none; background:transparent; transition:all .15s; }
+.hi-tab-active { color:#1a1a2e; background:#fff; border-color:#e0e0ea; }
+.hi-search-bar { padding:12px 16px; display:flex; gap:8px; align-items:center; border-bottom:1px solid #f0f0f5; }
+.hi-search-wrap { flex:1; position:relative; }
+.hi-search-wrap input { width:100%; background:#f8f8fc; border:1px solid #e0e0ea; border-radius:8px; padding:8px 10px 8px 32px; font-size:12px; color:#1a1a2e; outline:none; box-sizing:border-box; }
+.hi-search-wrap input:focus { border-color:#6d28d9; background:#faf5ff; }
+.hi-search-wrap::before { content:'🔍'; position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:13px; pointer-events:none; }
+.hi-filter-btn { background:transparent; border:1px solid #e0e0ea; border-radius:8px; padding:7px 12px; font-size:11px; font-weight:700; color:#5a5a78; cursor:pointer; white-space:nowrap; }
+.hi-filter-btn.active { border-color:#6d28d9; color:#6d28d9; background:#faf5ff; }
+.hi-chip-row { padding:8px 16px; display:flex; gap:6px; flex-wrap:wrap; border-bottom:1px solid #f0f0f5; }
+.hi-chip { padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700; border:1px solid #e0e0ea; color:#5a5a78; background:#fff; cursor:pointer; }
+.hi-chip.on { background:#ede9fe; border-color:#6d28d9; color:#6d28d9; }
+.hi-sort-row { padding:6px 16px; display:flex; align-items:center; justify-content:space-between; }
+.hi-count { font-size:11px; color:#aaa; }
+.hi-sort { background:transparent; border:none; font-size:11px; color:#5a5a78; cursor:pointer; outline:none; font-family:inherit; font-weight:700; }
+.hi-card { border:1px solid #eee; border-radius:10px; padding:10px 12px; cursor:pointer; transition:all .15s; margin-bottom:6px; }
+.hi-card:hover { border-color:#6d28d9; background:#faf5ff; }
+.hi-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px; }
+.hi-card-client { font-size:13px; font-weight:700; color:#1a1a2e; }
+.hi-card-date { font-size:10px; color:#aaa; }
+.hi-tags { display:flex; gap:4px; flex-wrap:wrap; }
+.hi-tag { font-size:10px; padding:2px 7px; border-radius:20px; background:#f0f0f8; color:#5a5a78; font-weight:600; }
+.hi-tag-kind { background:#ede9fe; color:#6d28d9; }
+/* 残材在庫カード */
+.inv-card-new { border:1px solid #eee; border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; margin-bottom:6px; cursor:pointer; transition:all .15s; }
+.inv-card-new:hover { border-color:#16a34a; background:#f0fdf4; }
+.inv-len { font-size:16px; font-weight:800; color:#1a1a2e; min-width:72px; }
+.inv-len span { font-size:11px; font-weight:400; color:#aaa; }
+.inv-detail { flex:1; }
+.inv-spec-label { font-size:11px; color:#5a5a78; font-weight:700; }
+.inv-meta { font-size:10px; color:#aaa; margin-top:2px; }
+.inv-qty-badge { font-size:12px; font-weight:700; color:#16a34a; background:#dcfce7; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+
 /* SIDEBAR COMPONENTS */
 .shd{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#2a2a3e;margin-bottom:8px}
 .field{margin-bottom:7px}.field:last-child{margin-bottom:0}

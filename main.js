@@ -81,6 +81,24 @@ function hiSwitch(tab) {
   else { buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
 }
 
+function hiToggleFilter() {
+  var panel = document.getElementById('hiFilterPanel');
+  var btn = document.getElementById('hiFilterBtn');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (btn) btn.classList.toggle('active', !open);
+}
+
+function invToggleFilter() {
+  var panel = document.getElementById('invFilterPanel');
+  var btn = document.getElementById('invFilterBtn');
+  if (!panel) return;
+  var open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (btn) btn.classList.toggle('active', !open);
+}
+
 function goPage(p) {
   document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('show'); });
   // ナビ全リセット
@@ -311,14 +329,10 @@ function cmdSelect(it) {
 
   var cmdInput = document.getElementById('cmdInput');
   var cmdDropdown = document.getElementById('cmdDropdown');
-  if (cmdInput) cmdInput.value = it.kind + '  ' + it.spec;
+  var kgmEl = document.getElementById('cmdKgm');
+  if (kgmEl) kgmEl.textContent = it.kgm + ' kg/m';
+  if (cmdInput) cmdInput.value = it.kind + '　' + it.spec;
   if (cmdDropdown) cmdDropdown.style.display = 'none';
-  var selBox = document.getElementById('cmdSelected');
-  if (selBox) {
-    document.getElementById('cmdSelName').textContent = it.kind + ' ' + it.spec;
-    document.getElementById('cmdSelKgm').textContent = it.kgm + ' kg/m';
-    selBox.style.display = 'flex';
-  }
   document.removeEventListener('mousedown', cmdOutside);
   onSpec();
   setTimeout(function() {
