@@ -41,9 +41,9 @@ nav a:hover,nav a.active{color:#1a1a2e;background:rgba(109,40,217,.1);text-shado
 /* CALC PAGE LAYOUT — 入力を狭く、結果を広く */
 .layout{display:grid;grid-template-columns:310px 1fr;flex:1;height:calc(100vh - 54px)}
 .sb{background:#ffffff;border-right:1px solid #e0e0ea;padding:16px 14px;overflow-y:auto;max-height:calc(100vh - 54px);display:flex;flex-direction:column;gap:14px}
-.sb-tabs { display:flex; border-bottom:1.5px solid #e0e0ea; margin-bottom:12px; }
-.sb-tab { flex:1; text-align:center; padding:8px 0; font-size:12px; font-weight:700; color:#aaa; cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; user-select:none; }
-.sb-tab.active { color:#6d28d9; border-bottom-color:#6d28d9; }
+.sb-tabs { display:flex; margin-bottom:16px; gap:6px; }
+.sb-tab { flex:1; text-align:center; padding:7px 0; font-size:12px; font-weight:700; color:#5a5a78; cursor:pointer; border-radius:8px; background:transparent; transition:all .15s; user-select:none; border:none; }
+.sb-tab.active { color:#1a1a2e; background:#ede9fe; }
 .sb-panel { display:none; }
 .sb-panel.active { display:flex; flex-direction:column; flex:1; }
 .mn{padding:20px;overflow-y:auto;background:#ffffff;display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 54px)}

@@ -41,7 +41,7 @@
   </div>
 
   <div class="sb-panel active" id="sbPanel1">
-    <section>
+    <section style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
         <div class="shd" style="margin-bottom:0">鋼材種類・規格</div>
         <button id="steelToggleBtn" onclick="toggleSection(&#39;steelBody&#39;,&#39;steelToggleBtn&#39;,&#39;&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">－</button>
@@ -59,7 +59,7 @@
       <input type="hidden" id="kgm" onkeydown="enterNext(event,'pl0')" value="16.9">
     </section>
 
-    <section>
+    <section style="margin-bottom:16px">
       <div class="parts-header">
         <div class="shd" style="margin-bottom:0">切り出し部材リスト</div>
         <div class="parts-btns">
@@ -98,7 +98,36 @@
   </div>
 
   <div class="sb-panel" id="sbPanel2">
-    <section>
+    <section style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div class="shd" style="margin-bottom:0">設定</div>
+        <button id="settingToggleBtn" onclick="toggleSection(&#39;settingBody&#39;,&#39;settingToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+      </div>
+      <div id="settingBody" style="display:none">
+        <div class="r2">
+          <div class="field"><label>刃厚 (mm)</label><input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()"></div>
+          <div class="field"><label>端部ロス (mm)</label><input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()"></div>
+        </div>
+        <div class="field"><label>端材 最小有効長さ (mm)</label><input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()"></div>
+      </div>
+    </section>
+
+    <section style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div class="shd" style="margin-bottom:0">作業情報</div>
+        <button id="jobToggleBtn" onclick="toggleSection(&#39;jobBody&#39;,&#39;jobToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+      </div>
+      <div id="jobBody" style="display:none">
+        <div class="field"><label>顧客名</label><input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off"><datalist id="clientHistList"></datalist></div>
+        <div class="field"><label>工事名</label><input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off"><datalist id="nameHistList"></datalist></div>
+        <div class="r2">
+          <div class="field"><label>納期</label><input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()"></div>
+          <div class="field"><label>メモ</label><input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()"></div>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
         <div class="shd" style="margin-bottom:0">在庫定尺</div>
         <button id="stockToggleBtn" onclick="toggleSection(&#39;stockBody&#39;,&#39;stockToggleBtn&#39;,&#39;var(--br)&#39;)" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
@@ -109,7 +138,7 @@
       </div>
     </section>
 
-    <section>
+    <section style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
         <div class="shd" style="margin-bottom:0">手持ち残材</div>
         <button id="remnantToggleBtn" onclick="toggleSection(&#39;remnantBody&#39;,&#39;remnantToggleBtn&#39;,&#39;var(--cy)&#39;);updateInvDropdown()" style="background:transparent;border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
@@ -134,33 +163,20 @@
       </div>
     </section>
 
-    <section>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div class="shd" style="margin-bottom:0">作業情報</div>
-        <button id="jobToggleBtn" onclick="toggleSection(&#39;jobBody&#39;,&#39;jobToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+    <section style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+        <input type="checkbox" id="useKuiku" style="width:15px;height:15px;accent-color:#6d28d9;cursor:pointer">
+        <label for="useKuiku" style="font-size:12px;font-weight:700;color:#1a1a2e;cursor:pointer">工区を入力する</label>
       </div>
-      <div id="jobBody" style="display:none">
-        <div class="field"><label>顧客名</label><input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off"><datalist id="clientHistList"></datalist></div>
-        <div class="field"><label>工事名</label><input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off"><datalist id="nameHistList"></datalist></div>
-        <div class="r2">
-          <div class="field"><label>納期</label><input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()"></div>
-          <div class="field"><label>メモ</label><input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()"></div>
-        </div>
-      </div>
+      <div style="font-size:10px;color:#aaa;margin-top:2px;padding-left:23px">チェックで部材リストに工区欄が表示されます</div>
     </section>
 
-    <section>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div class="shd" style="margin-bottom:0">設定</div>
-        <button id="settingToggleBtn" onclick="toggleSection(&#39;settingBody&#39;,&#39;settingToggleBtn&#39;,&#39;&#39;)" style="border:none;color:#2a2a3e;font-size:14px;font-weight:700;padding:0 4px;cursor:pointer;background:transparent;flex-shrink:0;line-height:1">＋</button>
+    <section style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+        <input type="checkbox" id="noAutoRegister" style="width:15px;height:15px;accent-color:#6d28d9;cursor:pointer">
+        <label for="noAutoRegister" style="font-size:12px;font-weight:700;color:#1a1a2e;cursor:pointer">印刷時に在庫登録しない</label>
       </div>
-      <div id="settingBody" style="display:none">
-        <div class="r2">
-          <div class="field"><label>刃厚 (mm)</label><input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()"></div>
-          <div class="field"><label>端部ロス (mm)</label><input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()"></div>
-        </div>
-        <div class="field"><label>端材 最小有効長さ (mm)</label><input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()"></div>
-      </div>
+      <div style="font-size:10px;color:#aaa;margin-top:2px;padding-left:23px">チェックで印刷・カート追加時に端材が自動登録されません</div>
     </section>
   </div>
 </aside>
