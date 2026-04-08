@@ -85,8 +85,8 @@ function hiToggleFilter() {
   var panel = document.getElementById('hiFilterPanel');
   var btn = document.getElementById('hiFilterBtn');
   if (!panel) return;
-  var open = panel.style.display !== 'none';
-  panel.style.display = open ? 'none' : 'block';
+  var open = panel.classList.contains('open');
+  panel.classList.toggle('open', !open);
   if (btn) btn.classList.toggle('active', !open);
 }
 
@@ -94,9 +94,39 @@ function invToggleFilter() {
   var panel = document.getElementById('invFilterPanel');
   var btn = document.getElementById('invFilterBtn');
   if (!panel) return;
-  var open = panel.style.display !== 'none';
-  panel.style.display = open ? 'none' : 'block';
+  var open = panel.classList.contains('open');
+  panel.classList.toggle('open', !open);
   if (btn) btn.classList.toggle('active', !open);
+}
+
+// 期間チップ
+var _hiChipActive = 0;
+function hiChip(n) {
+  _hiChipActive = (_hiChipActive === n) ? 0 : n;
+  [1,2,3,4].forEach(function(i) {
+    var c = document.getElementById('hChip' + i);
+    if (c) c.classList.toggle('on', i === _hiChipActive);
+  });
+  var now = new Date();
+  var from = '', to = '';
+  if (_hiChipActive === 1) {
+    from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+    to = now.toISOString().slice(0,10);
+  } else if (_hiChipActive === 2) {
+    from = new Date(now.getFullYear(), now.getMonth()-1, 1).toISOString().slice(0,10);
+    to = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().slice(0,10);
+  } else if (_hiChipActive === 3) {
+    from = new Date(now.getFullYear(), now.getMonth()-3, 1).toISOString().slice(0,10);
+    to = now.toISOString().slice(0,10);
+  } else if (_hiChipActive === 4) {
+    from = now.getFullYear() + '-01-01';
+    to = now.toISOString().slice(0,10);
+  }
+  var df = document.getElementById('hsDateFrom');
+  var dt = document.getElementById('hsDateTo');
+  if (df) df.value = from;
+  if (dt) dt.value = to;
+  renderHistory();
 }
 
 function goPage(p) {
@@ -2540,10 +2570,14 @@ function legacyRenderInventoryPage_v2() {
   if (!inv.length) {
     cont.innerHTML = '';
     if (empty) empty.style.display = 'block';
+    var invCountEmpty = document.getElementById('invCountLabel');
+    if (invCountEmpty) invCountEmpty.textContent = '0件';
     renderPager('invPagination', 1, 1, 'setInventoryPage');
     return;
   }
   if (empty) empty.style.display = 'none';
+  var invCountLabel = document.getElementById('invCountLabel');
+  if (invCountLabel) invCountLabel.textContent = inv.length + '件';
   var pageData = paginateItems(inv, inventoryPage, INVENTORY_PAGE_SIZE);
   inventoryPage = pageData.page;
   var groups = {};
@@ -2600,10 +2634,14 @@ function renderHistory() {
   if (!hist.length) {
     cont.innerHTML = '';
     if (empty) empty.style.display = 'block';
+    var countEmpty = document.getElementById('hiCountLabel');
+    if (countEmpty) countEmpty.textContent = '0件';
     renderPager('histPagination', 1, 1, 'setHistoryPage');
     return;
   }
   if (empty) empty.style.display = 'none';
+  var countLabel = document.getElementById('hiCountLabel');
+  if (countLabel) countLabel.textContent = hist.length + '件';
   var pageData = paginateItems(hist, historyPage, HISTORY_PAGE_SIZE);
   historyPage = pageData.page;
   var groups = {};
@@ -2642,6 +2680,11 @@ function clearHistSearch() {
   });
   var sortEl = document.getElementById('hsSort');
   if (sortEl) sortEl.value = 'date_desc';
+  _hiChipActive = 0;
+  [1,2,3,4].forEach(function(i) {
+    var c = document.getElementById('hChip' + i);
+    if (c) c.classList.remove('on');
+  });
   historyPage = 1;
   renderHistory();
 }

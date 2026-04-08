@@ -216,16 +216,23 @@
         <button class="hi-filter-btn" id="hiFilterBtn" onclick="hiToggleFilter()">絞り込み ▾</button>
       </div>
 
-      <div id="hiFilterPanel" style="display:none;padding:10px 16px;background:#f8f8fc;border-bottom:1px solid #eee;">
+      <div class="hi-chip-row">
+        <span class="hi-chip" id="hChip1" onclick="hiChip(1)">今月</span>
+        <span class="hi-chip" id="hChip2" onclick="hiChip(2)">先月</span>
+        <span class="hi-chip" id="hChip3" onclick="hiChip(3)">3ヶ月</span>
+        <span class="hi-chip" id="hChip4" onclick="hiChip(4)">今年</span>
+      </div>
+
+      <div class="hi-filter-panel" id="hiFilterPanel">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
           <div>
             <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">顧客名</div>
-            <input type="text" id="hsClient" oninput="renderHistory()" list="hsClientList" autocomplete="off" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <input type="text" id="hsClient" oninput="renderHistory()" list="hsClientList" autocomplete="off" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none;font-family:inherit">
             <datalist id="hsClientList"></datalist>
           </div>
           <div>
             <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">工事名</div>
-            <input type="text" id="hsName" oninput="renderHistory()" list="hsNameList" autocomplete="off" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <input type="text" id="hsName" oninput="renderHistory()" list="hsNameList" autocomplete="off" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none;font-family:inherit">
             <datalist id="hsNameList"></datalist>
           </div>
           <div>
@@ -238,18 +245,18 @@
           </div>
           <div>
             <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材種類</div>
-            <select id="hsKind" onchange="buildHistSpecDropdown();renderHistory()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <select id="hsKind" onchange="buildHistSpecDropdown();renderHistory()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none;font-family:inherit">
               <option value="">すべて</option>
             </select>
           </div>
           <div style="grid-column:1/-1">
             <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材規格</div>
-            <select id="hsSt" onchange="renderHistory()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <select id="hsSt" onchange="renderHistory()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none;font-family:inherit">
               <option value="">すべて</option>
             </select>
           </div>
         </div>
-        <button onclick="clearHistSearch()" style="font-size:11px;background:none;border:1px solid #e0e0ea;border-radius:8px;padding:5px 14px;color:#5a5a78;cursor:pointer">クリア</button>
+        <button onclick="clearHistSearch()" style="font-size:11px;background:none;border:1px solid #e0e0ea;border-radius:8px;padding:5px 14px;color:#5a5a78;cursor:pointer;font-family:inherit">クリア</button>
       </div>
 
       <div class="hi-sort-row">
@@ -274,22 +281,22 @@
     <div style="padding:0 0 8px">
       <div class="hi-search-bar">
         <div class="hi-search-wrap">
-          <input type="text" id="invKeyword" placeholder="会社名・メモ・規格で検索" oninput="renderInventoryPage()">
+          <input type="text" id="invKeyword" placeholder="規格・会社名・メモで検索" oninput="renderInventoryPage()" autocomplete="off">
         </div>
         <button class="hi-filter-btn" id="invFilterBtn" onclick="invToggleFilter()">絞り込み ▾</button>
       </div>
 
-      <div id="invFilterPanel" style="display:none;padding:10px 16px;background:#f8f8fc;border-bottom:1px solid #eee;">
+      <div class="hi-filter-panel" id="invFilterPanel">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
           <div>
             <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材種類</div>
-            <select id="invFilterKind" onchange="buildInvFilterSpec();renderInventoryPage()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <select id="invFilterKind" onchange="buildInvFilterSpec();renderInventoryPage()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none;font-family:inherit">
               <option value="">すべて</option>
             </select>
           </div>
           <div>
             <div style="font-size:10px;color:#aaa;font-weight:700;margin-bottom:3px">鋼材規格</div>
-            <select id="invFilterSpec" onchange="renderInventoryPage()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none">
+            <select id="invFilterSpec" onchange="renderInventoryPage()" style="width:100%;background:#fff;border:1px solid #e0e0ea;border-radius:8px;padding:6px 8px;font-size:12px;box-sizing:border-box;outline:none;font-family:inherit">
               <option value="">すべて</option>
             </select>
           </div>
