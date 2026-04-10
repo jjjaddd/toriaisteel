@@ -1717,8 +1717,9 @@ input:focus,select:focus,textarea:focus{
 .ds-field input[type="date"]:focus,
 .ds-field textarea:focus {
   border-color: #6d28d9;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(109,40,217,.08);
+  background: #faf5ff;
+  outline: none;
+  box-shadow: none;
 }
 .ds-field textarea {
   resize: none;
@@ -1731,19 +1732,30 @@ input:focus,select:focus,textarea:focus{
   gap: 6px;
 }
 
-/* セクション折りたたみボタン */
-.ds-toggle-btn {
-  border: none;
-  background: transparent;
+/* セクションヘッダー（全体タップ可） */
+.ds-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 4px 2px;
+  border-radius: 6px;
+  transition: .15s;
+  user-select: none;
+}
+.ds-sec-head:hover { background: #f5f0ff; }
+.ds-sec-head:hover .ds-title { color: #6d28d9; }
+.ds-sec-head:hover .ds-toggle-icon { color: #6d28d9; }
+
+/* ＋／－ アイコン */
+.ds-toggle-icon {
   color: #bbb;
   font-size: 13px;
-  cursor: pointer;
-  padding: 0 2px;
+  font-weight: 700;
   line-height: 1;
-  transition: .15s;
   flex-shrink: 0;
+  transition: .15s;
 }
-.ds-toggle-btn:hover { color: #6d28d9; }
 
 /* 在庫定尺・手持ち残材 追加ボタン */
 .ds-add-btn {

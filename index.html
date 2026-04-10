@@ -105,11 +105,11 @@
 
     <!-- 設定 -->
     <div class="ds-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div class="ds-sec-head" onclick="toggleSection('settingBody','settingToggleBtn','')">
         <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">設定</div>
-        <button id="settingToggleBtn" class="ds-toggle-btn" onclick="toggleSection('settingBody','settingToggleBtn','')">＋</button>
+        <span id="settingToggleBtn" class="ds-toggle-icon">＋</span>
       </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:5px 0 8px"></div>
+      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
       <div id="settingBody" style="display:none">
         <div class="ds-grid">
           <div class="ds-field">
@@ -130,11 +130,11 @@
 
     <!-- 作業情報 -->
     <div class="ds-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div class="ds-sec-head" onclick="toggleSection('jobBody','jobToggleBtn','')">
         <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">作業情報</div>
-        <button id="jobToggleBtn" class="ds-toggle-btn" onclick="toggleSection('jobBody','jobToggleBtn','')">＋</button>
+        <span id="jobToggleBtn" class="ds-toggle-icon">＋</span>
       </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:5px 0 8px"></div>
+      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
       <div id="jobBody" style="display:none">
         <div class="ds-field">
           <label>顧客名</label>
@@ -161,11 +161,11 @@
 
     <!-- 在庫定尺 -->
     <div class="ds-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div class="ds-sec-head" onclick="toggleSection('stockBody','stockToggleBtn','var(--br)')">
         <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">在庫定尺</div>
-        <button id="stockToggleBtn" class="ds-toggle-btn" onclick="toggleSection('stockBody','stockToggleBtn','var(--br)')">＋</button>
+        <span id="stockToggleBtn" class="ds-toggle-icon">＋</span>
       </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:5px 0 8px"></div>
+      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
       <div id="stockBody" style="display:none">
         <div id="stkList"></div>
         <div style="font-size:10px;color:#8888a8;margin-top:3px">☑ 対象　右=上限本数</div>
@@ -174,11 +174,11 @@
 
     <!-- 手持ち残材 -->
     <div class="ds-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
+      <div class="ds-sec-head" onclick="toggleSection('remnantBody','remnantToggleBtn','var(--cy)');updateInvDropdown()">
         <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">手持ち残材</div>
-        <button id="remnantToggleBtn" class="ds-toggle-btn" onclick="toggleSection('remnantBody','remnantToggleBtn','var(--cy)');updateInvDropdown()">＋</button>
+        <span id="remnantToggleBtn" class="ds-toggle-icon">＋</span>
       </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:5px 0 8px"></div>
+      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
       <div id="remnantBody" style="display:none">
         <div id="invDropCont" style="display:block;margin-bottom:8px;padding:8px;background:rgba(34,211,238,.06);border:1px solid rgba(34,211,238,.2);border-radius:8px">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
