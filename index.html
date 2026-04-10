@@ -47,14 +47,26 @@
       </div>
       <div id="steelBody" style="display:block">
         <div style="position:relative" id="cmdPaletteWrap">
-          <input type="text" id="cmdInput"
-            placeholder="🔍  鋼材を検索… 例：H100、平9、丸32"
-            autocomplete="off"
-            style="width:100%;box-sizing:border-box;border:1.5px solid #d4d4dc;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;transition:border .15s;"
-            onfocus="cmdOpen()" oninput="cmdFilter()"
-            onkeydown="cmdKey(event)">
+          <div style="display:flex;gap:6px;align-items:center">
+            <button
+              type="button"
+              onclick="cmdOpenBrowse()"
+              style="flex-shrink:0;width:34px;height:34px;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;font-family:inherit"
+              onmouseover="this.style.background='#faf5ff'"
+              onmouseout="this.style.background='#f8f8fc'"
+            >🔍</button>
+            <input
+              type="text"
+              id="cmdInput"
+              placeholder="例：H100、平9、丸32"
+              autocomplete="off"
+              oninput="cmdFilter()"
+              onkeydown="cmdKey(event)"
+              style="flex:1;box-sizing:border-box;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;transition:.15s;"
+            >
+          </div>
           <div id="cmdDropdown"
-            style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #6d28d9;border-radius:8px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 4px 20px rgba(109,40,217,.12)">
+            style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #e0e0ea;border-radius:10px;max-height:260px;overflow-y:auto;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.1)">
           </div>
         </div>
         <div id="cmdKgm" style="text-align:right;font-size:11px;color:#aaa;margin-top:3px;min-height:16px;padding-right:2px"></div>
@@ -505,9 +517,17 @@
         </div>
       </div>
       <section>
-        <!-- 鋼材検索UI：入力欄 + 🔍ボタン -->
+        <!-- 鋼材検索UI：🔍ボタン + 入力欄 -->
         <div style="position:relative" id="wCmdWrap">
           <div style="display:flex;gap:6px;align-items:center">
+            <!-- 🔍ボタン：押すと全種類グループ表示 -->
+            <button
+              type="button"
+              onclick="wCmdOpenBrowse()"
+              style="flex-shrink:0;width:34px;height:34px;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;font-family:inherit"
+              onmouseover="this.style.background='#faf5ff'"
+              onmouseout="this.style.background='#f8f8fc'"
+            >🔍</button>
             <!-- テキスト入力欄：タイプで候補を絞り込む -->
             <input
               type="text"
@@ -518,14 +538,6 @@
               onkeydown="wCmdKey(event)"
               style="flex:1;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;padding:8px 10px;font-size:12px;color:#1a1a2e;outline:none;font-family:inherit;box-sizing:border-box;transition:.15s"
             >
-            <!-- 🔍ボタン：押すと全種類グループ表示 -->
-            <button
-              type="button"
-              onclick="wCmdOpenBrowse()"
-              style="flex-shrink:0;width:34px;height:34px;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;font-family:inherit"
-              onmouseover="this.style.background='#faf5ff'"
-              onmouseout="this.style.background='#f8f8fc'"
-            >🔍</button>
           </div>
           <div
             id="wCmdDropdown"

@@ -295,11 +295,64 @@ function cmdBuildAll() {
   return items;
 }
 
-// コマンドパレット：ドロップダウンを開く
-function cmdOpen() {
-  cmdFilter();
-  document.getElementById('cmdDropdown').style.display = 'block';
+// コマンドパレット：検索ボタンで種類一覧を開く
+function cmdOpenBrowse() {
+  var dd = document.getElementById('cmdDropdown');
+  if (!dd) return;
+
+  dd.innerHTML = '';
+  Object.keys(STEEL).forEach(function(kind) {
+    var row = document.createElement('div');
+    row.className = 'cmd-cat';
+    row.style.cursor = 'pointer';
+    row.style.color = '#1a1a2e';
+    row.style.fontSize = '11px';
+    row.innerHTML = kind + ' <span style="color:#bbb;font-size:10px">▶</span>';
+    row.onmousedown = function(e) {
+      e.preventDefault();
+      cmdShowKind(kind);
+    };
+    dd.appendChild(row);
+  });
+
+  dd.style.display = 'block';
   document.addEventListener('mousedown', cmdOutside);
+}
+
+// コマンドパレット：種類を選んだら規格一覧を表示
+function cmdShowKind(kind) {
+  var dd = document.getElementById('cmdDropdown');
+  var list = STEEL[kind] || [];
+  if (!dd) return;
+
+  dd.innerHTML = '';
+  var back = document.createElement('div');
+  back.className = 'cmd-cat';
+  back.style.cursor = 'pointer';
+  back.style.color = '#aaa';
+  back.style.display = 'flex';
+  back.style.alignItems = 'center';
+  back.style.gap = '4px';
+  back.innerHTML = '◀ 戻る　<strong style="color:#5a5a78">' + kind + '</strong>';
+  back.onmousedown = function(e) {
+    e.preventDefault();
+    cmdOpenBrowse();
+  };
+  dd.appendChild(back);
+
+  list.forEach(function(rowData) {
+    var it = { kind: kind, spec: rowData[0], kgm: rowData[1] };
+    var row = document.createElement('div');
+    row.className = 'cmd-item';
+    row.innerHTML = '<span>' + it.spec + '</span><span class="cmd-sub">' + it.kgm + ' kg/m</span>';
+    row.onmousedown = function(e) {
+      e.preventDefault();
+      cmdSelect(it);
+    };
+    dd.appendChild(row);
+  });
+
+  dd.style.display = 'block';
 }
 
 // コマンドパレット：外クリックで閉じる
@@ -317,14 +370,26 @@ function cmdFilter() {
   var dd = document.getElementById('cmdDropdown');
   if (!input || !dd) return;
   var q = (input.value || '').trim().toLowerCase();
+  if (!q) {
+    dd.style.display = 'none';
+    return;
+  }
+
   var all = cmdBuildAll();
-  var filtered = q ? all.filter(function(it) {
+  var filtered = all.filter(function(it) {
     return it.kind.toLowerCase().indexOf(q) >= 0 ||
            it.spec.toLowerCase().indexOf(q) >= 0 ||
            it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
-  }) : all;
+  });
 
   dd.innerHTML = '';
+  if (filtered.length === 0) {
+    dd.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">見つかりません</div>';
+    dd.style.display = 'block';
+    document.addEventListener('mousedown', cmdOutside);
+    return;
+  }
+
   var lastKind = '';
   filtered.slice(0, 60).forEach(function(it, idx) {
     if (it.kind !== lastKind) {
@@ -342,6 +407,7 @@ function cmdFilter() {
     dd.appendChild(row);
   });
   dd.style.display = 'block';
+  document.addEventListener('mousedown', cmdOutside);
 }
 
 // コマンドパレット：規格を選択
@@ -374,8 +440,9 @@ function cmdSelect(it) {
 // コマンドパレット：キーボード操作（↑↓Enter）
 function cmdKey(e) {
   var dd = document.getElementById('cmdDropdown');
-  if (!dd) return;
+  if (!dd || dd.style.display === 'none') return;
   var items = dd.querySelectorAll('.cmd-item');
+  if (!items.length) return;
   var focused = dd.querySelector('.cmd-item.cmd-focus');
   var idx = focused ? Array.from(items).indexOf(focused) : -1;
   if (e.key === 'ArrowDown') {

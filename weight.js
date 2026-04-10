@@ -487,6 +487,10 @@ function wCmdOpenBrowse() {
   document.addEventListener('click', wCmdOutside);
 }
 
+function wCmdShowKind(kind) {
+  wCmdShowKindByName(kind);
+}
+
 function wCmdShowKindByName(kind) {
   var dd = document.getElementById('wCmdDropdown');
   var list = Array.isArray(STEEL[kind]) ? STEEL[kind] : [];
