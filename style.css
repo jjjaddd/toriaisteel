@@ -1905,3 +1905,79 @@ input:focus,select:focus,textarea:focus{
   box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
 .ds-tog input:checked + .ds-tog-track::after { left: 19px; }
+
+/* ── 準備中バッジ ── */
+.wip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: .04em;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* ── 準備中セクション（薄く・操作不可） ── */
+.wip-block {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+}
+.wip-block::after {
+  content: '準備中';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ── 準備中カード（データページ・重量ページ用） ── */
+.wip-card {
+  border: 1.5px dashed #e0e0ea;
+  border-radius: 12px;
+  padding: 16px 14px;
+  margin-bottom: 10px;
+  position: relative;
+  background: #fafafa;
+}
+.wip-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.wip-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f0f0f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.wip-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #aaa;
+}
+.wip-card-desc {
+  font-size: 11px;
+  color: #bbb;
+  line-height: 1.6;
+  padding-left: 40px;
+}

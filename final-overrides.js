@@ -550,8 +550,10 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
     var calc = document.getElementById('na');
     var hist = document.getElementById('nhi');
     var weight = document.getElementById('nw');
+    var data = document.getElementById('nd');
     var contact = document.getElementById('nc') || document.getElementById('ncontact');
-    [calc, hist, weight, contact, cartBadge].forEach(function(node) {
+    var darkMode = document.getElementById('darkModeWipBtn');
+    [calc, hist, weight, data, contact, darkMode, cartBadge].forEach(function(node) {
       if (node && node.parentNode === nav) nav.appendChild(node);
     });
     if (cartBadge) {

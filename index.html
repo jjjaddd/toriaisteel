@@ -25,7 +25,14 @@
     <a id="na" class="" onclick="goPage(&#39;c&#39;)">計算</a>
     <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">履歴・在庫</a>
     <a id="nw" onclick="goPage(&#39;w&#39;)">重量</a>
+    <a id="nd" onclick="goPage('data')">データ</a>
     <a id="nc" onclick="goPage(&#39;contact&#39;)" class="">お問い合わせ</a>
+    <button
+      id="darkModeWipBtn"
+      title="ダークモード（準備中）"
+      style="background:none;border:none;cursor:not-allowed;font-size:18px;opacity:0.35;padding:4px 6px;position:relative"
+      onclick="alert('ダークモードは近日実装予定です！')"
+    >🌙</button>
     <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">🛒 0件</button>
   </nav>
 </header>
@@ -214,7 +221,7 @@
 
     <!-- オプション（トグルスイッチ） -->
     <div class="ds-toggle-area">
-      <div class="ds-toggle-row" onclick="document.getElementById('useKuiku').click()">
+      <div class="ds-toggle-row wip-block" onclick="document.getElementById('useKuiku').click()">
         <div class="ds-toggle-label">
           <span>工区を入力する</span>
           <small>チェックで部材リストに工区欄が表示されます</small>
@@ -224,7 +231,7 @@
           <span class="ds-tog-track"></span>
         </label>
       </div>
-      <div class="ds-toggle-row" onclick="document.getElementById('noAutoRegister').click()">
+      <div class="ds-toggle-row wip-block" onclick="document.getElementById('noAutoRegister').click()">
         <div class="ds-toggle-label">
           <span>印刷時に在庫登録しない</span>
           <small>印刷・カート追加時に端材が自動登録されません</small>
@@ -258,6 +265,13 @@
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
     <p>設定・部材を入力して「計算を実行する」を押してください</p>
     <small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>
+  </div>
+  <div class="wip-card" style="margin:8px 0">
+    <div class="wip-card-head">
+      <div class="wip-card-icon">🌱</div>
+      <div class="wip-card-title" style="font-size:12px">CO₂排出量<span class="wip-badge">🚧 準備中</span></div>
+    </div>
+    <div class="wip-card-desc">重量をもとにCO₂排出量を自動計算します（近日実装）。</div>
   </div>
 </main>
 </div>
@@ -592,6 +606,23 @@
       <button onclick="wClearAll()" class="sm-btn del" style="width:100%;margin-top:6px;padding:7px">
         リストをクリア
       </button>
+      <!-- CO₂排出量（準備中） -->
+      <div class="wip-card" style="margin-top:10px">
+        <div class="wip-card-head">
+          <div class="wip-card-icon">🌱</div>
+          <div class="wip-card-title" style="font-size:12px">CO₂排出量<span class="wip-badge">🚧 準備中</span></div>
+        </div>
+        <div class="wip-card-desc">重量×排出係数でCO₂量を自動表示。カーボンフットプリント対応。</div>
+      </div>
+
+      <!-- 重量逆算（準備中） -->
+      <div class="wip-card">
+        <div class="wip-card-head">
+          <div class="wip-card-icon">🔄</div>
+          <div class="wip-card-title" style="font-size:12px">重量逆算<span class="wip-badge">🚧 準備中</span></div>
+        </div>
+        <div class="wip-card-desc">目標重量→必要本数を逆算。発注数量の確認に。</div>
+      </div>
       <p style="font-size:10px;color:#aaaabc;margin-top:6px">
         ※ 重量は JIS kg/m × 長さ。塗装面積は断面周長 × 長さ（概算値）。
       </p>
@@ -628,6 +659,54 @@
         </table>
       </div>
     </main>
+  </div>
+</div>
+
+<!-- データページ -->
+<div id="dpp" class="pg">
+  <div style="max-width:480px;margin:0 auto;padding:24px 16px">
+
+    <div style="margin-bottom:24px">
+      <div style="font-size:18px;font-weight:800;color:#1a1a2e;margin-bottom:4px">データ</div>
+      <div style="font-size:12px;color:#aaa">鋼材規格辞書・断面性能・市中材情報</div>
+    </div>
+
+    <!-- 鋼材規格検索 -->
+    <div class="wip-card">
+      <div class="wip-card-head">
+        <div class="wip-card-icon">📖</div>
+        <div class="wip-card-title">鋼材規格辞書<span class="wip-badge">🚧 準備中</span></div>
+      </div>
+      <div class="wip-card-desc">種類・規格名でJIS規格を即検索。H形鋼・山形鋼・溝形鋼・平鋼・丸鋼に対応。</div>
+    </div>
+
+    <!-- 断面性能 -->
+    <div class="wip-card">
+      <div class="wip-card-head">
+        <div class="wip-card-icon">📐</div>
+        <div class="wip-card-title">断面性能表示<span class="wip-badge">🚧 準備中</span></div>
+      </div>
+      <div class="wip-card-desc">Ix・Zx・Iy・Zy・断面積を表示。設計者・施工管理者も使えるデータに。</div>
+    </div>
+
+    <!-- 塗装面積 -->
+    <div class="wip-card">
+      <div class="wip-card-head">
+        <div class="wip-card-icon">🎨</div>
+        <div class="wip-card-title">塗装面積（m²/m）<span class="wip-badge">🚧 準備中</span></div>
+      </div>
+      <div class="wip-card-desc">断面周長から塗装面積を自動計算。積算・見積もりにそのまま使える。</div>
+    </div>
+
+    <!-- 市中材情報 -->
+    <div class="wip-card">
+      <div class="wip-card-head">
+        <div class="wip-card-icon">🏭</div>
+        <div class="wip-card-title">市中材・流通情報<span class="wip-badge">🚧 準備中</span></div>
+      </div>
+      <div class="wip-card-desc">地域別・時系列での流通状況を共有。浦安鉄鋼団地の情報から種まき予定。</div>
+    </div>
+
   </div>
 </div>
 

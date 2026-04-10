@@ -71,7 +71,7 @@ function hiSwitch(tab) {
   document.getElementById('hiTabH').classList.toggle('hi-tab-active', showH);
   document.getElementById('hiTabI').classList.toggle('hi-tab-active', !showH);
   // ナビもハイライト更新
-  ['na','nhi','nw'].forEach(function(id){
+  ['na','nhi','nw','nd'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
@@ -132,7 +132,7 @@ function hiChip(n) {
 function goPage(p) {
   document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('show'); });
   // ナビ全リセット
-  ['na','nhi','nw'].forEach(function(id){
+  ['na','nhi','nw','nd'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
@@ -148,6 +148,11 @@ function goPage(p) {
     if (wpp) wpp.classList.add('show');
     if (nw) nw.classList.add('active');
     if (typeof wInit === 'function') wInit();
+  } else if (p === 'data') {
+    var dpp = document.getElementById('dpp');
+    var nd = document.getElementById('nd');
+    if (dpp) dpp.classList.add('show');
+    if (nd) nd.classList.add('active');
   } else if (p === 'contact') {
     var cop = document.getElementById('cop');
     if (cop) cop.classList.add('show');
