@@ -53,10 +53,10 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
     <line x1="${fl}" y1="${by-4}" x2="${fl}" y2="${by+4}" stroke="#475569" stroke-width="1"/>
     <line x1="${fr}" y1="${by-4}" x2="${fr}" y2="${by+4}" stroke="#475569" stroke-width="1"/>
     <text x="${cx}" y="${by+10}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">B=${B}</text>`;
-  const dimT1=`<line x1="${wl}" y1="${cy-6}" x2="${wr}" y2="${cy-6}" stroke="#475569" stroke-width="1"/>
-    <line x1="${wl}" y1="${cy-10}" x2="${wl}" y2="${cy-2}" stroke="#475569" stroke-width="1"/>
-    <line x1="${wr}" y1="${cy-10}" x2="${wr}" y2="${cy-2}" stroke="#475569" stroke-width="1"/>
-    <text x="${cx}" y="${cy-13}" font-size="8" fill="#475569" text-anchor="middle">t1=${t1}</text>`;
+  const dimT1=`<line x1="${wl}" y1="${cy}" x2="${wr}" y2="${cy}" stroke="#475569" stroke-width="1"/>
+    <line x1="${wl}" y1="${cy-4}" x2="${wl}" y2="${cy+4}" stroke="#475569" stroke-width="1"/>
+    <line x1="${wr}" y1="${cy-4}" x2="${wr}" y2="${cy+4}" stroke="#475569" stroke-width="1"/>
+    <text x="${wr+5}" y="${cy}" font-size="8" fill="#475569" dominant-baseline="middle">t1=${t1}</text>`;
   const tx2=fr+16;
   const dimT2=`<line x1="${tx2}" y1="${uft}" x2="${tx2}" y2="${ufb}" stroke="#475569" stroke-width="1"/>
     <line x1="${tx2-3}" y1="${uft}" x2="${tx2+3}" y2="${uft}" stroke="#475569" stroke-width="1"/>
