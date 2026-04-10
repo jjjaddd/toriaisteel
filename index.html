@@ -749,11 +749,56 @@
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="cartClearAll()" style="background:none;border:1px solid #e8e8ed;color:#f87171;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit">全クリア</button>
-        <button onclick="cartDoPrint()" style="background:#fff;color:#1a1a2e;border:1.5px solid #d4d4dc;border-radius:8px;padding:6px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">🖨 まとめて印刷</button>
         <button onclick="closeCartModal()" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit">× 閉じる</button>
       </div>
     </div>
-    <div id="cartModalBody" style="max-height:60vh;overflow-y:auto;padding:8px 0"></div>
+    <div id="cartModalBody" class="cart-modal-body">
+      <!-- TODO: 各アイテムに用途タグ（保存のみ / 発注 / 見積） -->
+      <!-- TODO: CSV出力 -->
+      <!-- TODO: 見積書PDF -->
+      <!-- TODO: 発注明細 -->
+      <!-- TODO: 案件単位グルーピング -->
+      <!-- TODO: バックアップ出力・復元 -->
+
+      <!-- ■ 上部：案件情報（将来用） -->
+      <div class="cart-section" id="cartProjectInfo">
+        <div class="cart-section-title">案件情報</div>
+        <div class="cart-project-placeholder">
+          ※将来：顧客名・工事名・納期などを表示
+        </div>
+      </div>
+
+      <!-- ■ 中央：保存リスト -->
+      <div class="cart-section" id="cartItemsSection">
+        <div class="cart-section-title">保存された取り合い</div>
+        <div id="cartItemsList"></div>
+      </div>
+
+      <!-- ■ 下部：出力アクション -->
+      <div class="cart-section" id="cartActions">
+        <div class="cart-section-title">出力</div>
+
+        <div class="cart-actions-grid">
+          <button class="cart-action-btn" onclick="cartDoPrint()">印刷</button>
+
+          <button class="cart-action-btn" disabled>
+            CSV出力
+          </button>
+
+          <button class="cart-action-btn" disabled>
+            見積書PDF
+          </button>
+
+          <button class="cart-action-btn" disabled>
+            発注明細作成
+          </button>
+
+          <button class="cart-action-btn" disabled>
+            保存のみ
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 </body></html>

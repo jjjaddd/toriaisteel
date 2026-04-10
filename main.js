@@ -3286,7 +3286,7 @@ function normalizeInterfaceChrome() {
   ['#cartModal button[onclick="cartDoPrint()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
     var el = document.querySelector(sel);
     if (el) {
-      el.textContent = 'まとめて印刷';
+      el.textContent = sel.indexOf('#cartModal') === 0 ? '印刷' : 'まとめて印刷';
       if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
     }
   });
@@ -4073,7 +4073,7 @@ function getRemnants() {
 
   renderCartModal = function() {
     var cart = getCart();
-    var body = document.getElementById('cartModalBody');
+    var body = document.getElementById('cartItemsList') || document.getElementById('cartModalBody');
     if (!body) return;
     if (!cart.length) {
       body.innerHTML = '<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">カートは空です。作業指示書に追加した項目がここに表示されます。</div>';
@@ -4094,6 +4094,7 @@ function getRemnants() {
             typeLabel + ' - ' + (d.title || '') +
           '</div>' +
           '<div style="font-size:11px;color:#8888a8">' + subLabel + '</div>' +
+          '<div class="cart-item-status">保存のみ</div>' +
         '</div>' +
         '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">削除</button>' +
       '</div>';
@@ -4468,7 +4469,7 @@ function normalizeInterfaceChrome() {
   ['#cartModal button[onclick="cartDoPrint()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
     var el = document.querySelector(sel);
     if (el) {
-      el.textContent = 'まとめて印刷';
+      el.textContent = sel.indexOf('#cartModal') === 0 ? '印刷' : 'まとめて印刷';
       if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
     }
   });

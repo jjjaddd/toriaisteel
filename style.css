@@ -1981,3 +1981,63 @@ input:focus,select:focus,textarea:focus{
   line-height: 1.6;
   padding-left: 40px;
 }
+
+.cart-modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+
+.cart-section {
+  margin-bottom: 16px;
+}
+
+.cart-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.cart-project-placeholder {
+  background: #f8f8fc;
+  border: 1px dashed #e0e0ea;
+  border-radius: 8px;
+  color: #aaa;
+  font-size: 11px;
+  padding: 10px 12px;
+}
+
+.cart-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.cart-action-btn {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #f8f8fc;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.cart-action-btn:hover:not(:disabled),
+.cart-action-btn:focus:not(:disabled) {
+  background: #faf5ff;
+  outline: none;
+  box-shadow: none;
+}
+
+.cart-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cart-item-status {
+  font-size: 10px;
+  color: #666;
+  margin-top: 4px;
+}

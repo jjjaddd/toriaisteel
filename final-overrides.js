@@ -171,7 +171,7 @@ function cleanCartChrome() {
   if (cartIcon) cartIcon.remove();
 
   var printBtn = document.querySelector('#cartModal button[onclick="cartDoPrint()"]');
-  if (printBtn) printBtn.textContent = 'まとめて印刷';
+  if (printBtn) printBtn.textContent = '印刷';
 
   var closeBtn = document.querySelector('#cartModal button[onclick="closeCartModal()"]');
   if (closeBtn) closeBtn.textContent = '閉じる';
