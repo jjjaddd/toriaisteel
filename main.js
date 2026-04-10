@@ -310,6 +310,7 @@ function cmdOpenBrowse() {
     row.innerHTML = kind + ' <span style="color:#bbb;font-size:10px">▶</span>';
     row.onmousedown = function(e) {
       e.preventDefault();
+      e.stopPropagation();
       cmdShowKind(kind);
     };
     dd.appendChild(row);
@@ -336,6 +337,7 @@ function cmdShowKind(kind) {
   back.innerHTML = '◀ 戻る　<strong style="color:#5a5a78">' + kind + '</strong>';
   back.onmousedown = function(e) {
     e.preventDefault();
+    e.stopPropagation();
     cmdOpenBrowse();
   };
   dd.appendChild(back);
@@ -347,6 +349,7 @@ function cmdShowKind(kind) {
     row.innerHTML = '<span>' + it.spec + '</span><span class="cmd-sub">' + it.kgm + ' kg/m</span>';
     row.onmousedown = function(e) {
       e.preventDefault();
+      e.stopPropagation();
       cmdSelect(it);
     };
     dd.appendChild(row);
@@ -403,7 +406,11 @@ function cmdFilter() {
     row.className = 'cmd-item';
     row.dataset.idx = idx;
     row.innerHTML = '<span>' + it.spec + '</span><span class="cmd-sub">' + it.kgm + ' kg/m</span>';
-    row.onmousedown = function(e) { e.preventDefault(); cmdSelect(it); };
+    row.onmousedown = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      cmdSelect(it);
+    };
     dd.appendChild(row);
   });
   dd.style.display = 'block';
