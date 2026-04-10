@@ -1709,14 +1709,14 @@ input:focus,select:focus,textarea:focus{
 .ds-field input[type="text"]:hover,
 .ds-field input[type="date"]:hover,
 .ds-field textarea:hover {
-  border-color: #6d28d9;
+  border-color: #eee;
   background: #faf5ff;
 }
 .ds-field input[type="number"]:focus,
 .ds-field input[type="text"]:focus,
 .ds-field input[type="date"]:focus,
 .ds-field textarea:focus {
-  border-color: #6d28d9;
+  border-color: #eee;
   background: #faf5ff;
   outline: none;
   box-shadow: none;
