@@ -2043,8 +2043,8 @@ input:focus,select:focus,textarea:focus{
    データページ (.dp-*)
 ═══════════════════════════════ */
 .dp-page {
-  padding: 16px;
-  max-width: 900px;
+  padding: 24px 16px;
+  max-width: 980px;
   margin: 0 auto;
 }
 
@@ -2053,23 +2053,23 @@ input:focus,select:focus,textarea:focus{
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 .dk-tab {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  padding: 5px 14px;
+  padding: 6px 14px;
   border-radius: 20px;
   border: 1.5px solid #e2e8f0;
-  background: #fff;
+  background: #f8fafc;
   color: #475569;
   cursor: pointer;
   transition: all .15s;
 }
 .dk-tab.active {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
-  color: #fff;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
 }
 .dk-tab.wip {
   opacity: 0.45;
@@ -2087,14 +2087,23 @@ input:focus,select:focus,textarea:focus{
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 .dp-left {
   flex: 0 0 auto;
   width: 290px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
 }
 .dp-right {
   flex: 1 1 260px;
   min-width: 240px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
 }
 
 /* 断面図エリア */
@@ -2105,6 +2114,24 @@ input:focus,select:focus,textarea:focus{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* 鋼材種別バッジ */
+.dp-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  letter-spacing: .06em;
+}
+.dp-type-h {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
 }
 
 /* JISバッジ・名称 */
@@ -2123,7 +2150,7 @@ input:focus,select:focus,textarea:focus{
   margin-bottom: 4px;
 }
 .dp-spec-name {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   color: #0f172a;
   margin-bottom: 2px;
@@ -2131,7 +2158,7 @@ input:focus,select:focus,textarea:focus{
 .dp-spec-sub {
   font-size: 10px;
   color: #94a3b8;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
 }
 
 /* スペック選択 */
@@ -2150,9 +2177,9 @@ input:focus,select:focus,textarea:focus{
   margin-bottom: 12px;
 }
 .spec-btn {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 8px;
   border: 1.5px solid #e2e8f0;
   background: #f8fafc;
@@ -2237,5 +2264,19 @@ input:focus,select:focus,textarea:focus{
   padding: 10px;
   background: #f8fafc;
   border-radius: 8px;
+}
+
+@media (max-width: 760px) {
+  .dp-page {
+    padding: 16px 12px;
+  }
+  .dp-left,
+  .dp-right {
+    width: 100%;
+    min-width: 0;
+  }
+  .dp-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 

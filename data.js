@@ -10,8 +10,8 @@ const SECTION_DATA = {
     jis: 'JIS G 3192',
     jisSub: 'Hot-rolled H beams',
     specs: [
-      { name:'H-100×50',  H:100, B:50,  t1:5, t2:7, r:8, Ac:11.85, W:9.30,  Ix:187,  Iy:14.8, Zx:37.5, Zy:5.91, ix:3.98, iy:1.12 },
-      { name:'H-100×100', H:100, B:100, t1:6, t2:8, r:8, Ac:21.59, W:16.9,  Ix:378,  Iy:134,  Zx:75.6, Zy:26.7, ix:4.18, iy:2.49 },
+      { name:'H-100×50×5×7',  H:100, B:50,  t1:5, t2:7, r:8, Ac:11.85, W:9.30,  Ix:187,  Iy:14.8, Zx:37.5, Zy:5.91, ix:3.98, iy:1.12 },
+      { name:'H-100×100×6×8', H:100, B:100, t1:6, t2:8, r:8, Ac:21.59, W:16.9,  Ix:378,  Iy:134,  Zx:75.6, Zy:26.7, ix:4.18, iy:2.49 },
     ]
   }
 };
@@ -121,6 +121,7 @@ function renderDataSpec() {
   const infoEl = document.getElementById('dataSpecInfo');
   if (infoEl) {
     infoEl.innerHTML = `
+      <div class="dp-type-badge dp-type-${kindData.type.toLowerCase()}">${kindData.label}</div>
       <div class="dp-jis-badge">${kindData.jis}</div>
       <div class="dp-spec-name">${spec.name}</div>
       <div class="dp-spec-sub">${kindData.jisSub}</div>`;
