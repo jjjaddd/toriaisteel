@@ -153,6 +153,7 @@ function goPage(p) {
     var nd = document.getElementById('nd');
     if (dpp) dpp.classList.add('show');
     if (nd) nd.classList.add('active');
+    if (typeof dataInit === 'function') dataInit();
   } else if (p === 'contact') {
     var cop = document.getElementById('cop');
     if (cop) cop.classList.add('show');
