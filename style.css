@@ -1772,8 +1772,8 @@ input:focus,select:focus,textarea:focus{
   user-select: none;
 }
 .ds-sec-head:hover { background: #f5f0ff; }
-.ds-sec-head:hover .ds-title { color: #6d28d9; }
-.ds-sec-head:hover .ds-toggle-icon { color: #6d28d9; }
+.ds-sec-head:hover .ds-title { color: #1a1a2e; }
+.ds-sec-head:hover .ds-toggle-icon { color: #bbb; }
 
 /* ＋／－ アイコン */
 .ds-toggle-icon {
@@ -1827,7 +1827,7 @@ input:focus,select:focus,textarea:focus{
 }
 .ds-toggle-row:last-child { border-bottom: none; }
 .ds-toggle-row:hover { background: #faf5ff; }
-.ds-toggle-row:hover .ds-toggle-label span { color: #6d28d9; }
+.ds-toggle-row:hover .ds-toggle-label span { color: #1a1a2e; }
 .ds-toggle-label span {
   font-size: 11px;
   font-weight: 700;
@@ -1853,7 +1853,10 @@ input:focus,select:focus,textarea:focus{
   cursor: pointer;
   transition: .2s;
 }
-.ds-tog input:checked + .ds-tog-track { background: #6d28d9; }
+.ds-tog input:checked + .ds-tog-track {
+  background: #ede9fe;
+  box-shadow: inset 0 0 0 1px #c4b5fd;
+}
 .ds-tog-track::after {
   content: '';
   position: absolute;
