@@ -234,6 +234,16 @@
           <span class="ds-tog-track"></span>
         </label>
       </div>
+      <div class="ds-toggle-row" onclick="document.getElementById('useCarbonFootprint').click()">
+        <div class="ds-toggle-label">
+          <span>カーボンフットプリント計算</span>
+          <small>切断計画と同時にCO2排出量を算出します</small>
+        </div>
+        <label class="ds-tog" onclick="event.stopPropagation()">
+          <input type="checkbox" id="useCarbonFootprint" onchange="saveSettings()">
+          <span class="ds-tog-track"></span>
+        </label>
+      </div>
     </div>
 
   </div>
