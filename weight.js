@@ -38,7 +38,7 @@ function wInit() {
         label: firstKind + ' ' + _wSpecName(firstSpec)
       });
       cmdInput.value = '';
-      cmdInput.placeholder = '🔍  鋼材を検索… 例：H100、平9、丸32';
+      cmdInput.placeholder = '例：H100、平9、丸32';
     }
   }
 
