@@ -118,7 +118,7 @@ select option{background:#fff}
 .stk-row{display:flex;align-items:center;gap:5px;border:1px solid #e0e0ea;background:#fafafa;padding:4px 8px;border-radius:var(--r-sm)}
 .stk-row.off{opacity:.35}
 #stkList{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:2px}
-input[type=checkbox]{width:13px;height:13px;accent-color:#1a1a2e;cursor:pointer;flex-shrink:0}
+input[type=checkbox]{width:13px;height:13px;accent-color:#d8ccff;cursor:pointer;flex-shrink:0}
 .stk-nm{font-size:12px;font-weight:600;color:#1a1a2e;flex:1;font-family:'Space Grotesk',monospace}
 .stk-nm small{font-size:10px;font-weight:600;letter-spacing:.04em;color:#5a5a78;margin-left:1px}
 .stk-mx{width:48px;background:#f4f4f6;border:1px solid #d4d4dc;color:#1a1a2e;font-family:monospace;font-size:10px;padding:2px 3px;outline:none;text-align:center;-moz-appearance:textfield;appearance:textfield;border-radius:6px}
@@ -1854,8 +1854,8 @@ input:focus,select:focus,textarea:focus{
   transition: .2s;
 }
 .ds-tog input:checked + .ds-tog-track {
-  background: #ede9fe;
-  box-shadow: inset 0 0 0 1px #c4b5fd;
+  background: #f3efff;
+  box-shadow: inset 0 0 0 1px #d8ccff;
 }
 .ds-tog-track::after {
   content: '';
