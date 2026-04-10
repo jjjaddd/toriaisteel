@@ -1512,9 +1512,29 @@ input:focus,select:focus,textarea:focus{
 #cop select:focus,
 #cop textarea:hover,
 #cop textarea:focus{
-  background:#faf5ff !important;
+  background:#f3efff !important;
   outline:none !important;
   box-shadow:none !important;
+}
+#contactSubject{
+  color:#1a1a2e !important;
+}
+#contactSubject option{
+  background:#fff;
+  color:#1a1a2e;
+}
+#contactSubject option:checked{
+  background:#f3efff;
+  color:#1a1a2e;
+}
+#contactSubmitBtn:hover,
+#contactSubmitBtn:focus{
+  background:#e9e2ff !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+#contactSubmitBtn:active{
+  background:#ded4ff !important;
 }
 .contact-card{
   background:#fff;
