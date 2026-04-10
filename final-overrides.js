@@ -1,4 +1,4 @@
-function getSelectedInventoryRemnants() {
+﻿function getSelectedInventoryRemnants() {
   return loadSelectedInventoryRemnantsState();
 }
 
@@ -552,8 +552,7 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
     var weight = document.getElementById('nw');
     var data = document.getElementById('nd');
     var contact = document.getElementById('nc') || document.getElementById('ncontact');
-    var darkMode = document.getElementById('darkModeWipBtn');
-    [calc, weight, data, hist, contact, darkMode, cartBadge].forEach(function(node) {
+    [calc, weight, data, hist, contact, cartBadge].forEach(function(node) {
       if (node && node.parentNode === nav) nav.appendChild(node);
     });
     if (cartBadge) {
@@ -1969,3 +1968,4 @@ function extractRemnantsFromCard(cardId) {
     bind();
   }
 })();
+

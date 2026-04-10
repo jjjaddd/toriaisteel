@@ -1,4 +1,4 @@
-*,*::before,*::after{box-sizing:border-box}
+﻿*,*::before,*::after{box-sizing:border-box}
 
 :root{
   --br:#6d28d9;
@@ -464,7 +464,7 @@ footer{border-top:1px solid #ebebf0;padding:12px 28px;display:flex;justify-conte
   html,body{width:277mm;max-width:277mm;overflow:hidden;background:#fff !important;color:#000 !important;background-image:none !important;font-size:10px;margin:0;padding:0}
   /* 印刷不要な要素を全非表示 */
   header,footer,.sb,.ph,.paste-area,.parts-btns,
-  #themeBtn,.diag-toggle,.run,.an:not(.print-target),
+  .diag-toggle,.run,.an:not(.print-target),
   #hp,#ip,#histPreviewModal,#cutDoneModal,#histModal,
   .print-btn,.fab-wrap,#regRemBtn{display:none !important}
   /* 選択カード以外を隠す */
@@ -572,9 +572,6 @@ input[type=number],select{border-radius:var(--r-sm) !important}
 
 /* フッター */
 footer{border-radius:0;background:rgba(15,14,23,.8)}
-
-/* themeBtn 角丸 */
-#themeBtn{border-radius:20px !important}
 
 /* ── ライトモード（白背景・高コントラスト） ── */
 /* 結果エリア */
@@ -2241,3 +2238,4 @@ input:focus,select:focus,textarea:focus{
   background: #f8fafc;
   border-radius: 8px;
 }
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * main.js  —  UI 操作・DOM 更新・イベントハンドラ・初期化
  *
  * storage.js と calc.js に依存する。
@@ -1911,7 +1911,7 @@ function updateCartBadge() {
   var badge = document.getElementById('cartBadge');
   if (!badge) return;
   var n = cart.length;
-  badge.textContent = '🛒 ' + n + '件';
+  badge.textContent = 'カート ' + n + '件';
   badge.className = 'cart-badge' + (n === 0 ? ' empty' : '');
 }
 
@@ -2009,7 +2009,7 @@ function renderCartModal() {
     return '<div class="cart-item">' +
       '<div style="flex:1;min-width:0">' +
         '<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">' +
-          (d.isYield ? '⚡ 歩留まり最大' : '🔁 取り合いパターン') +
+          (d.isYield ? '歩留まり最大' : '取り合いパターン') +
           ' — ' + d.title +
         '</div>' +
         '<div style="font-size:11px;color:#8888a8">' +
@@ -4493,3 +4493,4 @@ function normalizeInterfaceChrome() {
     });
   }
 }
+

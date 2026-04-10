@@ -1,4 +1,4 @@
-/* ================================================================
+﻿/* ================================================================
    data.js  - データタブ 断面図ビューア
    ================================================================ */
 
@@ -121,7 +121,7 @@ function renderDataSpec() {
   const infoEl = document.getElementById('dataSpecInfo');
   if (infoEl) {
     infoEl.innerHTML = `
-      <div class="dp-jis-badge">📋 ${kindData.jis}</div>
+      <div class="dp-jis-badge">${kindData.jis}</div>
       <div class="dp-spec-name">${spec.name}</div>
       <div class="dp-spec-sub">${kindData.jisSub}</div>`;
   }
@@ -168,3 +168,4 @@ function dataSelectSpec(idx) {
   _dataSpecIdx = idx;
   renderDataSpec();
 }
+

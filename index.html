@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -27,13 +27,7 @@
     <a id="nd" onclick="goPage('data')">データ</a>
     <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">履歴・在庫</a>
     <a id="nc" onclick="goPage(&#39;contact&#39;)" class="">お問い合わせ</a>
-    <button
-      id="darkModeWipBtn"
-      title="ダークモード（準備中）"
-      style="background:none;border:none;cursor:not-allowed;font-size:18px;opacity:0.35;padding:4px 6px;position:relative"
-      onclick="alert('ダークモードは近日実装予定です！')"
-    >🌙</button>
-    <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">🛒 0件</button>
+    <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">カート 0件</button>
   </nav>
 </header>
 
@@ -86,7 +80,7 @@
       <div class="parts-header">
         <div class="shd" style="margin-bottom:0">切り出し部材リスト</div>
         <div class="parts-btns">
-          <button class="sm-btn paste" onclick="togglePaste()">📋</button>
+          <button class="sm-btn paste" onclick="togglePaste()">貼付</button>
           <button class="sm-btn add" onclick="addPartRow()">＋</button>
           <button class="sm-btn del" onclick="clearParts()">✕</button>
         </div>
@@ -268,8 +262,8 @@
   </div>
   <div class="wip-card" style="margin:8px 0">
     <div class="wip-card-head">
-      <div class="wip-card-icon">🌱</div>
-      <div class="wip-card-title" style="font-size:12px">CO₂排出量<span class="wip-badge">🚧 準備中</span></div>
+      <div class="wip-card-icon">CO₂</div>
+      <div class="wip-card-title" style="font-size:12px">CO₂排出量<span class="wip-badge">準備中</span></div>
     </div>
     <div class="wip-card-desc">重量をもとにCO₂排出量を自動計算します（近日実装）。</div>
   </div>
@@ -447,7 +441,7 @@
     <div id="histModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center">
       <div style="background:#fff;border:1px solid #d4d4dc;border-radius:16px;width:min(420px,92vw);max-height:70vh;display:flex;flex-direction:column;overflow:hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #ebebf0">
-          <div style="font-size:14px;font-weight:700;color:#2a2a3e">📋 入力履歴</div>
+          <div style="font-size:14px;font-weight:700;color:#2a2a3e">入力履歴</div>
           <button onclick="document.getElementById(&#39;histModal&#39;).style.display=&#39;none&#39;" style="background:none;border:none;color:#5a5a78;font-size:18px;cursor:pointer;padding:0">✕</button>
         </div>
         <div class="hist-body" style="overflow-y:auto;padding:8px"></div>
@@ -609,8 +603,8 @@
       <!-- CO₂排出量（準備中） -->
       <div class="wip-card" style="margin-top:10px">
         <div class="wip-card-head">
-          <div class="wip-card-icon">🌱</div>
-          <div class="wip-card-title" style="font-size:12px">CO₂排出量<span class="wip-badge">🚧 準備中</span></div>
+          <div class="wip-card-icon">CO₂</div>
+          <div class="wip-card-title" style="font-size:12px">CO₂排出量<span class="wip-badge">準備中</span></div>
         </div>
         <div class="wip-card-desc">重量×排出係数でCO₂量を自動表示。カーボンフットプリント対応。</div>
       </div>
@@ -618,8 +612,8 @@
       <!-- 重量逆算（準備中） -->
       <div class="wip-card">
         <div class="wip-card-head">
-          <div class="wip-card-icon">🔄</div>
-          <div class="wip-card-title" style="font-size:12px">重量逆算<span class="wip-badge">🚧 準備中</span></div>
+          <div class="wip-card-icon">逆算</div>
+          <div class="wip-card-title" style="font-size:12px">重量逆算<span class="wip-badge">準備中</span></div>
         </div>
         <div class="wip-card-desc">目標重量→必要本数を逆算。発注数量の確認に。</div>
       </div>
@@ -728,7 +722,6 @@
     <!-- モーダルヘッダー -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #e8e8ed;background:#f8f8fb;position:sticky;top:0;z-index:1">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:14px">📋</span>
         <span style="font-size:14px;font-weight:700;color:#1a1a2e">作業指示書プレビュー</span>
       </div>
       <div style="display:flex;gap:8px">
@@ -751,12 +744,11 @@
   <script src="weight.js"></script>
   <script src="data.js"></script>
 
-<!-- 🛒 カートモーダル -->
+<!-- カートモーダル -->
 <div id="cartModal">
   <div class="cart-modal-inner">
     <div class="cart-modal-hd">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:16px">🛒</span>
         <span style="font-size:15px;font-weight:700;color:#1a1a2e">印刷カート</span>
         <span id="cartModalCount" style="font-size:11px;color:#888"></span>
       </div>
@@ -815,3 +807,4 @@
   </div>
 </div>
 </body></html>
+
