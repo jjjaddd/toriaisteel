@@ -1506,6 +1506,16 @@ input:focus,select:focus,textarea:focus{
 #cop{
   background:#fff;
 }
+#cop input:hover,
+#cop input:focus,
+#cop select:hover,
+#cop select:focus,
+#cop textarea:hover,
+#cop textarea:focus{
+  background:#faf5ff !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
 .contact-card{
   background:#fff;
   border:1px solid #e0e0ea;
