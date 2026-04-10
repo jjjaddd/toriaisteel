@@ -337,6 +337,10 @@ function _esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function _escAttr(s) {
+  return '\'' + String(s).replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\'';
+}
+
 function wPrint() {
   if (_wRows.length === 0) return;
   var anyPrice = _wRows.some(function(r) { return r.amount !== null; });
@@ -463,8 +467,49 @@ function wCmdBuildAll() {
 }
 
 function wCmdOpen() {
-  wCmdFilter();
+  wCmdOpenBrowse();
+}
+
+function wCmdOpenBrowse() {
+  var dd = document.getElementById('wCmdDropdown');
+  if (!dd || typeof STEEL !== 'object' || !STEEL) return;
+
+  var html = '';
+  Object.keys(STEEL).forEach(function(kind) {
+    html += '<div class="cmd-cat" style="font-size:11px;font-weight:700;color:#5a5a78;padding:6px 12px;background:#f8f8fc;border-bottom:1px solid #f0f0f5;cursor:pointer" ' +
+      'onmousedown="event.preventDefault();wCmdShowKindByName(' + _escAttr(kind) + ')">' +
+      _esc(kind) + ' <span style="color:#bbb;font-size:10px">▶</span></div>';
+  });
+
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+  _wCmdIdx = -1;
   document.addEventListener('click', wCmdOutside);
+}
+
+function wCmdShowKindByName(kind) {
+  var dd = document.getElementById('wCmdDropdown');
+  var list = Array.isArray(STEEL[kind]) ? STEEL[kind] : [];
+  if (!dd || !list.length) return;
+
+  _wCmdVisible = list.map(function(s) {
+    var name = _wSpecName(s);
+    return { kind: kind, spec: name, kgm: _wSpecKgm(s), label: kind + ' ' + name };
+  }).filter(function(it) { return it.spec; });
+
+  var html = '<div class="cmd-cat" style="font-size:10px;color:#aaa;padding:5px 12px;background:#f8f8fc;border-bottom:1px solid #f0f0f5;cursor:pointer;display:flex;align-items:center;gap:4px" ' +
+    'onmousedown="event.preventDefault();wCmdOpenBrowse()">◀ 戻る　<strong style="color:#5a5a78">' + _esc(kind) + '</strong></div>';
+
+  _wCmdVisible.forEach(function(it, idx) {
+    html += '<div class="cmd-item" data-widx="' + idx + '" onmousedown="event.preventDefault();wCmdSelectByIndex(' + idx + ')">' +
+      '<span>' + _esc(it.spec) + '</span>' +
+      (it.kgm ? '<span style="color:#aaa;font-size:10px">' + _esc(it.kgm) + ' kg/m</span>' : '') +
+      '</div>';
+  });
+
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+  _wCmdIdx = -1;
 }
 
 function wCmdOutside(e) {
@@ -483,19 +528,24 @@ function wCmdFilter() {
   var q = input.value.trim().toLowerCase();
   var qNum = q.replace(/[^0-9]/g, '');
 
-  _wCmdVisible = q
-    ? _wCmdAll.filter(function(it) {
+  if (!q) {
+    dd.style.display = 'none';
+    _wCmdIdx = -1;
+    return;
+  }
+
+  _wCmdVisible = _wCmdAll.filter(function(it) {
         var specNum = String(it.spec || '').replace(/[^0-9]/g, '');
         return it.label.toLowerCase().indexOf(q) >= 0 ||
                String(it.spec || '').toLowerCase().indexOf(q) >= 0 ||
                (qNum && specNum.indexOf(qNum) >= 0);
-      })
-    : _wCmdAll.slice();
+      });
 
   if (_wCmdVisible.length === 0) {
     dd.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">見つかりません</div>';
     dd.style.display = 'block';
     _wCmdIdx = -1;
+    document.addEventListener('click', wCmdOutside);
     return;
   }
 
@@ -515,6 +565,7 @@ function wCmdFilter() {
   dd.innerHTML = html;
   dd.style.display = 'block';
   _wCmdIdx = -1;
+  document.addEventListener('click', wCmdOutside);
 }
 
 function wCmdSelectByIndex(idx) {
