@@ -106,7 +106,7 @@
     <!-- 設定 -->
     <div class="ds-section">
       <div class="ds-sec-head" onclick="toggleSection('settingBody','settingToggleBtn','')">
-        <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">設定</div>
+        <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">切断条件</div>
         <span id="settingToggleBtn" class="ds-toggle-icon">＋</span>
       </div>
       <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
@@ -505,15 +505,29 @@
         </div>
       </div>
       <section>
-        <div class="shd">鋼材種類</div>
-        <select id="wKind" onchange="wOnKind()"></select>
-      </section>
-      <section>
-        <div class="shd">規格</div>
-        <select id="wSpec" onchange="wOnSpec()"></select>
-        <div id="wKgmDisp" style="display:flex;justify-content:flex-end;margin-top:4px">
-          <span id="wKgmVal" style="font-size:11px;color:#b0b0c8;font-weight:600"></span>
+        <!-- コマンドパレット -->
+        <div style="position:relative" id="wCmdWrap">
+          <input
+            type="text"
+            id="wCmdInput"
+            placeholder="🔍  鋼材を検索… 例：H100、平9、丸32"
+            autocomplete="off"
+            onfocus="wCmdOpen()"
+            oninput="wCmdFilter()"
+            onkeydown="wCmdKey(event)"
+            style="width:100%;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;padding:8px 10px;font-size:12px;color:#1a1a2e;outline:none;font-family:inherit;box-sizing:border-box;transition:.15s"
+          >
+          <div
+            id="wCmdDropdown"
+            style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1.5px solid #e0e0ea;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:200;max-height:260px;overflow-y:auto"
+          ></div>
         </div>
+        <div id="wCmdKgm" style="text-align:right;font-size:11px;color:#aaa;margin-top:3px;min-height:16px;padding-right:2px"></div>
+
+        <!-- 既存selectは非表示で残す（JS互換性維持） -->
+        <select id="wKind" onchange="wOnKind()" style="display:none"></select>
+        <select id="wSpec" onchange="wOnSpec()" style="display:none"></select>
+        <input type="hidden" id="wKgm">
       </section>
       <section>
         <div class="field">
@@ -531,7 +545,6 @@
           </label>
           <input type="number" id="wPrice" placeholder="例：120" min="0" disabled style="opacity:.4">
         </div>
-        <input type="hidden" id="wKgm">
         <div class="field">
           <label style="display:flex;align-items:center;justify-content:space-between">
             <span>部材名・メモ（任意）</span>

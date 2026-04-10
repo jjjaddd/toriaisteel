@@ -3,6 +3,9 @@
 
 var _wInited = false;
 var _wRows = [];
+var _wCmdAll = [];
+var _wCmdVisible = [];
+var _wCmdIdx = -1;
 
 function wInit() {
   var kindEl = document.getElementById('wKind');
@@ -22,6 +25,22 @@ function wInit() {
 
   wOnKind();
   wRenderRows();
+  wCmdBuildAll();
+  var cmdInput = document.getElementById('wCmdInput');
+  if (cmdInput && !cmdInput.value && Object.keys(STEEL).length > 0) {
+    var firstKind = Object.keys(STEEL)[0];
+    var firstSpec = Array.isArray(STEEL[firstKind]) && STEEL[firstKind].length > 0 ? STEEL[firstKind][0] : null;
+    if (firstSpec) {
+      wCmdSelect({
+        kind: firstKind,
+        spec: _wSpecName(firstSpec),
+        kgm: _wSpecKgm(firstSpec),
+        label: firstKind + ' ' + _wSpecName(firstSpec)
+      });
+      cmdInput.value = '';
+      cmdInput.placeholder = '🔍  鋼材を検索… 例：H100、平9、丸32';
+    }
+  }
 
   // メモ入力チェックマーク
 }
@@ -413,5 +432,143 @@ function wAddToCart() {
         btn.disabled = false;
       }, 2500);
     }
+  }
+}
+
+// ── 重量ページ コマンドパレット ──
+
+function _wSpecName(item) {
+  if (Array.isArray(item)) return item[0];
+  if (item && typeof item === 'object') return item.name || item.spec || '';
+  return String(item || '');
+}
+
+function _wSpecKgm(item) {
+  if (Array.isArray(item)) return item[1];
+  if (item && typeof item === 'object') return item.kgm || item.weight || 0;
+  return 0;
+}
+
+function wCmdBuildAll() {
+  _wCmdAll = [];
+  if (typeof STEEL !== 'object' || !STEEL) return;
+  Object.keys(STEEL).forEach(function(kind) {
+    var list = Array.isArray(STEEL[kind]) ? STEEL[kind] : [];
+    list.forEach(function(s) {
+      var name = _wSpecName(s);
+      var kgm = _wSpecKgm(s);
+      if (name) _wCmdAll.push({ kind: kind, spec: name, kgm: kgm, label: kind + ' ' + name });
+    });
+  });
+}
+
+function wCmdOpen() {
+  wCmdFilter();
+  document.addEventListener('click', wCmdOutside);
+}
+
+function wCmdOutside(e) {
+  var wrap = document.getElementById('wCmdWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    var dd = document.getElementById('wCmdDropdown');
+    if (dd) dd.style.display = 'none';
+    document.removeEventListener('click', wCmdOutside);
+  }
+}
+
+function wCmdFilter() {
+  var input = document.getElementById('wCmdInput');
+  var dd = document.getElementById('wCmdDropdown');
+  if (!input || !dd) return;
+  var q = input.value.trim().toLowerCase();
+  var qNum = q.replace(/[^0-9]/g, '');
+
+  _wCmdVisible = q
+    ? _wCmdAll.filter(function(it) {
+        var specNum = String(it.spec || '').replace(/[^0-9]/g, '');
+        return it.label.toLowerCase().indexOf(q) >= 0 ||
+               String(it.spec || '').toLowerCase().indexOf(q) >= 0 ||
+               (qNum && specNum.indexOf(qNum) >= 0);
+      })
+    : _wCmdAll.slice();
+
+  if (_wCmdVisible.length === 0) {
+    dd.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">見つかりません</div>';
+    dd.style.display = 'block';
+    _wCmdIdx = -1;
+    return;
+  }
+
+  var html = '';
+  var lastKind = '';
+  _wCmdVisible.slice(0, 80).forEach(function(it, idx) {
+    if (it.kind !== lastKind) {
+      html += '<div class="cmd-cat">' + _esc(it.kind) + '</div>';
+      lastKind = it.kind;
+    }
+    html += '<div class="cmd-item" data-widx="' + idx + '" onmousedown="event.preventDefault();wCmdSelectByIndex(' + idx + ')">' +
+      '<span>' + _esc(it.spec) + '</span>' +
+      (it.kgm ? '<span style="color:#aaa;font-size:10px">' + _esc(it.kgm) + ' kg/m</span>' : '') +
+      '</div>';
+  });
+
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+  _wCmdIdx = -1;
+}
+
+function wCmdSelectByIndex(idx) {
+  var it = _wCmdVisible[idx];
+  if (it) wCmdSelect(it);
+}
+
+function wCmdSelect(it) {
+  var kindEl = document.getElementById('wKind');
+  var specEl = document.getElementById('wSpec');
+  var kgmDisp = document.getElementById('wCmdKgm');
+  var input = document.getElementById('wCmdInput');
+  var dd = document.getElementById('wCmdDropdown');
+  if (!kindEl || !specEl || !it) return;
+
+  kindEl.value = it.kind;
+  wOnKind();
+  specEl.value = it.spec;
+  wOnSpec();
+
+  if (input) input.value = it.kind + '  ' + it.spec;
+  if (kgmDisp) kgmDisp.textContent = it.kgm ? it.kgm + ' kg/m' : '';
+  if (dd) dd.style.display = 'none';
+  _wCmdIdx = -1;
+  document.removeEventListener('click', wCmdOutside);
+}
+
+function wCmdKey(e) {
+  var dd = document.getElementById('wCmdDropdown');
+  if (!dd || dd.style.display === 'none') return;
+  var items = dd.querySelectorAll('.cmd-item');
+  if (!items.length) return;
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _wCmdIdx = Math.min(_wCmdIdx + 1, items.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _wCmdIdx = Math.max(_wCmdIdx - 1, 0);
+  } else if (e.key === 'Enter' && _wCmdIdx >= 0) {
+    e.preventDefault();
+    items[_wCmdIdx].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    return;
+  } else if (e.key === 'Escape') {
+    dd.style.display = 'none';
+    _wCmdIdx = -1;
+    return;
+  } else {
+    return;
+  }
+
+  items.forEach(function(el) { el.classList.remove('cmd-focus'); });
+  if (_wCmdIdx >= 0) {
+    items[_wCmdIdx].classList.add('cmd-focus');
+    items[_wCmdIdx].scrollIntoView({ block: 'nearest' });
   }
 }
