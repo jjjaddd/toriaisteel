@@ -868,6 +868,14 @@ header nav{
   gap:8px;
   min-width:0;
 }
+.hdr-right{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-left:auto;
+  position:relative;
+  flex-shrink:0;
+}
 .logo{
   gap:10px;
   display:flex;
@@ -890,13 +898,121 @@ header nav{
   color:#111;
 }
 .header-cart-btn{
-  margin-left:auto;
   min-height:36px;
   padding:0 14px;
   border-radius:12px;
 }
 .header-contact-link{
   margin-left:4px;
+}
+.hdr-right > #cartBadge{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:36px;
+  padding:0 14px;
+  border-radius:12px;
+  border:1.5px solid #ede9fe;
+  background:#faf5ff;
+  color:#374151;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.02em;
+  text-transform:none;
+}
+.hdr-right > #cartBadge:hover{
+  background:#ede9fe;
+}
+.ham-btn{
+  width:36px;
+  height:36px;
+  border:none;
+  border-radius:12px;
+  background:transparent;
+  color:#6b7280;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.ham-btn:hover,
+.ham-btn.open{
+  background:#faf5ff;
+  color:#6d28d9;
+}
+.ham-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:119;
+}
+.ham-overlay.show{
+  display:block;
+}
+.ham-menu{
+  position:absolute;
+  top:calc(100% + 10px);
+  right:0;
+  width:232px;
+  background:#fff;
+  border:1px solid #ede9fe;
+  border-radius:12px;
+  box-shadow:0 8px 32px rgba(109,40,217,.08),0 2px 8px rgba(0,0,0,.05);
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+  transform:translateY(-8px) scale(.97);
+  transform-origin:top right;
+  transition:opacity .18s,transform .18s cubic-bezier(.32,.72,0,1);
+  z-index:120;
+}
+.ham-menu.show{
+  opacity:1;
+  pointer-events:auto;
+  transform:translateY(0) scale(1);
+}
+.hm-section{
+  padding:6px 0;
+}
+.hm-section + .hm-section{
+  border-top:1px solid #f5f3ff;
+}
+.hm-row{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 16px;
+  background:transparent;
+  border:none;
+  text-align:left;
+  cursor:pointer;
+  transition:background .1s;
+  font-family:inherit;
+}
+.hm-row:hover{
+  background:#faf5ff;
+}
+.hm-row.is-disabled{
+  cursor:default;
+}
+.hm-row.is-disabled:hover{
+  background:transparent;
+}
+.hm-txt{
+  flex:1;
+  font-size:13px;
+  font-weight:600;
+  color:#1f2937;
+}
+.hm-arr{
+  font-size:14px;
+  color:#c4b5fd;
+}
+.hm-ver,
+.hm-note{
+  font-size:11px;
+  color:#a78bfa;
 }
 .calc-note{
   margin:10px 2px 12px;

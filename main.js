@@ -1899,6 +1899,39 @@ function clearParts() {
 
 function toggleTheme() {}
 
+function toggleHeaderMenu() {
+  var btn = document.getElementById('hamBtn');
+  var menu = document.getElementById('hamMenu');
+  var overlay = document.getElementById('ddOverlay');
+  if (!btn || !menu || !overlay) return;
+  var open = !menu.classList.contains('show');
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  menu.classList.toggle('show', open);
+  overlay.classList.toggle('show', open);
+}
+
+function closeHeaderMenu() {
+  var btn = document.getElementById('hamBtn');
+  var menu = document.getElementById('hamMenu');
+  var overlay = document.getElementById('ddOverlay');
+  if (btn) {
+    btn.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  if (menu) menu.classList.remove('show');
+  if (overlay) overlay.classList.remove('show');
+}
+
+function headerMenuPlaceholder(label) {
+  closeHeaderMenu();
+  alert(label + ' は準備中です');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeHeaderMenu();
+});
+
 // ── 初期化 ──────────────────────────────────────────────
 
 // ══════════════════════════════════════════════════════

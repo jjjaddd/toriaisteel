@@ -543,6 +543,7 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
   function applyOrder() {
     if (ordering) return;
     var nav = document.querySelector('header nav');
+    var right = document.querySelector('header .hdr-right');
     if (!nav) return;
     ordering = true;
     if (observer) observer.disconnect();
@@ -552,9 +553,12 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
     var weight = document.getElementById('nw');
     var data = document.getElementById('nd');
     var contact = document.getElementById('nc') || document.getElementById('ncontact');
-    [calc, weight, data, hist, contact, cartBadge].forEach(function(node) {
+    [calc, weight, data, hist, contact].forEach(function(node) {
       if (node && node.parentNode === nav) nav.appendChild(node);
     });
+    if (cartBadge && right && cartBadge.parentNode !== right) {
+      right.insertBefore(cartBadge, right.firstChild || null);
+    }
     if (cartBadge) {
       var digits = String(cartBadge.textContent || '').replace(/[^\d]/g, '');
       cartBadge.textContent = 'カート ' + (digits || '0') + '件';
