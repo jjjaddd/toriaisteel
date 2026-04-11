@@ -1034,7 +1034,7 @@ SECTION_DATA['溝形鋼'] = {
 SECTION_DATA['C形鋼'] = {
   type: 'C_LIGHT',
   showInCalc: true,
-  label: '軽量溝形鋼',
+  label: 'C形鋼（リップ溝形鋼）',
   jis: 'JIS G 3350',
   jisSub: 'Light gauge steel C-channel',
   specs: C_CHANNEL_DATA
@@ -1764,6 +1764,8 @@ function renderDataSpec() {
       svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
     } else if (kindData.type === 'C_LIGHT') {
       svgEl.innerHTML = drawCChannelSVG(spec.H, spec.A, spec.B, spec.t, 260, 210);
+    } else if (kindData.type === 'LGC') {
+      svgEl.innerHTML = ''; // 軽量溝形鋼: 断面図は準備中
     } else if (kindData.type === 'I') {
       svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
     } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {

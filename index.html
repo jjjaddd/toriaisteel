@@ -7,16 +7,33 @@
 <script>
 (function(){
   var d=document.documentElement;
+  var theme='light';
   try{
     var t=localStorage.getItem('toriai-theme');
-    if(t==='dark'||t==='light'){d.setAttribute('data-theme',t);}
-    else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)
-      d.setAttribute('data-theme','dark');
+    if(t==='dark'||t==='light') theme=t;
+    else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches) theme='dark';
   }catch(e){}
+  d.setAttribute('data-theme', theme);
   var m=document.querySelector('meta[name="theme-color"]');
-  if(m&&d.getAttribute('data-theme')==='dark')m.setAttribute('content','#12121a');
+  if(m) m.setAttribute('content', theme==='dark' ? '#12121a' : '#111111');
 })();
 </script>
+<style id="toriai-theme-critical">
+/* Live Server / ブラウザキャッシュで style.css が古い場合でも、ダークの基調を確実に反映 */
+html[data-theme="dark"]{background:#12121a!important;}
+html[data-theme="dark"] body{
+  color:#e8e8f0!important;
+  background:radial-gradient(circle at top left, rgba(107,70,255,.12), transparent 22%),linear-gradient(180deg,#12121a 0%,#16161e 100%)!important;
+}
+html[data-theme="dark"] header{
+  background:rgba(22,22,30,.94)!important;
+  border-bottom-color:#3f3f52!important;
+}
+html[data-theme="dark"] #hip,
+html[data-theme="dark"] .hi-panel{background:#12121a!important;}
+html[data-theme="dark"] .sb{background:#14141a!important;border-right-color:#3f3f52!important;}
+html[data-theme="dark"] .mn{background:#12121a!important;}
+</style>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -26,7 +43,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=dm2">
+<link rel="stylesheet" href="style.css?v=dm3">
 </head>
 <body>
 

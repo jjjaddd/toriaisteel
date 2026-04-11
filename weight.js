@@ -742,6 +742,22 @@ function wCmdShowKind(kind) {
   _wCmdIdx = -1;
 }
 
+// 鋼材プレフィックスマップ（長い順に配置して先にマッチ）
+var W_PREFIX_MAP = [
+  { prefix: 'fb', kinds: ['平鋼'] },
+  { prefix: 'rb', kinds: ['丸鋼'] },
+  { prefix: 'rp', kinds: ['スモール角パイプ（正方形）', 'スモール角パイプ（長方形）', 'エコノミー角'] },
+  { prefix: 'h',  kinds: ['H形鋼'] },
+  { prefix: 'l',  kinds: ['等辺山形鋼', '不等辺山形鋼'] },
+  { prefix: 'u',  kinds: ['溝形鋼'] },
+  { prefix: 'i',  kinds: ['I形鋼'] },
+  { prefix: 'f',  kinds: ['平鋼'] },
+  { prefix: 'r',  kinds: ['丸鋼'] },
+  { prefix: 'p',  kinds: ['中径角パイプ（正方形）', '中径角パイプ（長方形）', 'スモール角パイプ（正方形）', 'スモール角パイプ（長方形）', 'スーパー角パイプ（正方形）', 'スーパー角パイプ（長方形）', 'エコノミー角'] },
+  { prefix: '[',  kinds: ['軽量溝形鋼'] },
+  { prefix: 'c',  kinds: ['C形鋼'] }
+];
+
 function wCmdFilter() {
   var input = document.getElementById('wCmdInput');
   var dd    = document.getElementById('wCmdDropdown');
@@ -749,11 +765,30 @@ function wCmdFilter() {
   var q = input.value.trim().toLowerCase();
   if (!q) { dd.style.display = 'none'; return; }
 
-  var filtered = _wCmdAll.filter(function(it) {
-    return it.label.toLowerCase().indexOf(q) >= 0 ||
-           it.spec.toLowerCase().indexOf(q)  >= 0 ||
-           it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
-  });
+  // プレフィックスで種類を絞り込む
+  var kindFilter = null;
+  for (var pi = 0; pi < W_PREFIX_MAP.length; pi++) {
+    var pm = W_PREFIX_MAP[pi];
+    if (q.indexOf(pm.prefix) === 0) {
+      kindFilter = pm.kinds;
+      break;
+    }
+  }
+
+  var filtered;
+  if (kindFilter) {
+    filtered = _wCmdAll.filter(function(it) {
+      if (kindFilter.indexOf(it.kind) < 0) return false;
+      return it.spec.toLowerCase().indexOf(q) >= 0 ||
+             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+    });
+  } else {
+    filtered = _wCmdAll.filter(function(it) {
+      return it.label.toLowerCase().indexOf(q) >= 0 ||
+             it.spec.toLowerCase().indexOf(q)  >= 0 ||
+             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+    });
+  }
 
   if (filtered.length === 0) {
     dd.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">見つかりません</div>';
