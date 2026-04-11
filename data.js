@@ -211,6 +211,33 @@ const RECT_PIPE_DATA = [
   { name:'□400x200x12.0', A:400, B:200, t:12.0, W:106, Asec:134.5, Ix:27300, Iy:9230, Zx:1360, Zy:923 }
 ];
 
+const SGP_PIPE_DATA = [
+  { name:'6A',  inch:'1/8',   D:10.5,  d:6.5,   t:2.0, W:0.419, S:0.033, A:0.534, I:0.051, Z:0.097, i:0.309 },
+  { name:'8A',  inch:'1/4',   D:13.8,  d:9.2,   t:2.3, W:0.652, S:0.043, A:0.831, I:0.143, Z:0.207, i:0.415 },
+  { name:'10A', inch:'3/8',   D:17.3,  d:12.7,  t:2.3, W:0.851, S:0.054, A:1.084, I:0.312, Z:0.361, i:0.537 },
+  { name:'15A', inch:'1/2',   D:21.7,  d:16.1,  t:2.8, W:1.31,  S:0.068, A:1.66,  I:0.759, Z:0.699, i:0.676 },
+  { name:'20A', inch:'3/4',   D:27.2,  d:21.6,  t:2.8, W:1.68,  S:0.085, A:2.15,  I:1.62,  Z:1.19,  i:0.868 },
+  { name:'25A', inch:'1',     D:34.0,  d:27.6,  t:3.2, W:2.43,  S:0.107, A:3.10,  I:3.71,  Z:2.18,  i:1.09 },
+  { name:'32A', inch:'1-1/4', D:42.7,  d:35.7,  t:3.5, W:3.38,  S:0.134, A:4.31,  I:8.35,  Z:3.91,  i:1.39 },
+  { name:'40A', inch:'1-1/2', D:48.6,  d:41.6,  t:3.5, W:3.89,  S:0.153, A:4.96,  I:12.7,  Z:5.22,  i:1.60 },
+  { name:'50A', inch:'2',     D:60.5,  d:52.9,  t:3.8, W:5.31,  S:0.190, A:6.77,  I:27.3,  Z:9.03,  i:2.01 },
+  { name:'65A', inch:'2-1/2', D:76.3,  d:67.9,  t:4.2, W:7.47,  S:0.240, A:9.51,  I:62.0,  Z:16.3,  i:2.55 },
+  { name:'80A', inch:'3',     D:89.1,  d:80.7,  t:4.2, W:8.79,  S:0.280, A:11.2,  I:101,   Z:22.7,  i:3.01 },
+  { name:'90A', inch:'3-1/2', D:101.6, d:93.2,  t:4.2, W:10.1,  S:0.319, A:12.9,  I:153,   Z:30.1,  i:3.45 },
+  { name:'100A',inch:'4',     D:114.3, d:105.3, t:4.5, W:12.2,  S:0.359, A:15.5,  I:234,   Z:41.0,  i:3.89 },
+  { name:'125A',inch:'5',     D:139.8, d:130.8, t:4.5, W:15.0,  S:0.439, A:19.1,  I:438,   Z:62.7,  i:4.79 },
+  { name:'150A',inch:'6',     D:165.2, d:155.2, t:5.0, W:19.8,  S:0.519, A:25.2,  I:808,   Z:97.8,  i:5.67 },
+  { name:'175A',inch:'7',     D:190.7, d:180.1, t:5.3, W:24.2,  S:0.599, A:30.9,  I:1327,  Z:139,   i:6.56 },
+  { name:'200A',inch:'8',     D:216.3, d:204.7, t:5.8, W:30.1,  S:0.680, A:38.4,  I:2126,  Z:197,   i:7.45 },
+  { name:'225A',inch:'9',     D:241.8, d:229.4, t:6.2, W:36.0,  S:0.760, A:45.9,  I:3186,  Z:264,   i:8.33 },
+  { name:'250A',inch:'10',    D:267.4, d:254.2, t:6.6, W:42.4,  S:0.840, A:54.1,  I:4600,  Z:344,   i:9.22 },
+  { name:'300A',inch:'12',    D:318.5, d:304.7, t:6.9, W:53.0,  S:1.00,  A:67.5,  I:8202,  Z:515,   i:11.0 },
+  { name:'350A',inch:'14',    D:355.6, d:339.8, t:7.9, W:67.7,  S:1.12,  A:86.3,  I:13047, Z:734,   i:12.3 },
+  { name:'400A',inch:'16',    D:406.4, d:390.6, t:7.9, W:77.6,  S:1.28,  A:98.9,  I:19640, Z:967,   i:14.1 },
+  { name:'450A',inch:'18',    D:457.2, d:441.4, t:7.9, W:87.5,  S:1.44,  A:112,   I:28147, Z:1231,  i:15.9 },
+  { name:'500A',inch:'20',    D:508.0, d:492.2, t:7.9, W:97.4,  S:1.60,  A:124,   I:38812, Z:1528,  i:17.7 }
+];
+
 const ROUND_BAR_DATA = [
   { name:'RB-5.5', D:5.5, W:0.187, A:0.238, I:0.004, i:0.138, Z:0.016 },
   { name:'RB-6',   D:6,   W:0.222, A:0.283, I:0.006, i:0.150, Z:0.021 },
@@ -711,6 +738,14 @@ SECTION_DATA['角パイプ（長方形）'] = {
   specs: RECT_PIPE_DATA
 };
 
+SECTION_DATA['SGP配管'] = {
+  type: 'PIPE',
+  label: '配管用炭素鋼鋼管（SGP）',
+  jis: 'JIS G 3452',
+  jisSub: 'Carbon steel pipe for ordinary piping',
+  specs: SGP_PIPE_DATA
+};
+
 
 
 
@@ -753,6 +788,10 @@ function calcLightCChannelPaintAreaPerMeter(spec) {
 
 function calcSquarePipePaintAreaPerMeter(spec) {
   return +(((2 * (Number(spec.A || 0) + Number(spec.B || 0))) / 1000)).toFixed(3);
+}
+
+function calcPipePaintAreaPerMeter(spec) {
+  return +(Number(spec.S || 0)).toFixed(3);
 }
 
 function approxAreaFromWeight(weight) {
@@ -1056,6 +1095,23 @@ function drawRoundBarSVG(D, viewW, viewH) {
   </svg>`;
 }
 
+function drawPipeSVG(D, d, viewW, viewH) {
+  const margin = 42;
+  const scale = (Math.min(viewW, viewH) - margin * 2) / D;
+  const outerRadius = (D * scale) / 2;
+  const innerRadius = (d * scale) / 2;
+  const cx = viewW / 2;
+  const cy = viewH / 2;
+  return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
+    <circle cx="${cx}" cy="${cy}" r="${outerRadius}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+    <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 18}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 18}" stroke="#475569" stroke-width="1"/>
+    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx - outerRadius}" y2="${cy + outerRadius + 22}" stroke="#475569" stroke-width="1"/>
+    <line x1="${cx + outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 22}" stroke="#475569" stroke-width="1"/>
+    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">D=${D}</text>
+  </svg>`;
+}
+
 function drawSquareBarSVG(a, viewW, viewH) {
   const margin = 42;
   const scale = (Math.min(viewW, viewH) - margin * 2) / a;
@@ -1079,7 +1135,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '角パイプ（長方形）', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '角パイプ（長方形）', 'SGP配管', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -1316,11 +1372,14 @@ function renderDataSpec() {
   // JISバッジ + 名称
   const infoEl = document.getElementById('dataSpecInfo');
   if (infoEl) {
+    const subText = kindData.type === 'PIPE'
+      ? `${kindData.jisSub} / ${spec.inch} inch`
+      : kindData.jisSub;
     infoEl.innerHTML = `
       <div class="dp-type-badge dp-type-${kindData.type.toLowerCase()}">${kindData.label}</div>
       <div class="dp-jis-badge">${kindData.jis}</div>
       <div class="dp-spec-name">${spec.name}</div>
-      <div class="dp-spec-sub">${kindData.jisSub}</div>`;
+      <div class="dp-spec-sub">${subText}</div>`;
   }
 
   // SVG断面図（鋼種タイプに応じて切り替え）
@@ -1340,6 +1399,8 @@ function renderDataSpec() {
       svgEl.innerHTML = drawRoundBarSVG(spec.D, 260, 210);
     } else if (kindData.type === 'SB') {
       svgEl.innerHTML = drawSquareBarSVG(spec.a, 260, 210);
+    } else if (kindData.type === 'PIPE') {
+      svgEl.innerHTML = drawPipeSVG(spec.D, spec.d, 260, 210);
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, 260, 210);
     } else if (kindData.type === 'FL') {
@@ -1421,6 +1482,15 @@ function renderDataSpec() {
         <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
         <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
       `;
+    } else if (kindData.type === 'PIPE') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>呼び径</span><strong>${spec.name}</strong></div>
+        <div class="dp-cell"><span>inch</span><strong>${spec.inch}</strong></div>
+        <div class="dp-cell"><span>外径 D</span><strong>${spec.D} mm</strong></div>
+        <div class="dp-cell"><span>内径 d</span><strong>${spec.d} mm</strong></div>
+        <div class="dp-cell"><span>厚さ t</span><strong>${spec.t} mm</strong></div>
+        <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
+      `;
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       dimEl.innerHTML = `
         <div class="dp-cell"><span>A</span><strong>${spec.A} mm</strong></div>
@@ -1435,7 +1505,7 @@ function renderDataSpec() {
   // 断面性能グリッド
   const perfEl = document.getElementById('dataPerfGrid');
   if (perfEl) {
-    if (kindData.type === 'RB' || kindData.type === 'SB') {
+    if (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE') {
       perfEl.innerHTML = `
         <div class="dp-cell"><span>I</span><strong>${spec.I} cm⁴</strong></div>
         <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
@@ -1468,7 +1538,7 @@ function renderDataSpec() {
 
   const extraEl = document.getElementById('dataExtraInfo');
   if (extraEl) {
-    const weightArea = (kindData.type === 'RB' || kindData.type === 'SB')
+    const weightArea = (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE')
       ? spec.A
       : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'C_LIGHT') ? spec.Asec : spec.Ac);
     const calcW = calcUnitWeightFromArea(weightArea);
@@ -1478,6 +1548,8 @@ function renderDataSpec() {
           ? calcRoundBarPaintAreaPerMeter(spec)
       : (kindData.type === 'SB')
           ? calcSquareBarPaintAreaPerMeter(spec)
+      : (kindData.type === 'PIPE')
+          ? calcPipePaintAreaPerMeter(spec)
       : (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE')
           ? calcSquarePipePaintAreaPerMeter(spec)
       : (kindData.type === 'C_LIGHT')
