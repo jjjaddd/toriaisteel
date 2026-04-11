@@ -133,6 +133,64 @@ const ROUND_BAR_DATA = [
   { name:'RB-200', D:200, W:246.6, A:314.2, I:7854,  i:5.00,  Z:785.4 }
 ];
 
+const SQUARE_BAR_DATA = [
+  { name:'SB-4',   a:4,   W:0.126, A:0.160, I:0.002, i:0.115, Z:0.011 },
+  { name:'SB-5',   a:5,   W:0.196, A:0.250, I:0.005, i:0.143, Z:0.021 },
+  { name:'SB-6',   a:6,   W:0.283, A:0.360, I:0.011, i:0.172, Z:0.036 },
+  { name:'SB-7',   a:7,   W:0.385, A:0.490, I:0.020, i:0.201, Z:0.057 },
+  { name:'SB-8',   a:8,   W:0.502, A:0.640, I:0.034, i:0.229, Z:0.085 },
+  { name:'SB-9',   a:9,   W:0.636, A:0.810, I:0.055, i:0.258, Z:0.122 },
+  { name:'SB-10',  a:10,  W:0.785, A:1.00,  I:0.083, i:0.287, Z:0.167 },
+  { name:'SB-11',  a:11,  W:0.950, A:1.21,  I:0.122, i:0.315, Z:0.222 },
+  { name:'SB-12',  a:12,  W:1.13,  A:1.44,  I:0.173, i:0.344, Z:0.288 },
+  { name:'SB-13',  a:13,  W:1.33,  A:1.69,  I:0.238, i:0.373, Z:0.366 },
+  { name:'SB-14',  a:14,  W:1.54,  A:1.96,  I:0.320, i:0.401, Z:0.457 },
+  { name:'SB-15',  a:15,  W:1.77,  A:2.25,  I:0.422, i:0.430, Z:0.563 },
+  { name:'SB-16',  a:16,  W:2.01,  A:2.56,  I:0.546, i:0.459, Z:0.683 },
+  { name:'SB-17',  a:17,  W:2.27,  A:2.89,  I:0.696, i:0.487, Z:0.819 },
+  { name:'SB-18',  a:18,  W:2.54,  A:3.24,  I:0.875, i:0.516, Z:0.972 },
+  { name:'SB-19',  a:19,  W:2.83,  A:3.61,  I:1.09,  i:0.545, Z:1.14 },
+  { name:'SB-20',  a:20,  W:3.14,  A:4.00,  I:1.33,  i:0.573, Z:1.33 },
+  { name:'SB-21',  a:21,  W:3.46,  A:4.41,  I:1.62,  i:0.602, Z:1.54 },
+  { name:'SB-22',  a:22,  W:3.80,  A:4.84,  I:1.95,  i:0.631, Z:1.77 },
+  { name:'SB-23',  a:23,  W:4.15,  A:5.29,  I:2.33,  i:0.659, Z:2.03 },
+  { name:'SB-24',  a:24,  W:4.52,  A:5.76,  I:2.76,  i:0.688, Z:2.30 },
+  { name:'SB-25',  a:25,  W:4.91,  A:6.25,  I:3.26,  i:0.717, Z:2.60 },
+  { name:'SB-26',  a:26,  W:5.31,  A:6.76,  I:3.81,  i:0.745, Z:2.93 },
+  { name:'SB-28',  a:28,  W:6.15,  A:7.84,  I:5.12,  i:0.803, Z:3.66 },
+  { name:'SB-30',  a:30,  W:7.07,  A:9.00,  I:6.75,  i:0.860, Z:4.50 },
+  { name:'SB-32',  a:32,  W:8.0,   A:10.24, I:8.74,  i:0.917, Z:5.46 },
+  { name:'SB-34',  a:34,  W:9.1,   A:11.56, I:11.14, i:0.975, Z:6.55 },
+  { name:'SB-35',  a:35,  W:9.6,   A:12.25, I:12.51, i:1.00,  Z:7.15 },
+  { name:'SB-36',  a:36,  W:10.2,  A:12.96, I:14.00, i:1.03,  Z:7.78 },
+  { name:'SB-38',  a:38,  W:11.3,  A:14.44, I:17.38, i:1.09,  Z:9.15 },
+  { name:'SB-40',  a:40,  W:12.6,  A:16.00, I:21.33, i:1.15,  Z:10.67 },
+  { name:'SB-42',  a:42,  W:13.9,  A:17.64, I:25.93, i:1.20,  Z:12.35 },
+  { name:'SB-44',  a:44,  W:15.2,  A:19.36, I:31.23, i:1.26,  Z:14.20 },
+  { name:'SB-45',  a:45,  W:15.9,  A:20.25, I:34.17, i:1.29,  Z:15.19 },
+  { name:'SB-50',  a:50,  W:19.6,  A:25.00, I:52.08, i:1.43,  Z:20.83 },
+  { name:'SB-55',  a:55,  W:23.8,  A:30.25, I:76.26, i:1.58,  Z:27.73 },
+  { name:'SB-60',  a:60,  W:28.3,  A:36.00, I:108.0, i:1.72,  Z:36.00 },
+  { name:'SB-65',  a:65,  W:33.2,  A:42.25, I:148.8, i:1.86,  Z:45.77 },
+  { name:'SB-70',  a:70,  W:38.5,  A:49.00, I:200.1, i:2.01,  Z:57.17 },
+  { name:'SB-80',  a:80,  W:50.2,  A:64.00, I:341.3, i:2.29,  Z:85.33 },
+  { name:'SB-85',  a:85,  W:56.7,  A:72.25, I:435.0, i:2.44,  Z:102.4 },
+  { name:'SB-90',  a:90,  W:63.6,  A:81.00, I:546.8, i:2.58,  Z:121.5 },
+  { name:'SB-95',  a:95,  W:70.9,  A:90.25, I:678.8, i:2.72,  Z:142.9 },
+  { name:'SB-100', a:100, W:78.5,  A:100.0, I:833.3, i:2.87,  Z:166.7 },
+  { name:'SB-110', a:110, W:95.0,  A:121.0, I:1220,  i:3.15,  Z:221.8 },
+  { name:'SB-120', a:120, W:113.0, A:144.0, I:1728,  i:3.44,  Z:288.0 },
+  { name:'SB-125', a:125, W:122.7, A:156.3, I:2035,  i:3.58,  Z:325.5 },
+  { name:'SB-130', a:130, W:132.7, A:169.0, I:2380,  i:3.73,  Z:366.2 },
+  { name:'SB-140', a:140, W:153.9, A:196.0, I:3201,  i:4.01,  Z:457.3 },
+  { name:'SB-150', a:150, W:176.6, A:225.0, I:4219,  i:4.30,  Z:562.5 },
+  { name:'SB-160', a:160, W:201.0, A:256.0, I:5461,  i:4.59,  Z:682.7 },
+  { name:'SB-170', a:170, W:226.9, A:289.0, I:6960,  i:4.87,  Z:818.8 },
+  { name:'SB-180', a:180, W:254.3, A:324.0, I:8748,  i:5.16,  Z:972.0 },
+  { name:'SB-190', a:190, W:283.4, A:361.0, I:10860, i:5.45,  Z:1143 },
+  { name:'SB-200', a:200, W:314.0, A:400.0, I:13333, i:5.73,  Z:1333 }
+];
+
 const FLAT_BAR_DATA = [
   { name:'FB-4.5×25', t:4.5, B:25, Ac:1.125, W:0.88, Ix:0.019, Iy:0.586, ix:0.130, iy:0.722, Zx:0.084, Zy:0.469 },
   { name:'FB-4.5×32', t:4.5, B:32, Ac:1.440, W:1.13, Ix:0.024, Iy:1.229, ix:0.130, iy:0.924, Zx:0.108, Zy:0.768 },
@@ -486,6 +544,14 @@ SECTION_DATA['丸鋼'] = {
   specs: ROUND_BAR_DATA
 };
 
+SECTION_DATA['角鋼'] = {
+  type: 'SB',
+  label: '角鋼',
+  jis: 'JIS G 3191',
+  jisSub: 'Hot-rolled steel bar - Square bar',
+  specs: SQUARE_BAR_DATA
+};
+
 
 
 
@@ -516,6 +582,10 @@ function calcLAnglePaintAreaPerMeter(spec) {
 
 function calcRoundBarPaintAreaPerMeter(spec) {
   return +((Math.PI * Number(spec.D || 0)) / 1000).toFixed(3);
+}
+
+function calcSquareBarPaintAreaPerMeter(spec) {
+  return +(((4 * Number(spec.a || 0)) / 1000)).toFixed(3);
 }
 
 function approxAreaFromWeight(weight) {
@@ -819,6 +889,21 @@ function drawRoundBarSVG(D, viewW, viewH) {
   </svg>`;
 }
 
+function drawSquareBarSVG(a, viewW, viewH) {
+  const margin = 42;
+  const scale = (Math.min(viewW, viewH) - margin * 2) / a;
+  const size = a * scale;
+  const x = (viewW - size) / 2;
+  const y = (viewH - size) / 2;
+  return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
+    <rect x="${x}" y="${y}" width="${size}" height="${size}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+    <line x1="${x}" y1="${y + size + 18}" x2="${x + size}" y2="${y + size + 18}" stroke="#475569" stroke-width="1"/>
+    <line x1="${x}" y1="${y + size + 14}" x2="${x}" y2="${y + size + 22}" stroke="#475569" stroke-width="1"/>
+    <line x1="${x + size}" y1="${y + size + 14}" x2="${x + size}" y2="${y + size + 22}" stroke="#475569" stroke-width="1"/>
+    <text x="${viewW / 2}" y="${y + size + 32}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">a=${a}</text>
+  </svg>`;
+}
+
 
 /* ── データページ初期化 ── */
 let _dataKind = 'H形鋼';
@@ -827,7 +912,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', 'I形鋼', '平鋼', '丸鋼', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -1084,6 +1169,8 @@ function renderDataSpec() {
       svgEl.innerHTML = drawLAngleSVG(spec, 460, 340);
     } else if (kindData.type === 'RB') {
       svgEl.innerHTML = drawRoundBarSVG(spec.D, 260, 210);
+    } else if (kindData.type === 'SB') {
+      svgEl.innerHTML = drawSquareBarSVG(spec.a, 260, 210);
     } else if (kindData.type === 'FL') {
       svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, 260, 210);
     }
@@ -1149,13 +1236,19 @@ function renderDataSpec() {
         <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
         <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
       `;
+    } else if (kindData.type === 'SB') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>一辺 a</span><strong>${spec.a} mm</strong></div>
+        <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
+        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
+      `;
     }
   }
 
   // 断面性能グリッド
   const perfEl = document.getElementById('dataPerfGrid');
   if (perfEl) {
-    if (kindData.type === 'RB') {
+    if (kindData.type === 'RB' || kindData.type === 'SB') {
       perfEl.innerHTML = `
         <div class="dp-cell"><span>I</span><strong>${spec.I} cm⁴</strong></div>
         <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
@@ -1180,12 +1273,14 @@ function renderDataSpec() {
 
   const extraEl = document.getElementById('dataExtraInfo');
   if (extraEl) {
-    const weightArea = kindData.type === 'RB' ? spec.A : spec.Ac;
+    const weightArea = (kindData.type === 'RB' || kindData.type === 'SB') ? spec.A : spec.Ac;
     const calcW = calcUnitWeightFromArea(weightArea);
     const S = (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT')
       ? calcLAnglePaintAreaPerMeter(spec)
       : (kindData.type === 'RB')
           ? calcRoundBarPaintAreaPerMeter(spec)
+      : (kindData.type === 'SB')
+          ? calcSquareBarPaintAreaPerMeter(spec)
       : (kindData.type === 'H' || kindData.type === 'I')
           ? calcHPaintAreaPerMeter(spec)
           : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
