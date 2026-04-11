@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#111111">
+<script>
+(function(){
+  var d=document.documentElement;
+  try{
+    var t=localStorage.getItem('toriai-theme');
+    if(t==='dark'||t==='light'){d.setAttribute('data-theme',t);}
+    else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)
+      d.setAttribute('data-theme','dark');
+  }catch(e){}
+  var m=document.querySelector('meta[name="theme-color"]');
+  if(m&&d.getAttribute('data-theme')==='dark')m.setAttribute('content','#12121a');
+})();
+</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -26,17 +39,16 @@
     <a id="nw" onclick="goPage(&#39;w&#39;)">重量</a>
     <a id="nd" onclick="goPage('data')">データ</a>
     <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">履歴・在庫</a>
-    <a id="nc" onclick="goPage(&#39;contact&#39;)" class="">お問い合わせ</a>
   </nav>
   <div class="hdr-right">
     <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">カート 0件</button>
     <button id="hamBtn" class="ham-btn" type="button" onclick="toggleHeaderMenu()" aria-label="設定メニュー" aria-expanded="false">☰</button>
     <div id="hamMenu" class="ham-menu">
       <div class="hm-section">
-        <div class="hm-row is-disabled">
+        <button class="hm-row" type="button" id="themeToggleBtn" onclick="toggleTheme()" role="switch" aria-checked="false" aria-label="ダークモードの切り替え">
           <span class="hm-txt">ダークモード</span>
-          <span class="hm-note">停止中</span>
-        </div>
+          <span class="hm-theme-pill" id="themeToggleState">オフ</span>
+        </button>
       </div>
       <div class="hm-section">
         <button class="hm-row" type="button" onclick="headerMenuPlaceholder('データ書き出し')">
@@ -258,29 +270,6 @@
           <span class="ds-tog-track"></span>
         </label>
       </div>
-      <div class="ds-toggle-row wip-block" onclick="document.getElementById('noAutoRegister').click()">
-        <div class="ds-toggle-label">
-          <span>印刷時に在庫登録しない</span>
-          <small>印刷・カート追加時に端材が自動登録されません</small>
-        </div>
-        <label class="ds-tog" onclick="event.stopPropagation()">
-          <input type="checkbox" id="noAutoRegister" onchange="saveSettings()">
-          <span class="ds-tog-track"></span>
-        </label>
-      </div>
-      <div class="ds-toggle-row wip-block" onclick="document.getElementById('useCarbonFootprint').click()">
-        <div class="ds-toggle-label">
-          <span>カーボンフットプリント計算</span>
-          <small>切断計画と同時にCO2排出量を算出します</small>
-        </div>
-        <label class="ds-tog" onclick="event.stopPropagation()">
-          <input type="checkbox" id="useCarbonFootprint" onchange="saveSettings()">
-          <span class="ds-tog-track"></span>
-        </label>
-      </div>
-    </div>
-
-  </div>
 </aside>
 
 
@@ -292,13 +281,6 @@
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
     <p>設定・部材を入力して「計算を実行する」を押してください</p>
     <small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>
-  </div>
-  <div class="wip-card" style="margin:8px 0">
-    <div class="wip-card-head">
-      <div class="wip-card-icon">CO₂</div>
-      <div class="wip-card-title" style="font-size:12px">CO₂排出量<span class="wip-badge">準備中</span></div>
-    </div>
-    <div class="wip-card-desc">重量をもとにCO₂排出量を自動計算します（近日実装）。</div>
   </div>
 </main>
 </div>
@@ -504,49 +486,6 @@
   
 <!-- /hip -->
 
-<!-- CONTACT PAGE / お問い合わせ -->
-<div id="cop" class="pg">
-  <div style="max-width:560px;margin:0 auto;padding:24px 16px;width:100%;box-sizing:border-box">
-    <div style="font-size:20px;font-weight:800;color:#1a1a2e;margin-bottom:6px">お問い合わせ</div>
-    <div style="font-size:12px;color:#8888a8;margin-bottom:24px">ご質問・ご要望などお気軽にどうぞ。</div>
-
-    <form id="contactForm" onsubmit="submitContactForm(event)" novalidate>
-      <div style="margin-bottom:14px">
-        <label class="contact-pen-label" style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">ペンネーム <span style="color:#e05">*</span></label>
-        <input type="text" id="contactName" required
-          style="width:100%;background:#f8f8fc;border:1px solid #d4d4dc;color:#1a1a2e;border-radius:8px;padding:10px 12px;font-size:13px;box-sizing:border-box;outline:none;font-family:inherit">
-      </div>
-      <div style="margin-bottom:14px">
-        <label style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">件名 <span style="color:#e05">*</span></label>
-        <select id="contactSubject" required
-          style="width:100%;background:#f8f8fc;border:1px solid #d4d4dc;color:#1a1a2e;border-radius:8px;padding:10px 12px;font-size:13px;box-sizing:border-box;outline:none;font-family:inherit">
-          <option value="">選択してください</option>
-          <option value="機能についての質問">機能についての質問</option>
-          <option value="不具合の報告">不具合の報告</option>
-          <option value="改善要望">改善要望</option>
-          <option value="その他">その他</option>
-        </select>
-      </div>
-      <div style="margin-bottom:20px">
-        <label style="font-size:11px;font-weight:700;color:#5a5a78;letter-spacing:.05em;display:block;margin-bottom:4px">お問い合わせ内容 <span style="color:#e05">*</span></label>
-        <textarea id="contactMessage" placeholder="お問い合わせ内容をご記入ください" required rows="6"
-          style="width:100%;background:#f8f8fc;border:1px solid #d4d4dc;color:#1a1a2e;border-radius:8px;padding:10px 12px;font-size:13px;box-sizing:border-box;outline:none;font-family:inherit;resize:vertical;min-height:120px"></textarea>
-      </div>
-      <button type="submit" id="contactSubmitBtn"
-        style="width:100%;background:#f3efff;color:#1a1a2e;border:1.5px solid #e6ddff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s">
-        送信する →
-      </button>
-    </form>
-
-    <!-- 送信ステータス表示エリア -->
-    <div id="contactStatus" style="display:none;margin-top:16px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;text-align:center"></div>
-
-    <div style="margin-top:20px;padding:14px;background:#f8f8fc;border:1px solid #e0e0ea;border-radius:10px;font-size:11px;color:#8888a8;line-height:1.7">
-      ご入力いただいた情報は、お問い合わせへの回答にのみ使用し、第三者への提供は行いません。
-    </div>
-  </div>
-</div>
-<!-- /cop -->
 
 <!-- 重量シミュレーター -->
 <div id="wpp" class="pg">
@@ -664,7 +603,7 @@
         リストをクリア
       </button>
       <button onclick="wPrint()" class="sm-btn"
-        style="width:100%;margin-top:6px;padding:8px;background:none;border:1px solid #6d28d9;color:#6d28d9;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
+        style="width:100%;margin-top:6px;padding:8px;background:none;border:1px solid #1a1a2e;color:#1a1a2e;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
         🖨 印刷
       </button>
       <p style="font-size:10px;color:#aaaabc;margin-top:6px">
@@ -784,7 +723,6 @@
   <script src="storage.js"></script>
   <script src="calc.js"></script>
   <script src="main.js"></script>
-  <script src="contact.js"></script>
   <script src="final-overrides.js"></script>
   <script src="weight.js"></script>
   <script src="data.js"></script>
@@ -803,16 +741,11 @@
       </div>
     </div>
     <div id="cartModalBody" class="cart-modal-body">
-      <!-- TODO: 各アイテムに用途タグ（保存のみ / 発注 / 見積） -->
       <!-- TODO: CSV出力 -->
       <!-- TODO: 見積書PDF -->
       <!-- TODO: 発注明細 -->
       <!-- TODO: 案件単位グルーピング -->
       <!-- TODO: バックアップ出力・復元 -->
-
-      <!-- ■ 上部：案件情報（将来用） -->
-      <div class="cart-section" id="cartProjectInfo">
-        <div class="cart-section-title">案件情報</div>
         <div class="cart-project-placeholder">
           ※将来：顧客名・工事名・納期などを表示
         </div>
@@ -843,9 +776,6 @@
             発注明細作成
           </button>
 
-          <button class="cart-action-btn" disabled>
-            保存のみ
-          </button>
         </div>
       </div>
     </div>
