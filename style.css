@@ -2848,6 +2848,7 @@ html[data-theme="dark"] .hm-row#themeToggleBtn.is-on .hm-theme-pill{
 
 html[data-theme="dark"]{
   color-scheme:dark;
+  background:#12121a;
   --br:#a78bfa;
   --br2:#c4b5fd;
   --br-soft:rgba(167,139,250,.14);
@@ -3200,3 +3201,65 @@ html[data-theme="dark"] .spec-item{
   color:#e8e8f0;
 }
 html[data-theme="dark"] .spec-item:hover{background:rgba(167,139,250,.1)}
+
+/* ID/詳細度が高く白背景のまま残る箇所（履歴・在庫・旧カード系） */
+html[data-theme="dark"] #hip,
+html[data-theme="dark"] .hi-panel{
+  background:#12121a;
+}
+html[data-theme="dark"] .hist-item:hover{background:#2a2a38}
+html[data-theme="dark"] .hist-card,
+html[data-theme="dark"] .hist-card-header{
+  background:#1a1a22;
+  border-color:#3f3f52;
+}
+html[data-theme="dark"] .hist-row{
+  border-bottom-color:#2e2e3c;
+}
+html[data-theme="dark"] .hist-row:hover{background:#22222c}
+html[data-theme="dark"] .hist-client,
+html[data-theme="dark"] .hist-date{color:#e8e8f0}
+html[data-theme="dark"] .hist-name,
+html[data-theme="dark"] .hist-meta{color:#a8a8c0}
+html[data-theme="dark"] .hist-spec-badge{
+  background:#22222c;
+  border-color:var(--line);
+  color:#e8e8f0;
+}
+html[data-theme="dark"] .inv-card,
+html[data-theme="dark"] .inv-card-header{
+  background:#1a1a22;
+  border-color:#3f3f52;
+}
+html[data-theme="dark"] .inv-row{
+  border-bottom-color:#2e2e3c;
+}
+html[data-theme="dark"] .inv-row:hover{background:#22222c}
+html[data-theme="dark"] .inv-col-header{border-bottom-color:#2e2e3c;color:#8888a8}
+html[data-theme="dark"] .inv-len{color:#e8e8f0}
+html[data-theme="dark"] .inv-qty{
+  background:#2a2a38;
+  border-color:var(--line);
+  color:#a8a8c0;
+}
+html[data-theme="dark"] .hi-input{
+  background:#1e1e28!important;
+  border-color:var(--line)!important;
+  color:#e8e8f0!important;
+}
+html[data-theme="dark"] .hi-page-title{color:#e8e8f0}
+html[data-theme="dark"] .hi-add-form-inner{
+  background:#1a1a22;
+  border-color:var(--line);
+}
+html[data-theme="dark"] .hi-submit-btn{
+  background:#1e1e28;
+  color:#e8e8f0;
+  border-color:var(--line);
+}
+html[data-theme="dark"] .hi-submit-btn:hover{background:#26262f}
+html[data-theme="dark"] .hi-add-btn{
+  border-color:var(--line);
+  color:#a8a8c0;
+}
+html[data-theme="dark"] .hi-add-btn:hover{background:#22222c}
