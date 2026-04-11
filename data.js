@@ -79,6 +79,40 @@ const I_BEAM_DATA = [
   { name:'I-600×190×16×35',    H:600, B:190, t1:16,   t2:35,   r1:38, r2:19,   Ac:224.5,  W:176,  Cx:0, Cy:0, Ix:130000, Iy:3540,  ix:24.10, iy:3.97, Zx:4330,  Zy:373  }
 ];
 
+const C_CHANNEL_DATA = [
+  { name:'C-250x75x25x4.5', H:250, A:75, B:25, t:4.5, W:14.9, Asec:18.92, Ix:1690, Iy:129, ix:9.44, iy:2.62, Zx:135, Zy:23.8 },
+  { name:'C-200x75x25x4.5', H:200, A:75, B:25, t:4.5, W:13.1, Asec:16.67, Ix:990, Iy:121, ix:7.61, iy:2.69, Zx:99.0, Zy:23.3 },
+  { name:'C-200x75x25x4.0', H:200, A:75, B:25, t:4.0, W:11.7, Asec:14.95, Ix:895, Iy:110, ix:7.74, iy:2.72, Zx:89.5, Zy:21.3 },
+  { name:'C-200x75x25x3.2', H:200, A:75, B:25, t:3.2, W:9.52, Asec:12.13, Ix:736, Iy:92.3, ix:7.70, iy:2.76, Zx:73.6, Zy:17.8 },
+  { name:'C-200x75x20x4.5', H:200, A:75, B:20, t:4.5, W:12.7, Asec:16.22, Ix:963, Iy:109, ix:7.71, iy:2.60, Zx:96.3, Zy:20.6 },
+  { name:'C-200x75x20x4.0', H:200, A:75, B:20, t:4.0, W:11.4, Asec:14.55, Ix:871, Iy:100, ix:7.74, iy:2.62, Zx:87.1, Zy:18.9 },
+  { name:'C-200x75x20x3.2', H:200, A:75, B:20, t:3.2, W:9.27, Asec:11.81, Ix:716, Iy:84.1, ix:7.79, iy:2.67, Zx:71.6, Zy:15.8 },
+  { name:'C-150x75x25x4.5', H:150, A:75, B:25, t:4.5, W:11.3, Asec:14.42, Ix:501, Iy:109, ix:5.90, iy:2.75, Zx:66.9, Zy:22.5 },
+  { name:'C-150x75x25x4.0', H:150, A:75, B:25, t:4.0, W:10.2, Asec:12.95, Ix:455, Iy:99.8, ix:5.93, iy:2.78, Zx:60.6, Zy:20.6 },
+  { name:'C-150x75x25x3.2', H:150, A:75, B:25, t:3.2, W:8.27, Asec:10.53, Ix:375, Iy:83.6, ix:5.97, iy:2.82, Zx:50.0, Zy:17.3 },
+  { name:'C-150x75x20x4.5', H:150, A:75, B:20, t:4.5, W:11.0, Asec:13.97, Ix:489, Iy:99.2, ix:5.92, iy:2.66, Zx:65.2, Zy:19.8 },
+  { name:'C-150x75x20x4.0', H:150, A:75, B:20, t:4.0, W:9.85, Asec:12.55, Ix:445, Iy:91.0, ix:5.95, iy:2.69, Zx:59.3, Zy:18.2 },
+  { name:'C-150x75x20x3.2', H:150, A:75, B:20, t:3.2, W:8.01, Asec:10.21, Ix:366, Iy:76.4, ix:5.99, iy:2.74, Zx:48.9, Zy:15.3 },
+  { name:'C-150x65x20x4.0', H:150, A:65, B:20, t:4.0, W:9.22, Asec:11.75, Ix:401, Iy:63.7, ix:5.84, iy:2.33, Zx:53.5, Zy:14.5 },
+  { name:'C-150x65x20x3.2', H:150, A:65, B:20, t:3.2, W:7.51, Asec:9.567, Ix:332, Iy:53.8, ix:5.89, iy:2.37, Zx:44.3, Zy:12.2 },
+  { name:'C-150x65x20x2.3', H:150, A:65, B:20, t:2.3, W:5.50, Asec:7.012, Ix:248, Iy:41.1, ix:5.94, iy:2.42, Zx:33.0, Zy:9.37 },
+  { name:'C-150x50x20x4.5', H:150, A:50, B:20, t:4.5, W:9.20, Asec:11.72, Ix:368, Iy:35.7, ix:5.60, iy:1.75, Zx:49.0, Zy:10.5 },
+  { name:'C-150x50x20x3.2', H:150, A:50, B:20, t:3.2, W:6.76, Asec:8.607, Ix:280, Iy:28.3, ix:5.71, iy:1.81, Zx:37.4, Zy:8.19 },
+  { name:'C-150x50x20x2.3', H:150, A:50, B:20, t:2.3, W:4.96, Asec:6.322, Ix:210, Iy:21.9, ix:5.77, iy:1.86, Zx:28.0, Zy:6.33 },
+  { name:'C-125x50x20x4.5', H:125, A:50, B:20, t:4.5, W:8.32, Asec:10.59, Ix:238, Iy:33.5, ix:4.74, iy:1.78, Zx:38.0, Zy:10.0 },
+  { name:'C-125x50x20x4.0', H:125, A:50, B:20, t:4.0, W:7.50, Asec:9.548, Ix:217, Iy:33.1, ix:4.77, iy:1.81, Zx:34.7, Zy:9.38 },
+  { name:'C-125x50x20x3.2', H:125, A:50, B:20, t:3.2, W:6.13, Asec:7.807, Ix:181, Iy:26.6, ix:4.82, iy:1.85, Zx:29.0, Zy:8.02 },
+  { name:'C-100x50x20x4.5', H:100, A:50, B:20, t:4.5, W:7.43, Asec:9.469, Ix:139, Iy:30.9, ix:3.82, iy:1.81, Zx:27.7, Zy:9.82 },
+  { name:'C-100x50x20x4.0', H:100, A:50, B:20, t:4.0, W:6.71, Asec:8.548, Ix:127, Iy:28.7, ix:3.85, iy:1.83, Zx:25.4, Zy:9.13 },
+  { name:'C-100x50x20x3.2', H:100, A:50, B:20, t:3.2, W:5.50, Asec:7.007, Ix:107, Iy:24.5, ix:3.90, iy:1.87, Zx:21.3, Zy:7.81 },
+  { name:'C-100x50x20x2.3', H:100, A:50, B:20, t:2.3, W:4.06, Asec:5.172, Ix:80.7, Iy:19.0, ix:3.95, iy:1.92, Zx:16.1, Zy:6.06 },
+  { name:'C-100x50x20x1.6', H:100, A:50, B:20, t:1.6, W:2.88, Asec:3.672, Ix:58.4, Iy:14.0, ix:3.99, iy:1.95, Zx:11.7, Zy:4.47 },
+  { name:'C-75x45x15x2.3', H:75, A:45, B:15, t:2.3, W:3.25, Asec:4.137, Ix:37.1, Iy:11.8, ix:3.00, iy:1.69, Zx:9.90, Zy:4.24 },
+  { name:'C-75x45x15x2.0', H:75, A:45, B:15, t:2.0, W:2.86, Asec:3.637, Ix:33.0, Iy:10.5, ix:3.01, iy:1.70, Zx:8.79, Zy:3.76 },
+  { name:'C-60x30x10x2.3', H:60, A:30, B:10, t:2.3, W:2.25, Asec:2.872, Ix:15.6, Iy:3.32, ix:2.33, iy:1.07, Zx:5.20, Zy:1.71 },
+  { name:'C-60x30x10x1.6', H:60, A:30, B:10, t:1.6, W:1.63, Asec:2.072, Ix:11.6, Iy:2.56, ix:2.37, iy:1.11, Zx:3.88, Zy:1.32 }
+];
+
 const ROUND_BAR_DATA = [
   { name:'RB-5.5', D:5.5, W:0.187, A:0.238, I:0.004, i:0.138, Z:0.016 },
   { name:'RB-6',   D:6,   W:0.222, A:0.283, I:0.006, i:0.150, Z:0.021 },
@@ -528,6 +562,14 @@ SECTION_DATA['溝形鋼'] = {
   specs: CHANNEL_DATA
 };
 
+SECTION_DATA['軽量C形鋼'] = {
+  type: 'C_LIGHT',
+  label: '軽量溝形鋼',
+  jis: 'JIS G 3350',
+  jisSub: 'Light gauge steel C-channel',
+  specs: C_CHANNEL_DATA
+};
+
 SECTION_DATA['I形鋼'] = {
   type: 'I',
   label: 'I形鋼',
@@ -586,6 +628,10 @@ function calcRoundBarPaintAreaPerMeter(spec) {
 
 function calcSquareBarPaintAreaPerMeter(spec) {
   return +(((4 * Number(spec.a || 0)) / 1000)).toFixed(3);
+}
+
+function calcLightCChannelPaintAreaPerMeter(spec) {
+  return +(((Number(spec.H || 0) + 2 * Number(spec.A || 0) + 2 * Number(spec.B || 0)) / 1000)).toFixed(3);
 }
 
 function approxAreaFromWeight(weight) {
@@ -912,7 +958,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -1163,6 +1209,8 @@ function renderDataSpec() {
       svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 460, 340);
     } else if (kindData.type === 'C') {
       svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
+    } else if (kindData.type === 'C_LIGHT') {
+      svgEl.innerHTML = drawCChannelSVG(spec.H, spec.A, spec.B, spec.t, 260, 210);
     } else if (kindData.type === 'I') {
       svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
     } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {
@@ -1195,6 +1243,14 @@ function renderDataSpec() {
         <div class="dp-cell"><span>t2（フランジ）</span><strong>${spec.t2} mm</strong></div>
         <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
         <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>`;
+    } else if (kindData.type === 'C_LIGHT') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>H</span><strong>${spec.H} mm</strong></div>
+        <div class="dp-cell"><span>A</span><strong>${spec.A} mm</strong></div>
+        <div class="dp-cell"><span>B（リップ）</span><strong>${spec.B} mm</strong></div>
+        <div class="dp-cell"><span>t</span><strong>${spec.t} mm</strong></div>
+        <div class="dp-cell"><span>断面積 A</span><strong>${spec.Asec} cm²</strong></div>
+        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>`;
     } else if (kindData.type === 'L') {
       dimEl.innerHTML = `
         <div class="dp-cell"><span>A = B</span><strong>${spec.A} mm</strong></div>
@@ -1273,7 +1329,9 @@ function renderDataSpec() {
 
   const extraEl = document.getElementById('dataExtraInfo');
   if (extraEl) {
-    const weightArea = (kindData.type === 'RB' || kindData.type === 'SB') ? spec.A : spec.Ac;
+    const weightArea = (kindData.type === 'RB' || kindData.type === 'SB')
+      ? spec.A
+      : (kindData.type === 'C_LIGHT' ? spec.Asec : spec.Ac);
     const calcW = calcUnitWeightFromArea(weightArea);
     const S = (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT')
       ? calcLAnglePaintAreaPerMeter(spec)
@@ -1281,6 +1339,8 @@ function renderDataSpec() {
           ? calcRoundBarPaintAreaPerMeter(spec)
       : (kindData.type === 'SB')
           ? calcSquareBarPaintAreaPerMeter(spec)
+      : (kindData.type === 'C_LIGHT')
+          ? calcLightCChannelPaintAreaPerMeter(spec)
       : (kindData.type === 'H' || kindData.type === 'I')
           ? calcHPaintAreaPerMeter(spec)
           : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
