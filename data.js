@@ -113,6 +113,65 @@ const C_CHANNEL_DATA = [
   { name:'C-60x30x10x1.6', H:60, A:30, B:10, t:1.6, W:1.63, Asec:2.072, Ix:11.6, Iy:2.56, ix:2.37, iy:1.11, Zx:3.88, Zy:1.32 }
 ];
 
+const SQUARE_PIPE_DATA = [
+  { name:'□40x40x1.6', A:40, B:40, t:1.6, W:1.88, Asec:2.392, Ix:5.79, Zx:2.90, ix:1.56 },
+  { name:'□40x40x2.3', A:40, B:40, t:2.3, W:2.62, Asec:3.332, Ix:7.73, Zx:3.86, ix:1.52 },
+  { name:'□50x50x1.6', A:50, B:50, t:1.6, W:2.38, Asec:3.032, Ix:11.7, Zx:4.68, ix:1.96 },
+  { name:'□50x50x2.3', A:50, B:50, t:2.3, W:3.34, Asec:4.252, Ix:15.9, Zx:6.34, ix:1.93 },
+  { name:'□50x50x3.2', A:50, B:50, t:3.2, W:4.50, Asec:5.727, Ix:20.4, Zx:8.16, ix:1.89 },
+  { name:'□60x60x1.6', A:60, B:60, t:1.6, W:2.88, Asec:3.672, Ix:20.7, Zx:6.89, ix:2.37 },
+  { name:'□60x60x2.3', A:60, B:60, t:2.3, W:4.06, Asec:5.172, Ix:28.3, Zx:9.44, ix:2.34 },
+  { name:'□60x60x3.2', A:60, B:60, t:3.2, W:5.50, Asec:7.007, Ix:36.9, Zx:12.3, ix:2.30 },
+  { name:'□75x75x1.6', A:75, B:75, t:1.6, W:3.64, Asec:4.632, Ix:41.3, Zx:11.0, ix:2.99 },
+  { name:'□75x75x2.3', A:75, B:75, t:2.3, W:5.14, Asec:6.552, Ix:57.1, Zx:15.2, ix:2.95 },
+  { name:'□75x75x3.2', A:75, B:75, t:3.2, W:7.01, Asec:8.927, Ix:75.5, Zx:20.1, ix:2.91 },
+  { name:'□75x75x4.5', A:75, B:75, t:4.5, W:9.55, Asec:12.17, Ix:98.6, Zx:26.3, ix:2.85 },
+  { name:'□80x80x2.3', A:80, B:80, t:2.3, W:5.50, Asec:7.012, Ix:69.9, Zx:17.5, ix:3.16 },
+  { name:'□80x80x3.2', A:80, B:80, t:3.2, W:7.51, Asec:9.567, Ix:92.7, Zx:23.2, ix:3.11 },
+  { name:'□80x80x4.5', A:80, B:80, t:4.5, W:10.3, Asec:13.07, Ix:122, Zx:30.4, ix:3.05 },
+  { name:'□90x90x2.3', A:90, B:90, t:2.3, W:6.23, Asec:7.932, Ix:101, Zx:22.4, ix:3.56 },
+  { name:'□90x90x3.2', A:90, B:90, t:3.2, W:8.51, Asec:10.85, Ix:135, Zx:29.9, ix:3.52 },
+  { name:'□100x100x2.3', A:100, B:100, t:2.3, W:6.95, Asec:8.852, Ix:140, Zx:27.9, ix:3.97 },
+  { name:'□100x100x3.2', A:100, B:100, t:3.2, W:9.52, Asec:12.13, Ix:187, Zx:37.5, ix:3.93 },
+  { name:'□100x100x4.0', A:100, B:100, t:4.0, W:11.7, Asec:14.95, Ix:226, Zx:45.3, ix:3.89 },
+  { name:'□100x100x4.5', A:100, B:100, t:4.5, W:13.1, Asec:16.67, Ix:249, Zx:49.9, ix:3.87 },
+  { name:'□100x100x6.0', A:100, B:100, t:6.0, W:17.0, Asec:21.63, Ix:311, Zx:62.3, ix:3.79 },
+  { name:'□100x100x9.0', A:100, B:100, t:9.0, W:24.1, Asec:30.67, Ix:408, Zx:81.6, ix:3.65 },
+  { name:'□100x100x12.0', A:100, B:100, t:12.0, W:30.2, Asec:38.53, Ix:411, Zx:94.3, ix:3.50 }
+];
+
+const SQUARE_PIPE_DATA_REST = [
+  { name:'□125x125x3.2',  A:125, B:125, t:3.2,  W:12.0, Asec:15.33, Ix:376,   Iy:376,   Zx:60.1, Zy:60.1, ix:4.95, iy:4.95 },
+  { name:'□125x125x4.5',  A:125, B:125, t:4.5,  W:16.6, Asec:21.17, Ix:506,   Iy:506,   Zx:80.9, Zy:80.9, ix:4.89, iy:4.89 },
+  { name:'□125x125x5.0',  A:125, B:125, t:5.0,  W:18.3, Asec:23.36, Ix:553,   Iy:553,   Zx:88.4, Zy:88.4, ix:4.86, iy:4.86 },
+  { name:'□125x125x6.0',  A:125, B:125, t:6.0,  W:21.7, Asec:27.63, Ix:641,   Iy:641,   Zx:103,  Zy:103,  ix:4.82, iy:4.82 },
+  { name:'□125x125x9.0',  A:125, B:125, t:9.0,  W:31.1, Asec:39.67, Ix:865,   Iy:865,   Zx:138,  Zy:138,  ix:4.67, iy:4.67 },
+  { name:'□125x125x12.0', A:125, B:125, t:12.0, W:39.7, Asec:50.53, Ix:1030,  Iy:1030,  Zx:165,  Zy:165,  ix:4.52, iy:4.52 },
+  { name:'□150x150x4.5',  A:150, B:150, t:4.5,  W:20.1, Asec:25.67, Ix:896,   Iy:896,   Zx:120,  Zy:120,  ix:5.91, iy:5.91 },
+  { name:'□150x150x5.0',  A:150, B:150, t:5.0,  W:22.3, Asec:28.36, Ix:982,   Iy:982,   Zx:131,  Zy:131,  ix:5.89, iy:5.89 },
+  { name:'□150x150x6.0',  A:150, B:150, t:6.0,  W:26.4, Asec:33.63, Ix:1150,  Iy:1150,  Zx:153,  Zy:153,  ix:5.84, iy:5.84 },
+  { name:'□150x150x9.0',  A:150, B:150, t:9.0,  W:38.2, Asec:48.67, Ix:1580,  Iy:1580,  Zx:210,  Zy:210,  ix:5.69, iy:5.69 },
+  { name:'□175x175x4.5',  A:175, B:175, t:4.5,  W:23.7, Asec:30.17, Ix:1450,  Iy:1450,  Zx:166,  Zy:166,  ix:6.93, iy:6.93 },
+  { name:'□175x175x5.0',  A:175, B:175, t:5.0,  W:26.2, Asec:33.36, Ix:1590,  Iy:1590,  Zx:182,  Zy:182,  ix:6.91, iy:6.91 },
+  { name:'□175x175x6.0',  A:175, B:175, t:6.0,  W:31.1, Asec:39.63, Ix:1860,  Iy:1860,  Zx:213,  Zy:213,  ix:6.86, iy:6.86 },
+  { name:'□200x200x4.5',  A:200, B:200, t:4.5,  W:27.2, Asec:34.67, Ix:2190,  Iy:2190,  Zx:219,  Zy:219,  ix:7.95, iy:7.95 },
+  { name:'□200x200x6.0',  A:200, B:200, t:6.0,  W:35.8, Asec:45.63, Ix:2830,  Iy:2830,  Zx:283,  Zy:283,  ix:7.88, iy:7.88 },
+  { name:'□200x200x8.0',  A:200, B:200, t:8.0,  W:46.9, Asec:59.79, Ix:3620,  Iy:3620,  Zx:362,  Zy:362,  ix:7.78, iy:7.78 },
+  { name:'□200x200x9.0',  A:200, B:200, t:9.0,  W:52.3, Asec:66.67, Ix:3990,  Iy:3990,  Zx:399,  Zy:399,  ix:7.73, iy:7.73 },
+  { name:'□200x200x12.0', A:200, B:200, t:12.0, W:67.9, Asec:86.53, Ix:4980,  Iy:4980,  Zx:498,  Zy:498,  ix:7.59, iy:7.59 },
+  { name:'□250x250x5.0',  A:250, B:250, t:5.0,  W:38.0, Asec:48.36, Ix:4810,  Iy:4810,  Zx:384,  Zy:384,  ix:9.97, iy:9.97 },
+  { name:'□250x250x6.0',  A:250, B:250, t:6.0,  W:45.2, Asec:57.63, Ix:5670,  Iy:5670,  Zx:454,  Zy:454,  ix:9.92, iy:9.92 },
+  { name:'□250x250x8.0',  A:250, B:250, t:8.0,  W:59.5, Asec:75.79, Ix:7320,  Iy:7320,  Zx:585,  Zy:585,  ix:9.82, iy:9.82 },
+  { name:'□250x250x9.0',  A:250, B:250, t:9.0,  W:66.5, Asec:84.67, Ix:8090,  Iy:8090,  Zx:647,  Zy:647,  ix:9.78, iy:9.78 },
+  { name:'□250x250x12.0', A:250, B:250, t:12.0, W:86.8, Asec:110.5, Ix:10300, Iy:10300, Zx:820,  Zy:820,  ix:9.63, iy:9.63 },
+  { name:'□300x300x4.5',  A:300, B:300, t:4.5,  W:41.3, Asec:52.67, Ix:7630,  Iy:7630,  Zx:508,  Zy:508,  ix:12.0, iy:12.0 },
+  { name:'□300x300x6.0',  A:300, B:300, t:6.0,  W:54.7, Asec:69.63, Ix:9960,  Iy:9960,  Zx:664,  Zy:664,  ix:12.0, iy:12.0 },
+  { name:'□300x300x9.0',  A:300, B:300, t:9.0,  W:80.6, Asec:102.7, Ix:14300, Iy:14300, Zx:956,  Zy:956,  ix:11.8, iy:11.8 },
+  { name:'□300x300x12.0', A:300, B:300, t:12.0, W:106,  Asec:134.5, Ix:18300, Iy:18300, Zx:1220, Zy:1220, ix:11.7, iy:11.7 },
+  { name:'□350x350x9.0',  A:350, B:350, t:9.0,  W:94.7, Asec:120.7, Ix:23200, Iy:23200, Zx:1320, Zy:1320, ix:13.9, iy:13.9 },
+  { name:'□350x350x12.0', A:350, B:350, t:12.0, W:124,  Asec:158.5, Ix:29800, Iy:29800, Zx:1700, Zy:1700, ix:13.7, iy:13.7 }
+];
+
 const ROUND_BAR_DATA = [
   { name:'RB-5.5', D:5.5, W:0.187, A:0.238, I:0.004, i:0.138, Z:0.016 },
   { name:'RB-6',   D:6,   W:0.222, A:0.283, I:0.006, i:0.150, Z:0.021 },
@@ -594,6 +653,17 @@ SECTION_DATA['角鋼'] = {
   specs: SQUARE_BAR_DATA
 };
 
+SECTION_DATA['角パイプ（正方形）'] = {
+  type: 'SQUARE_PIPE',
+  label: '角形鋼管（正方形）',
+  jis: 'JIS G 3466',
+  jisSub: 'Square steel tube',
+  specs: [
+    ...SQUARE_PIPE_DATA,
+    ...SQUARE_PIPE_DATA_REST
+  ]
+};
+
 
 
 
@@ -632,6 +702,10 @@ function calcSquareBarPaintAreaPerMeter(spec) {
 
 function calcLightCChannelPaintAreaPerMeter(spec) {
   return +(((Number(spec.H || 0) + 2 * Number(spec.A || 0) + 2 * Number(spec.B || 0)) / 1000)).toFixed(3);
+}
+
+function calcSquarePipePaintAreaPerMeter(spec) {
+  return +(((2 * (Number(spec.A || 0) + Number(spec.B || 0))) / 1000)).toFixed(3);
 }
 
 function approxAreaFromWeight(weight) {
@@ -958,7 +1032,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -1219,6 +1293,8 @@ function renderDataSpec() {
       svgEl.innerHTML = drawRoundBarSVG(spec.D, 260, 210);
     } else if (kindData.type === 'SB') {
       svgEl.innerHTML = drawSquareBarSVG(spec.a, 260, 210);
+    } else if (kindData.type === 'SQUARE_PIPE') {
+      svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, 260, 210);
     } else if (kindData.type === 'FL') {
       svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, 260, 210);
     }
@@ -1298,6 +1374,14 @@ function renderDataSpec() {
         <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
         <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
       `;
+    } else if (kindData.type === 'SQUARE_PIPE') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>A</span><strong>${spec.A} mm</strong></div>
+        <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
+        <div class="dp-cell"><span>t</span><strong>${spec.t} mm</strong></div>
+        <div class="dp-cell"><span>断面積 A</span><strong>${spec.Asec} cm²</strong></div>
+        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
+      `;
     }
   }
 
@@ -1310,6 +1394,14 @@ function renderDataSpec() {
         <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
         <div class="dp-cell"><span>i</span><strong>${spec.i} cm</strong></div>
       `;
+    } else if (kindData.type === 'SQUARE_PIPE') {
+      perfEl.innerHTML = `
+        <div class="dp-cell"><span>Ix</span><strong>${spec.Ix} cm⁴</strong></div>
+        <div class="dp-cell"><span>Iy</span><strong>${spec.Iy != null ? spec.Iy : spec.Ix} cm⁴</strong></div>
+        <div class="dp-cell"><span>Zx</span><strong>${spec.Zx} cm³</strong></div>
+        <div class="dp-cell"><span>Zy</span><strong>${spec.Zy != null ? spec.Zy : spec.Zx} cm³</strong></div>
+        <div class="dp-cell"><span>ix</span><strong>${spec.ix} cm</strong></div>
+        <div class="dp-cell"><span>iy</span><strong>${spec.iy != null ? spec.iy : spec.ix} cm</strong></div>`;
     } else {
       perfEl.innerHTML = `
         <div class="dp-cell"><span>Ix</span><strong>${spec.Ix} cm⁴</strong></div>
@@ -1331,7 +1423,7 @@ function renderDataSpec() {
   if (extraEl) {
     const weightArea = (kindData.type === 'RB' || kindData.type === 'SB')
       ? spec.A
-      : (kindData.type === 'C_LIGHT' ? spec.Asec : spec.Ac);
+      : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'C_LIGHT') ? spec.Asec : spec.Ac);
     const calcW = calcUnitWeightFromArea(weightArea);
     const S = (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT')
       ? calcLAnglePaintAreaPerMeter(spec)
@@ -1339,6 +1431,8 @@ function renderDataSpec() {
           ? calcRoundBarPaintAreaPerMeter(spec)
       : (kindData.type === 'SB')
           ? calcSquareBarPaintAreaPerMeter(spec)
+      : (kindData.type === 'SQUARE_PIPE')
+          ? calcSquarePipePaintAreaPerMeter(spec)
       : (kindData.type === 'C_LIGHT')
           ? calcLightCChannelPaintAreaPerMeter(spec)
       : (kindData.type === 'H' || kindData.type === 'I')
