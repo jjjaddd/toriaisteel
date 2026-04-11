@@ -38,6 +38,101 @@ const H_SHAPES_JIS_ADD_2 = [
   { name:'H-596×199×10×15', H:596, B:199, t1:10, t2:15, r:13, Ac:117.8, W:92.5, Ix:98000, Iy:2380, Zx:2300, Zy:238, ix:23.0, iy:4.10 }
 ];
 
+const CHANNEL_DATA = [
+  { name:'C-75×40×5×7',       H:75,  B:40,  t1:5,    t2:7,    r1:8,  r2:4,   Ac:8.818,  W:6.92,  Cx:0, Cy:1.28, Ix:75.3,  Iy:12.2, ix:2.92, iy:1.17, Zx:20.1, Zy:4.47 },
+  { name:'C-100×50×5×7.5',    H:100, B:50,  t1:5,    t2:7.5,  r1:8,  r2:4,   Ac:11.92,  W:9.36,  Cx:0, Cy:1.54, Ix:188,   Iy:26.0, ix:3.97, iy:1.48, Zx:37.6, Zy:7.52 },
+  { name:'C-125×65×6×8',      H:125, B:65,  t1:6,    t2:8,    r1:8,  r2:4,   Ac:17.11,  W:13.4,  Cx:0, Cy:1.90, Ix:424,   Iy:61.8, ix:4.98, iy:1.90, Zx:67.8, Zy:13.4 },
+  { name:'C-150×75×6.5×10',   H:150, B:75,  t1:6.5,  t2:10,   r1:10, r2:5,   Ac:23.71,  W:18.6,  Cx:0, Cy:2.28, Ix:861,   Iy:117,  ix:6.03, iy:2.22, Zx:115,  Zy:22.4 },
+  { name:'C-150×75×9×12.5',   H:150, B:75,  t1:9,    t2:12.5, r1:15, r2:7.5, Ac:30.59,  W:24.0,  Cx:0, Cy:2.31, Ix:1050,  Iy:147,  ix:5.86, iy:2.19, Zx:140,  Zy:28.3 },
+  { name:'C-180×75×7×10.5',   H:180, B:75,  t1:7,    t2:10.5, r1:11, r2:5.5, Ac:27.20,  W:21.4,  Cx:0, Cy:2.13, Ix:1380,  Iy:131,  ix:7.12, iy:2.19, Zx:153,  Zy:24.3 },
+  { name:'C-200×80×7.5×11',   H:200, B:80,  t1:7.5,  t2:11,   r1:12, r2:6,   Ac:31.33,  W:24.6,  Cx:0, Cy:2.21, Ix:1950,  Iy:168,  ix:7.88, iy:2.32, Zx:195,  Zy:29.1 },
+  { name:'C-200×90×8×13.5',   H:200, B:90,  t1:8,    t2:13.5, r1:14, r2:7,   Ac:38.65,  W:30.3,  Cx:0, Cy:2.74, Ix:2490,  Iy:277,  ix:8.02, iy:2.68, Zx:249,  Zy:44.2 },
+  { name:'C-250×90×9×13',     H:250, B:90,  t1:9,    t2:13,   r1:14, r2:7,   Ac:44.07,  W:34.6,  Cx:0, Cy:2.40, Ix:4180,  Iy:294,  ix:9.74, iy:2.58, Zx:334,  Zy:44.5 },
+  { name:'C-250×90×11×14.5',  H:250, B:90,  t1:11,   t2:14.5, r1:17, r2:8.5, Ac:51.17,  W:40.2,  Cx:0, Cy:2.40, Ix:4680,  Iy:329,  ix:9.56, iy:2.54, Zx:374,  Zy:49.9 },
+  { name:'C-300×90×9×13',     H:300, B:90,  t1:9,    t2:13,   r1:14, r2:7,   Ac:48.57,  W:38.1,  Cx:0, Cy:2.22, Ix:6440,  Iy:309,  ix:11.5, iy:2.52, Zx:429,  Zy:45.7 },
+  { name:'C-300×90×10×15.5',  H:300, B:90,  t1:10,   t2:15.5, r1:19, r2:9.5, Ac:55.74,  W:43.8,  Cx:0, Cy:2.34, Ix:7410,  Iy:360,  ix:11.5, iy:2.54, Zx:494,  Zy:54.1 },
+  { name:'C-300×90×12×16',    H:300, B:90,  t1:12,   t2:16,   r1:19, r2:9.5, Ac:61.90,  W:48.6,  Cx:0, Cy:2.28, Ix:7870,  Iy:379,  ix:11.3, iy:2.48, Zx:525,  Zy:56.4 },
+  { name:'C-380×100×10.5×16', H:380, B:100, t1:10.5, t2:16,   r1:18, r2:9,   Ac:69.39,  W:54.5,  Cx:0, Cy:2.41, Ix:14500, Iy:535,  ix:14.5, iy:2.78, Zx:763,  Zy:70.5 },
+  { name:'C-380×100×13×16.5', H:380, B:100, t1:13,   t2:16.5, r1:18, r2:9,   Ac:78.96,  W:62.0,  Cx:0, Cy:2.33, Ix:15600, Iy:565,  ix:14.1, iy:2.67, Zx:823,  Zy:73.6 },
+  { name:'C-380×100×13×20',   H:380, B:100, t1:13,   t2:20,   r1:24, r2:12,  Ac:85.71,  W:67.3,  Cx:0, Cy:2.54, Ix:17600, Iy:655,  ix:14.3, iy:2.76, Zx:926,  Zy:87.8 }
+];
+
+const I_BEAM_DATA = [
+  { name:'I-100×75×5×8',       H:100, B:75,  t1:5,    t2:8,    r1:7,  r2:3.5,  Ac:16.43,  W:12.9, Cx:0, Cy:0, Ix:281,    Iy:47.3,  ix:4.14,  iy:1.70, Zx:56.2,  Zy:12.6 },
+  { name:'I-125×75×5.5×9.5',   H:125, B:75,  t1:5.5,  t2:9.5,  r1:9,  r2:4.5,  Ac:20.45,  W:16.1, Cx:0, Cy:0, Ix:538,    Iy:57.5,  ix:5.13,  iy:1.68, Zx:86.0,  Zy:15.3 },
+  { name:'I-150×75×5.5×9.5',   H:150, B:75,  t1:5.5,  t2:9.5,  r1:9,  r2:4.5,  Ac:21.83,  W:17.1, Cx:0, Cy:0, Ix:819,    Iy:57.5,  ix:6.12,  iy:1.62, Zx:109,   Zy:15.3 },
+  { name:'I-150×125×8.5×14',   H:150, B:125, t1:8.5,  t2:14,   r1:13, r2:6.5,  Ac:46.15,  W:36.2, Cx:0, Cy:0, Ix:1760,   Iy:385,   ix:6.18,  iy:2.89, Zx:235,   Zy:61.6 },
+  { name:'I-180×100×6×10',     H:180, B:100, t1:6,    t2:10,   r1:10, r2:5,    Ac:30.06,  W:23.6, Cx:0, Cy:0, Ix:1670,   Iy:138,   ix:7.45,  iy:2.14, Zx:186,   Zy:27.5 },
+  { name:'I-200×100×7×10',     H:200, B:100, t1:7,    t2:10,   r1:10, r2:5,    Ac:33.06,  W:26.0, Cx:0, Cy:0, Ix:2170,   Iy:138,   ix:8.11,  iy:2.05, Zx:217,   Zy:27.7 },
+  { name:'I-200×150×9×16',     H:200, B:150, t1:9,    t2:16,   r1:15, r2:7.5,  Ac:64.16,  W:50.4, Cx:0, Cy:0, Ix:4460,   Iy:753,   ix:8.34,  iy:3.43, Zx:446,   Zy:100  },
+  { name:'I-250×125×7.5×12.5', H:250, B:125, t1:7.5,  t2:12.5, r1:12, r2:6,    Ac:48.79,  W:38.3, Cx:0, Cy:0, Ix:5180,   Iy:337,   ix:10.30, iy:2.63, Zx:414,   Zy:53.9 },
+  { name:'I-250×125×10×19',    H:250, B:125, t1:10,   t2:19,   r1:21, r2:10.5, Ac:70.73,  W:55.5, Cx:0, Cy:0, Ix:7310,   Iy:538,   ix:10.20, iy:2.76, Zx:585,   Zy:86.0 },
+  { name:'I-300×150×8×13',     H:300, B:150, t1:8,    t2:13,   r1:12, r2:6,    Ac:61.58,  W:48.3, Cx:0, Cy:0, Ix:9480,   Iy:588,   ix:12.40, iy:3.09, Zx:632,   Zy:78.4 },
+  { name:'I-300×150×10×18.5',  H:300, B:150, t1:10,   t2:18.5, r1:19, r2:9.5,  Ac:83.47,  W:65.5, Cx:0, Cy:0, Ix:12700,  Iy:886,   ix:12.30, iy:3.26, Zx:849,   Zy:118  },
+  { name:'I-300×150×11.5×22',  H:300, B:150, t1:11.5, t2:22,   r1:23, r2:11.5, Ac:97.88,  W:76.8, Cx:0, Cy:0, Ix:14700,  Iy:1080,  ix:12.20, iy:3.32, Zx:978,   Zy:143  },
+  { name:'I-350×150×9×15',     H:350, B:150, t1:9,    t2:15,   r1:13, r2:6.5,  Ac:74.6,   W:58.5, Cx:0, Cy:0, Ix:15200,  Iy:702,   ix:14.30, iy:3.07, Zx:870,   Zy:93.5 },
+  { name:'I-400×150×10×18',    H:400, B:150, t1:10,   t2:18,   r1:17, r2:8.5,  Ac:91.73,  W:72.0, Cx:0, Cy:0, Ix:24100,  Iy:864,   ix:16.20, iy:3.07, Zx:1200,  Zy:115  },
+  { name:'I-400×150×12.5×25',  H:400, B:150, t1:12.5, t2:25,   r1:27, r2:13.5, Ac:122.1,  W:95.8, Cx:0, Cy:0, Ix:31700,  Iy:1240,  ix:16.10, iy:3.18, Zx:1580,  Zy:165  },
+  { name:'I-450×175×11×20',    H:450, B:175, t1:11,   t2:20,   r1:19, r2:9.5,  Ac:116.8,  W:91.7, Cx:0, Cy:0, Ix:39200,  Iy:1510,  ix:18.30, iy:3.60, Zx:1740,  Zy:173  },
+  { name:'I-450×175×13×26',    H:450, B:175, t1:13,   t2:26,   r1:27, r2:13.5, Ac:146.1,  W:115,  Cx:0, Cy:0, Ix:48800,  Iy:2020,  ix:18.30, iy:3.72, Zx:2170,  Zy:231  },
+  { name:'I-600×190×13×25',    H:600, B:190, t1:13,   t2:25,   r1:25, r2:12.5, Ac:169.4,  W:133,  Cx:0, Cy:0, Ix:98400,  Iy:2460,  ix:24.10, iy:3.81, Zx:3280,  Zy:259  },
+  { name:'I-600×190×16×35',    H:600, B:190, t1:16,   t2:35,   r1:38, r2:19,   Ac:224.5,  W:176,  Cx:0, Cy:0, Ix:130000, Iy:3540,  ix:24.10, iy:3.97, Zx:4330,  Zy:373  }
+];
+
+const ROUND_BAR_DATA = [
+  { name:'RB-5.5', D:5.5, W:0.187, A:0.238, I:0.004, i:0.138, Z:0.016 },
+  { name:'RB-6',   D:6,   W:0.222, A:0.283, I:0.006, i:0.150, Z:0.021 },
+  { name:'RB-7',   D:7,   W:0.302, A:0.385, I:0.012, i:0.175, Z:0.034 },
+  { name:'RB-8',   D:8,   W:0.395, A:0.503, I:0.020, i:0.200, Z:0.050 },
+  { name:'RB-9',   D:9,   W:0.499, A:0.636, I:0.032, i:0.225, Z:0.072 },
+  { name:'RB-10',  D:10,  W:0.617, A:0.785, I:0.049, i:0.250, Z:0.098 },
+  { name:'RB-11',  D:11,  W:0.746, A:0.950, I:0.072, i:0.275, Z:0.131 },
+  { name:'RB-12',  D:12,  W:0.888, A:1.13,  I:0.102, i:0.300, Z:0.170 },
+  { name:'RB-13',  D:13,  W:1.04,  A:1.33,  I:0.140, i:0.325, Z:0.216 },
+  { name:'RB-14',  D:14,  W:1.21,  A:1.54,  I:0.189, i:0.350, Z:0.269 },
+  { name:'RB-16',  D:16,  W:1.58,  A:2.01,  I:0.322, i:0.400, Z:0.402 },
+  { name:'RB-18',  D:18,  W:2.00,  A:2.55,  I:0.515, i:0.450, Z:0.573 },
+  { name:'RB-19',  D:19,  W:2.23,  A:2.84,  I:0.640, i:0.475, Z:0.673 },
+  { name:'RB-20',  D:20,  W:2.47,  A:3.14,  I:0.785, i:0.500, Z:0.785 },
+  { name:'RB-22',  D:22,  W:2.98,  A:3.80,  I:1.15,  i:0.550, Z:1.05 },
+  { name:'RB-24',  D:24,  W:3.55,  A:4.52,  I:1.63,  i:0.600, Z:1.36 },
+  { name:'RB-25',  D:25,  W:3.85,  A:4.91,  I:1.92,  i:0.625, Z:1.53 },
+  { name:'RB-27',  D:27,  W:4.50,  A:5.73,  I:2.61,  i:0.675, Z:1.93 },
+  { name:'RB-28',  D:28,  W:4.83,  A:6.16,  I:3.02,  i:0.700, Z:2.16 },
+  { name:'RB-30',  D:30,  W:5.55,  A:7.07,  I:3.98,  i:0.750, Z:2.65 },
+  { name:'RB-32',  D:32,  W:6.31,  A:8.04,  I:5.15,  i:0.800, Z:3.22 },
+  { name:'RB-33',  D:33,  W:6.71,  A:8.55,  I:5.82,  i:0.825, Z:3.53 },
+  { name:'RB-36',  D:36,  W:7.99,  A:10.18, I:8.24,  i:0.900, Z:4.58 },
+  { name:'RB-38',  D:38,  W:8.90,  A:11.34, I:10.24, i:0.950, Z:5.39 },
+  { name:'RB-39',  D:39,  W:9.38,  A:11.95, I:11.36, i:0.975, Z:5.82 },
+  { name:'RB-42',  D:42,  W:10.9,  A:13.85, I:15.27, i:1.05,  Z:7.27 },
+  { name:'RB-45',  D:45,  W:12.5,  A:15.90, I:20.13, i:1.13,  Z:8.95 },
+  { name:'RB-48',  D:48,  W:14.2,  A:18.10, I:26.06, i:1.20,  Z:10.86 },
+  { name:'RB-50',  D:50,  W:15.4,  A:19.64, I:30.68, i:1.25,  Z:12.27 },
+  { name:'RB-52',  D:52,  W:16.7,  A:21.24, I:35.89, i:1.30,  Z:13.80 },
+  { name:'RB-55',  D:55,  W:18.7,  A:23.76, I:44.92, i:1.38,  Z:16.33 },
+  { name:'RB-56',  D:56,  W:19.3,  A:24.63, I:48.27, i:1.40,  Z:17.24 },
+  { name:'RB-60',  D:60,  W:22.2,  A:28.27, I:63.62, i:1.50,  Z:21.21 },
+  { name:'RB-64',  D:64,  W:25.3,  A:32.17, I:82.35, i:1.60,  Z:25.74 },
+  { name:'RB-65',  D:65,  W:26.1,  A:33.18, I:87.62, i:1.63,  Z:26.96 },
+  { name:'RB-68',  D:68,  W:28.5,  A:36.32, I:105.0, i:1.70,  Z:30.87 },
+  { name:'RB-70',  D:70,  W:30.2,  A:38.48, I:117.9, i:1.75,  Z:33.67 },
+  { name:'RB-75',  D:75,  W:34.7,  A:44.18, I:155.3, i:1.88,  Z:41.42 },
+  { name:'RB-80',  D:80,  W:39.5,  A:50.27, I:201.1, i:2.00,  Z:50.27 },
+  { name:'RB-85',  D:85,  W:44.6,  A:56.75, I:256.2, i:2.13,  Z:60.29 },
+  { name:'RB-90',  D:90,  W:49.9,  A:63.62, I:322.1, i:2.25,  Z:71.57 },
+  { name:'RB-95',  D:95,  W:55.6,  A:70.88, I:399.8, i:2.38,  Z:84.17 },
+  { name:'RB-100', D:100, W:61.7,  A:78.54, I:490.9, i:2.50,  Z:98.17 },
+  { name:'RB-110', D:110, W:74.6,  A:95.03, I:718.7, i:2.75,  Z:130.7 },
+  { name:'RB-120', D:120, W:88.8,  A:113.1, I:1018,  i:3.00,  Z:169.6 },
+  { name:'RB-130', D:130, W:104.2, A:132.7, I:1402,  i:3.25,  Z:215.7 },
+  { name:'RB-140', D:140, W:120.8, A:153.9, I:1886,  i:3.50,  Z:269.4 },
+  { name:'RB-150', D:150, W:138.7, A:176.7, I:2485,  i:3.75,  Z:331.3 },
+  { name:'RB-160', D:160, W:157.9, A:201.1, I:3217,  i:4.00,  Z:402.1 },
+  { name:'RB-180', D:180, W:199.8, A:254.5, I:5153,  i:4.50,  Z:572.6 },
+  { name:'RB-200', D:200, W:246.6, A:314.2, I:7854,  i:5.00,  Z:785.4 }
+];
+
 const SECTION_DATA = {
   'H形鋼': {
     type: 'H',
@@ -60,20 +155,82 @@ SECTION_DATA['山形鋼'] = {
   jis: 'JIS G 3192',
   jisSub: 'Equal leg angles',
   specs: [
-    { name:'L-25×25×3',    A:25,  B:25,  t:3,  r1:4,  r2:2, Ac:1.43,  W:1.12,  Cx:0.719, Cy:0.719, Ix:0.797, Iy:0.797, Iu:1.26, Iv:0.33, ix:0.747, iy:0.747, iu:0.940, iv:0.483, Zx:0.448, Zy:0.448 },
-    { name:'L-30×30×3',    A:30,  B:30,  t:3,  r1:4,  r2:2, Ac:1.74,  W:1.37,  Cx:0.835, Cy:0.835, Ix:1.40,  Iy:1.40,  Zx:0.650, Zy:0.650, ix:0.898, iy:0.898 },
-    { name:'L-40×40×3',    A:40,  B:40,  t:3,  r1:4,  r2:2, Ac:2.35,  W:1.85,  Cx:1.07,  Cy:1.07,  Ix:3.41,  Iy:3.41,  Zx:1.17,  Zy:1.17,  ix:1.21,  iy:1.21  },
-    { name:'L-40×40×5',    A:40,  B:40,  t:5,  r1:4,  r2:2, Ac:3.79,  W:2.98,  Cx:1.18,  Cy:1.18,  Ix:5.24,  Iy:5.24,  Zx:1.85,  Zy:1.85,  ix:1.18,  iy:1.18  },
-    { name:'L-50×50×4',    A:50,  B:50,  t:4,  r1:5,  r2:3, Ac:3.89,  W:3.06,  Cx:1.33,  Cy:1.33,  Ix:8.46,  Iy:8.46,  Zx:2.33,  Zy:2.33,  ix:1.47,  iy:1.47  },
-    { name:'L-50×50×6',    A:50,  B:50,  t:6,  r1:5,  r2:3, Ac:5.69,  W:4.47,  Cx:1.44,  Cy:1.44,  Ix:11.9,  Iy:11.9,  Zx:3.36,  Zy:3.36,  ix:1.44,  iy:1.44  },
-    { name:'L-65×65×6',    A:65,  B:65,  t:6,  r1:6,  r2:4, Ac:7.53,  W:5.91,  Cx:1.82,  Cy:1.82,  Ix:26.2,  Iy:26.2,  Zx:5.69,  Zy:5.69,  ix:1.86,  iy:1.86  },
-    { name:'L-75×75×6',    A:75,  B:75,  t:6,  r1:7,  r2:4, Ac:8.74,  W:6.86,  Cx:2.07,  Cy:2.07,  Ix:41.2,  Iy:41.2,  Zx:7.62,  Zy:7.62,  ix:2.17,  iy:2.17  },
-    { name:'L-75×75×9',    A:75,  B:75,  t:9,  r1:7,  r2:4, Ac:12.8,  W:10.1,  Cx:2.20,  Cy:2.20,  Ix:58.4,  Iy:58.4,  Zx:11.1,  Zy:11.1,  ix:2.13,  iy:2.13  },
-    { name:'L-90×90×7',    A:90,  B:90,  t:7,  r1:8,  r2:5, Ac:12.2,  W:9.61,  Cx:2.44,  Cy:2.44,  Ix:84.8,  Iy:84.8,  Zx:13.3,  Zy:13.3,  ix:2.64,  iy:2.64  },
-    { name:'L-100×100×7',  A:100, B:100, t:7,  r1:9,  r2:6, Ac:13.7,  W:10.7,  Cx:2.68,  Cy:2.68,  Ix:131,   Iy:131,   Zx:18.3,  Zy:18.3,  ix:3.09,  iy:3.09  },
-    { name:'L-100×100×10', A:100, B:100, t:10, r1:9,  r2:6, Ac:19.2,  W:15.1,  Cx:2.84,  Cy:2.84,  Ix:179,   Iy:179,   Zx:25.5,  Zy:25.5,  ix:3.05,  iy:3.05  },
-    { name:'L-130×130×9',  A:130, B:130, t:9,  r1:10, r2:7, Ac:22.7,  W:17.8,  Cx:3.47,  Cy:3.47,  Ix:449,   Iy:449,   Zx:48.0,  Zy:48.0,  ix:4.45,  iy:4.45  },
-    { name:'L-150×150×12', A:150, B:150, t:12, r1:12, r2:8, Ac:35.0,  W:27.5,  Cx:4.09,  Cy:4.09,  Ix:874,   Iy:874,   Zx:82.8,  Zy:82.8,  ix:4.99,  iy:4.99  }
+    { name:'L-25×25×3',    A:25,  B:25,  t:3,  r1:4,   r2:2,   Ac:1.43,  W:1.12,  Cx:0.719, Cy:0.719, Ix:0.797, Iy:0.797, Iu:1.26,  Iv:0.33,  ix:0.747, iy:0.747, iu:0.940, iv:0.483, Zx:0.448, Zy:0.448 },
+    { name:'L-30×30×3',    A:30,  B:30,  t:3,  r1:4,   r2:2,   Ac:1.73,  W:1.36,  Cx:0.844, Cy:0.844, Ix:1.42,  Iy:1.42,  Iu:2.26,  Iv:0.59,  ix:0.908, iy:0.908, iu:1.14,  iv:0.585, Zx:0.661, Zy:0.661 },
+    { name:'L-40×40×3',    A:40,  B:40,  t:3,  r1:4.5, r2:2,   Ac:2.34,  W:1.83,  Cx:1.09,  Cy:1.09,  Ix:3.53,  Iy:3.53,  Iu:5.60,  Iv:1.46,  ix:1.23,  iy:1.23,  iu:1.55,  iv:0.790, Zx:1.21,  Zy:1.21 },
+    { name:'L-40×40×5',    A:40,  B:40,  t:5,  r1:4.5, r2:3,   Ac:3.76,  W:2.95,  Cx:1.17,  Cy:1.17,  Ix:5.42,  Iy:5.42,  Iu:8.59,  Iv:2.25,  ix:1.20,  iy:1.20,  iu:1.51,  iv:0.774, Zx:1.91,  Zy:1.91 },
+    { name:'L-45×45×4',    A:45,  B:45,  t:4,  r1:6.5, r2:3,   Ac:3.49,  W:2.74,  Cx:1.24,  Cy:1.24,  Ix:6.50,  Iy:6.50,  Iu:10.3,  Iv:2.70,  ix:1.36,  iy:1.36,  iu:1.72,  iv:0.880, Zx:2.00,  Zy:2.00 },
+    { name:'L-45×45×5',    A:45,  B:45,  t:5,  r1:6.5, r2:3,   Ac:4.30,  W:3.38,  Cx:1.28,  Cy:1.28,  Ix:7.91,  Iy:7.91,  Iu:12.5,  Iv:3.29,  ix:1.36,  iy:1.36,  iu:1.71,  iv:0.874, Zx:2.46,  Zy:2.46 },
+    { name:'L-50×50×4',    A:50,  B:50,  t:4,  r1:6.5, r2:3,   Ac:3.89,  W:3.06,  Cx:1.37,  Cy:1.37,  Ix:9.06,  Iy:9.06,  Iu:14.4,  Iv:3.76,  ix:1.53,  iy:1.53,  iu:1.92,  iv:0.983, Zx:2.49,  Zy:2.49 },
+    { name:'L-50×50×5',    A:50,  B:50,  t:5,  r1:6.5, r2:3,   Ac:4.80,  W:3.77,  Cx:1.41,  Cy:1.41,  Ix:11.1,  Iy:11.1,  Iu:17.5,  Iv:4.58,  ix:1.52,  iy:1.52,  iu:1.91,  iv:0.976, Zx:3.08,  Zy:3.08 },
+    { name:'L-50×50×6',    A:50,  B:50,  t:6,  r1:6.5, r2:4.5, Ac:5.64,  W:4.43,  Cx:1.44,  Cy:1.44,  Ix:12.6,  Iy:12.6,  Iu:20.0,  Iv:5.23,  ix:1.50,  iy:1.50,  iu:1.88,  iv:0.963, Zx:3.55,  Zy:3.55 },
+    { name:'L-60×60×4',    A:60,  B:60,  t:4,  r1:6.5, r2:3,   Ac:4.69,  W:3.68,  Cx:1.61,  Cy:1.61,  Ix:16.0,  Iy:16.0,  Iu:25.4,  Iv:6.62,  ix:1.85,  iy:1.85,  iu:2.33,  iv:1.19,  Zx:3.66,  Zy:3.66 },
+    { name:'L-60×60×5',    A:60,  B:60,  t:5,  r1:6.5, r2:3,   Ac:5.80,  W:4.55,  Cx:1.66,  Cy:1.66,  Ix:19.6,  Iy:19.6,  Iu:31.2,  Iv:8.09,  ix:1.84,  iy:1.84,  iu:2.32,  iv:1.18,  Zx:4.52,  Zy:4.52 },
+    { name:'L-60×60×6',    A:60,  B:60,  t:6,  r1:8.5, r2:3,   Ac:6.37,  W:5.00,  Cx:1.77,  Cy:1.77,  Ix:25.3,  Iy:25.3,  Iu:40.1,  Iv:10.5,  ix:1.99,  iy:1.99,  iu:2.51,  iv:1.28,  Zx:5.35,  Zy:5.35 },
+    { name:'L-65×65×6',    A:65,  B:65,  t:6,  r1:8.5, r2:4,   Ac:7.53,  W:5.91,  Cx:1.81,  Cy:1.81,  Ix:29.4,  Iy:29.4,  Iu:46.6,  Iv:12.2,  ix:1.98,  iy:1.98,  iu:2.49,  iv:1.27,  Zx:6.26,  Zy:6.26 },
+    { name:'L-65×65×8',    A:65,  B:65,  t:8,  r1:8.5, r2:6,   Ac:9.76,  W:7.66,  Cx:1.88,  Cy:1.88,  Ix:36.8,  Iy:36.8,  Iu:58.3,  Iv:15.3,  ix:1.94,  iy:1.94,  iu:2.44,  iv:1.25,  Zx:7.96,  Zy:7.96 },
+    { name:'L-70×70×6',    A:70,  B:70,  t:6,  r1:8.5, r2:4,   Ac:8.13,  W:6.38,  Cx:1.93,  Cy:1.93,  Ix:37.1,  Iy:37.1,  Iu:58.9,  Iv:15.3,  ix:2.14,  iy:2.14,  iu:2.69,  iv:1.37,  Zx:7.33,  Zy:7.33 },
+    { name:'L-70×70×7',    A:70,  B:70,  t:7,  r1:8.5, r2:6,   Ac:8.73,  W:6.85,  Cx:2.06,  Cy:2.06,  Ix:46.1,  Iy:46.1,  Iu:73.2,  Iv:19.0,  ix:2.30,  iy:2.30,  iu:2.90,  iv:1.48,  Zx:8.47,  Zy:8.47 },
+    { name:'L-75×75×9',    A:75,  B:75,  t:9,  r1:9,   r2:6,   Ac:12.7,  W:9.96,  Cx:2.17,  Cy:2.17,  Ix:64.4,  Iy:64.4,  Iu:102,   Iv:26.7,  ix:2.25,  iy:2.25,  iu:2.84,  iv:1.45,  Zx:12.1,  Zy:12.1 },
+    { name:'L-75×75×12',   A:75,  B:75,  t:12, r1:9,   r2:6,   Ac:16.6,  W:13.0,  Cx:2.29,  Cy:2.29,  Ix:81.9,  Iy:81.9,  Iu:129,   Iv:34.5,  ix:2.22,  iy:2.22,  iu:2.79,  iv:1.44,  Zx:15.7,  Zy:15.7 },
+    { name:'L-80×80×6',    A:80,  B:80,  t:6,  r1:9,   r2:4,   Ac:9.33,  W:7.32,  Cx:2.18,  Cy:2.18,  Ix:56.4,  Iy:56.4,  Iu:89.6,  Iv:23.2,  ix:2.46,  iy:2.46,  iu:3.10,  iv:1.58,  Zx:9.70,  Zy:9.70 },
+    { name:'L-90×90×6',    A:90,  B:90,  t:6,  r1:10,  r2:5,   Ac:10.6,  W:8.28,  Cx:2.42,  Cy:2.42,  Ix:80.7,  Iy:80.7,  Iu:128,   Iv:33.4,  ix:2.77,  iy:2.77,  iu:3.48,  iv:1.78,  Zx:12.3,  Zy:12.3 },
+    { name:'L-90×90×7',    A:90,  B:90,  t:7,  r1:10,  r2:5,   Ac:12.2,  W:9.59,  Cx:2.46,  Cy:2.46,  Ix:93.0,  Iy:93.0,  Iu:148,   Iv:38.3,  ix:2.76,  iy:2.76,  iu:3.48,  iv:1.77,  Zx:14.2,  Zy:14.2 },
+    { name:'L-90×90×10',   A:90,  B:90,  t:10, r1:10,  r2:7,   Ac:17.0,  W:13.3,  Cx:2.57,  Cy:2.57,  Ix:125,   Iy:125,   Iu:199,   Iv:51.7,  ix:2.71,  iy:2.71,  iu:3.42,  iv:1.74,  Zx:19.5,  Zy:19.5 },
+    { name:'L-90×90×13',   A:90,  B:90,  t:13, r1:10,  r2:7,   Ac:21.7,  W:17.0,  Cx:2.69,  Cy:2.69,  Ix:156,   Iy:156,   Iu:248,   Iv:65.3,  ix:2.68,  iy:2.68,  iu:3.38,  iv:1.73,  Zx:24.8,  Zy:24.8 },
+    { name:'L-100×100×7',  A:100, B:100, t:7,  r1:10,  r2:5,   Ac:13.6,  W:10.7,  Cx:2.71,  Cy:2.71,  Ix:129,   Iy:129,   Iu:205,   Iv:53.2,  ix:3.08,  iy:3.08,  iu:3.88,  iv:1.98,  Zx:17.7,  Zy:17.7 },
+    { name:'L-100×100×10', A:100, B:100, t:10, r1:10,  r2:7,   Ac:19.0,  W:14.9,  Cx:2.82,  Cy:2.82,  Ix:175,   Iy:175,   Iu:278,   Iv:72.0,  ix:3.04,  iy:3.04,  iu:3.83,  iv:1.95,  Zx:24.4,  Zy:24.4 },
+    { name:'L-100×100×13', A:100, B:100, t:13, r1:10,  r2:9,   Ac:24.3,  W:19.1,  Cx:2.94,  Cy:2.94,  Ix:220,   Iy:220,   Iu:348,   Iv:91.1,  ix:3.00,  iy:3.00,  iu:3.78,  iv:1.94,  Zx:31.1,  Zy:31.1 },
+    { name:'L-120×120×8',  A:120, B:120, t:8,  r1:12,  r2:5,   Ac:18.8,  W:14.7,  Cx:3.24,  Cy:3.24,  Ix:258,   Iy:258,   Iu:410,   Iv:106,   ix:3.71,  iy:3.71,  iu:4.67,  iv:2.38,  Zx:29.5,  Zy:29.5 },
+    { name:'L-120×120×9',  A:120, B:120, t:9,  r1:12,  r2:6,   Ac:22.7,  W:17.9,  Cx:3.53,  Cy:3.53,  Ix:366,   Iy:366,   Iu:583,   Iv:150,   ix:4.01,  iy:4.01,  iu:5.06,  iv:2.57,  Zx:38.7,  Zy:38.7 },
+    { name:'L-130×130×12', A:130, B:130, t:12, r1:12,  r2:8.5, Ac:29.8,  W:23.4,  Cx:3.64,  Cy:3.64,  Ix:467,   Iy:467,   Iu:743,   Iv:192,   ix:3.96,  iy:3.96,  iu:5.00,  iv:2.54,  Zx:49.9,  Zy:49.9 },
+    { name:'L-130×130×15', A:130, B:130, t:15, r1:12,  r2:8.5, Ac:36.8,  W:28.8,  Cx:3.76,  Cy:3.76,  Ix:568,   Iy:568,   Iu:900,   Iv:234,   ix:3.93,  iy:3.93,  iu:4.95,  iv:2.53,  Zx:61.5,  Zy:61.5 },
+    { name:'L-150×150×12', A:150, B:150, t:12, r1:14,  r2:7,   Ac:34.8,  W:27.3,  Cx:4.14,  Cy:4.14,  Ix:740,   Iy:740,   Iu:1180,  Iv:304,   ix:4.61,  iy:4.61,  iu:5.82,  iv:2.96,  Zx:68.1,  Zy:68.1 },
+    { name:'L-150×150×15', A:150, B:150, t:15, r1:14,  r2:10,  Ac:42.7,  W:33.6,  Cx:4.24,  Cy:4.24,  Ix:888,   Iy:888,   Iu:1410,  Iv:365,   ix:4.56,  iy:4.56,  iu:5.75,  iv:2.92,  Zx:82.6,  Zy:82.6 },
+    { name:'L-150×150×19', A:150, B:150, t:19, r1:14,  r2:10,  Ac:53.4,  W:41.9,  Cx:4.40,  Cy:4.40,  Ix:1090,  Iy:1090,  Iu:1730,  Iv:451,   ix:4.52,  iy:4.52,  iu:5.96,  iv:2.91,  Zx:103,   Zy:103 },
+    { name:'L-175×175×12', A:175, B:175, t:12, r1:15,  r2:11,  Ac:40.5,  W:31.8,  Cx:4.73,  Cy:4.73,  Ix:1170,  Iy:1170,  Iu:1860,  Iv:480,   ix:5.38,  iy:5.38,  iu:6.78,  iv:3.44,  Zx:91.8,  Zy:91.8 },
+    { name:'L-175×175×15', A:175, B:175, t:15, r1:15,  r2:11,  Ac:50.2,  W:39.4,  Cx:4.85,  Cy:4.85,  Ix:1440,  Iy:1440,  Iu:2290,  Iv:589,   ix:5.35,  iy:5.35,  iu:6.75,  iv:3.42,  Zx:114,   Zy:114 },
+    { name:'L-175×175×20', A:175, B:175, t:20, r1:17,  r2:12,  Ac:57.8,  W:45.3,  Cx:5.46,  Cy:5.46,  Ix:2180,  Iy:2180,  Iu:3470,  Iv:891,   ix:6.14,  iy:6.14,  iu:7.75,  iv:3.93,  Zx:150,   Zy:150 },
+    { name:'L-200×200×20', A:200, B:200, t:20, r1:17,  r2:12,  Ac:76.0,  W:59.7,  Cx:5.67,  Cy:5.67,  Ix:2820,  Iy:2820,  Iu:4490,  Iv:1160,  ix:6.09,  iy:6.09,  iu:7.68,  iv:3.90,  Zx:197,   Zy:197 },
+    { name:'L-200×200×25', A:200, B:200, t:25, r1:17,  r2:12,  Ac:93.8,  W:73.6,  Cx:5.86,  Cy:5.86,  Ix:3420,  Iy:3420,  Iu:5420,  Iv:1410,  ix:6.04,  iy:6.04,  iu:7.61,  iv:3.88,  Zx:242,   Zy:242 },
+    { name:'L-250×250×25', A:250, B:250, t:25, r1:24,  r2:18,  Ac:119.4, W:93.7,  Cx:7.10,  Cy:7.10,  Ix:6950,  Iy:6950,  Iu:11000, Iv:2860,  ix:7.63,  iy:7.63,  iu:9.62,  iv:4.90,  Zx:388,   Zy:388 },
+    { name:'L-250×250×35', A:250, B:250, t:35, r1:24,  r2:18,  Ac:162.6, W:128.0, Cx:7.45,  Cy:7.45,  Ix:9110,  Iy:9110,  Iu:14400, Iv:3790,  ix:7.49,  iy:7.49,  iu:9.42,  iv:4.83,  Zx:519,   Zy:519 }
+  ]
+};
+
+SECTION_DATA['不等辺山形鋼'] = {
+  type: 'LU',
+  label: '不等辺山形鋼',
+  jis: 'JIS G 3192',
+  jisSub: 'Unequal leg angles',
+  specs: [
+    { name:'L-90×75×9',    A:90,  B:75,  t:9,  r1:8.5, r2:6,   Ac:14.04, W:11.0, Cx:2.75, Cy:2.00, Ix:109,  Iy:68.1, Iu:143,  Iv:34.1, ix:2.78, iy:2.20, iu:3.19, iv:1.56, tanA:0.676, Zx:17.4, Zy:12.4 },
+    { name:'L-100×75×7',   A:100, B:75,  t:7,  r1:10,  r2:5,   Ac:11.87, W:9.32, Cx:3.06, Cy:1.83, Ix:118,  Iy:56.9, Iu:144,  Iv:30.8, ix:3.15, iy:2.19, iu:3.49, iv:1.61, tanA:0.548, Zx:17.0, Zy:10.0 },
+    { name:'L-125×75×7',   A:125, B:75,  t:7,  r1:10,  r2:5,   Ac:13.62, W:10.7, Cx:4.10, Cy:1.64, Ix:219,  Iy:60.4, Iu:243,  Iv:36.4, ix:4.01, iy:2.11, iu:4.23, iv:1.65, tanA:0.362, Zx:26.1, Zy:10.3 },
+    { name:'L-125×75×10',  A:125, B:75,  t:10, r1:10,  r2:7,   Ac:19.00, W:14.9, Cx:4.22, Cy:1.75, Ix:299,  Iy:80.8, Iu:330,  Iv:49.0, ix:3.96, iy:2.06, iu:4.17, iv:1.61, tanA:0.357, Zx:36.1, Zy:14.1 },
+    { name:'L-125×75×13',  A:125, B:75,  t:13, r1:10,  r2:7,   Ac:24.31, W:19.1, Cx:4.35, Cy:1.87, Ix:376,  Iy:101,  Iu:415,  Iv:61.9, ix:3.93, iy:2.04, iu:4.13, iv:1.60, tanA:0.352, Zx:46.1, Zy:17.9 },
+    { name:'L-125×90×10',  A:125, B:90,  t:10, r1:10,  r2:7,   Ac:20.50, W:16.1, Cx:3.95, Cy:2.22, Ix:318,  Iy:138,  Iu:380,  Iv:76.2, ix:3.94, iy:2.59, iu:4.30, iv:1.63, tanA:0.505, Zx:37.2, Zy:20.3 },
+    { name:'L-125×90×13',  A:125, B:90,  t:13, r1:10,  r2:7,   Ac:26.26, W:20.6, Cx:4.07, Cy:2.34, Ix:401,  Iy:173,  Iu:477,  Iv:96.3, ix:3.91, iy:2.57, iu:4.26, iv:1.91, tanA:0.501, Zx:47.5, Zy:25.9 },
+    { name:'L-150×90×9',   A:150, B:90,  t:9,  r1:12,  r2:6,   Ac:20.94, W:16.4, Cx:4.95, Cy:1.99, Ix:485,  Iy:133,  Iu:537,  Iv:80.4, ix:4.81, iy:2.52, iu:5.06, iv:1.96, tanA:0.361, Zx:48.2, Zy:19.0 },
+    { name:'L-150×90×12',  A:150, B:90,  t:12, r1:12,  r2:8.5, Ac:27.36, W:21.5, Cx:5.07, Cy:2.10, Ix:619,  Iy:167,  Iu:685,  Iv:102,  ix:4.76, iy:2.47, iu:5.00, iv:1.93, tanA:0.357, Zx:62.3, Zy:24.3 },
+    { name:'L-150×100×9',  A:150, B:100, t:9,  r1:12,  r2:6,   Ac:21.84, W:17.1, Cx:4.76, Cy:2.30, Ix:502,  Iy:181,  Iu:579,  Iv:104,  ix:4.79, iy:2.88, iu:5.15, iv:2.18, tanA:0.439, Zx:49.1, Zy:23.5 },
+    { name:'L-150×100×12', A:150, B:100, t:12, r1:12,  r2:8.5, Ac:28.56, W:22.4, Cx:4.88, Cy:2.41, Ix:642,  Iy:228,  Iu:738,  Iv:132,  ix:4.74, iy:2.83, iu:5.09, iv:2.15, tanA:0.435, Zx:63.4, Zy:30.1 }
+  ]
+};
+
+SECTION_DATA['不等辺不等厚山形鋼'] = {
+  type: 'LUT',
+  label: '不等辺不等厚山形鋼',
+  jis: 'JIS G 3192',
+  jisSub: 'Unequal leg and unequal thickness angles',
+  specs: [
+    { name:'L-200×90×9×14',   A:200, B:90,  t1:9,  t2:14, r1:14, r2:7,   Ac:29.66, W:23.3, Cx:6.36, Cy:2.15, Ix:1210,  Iy:200,  Iu:1290,  Iv:125, ix:6.39, iy:2.60, iu:6.58, iv:2.05, tanA:0.263,  Zx:88.7, Zy:29.2 },
+    { name:'L-250×90×10×15',  A:250, B:90,  t1:10, t2:15, r1:17, r2:8.5, Ac:37.47, W:29.4, Cx:8.61, Cy:1.92, Ix:2440,  Iy:223,  Iu:2520,  Iv:147, ix:8.08, iy:2.44, iu:8.20, iv:1.98, tanA:0.182,  Zx:149,  Zy:31.5 },
+    { name:'L-250×90×12×16',  A:250, B:90,  t1:12, t2:16, r1:17, r2:8.5, Ac:42.95, W:33.7, Cx:8.99, Cy:1.89, Ix:2790,  Iy:238,  Iu:2870,  Iv:160, ix:8.07, iy:2.35, iu:8.18, iv:1.63, tanA:0.173,  Zx:174,  Zy:33.5 },
+    { name:'L-300×90×11×16',  A:300, B:90,  t1:11, t2:16, r1:19, r2:9.5, Ac:46.22, W:36.3, Cx:11.0, Cy:1.76, Ix:4370,  Iy:245,  Iu:4440,  Iv:168, ix:9.72, iy:2.30, iu:9.80, iv:1.90, tanA:0.136,  Zx:229,  Zy:33.8 },
+    { name:'L-300×100×13×17', A:300, B:100, t1:13, t2:17, r1:19, r2:9.5, Ac:52.67, W:41.3, Cx:11.3, Cy:1.75, Ix:4940,  Iy:259,  Iu:5020,  Iv:181, ix:9.68, iy:2.22, iu:9.76, iv:1.85, tanA:0.126,  Zx:235,  Zy:35.8 },
+    { name:'L-350×100×12×17', A:350, B:100, t1:12, t2:17, r1:22, r2:11,  Ac:57.74, W:45.3, Cx:13.0, Cy:1.87, Ix:7440,  Iy:362,  Iu:7550,  Iv:251, ix:11.3, iy:2.50, iu:11.4, iv:2.08, tanA:0.124,  Zx:338,  Zy:44.5 },
+    { name:'L-400×100×13×18', A:400, B:100, t1:13, t2:18, r1:24, r2:12,  Ac:68.59, W:53.8, Cx:15.4, Cy:1.77, Ix:11500, Iy:388,  Iu:11600, Iv:277, ix:12.9, iy:2.38, iu:13.0, iv:2.01, tanA:0.0996, Zx:467,  Zy:47.1 }
   ]
 };
 
@@ -88,35 +245,32 @@ SECTION_DATA['平鋼'] = {
   ]
 };
 
-SECTION_DATA['中径角パイプ'] = {
-  type: 'BOX',
-  label: '中径角パイプ',
-  jis: 'STKR',
-  jisSub: 'Rectangular hollow section',
-  specs: buildSpecsFromSteelKinds(
-    ['中径角パイプ（正方形）', '中径角パイプ（長方形）', 'エコノミー角'],
-    parseRectPipeSpec
-  )
-};
-
-SECTION_DATA['スモール角パイプ'] = {
-  type: 'BOX',
-  label: 'スモール角パイプ',
-  jis: 'STKR',
-  jisSub: 'Small rectangular hollow section',
-  specs: buildSpecsFromSteelKinds(
-    ['スモール角パイプ（正方形）', 'スモール角パイプ（長方形）', 'スーパー角パイプ（正方形）', 'スーパー角パイプ（長方形）'],
-    parseRectPipeSpec
-  )
-};
-
-SECTION_DATA['C形鋼'] = {
+SECTION_DATA['溝形鋼'] = {
   type: 'C',
-  label: 'C形鋼',
-  jis: 'Light gauge steel',
-  jisSub: 'Cold-formed C section',
-  specs: buildSpecsFromSteelKinds(['C形鋼'], parseCShapeSpec)
+  label: '溝形鋼',
+  jis: 'JIS G 3192',
+  jisSub: 'Hot-rolled steel channels',
+  specs: CHANNEL_DATA
 };
+
+SECTION_DATA['I形鋼'] = {
+  type: 'I',
+  label: 'I形鋼',
+  jis: 'JIS G 3192',
+  jisSub: 'Hot-rolled steel I-beams',
+  specs: I_BEAM_DATA
+};
+
+SECTION_DATA['丸鋼'] = {
+  type: 'RB',
+  label: '丸鋼',
+  jis: 'JIS G 3191',
+  jisSub: 'Hot-rolled steel bar - Round bar',
+  specs: ROUND_BAR_DATA
+};
+
+
+
 
 function calcUnitWeightFromArea(Ac){
   return typeof jisRound === 'function'
@@ -125,16 +279,26 @@ function calcUnitWeightFromArea(Ac){
 }
 
 function calcHPaintAreaPerMeter(s){
-  const P = 4*s.B + 2*s.H - 2*s.t1 + (2*Math.PI*s.r) - (8*s.r);
+  const r = Number(s.r != null ? s.r : (s.r1 || 0));
+  const P = 4*s.B + 2*s.H - 2*s.t1 + (2*Math.PI*r) - (8*r);
   return +(P/1000).toFixed(3);
 }
 
+function calcChannelPaintAreaPerMeter(s) {
+  return +(((2 * s.B) + s.H - s.t2) / 1000).toFixed(3);
+}
+
 function calcLAnglePaintAreaPerMeter(spec) {
-  var A = Number(spec.A || 0);
-  var B = Number(spec.B || 0);
-  var t = Number(spec.t || 0);
-  var perimeterMm = (2 * A) + (2 * B) - (2 * t);
-  return +(perimeterMm / 1000).toFixed(3);
+  var A  = Number(spec.A || 0);
+  var B  = Number(spec.B || 0);
+  var t1 = Number(spec.t1 || spec.t || 0);
+  var t2 = Number(spec.t2 || spec.t || 0);
+  var P = (A - t2) + (B - t1) + t1 + t2;
+  return +(P / 1000).toFixed(3);
+}
+
+function calcRoundBarPaintAreaPerMeter(spec) {
+  return +((Math.PI * Number(spec.D || 0)) / 1000).toFixed(3);
 }
 
 function approxAreaFromWeight(weight) {
@@ -289,23 +453,30 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
    Cx, Cy = 重心位置(cm) ※等辺山形鋼では A=B, Cx=Cy
    ※ r2 は leg先端の「内側2角のみ」に適用（外側は直角）
 */
-function drawLAngleSVG(A, B, t, r1, r2, Cx, Cy, viewW, viewH) {
+function drawLAngleSVG(spec, viewW, viewH) {
+  const A = Number(spec.A || 0);
+  const B = Number(spec.B || 0);
+  const tWeb = Number(spec.t1 || spec.t || 0);
+  const tFlange = Number(spec.t2 || spec.t || 0);
+  const r1 = Number(spec.r1 || 0);
+  const r2 = Number(spec.r2 || 0);
   const mL = 42, mT = 20, mR = 52, mB = 28;
   const sc = Math.min((viewW - mL - mR) / B, (viewH - mT - mB) / A);
-  const Ap = A * sc, Bp = B * sc, tp = t * sc;
+  const Ap = A * sc, Bp = B * sc;
+  const tWebP = tWeb * sc, tFlangeP = tFlange * sc;
   const r1p = Math.max(1, r1 * sc);
-  const r2p = Math.max(0.5, Math.min(r2 * sc, tp * 0.45));
+  const r2p = Math.max(0.5, Math.min(r2 * sc, Math.min(tWebP, tFlangeP) * 0.45));
   const ox = mL, oyt = mT, oyb = mT + Ap;
 
   const path = [
     `M ${ox} ${oyb}`,
     `L ${ox} ${oyt}`,
-    `L ${ox + tp - r2p} ${oyt}`,
-    `A ${r2p} ${r2p} 0 0 1 ${ox + tp} ${oyt + r2p}`,
-    `L ${ox + tp} ${oyb - tp - r1p}`,
-    `A ${r1p} ${r1p} 0 0 0 ${ox + tp + r1p} ${oyb - tp}`,
-    `L ${ox + Bp - r2p} ${oyb - tp}`,
-    `A ${r2p} ${r2p} 0 0 1 ${ox + Bp} ${oyb - tp + r2p}`,
+    `L ${ox + tWebP - r2p} ${oyt}`,
+    `A ${r2p} ${r2p} 0 0 1 ${ox + tWebP} ${oyt + r2p}`,
+    `L ${ox + tWebP} ${oyb - tFlangeP - r1p}`,
+    `A ${r1p} ${r1p} 0 0 0 ${ox + tWebP + r1p} ${oyb - tFlangeP}`,
+    `L ${ox + Bp - r2p} ${oyb - tFlangeP}`,
+    `A ${r2p} ${r2p} 0 0 1 ${ox + Bp} ${oyb - tFlangeP + r2p}`,
     `L ${ox + Bp} ${oyb}`,
     `L ${ox} ${oyb}`, `Z`
   ].join(' ');
@@ -323,24 +494,24 @@ function drawLAngleSVG(A, B, t, r1, r2, Cx, Cy, viewW, viewH) {
     <line x1="${ox+Bp}" y1="${by-4}" x2="${ox+Bp}" y2="${by+4}" stroke="#475569" stroke-width="1"/>
     <text x="${ox+Bp/2}" y="${by+10}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">B=${B}</text>`;
   const tx = ox + Bp + 6;
-  const dimT = `<line x1="${tx}" y1="${oyb-tp}" x2="${tx}" y2="${oyb}" stroke="#475569" stroke-width="1"/>
-    <line x1="${tx-3}" y1="${oyb-tp}" x2="${tx+3}" y2="${oyb-tp}" stroke="#475569" stroke-width="1"/>
+  const dimT = `<line x1="${tx}" y1="${oyb-tFlangeP}" x2="${tx}" y2="${oyb}" stroke="#475569" stroke-width="1"/>
+    <line x1="${tx-3}" y1="${oyb-tFlangeP}" x2="${tx+3}" y2="${oyb-tFlangeP}" stroke="#475569" stroke-width="1"/>
     <line x1="${tx-3}" y1="${oyb}" x2="${tx+3}" y2="${oyb}" stroke="#475569" stroke-width="1"/>
-    <text x="${tx+4}" y="${oyb-tp/2}" font-size="8" fill="#475569" dominant-baseline="middle">t=${t}</text>`;
+    <text x="${tx+4}" y="${oyb-tFlangeP/2}" font-size="8" fill="#475569" dominant-baseline="middle">${spec.t1 ? `t2=${tFlange}` : `t=${tFlange}`}</text>`;
 
   const r1sw = Math.max(1.5, r1p * 0.3);
-  const r1High = `<path d="M ${ox+tp} ${oyb-tp-r1p} A ${r1p} ${r1p} 0 0 0 ${ox+tp+r1p} ${oyb-tp}"
+  const r1High = `<path d="M ${ox+tWebP} ${oyb-tFlangeP-r1p} A ${r1p} ${r1p} 0 0 0 ${ox+tWebP+r1p} ${oyb-tFlangeP}"
     fill="none" stroke="#f59e0b" stroke-width="${r1sw}"/>`;
-  const r1dx = ox + tp + r1p, r1dy = oyb - tp - r1p;
+  const r1dx = ox + tWebP + r1p, r1dy = oyb - tFlangeP - r1p;
   const r1lx = r1dx + 14, r1ly = r1dy - 10;
   const r1Anno = `<circle cx="${r1dx}" cy="${r1dy}" r="2" fill="#f59e0b"/>
     <line x1="${r1dx}" y1="${r1dy}" x2="${r1lx-2}" y2="${r1ly}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
     <text x="${r1lx+1}" y="${r1ly}" font-size="9" font-weight="700" fill="#b45309" dominant-baseline="middle">r1=${r1}</text>`;
 
   const r2sw = Math.max(1.5, r2p * 0.4);
-  const r2High = `<path d="M ${ox+tp-r2p} ${oyt} A ${r2p} ${r2p} 0 0 1 ${ox+tp} ${oyt+r2p}"
+  const r2High = `<path d="M ${ox+tWebP-r2p} ${oyt} A ${r2p} ${r2p} 0 0 1 ${ox+tWebP} ${oyt+r2p}"
     fill="none" stroke="#f59e0b" stroke-width="${r2sw}"/>`;
-  const r2dx = ox + tp, r2dy = oyt;
+  const r2dx = ox + tWebP, r2dy = oyt;
   const r2lx = r2dx + r2p + 14, r2ly = r2dy - 2;
   const r2Anno = `<circle cx="${r2dx}" cy="${r2dy}" r="2" fill="#f59e0b"/>
     <line x1="${r2dx}" y1="${r2dy}" x2="${r2lx-2}" y2="${r2ly}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
@@ -373,6 +544,64 @@ function drawFlatBarSVG(t, B, viewW, viewH) {
   `;
 }
 
+function drawChannelSVG(H, B, t1, t2, r1, viewW, viewH) {
+  const margin = 34;
+  const totalW = B + t1;
+  const sc = Math.min((viewW - margin * 2) / totalW, (viewH - margin * 2) / H);
+  const h = H * sc;
+  const b = B * sc;
+  const web = t1 * sc;
+  const flange = t2 * sc;
+  const rr = Math.max(0, r1 * sc);
+  const x = (viewW - (b + web)) / 2;
+  const y = (viewH - h) / 2;
+  const top = y;
+  const bottom = y + h;
+  const left = x;
+  const right = x + b + web;
+  const inner = left + web;
+
+  const path = [
+    `M ${right} ${top}`,
+    `L ${inner} ${top}`,
+    `L ${inner} ${bottom - flange - rr}`,
+    `A ${rr} ${rr} 0 0 1 ${inner - rr} ${bottom - flange}`,
+    `L ${left} ${bottom - flange}`,
+    `L ${left} ${bottom}`,
+    `L ${right} ${bottom}`,
+    `L ${right} ${bottom - flange}`,
+    `L ${inner + rr} ${bottom - flange}`,
+    `A ${rr} ${rr} 0 0 1 ${inner} ${bottom - flange - rr}`,
+    `L ${inner} ${top + flange + rr}`,
+    `A ${rr} ${rr} 0 0 1 ${inner + rr} ${top + flange}`,
+    `L ${right} ${top + flange}`,
+    `Z`
+  ].join(' ');
+
+  return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
+    <path d="${path}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+function drawIBeamSVG(H, B, t1, t2, r1, viewW, viewH) {
+  return drawHBeamSVG(H, B, t1, t2, r1, viewW, viewH);
+}
+
+function drawRoundBarSVG(D, viewW, viewH) {
+  const margin = 42;
+  const scale = (Math.min(viewW, viewH) - margin * 2) / D;
+  const radius = (D * scale) / 2;
+  const cx = viewW / 2;
+  const cy = viewH / 2;
+  return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
+    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+    <line x1="${cx - radius}" y1="${cy + radius + 18}" x2="${cx + radius}" y2="${cy + radius + 18}" stroke="#475569" stroke-width="1"/>
+    <line x1="${cx - radius}" y1="${cy + radius + 14}" x2="${cx - radius}" y2="${cy + radius + 22}" stroke="#475569" stroke-width="1"/>
+    <line x1="${cx + radius}" y1="${cy + radius + 14}" x2="${cx + radius}" y2="${cy + radius + 22}" stroke="#475569" stroke-width="1"/>
+    <text x="${cx}" y="${cy + radius + 32}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">D=${D}</text>
+  </svg>`;
+}
+
 
 /* ── データページ初期化 ── */
 let _dataKind = 'H形鋼';
@@ -381,7 +610,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', 'C形鋼', '中径角パイプ', 'スモール角パイプ', '溝形鋼', '平鋼', '丸鋼', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', 'I形鋼', '平鋼', '丸鋼', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -630,14 +859,16 @@ function renderDataSpec() {
   if (svgEl) {
     if (kindData.type === 'H') {
       svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 460, 340);
-    } else if (kindData.type === 'L') {
-      svgEl.innerHTML = drawLAngleSVG(spec.A, spec.B, spec.t, spec.r1, spec.r2, spec.Cx, spec.Cy, 460, 340);
+    } else if (kindData.type === 'C') {
+      svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
+    } else if (kindData.type === 'I') {
+      svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
+    } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {
+      svgEl.innerHTML = drawLAngleSVG(spec, 460, 340);
+    } else if (kindData.type === 'RB') {
+      svgEl.innerHTML = drawRoundBarSVG(spec.D, 260, 210);
     } else if (kindData.type === 'FL') {
       svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, 260, 210);
-    } else if (kindData.type === 'BOX') {
-      svgEl.innerHTML = drawRectPipeSVG(spec.H, spec.B, spec.t, 460, 340);
-    } else if (kindData.type === 'C') {
-      svgEl.innerHTML = drawCChannelSVG(spec.H, spec.B, spec.L, spec.t, 460, 340);
     }
   }
 
@@ -652,35 +883,54 @@ function renderDataSpec() {
         <div class="dp-cell"><span>t2（フランジ）</span><strong>${spec.t2} mm</strong></div>
         <div class="dp-cell dp-r"><span>r（フィレット）</span><strong>${spec.r} mm</strong></div>
         <div class="dp-cell"><span>断面積 A</span><strong>${spec.Ac} cm²</strong></div>`;
+    } else if (kindData.type === 'C' || kindData.type === 'I') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>H</span><strong>${spec.H} mm</strong></div>
+        <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
+        <div class="dp-cell"><span>t1（ウェブ）</span><strong>${spec.t1} mm</strong></div>
+        <div class="dp-cell"><span>t2（フランジ）</span><strong>${spec.t2} mm</strong></div>
+        <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
+        <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>`;
     } else if (kindData.type === 'L') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>A（縦辺）</span><strong>${spec.A} mm</strong></div>
-        <div class="dp-cell"><span>B（横辺）</span><strong>${spec.B} mm</strong></div>
+        <div class="dp-cell"><span>A = B</span><strong>${spec.A} mm</strong></div>
         <div class="dp-cell"><span>t（肉厚）</span><strong>${spec.t} mm</strong></div>
         <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
         <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>
         <div class="dp-cell"><span>断面積 Ac</span><strong>${spec.Ac} cm²</strong></div>
         <div class="dp-cell"><span>Cx = Cy</span><strong>${spec.Cx} cm</strong></div>`;
+    } else if (kindData.type === 'LU') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>A（長辺）</span><strong>${spec.A} mm</strong></div>
+        <div class="dp-cell"><span>B（短辺）</span><strong>${spec.B} mm</strong></div>
+        <div class="dp-cell"><span>t（板厚）</span><strong>${spec.t} mm</strong></div>
+        <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
+        <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>
+        <div class="dp-cell"><span>断面積 Ac</span><strong>${spec.Ac} cm²</strong></div>
+        <div class="dp-cell"><span>A 方向</span><strong>${spec.Cx} cm</strong></div>
+        <div class="dp-cell"><span>B 方向</span><strong>${spec.Cy} cm</strong></div>`;
+    } else if (kindData.type === 'LUT') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>A（長辺）</span><strong>${spec.A} mm</strong></div>
+        <div class="dp-cell"><span>B（短辺）</span><strong>${spec.B} mm</strong></div>
+        <div class="dp-cell"><span>t1（長辺板厚）</span><strong>${spec.t1} mm</strong></div>
+        <div class="dp-cell"><span>t2（短辺板厚）</span><strong>${spec.t2} mm</strong></div>
+        <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
+        <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>
+        <div class="dp-cell"><span>断面積 Ac</span><strong>${spec.Ac} cm²</strong></div>
+        <div class="dp-cell"><span>A 方向</span><strong>${spec.Cx} cm</strong></div>
+        <div class="dp-cell"><span>B 方向</span><strong>${spec.Cy} cm</strong></div>`;
     } else if (kindData.type === 'FL') {
       dimEl.innerHTML = `
         <div class="dp-cell"><span>厚さ t</span><strong>${spec.t} mm</strong></div>
         <div class="dp-cell"><span>幅 B</span><strong>${spec.B} mm</strong></div>
         <div class="dp-cell"><span>断面積</span><strong>${spec.Ac} cm²</strong></div>
       `;
-    } else if (kindData.type === 'BOX') {
+    } else if (kindData.type === 'RB') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>高さ H</span><strong>${spec.H} mm</strong></div>
-        <div class="dp-cell"><span>幅 B</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>厚さ t</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.Ac} cm²</strong></div>
-      `;
-    } else if (kindData.type === 'C') {
-      dimEl.innerHTML = `
-        <div class="dp-cell"><span>高さ H</span><strong>${spec.H} mm</strong></div>
-        <div class="dp-cell"><span>幅 B</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>リップ</span><strong>${spec.L} mm</strong></div>
-        <div class="dp-cell"><span>厚さ t</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.Ac} cm²</strong></div>
+        <div class="dp-cell"><span>直径 D</span><strong>${spec.D} mm</strong></div>
+        <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
+        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
       `;
     }
   }
@@ -688,14 +938,12 @@ function renderDataSpec() {
   // 断面性能グリッド
   const perfEl = document.getElementById('dataPerfGrid');
   if (perfEl) {
-    if (kindData.type === 'BOX' || kindData.type === 'C') {
+    if (kindData.type === 'RB') {
       perfEl.innerHTML = `
-        <div class="dp-cell"><span>Ix</span><strong>—</strong></div>
-        <div class="dp-cell"><span>Iy</span><strong>—</strong></div>
-        <div class="dp-cell"><span>Zx</span><strong>—</strong></div>
-        <div class="dp-cell"><span>Zy</span><strong>—</strong></div>
-        <div class="dp-cell"><span>ix</span><strong>—</strong></div>
-        <div class="dp-cell"><span>iy</span><strong>—</strong></div>`;
+        <div class="dp-cell"><span>I</span><strong>${spec.I} cm⁴</strong></div>
+        <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
+        <div class="dp-cell"><span>i</span><strong>${spec.i} cm</strong></div>
+      `;
     } else {
       perfEl.innerHTML = `
         <div class="dp-cell"><span>Ix</span><strong>${spec.Ix} cm⁴</strong></div>
@@ -715,15 +963,20 @@ function renderDataSpec() {
 
   const extraEl = document.getElementById('dataExtraInfo');
   if (extraEl) {
-    const calcW = calcUnitWeightFromArea(spec.Ac);
-    const S = kindData.type === 'L'
+    const weightArea = kindData.type === 'RB' ? spec.A : spec.Ac;
+    const calcW = calcUnitWeightFromArea(weightArea);
+    const S = (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT')
       ? calcLAnglePaintAreaPerMeter(spec)
-      : (kindData.type === 'H' ? calcHPaintAreaPerMeter(spec) : null);
+      : (kindData.type === 'RB')
+          ? calcRoundBarPaintAreaPerMeter(spec)
+      : (kindData.type === 'H' || kindData.type === 'I')
+          ? calcHPaintAreaPerMeter(spec)
+          : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
 
     extraEl.innerHTML = `
       <div class="dp-box">
         <div>単位重量の計算式</div>
-        <strong>${spec.Ac} × 0.785 = ${calcW}</strong>
+        <strong>${weightArea} × 0.785 = ${calcW}</strong>
       </div>
       ${S !== null ? `<div class="dp-box"><div>塗装面積（参考）</div><strong>${S} m²/m</strong></div>` : ''}
     `;
