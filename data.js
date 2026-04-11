@@ -69,9 +69,17 @@ const H_SHAPES_JIS_ADD_3 = [
   { name:'H-918×303×19×37', H:918, B:303, t1:19, t2:37, r:18, Ac:387.4, W:304, Ix:535000, Iy:17200, ix:37.2, iy:6.67, Zx:11700, Zy:1140 }
 ];
 
+const H_SHAPES_MARKET = [
+  { name:'H-294×200×8×12',  W:55.8 },
+  { name:'H-298×149×5.5×8', W:32.0 },
+  { name:'H-340×250×9×14',  W:78.1 },
+  { name:'H-346×174×6×9',   W:41.2 },
+  { name:'H-400×400×13×21', W:172.0 }
+];
+
 const H_SHAPES_JIS_ALL = Array.from(
   new Map(
-    [...H_SHAPES_JIS, ...H_SHAPES_JIS_ADD_2, ...H_SHAPES_JIS_ADD_3].map(function(spec) {
+    [...H_SHAPES_JIS, ...H_SHAPES_JIS_ADD_2, ...H_SHAPES_JIS_ADD_3, ...H_SHAPES_MARKET].map(function(spec) {
       return [spec.name, spec];
     })
   ).values()
@@ -250,6 +258,231 @@ const RECT_PIPE_DATA = [
   { name:'□400x200x12.0', A:400, B:200, t:12.0, W:106, Asec:134.5, Ix:27300, Iy:9230, Zx:1360, Zy:923 }
 ];
 
+const SQUARE_PIPE_MARKET = [
+  { name:'p-50×50×1.6', shape:'square', W:2.38, inCalc:true },
+  { name:'p-50×50×2.3', shape:'square', W:3.34, inCalc:true },
+  { name:'p-50×50×3.2', shape:'square', W:4.5, inCalc:true },
+  { name:'p-50×50×4.5', shape:'square', W:6.02, inCalc:true },
+  { name:'p-50×50×6.0', shape:'square', W:7.56, inCalc:true },
+  { name:'p-60×60×1.6', shape:'square', W:2.88, inCalc:true },
+  { name:'p-60×60×2.3', shape:'square', W:4.06, inCalc:true },
+  { name:'p-60×60×3.2', shape:'square', W:5.5, inCalc:true },
+  { name:'p-60×60×4.5', shape:'square', W:7.43, inCalc:true },
+  { name:'p-60×60×6.0', shape:'square', W:9.45, inCalc:true },
+  { name:'p-75×75×2.3', shape:'square', W:5.14, inCalc:true },
+  { name:'p-75×75×3.2', shape:'square', W:7.01, inCalc:true },
+  { name:'p-75×75×4.5', shape:'square', W:9.55, inCalc:true },
+  { name:'p-75×75×6.0', shape:'square', W:12.3, inCalc:true },
+  { name:'p-75×75×9.0', shape:'square', W:17, inCalc:true },
+  { name:'p-80×80×2.3', shape:'square', W:5.5, inCalc:true },
+  { name:'p-80×80×3.2', shape:'square', W:7.51, inCalc:true },
+  { name:'p-80×80×4.5', shape:'square', W:10.3, inCalc:true },
+  { name:'p-80×80×6.0', shape:'square', W:13.2, inCalc:true },
+  { name:'p-90×90×2.3', shape:'square', W:6.23, inCalc:true },
+  { name:'p-90×90×3.2', shape:'square', W:8.51, inCalc:true },
+  { name:'p-90×90×4.5', shape:'square', W:11.7, inCalc:true },
+  { name:'p-90×90×6.0', shape:'square', W:15.1, inCalc:true },
+  { name:'p-100×100×1.6', shape:'square', W:4.89, inCalc:true },
+  { name:'p-100×100×2.3', shape:'square', W:6.95, inCalc:true },
+  { name:'p-100×100×3.2', shape:'square', W:9.52, inCalc:true },
+  { name:'p-100×100×4.5', shape:'square', W:13.1, inCalc:true },
+  { name:'p-100×100×6.0', shape:'square', W:17, inCalc:true },
+  { name:'p-100×100×9.0', shape:'square', W:24.1, inCalc:true },
+  { name:'p-100×100×12.0', shape:'square', W:30.2, inCalc:true },
+  { name:'p-125×125×2.3', shape:'square', W:8.75, inCalc:true },
+  { name:'p-125×125×3.2', shape:'square', W:12, inCalc:true },
+  { name:'p-125×125×4.5', shape:'square', W:16.6, inCalc:true },
+  { name:'p-125×125×6.0', shape:'square', W:21.7, inCalc:true },
+  { name:'p-125×125×9.0', shape:'square', W:31.1, inCalc:true },
+  { name:'p-125×125×12.0', shape:'square', W:39.7, inCalc:true },
+  { name:'p-150×150×3.2', shape:'square', W:14.5, inCalc:true },
+  { name:'p-150×150×4.5', shape:'square', W:20.1, inCalc:true },
+  { name:'p-150×150×5.0', shape:'square', W:22.3, inCalc:true },
+  { name:'p-150×150×6.0', shape:'square', W:26.4, inCalc:true },
+  { name:'p-150×150×9.0', shape:'square', W:38.2, inCalc:true },
+  { name:'p-150×150×12.0', shape:'square', W:49.1, inCalc:true },
+  { name:'p-175×175×4.5', shape:'square', W:23.7, inCalc:true },
+  { name:'p-175×175×6.0', shape:'square', W:31.1, inCalc:true },
+  { name:'p-175×175×9.0', shape:'square', W:45.3, inCalc:true },
+  { name:'p-175×175×12.0', shape:'square', W:58.5, inCalc:true },
+  { name:'p-200×200×4.5', shape:'square', W:27.2, inCalc:true }
+];
+
+const RECT_PIPE_MARKET = [
+  { name:'p-60×30×1.6', shape:'rect', W:2.13, inCalc:true },
+  { name:'p-60×30×2.3', shape:'rect', W:2.98, inCalc:true },
+  { name:'p-60×30×3.2', shape:'rect', W:3.99, inCalc:true },
+  { name:'p-60×30×4.5', shape:'rect', W:5.31, inCalc:true },
+  { name:'p-75×45×2.3', shape:'rect', W:4.06, inCalc:true },
+  { name:'p-75×45×3.2', shape:'rect', W:5.5, inCalc:true },
+  { name:'p-75×45×4.5', shape:'rect', W:7.43, inCalc:true },
+  { name:'p-75×50×4.5', shape:'rect', W:7.79, inCalc:true },
+  { name:'p-75×50×6.0', shape:'rect', W:9.92, inCalc:true },
+  { name:'p-100×50×2.3', shape:'rect', W:5.14, inCalc:true },
+  { name:'p-100×50×3.2', shape:'rect', W:7.01, inCalc:true },
+  { name:'p-100×50×4.5', shape:'rect', W:9.55, inCalc:true },
+  { name:'p-100×50×6.0', shape:'rect', W:12.3, inCalc:true },
+  { name:'p-125×75×1.6', shape:'rect', W:4.89, inCalc:true },
+  { name:'p-125×75×2.3', shape:'rect', W:6.95, inCalc:true },
+  { name:'p-125×75×3.2', shape:'rect', W:9.52, inCalc:true },
+  { name:'p-125×75×4.5', shape:'rect', W:13.1, inCalc:true },
+  { name:'p-125×75×6.0', shape:'rect', W:17, inCalc:true },
+  { name:'p-125×75×9.0', shape:'rect', W:24.1, inCalc:true },
+  { name:'p-150×75×3.2', shape:'rect', W:10.8, inCalc:true },
+  { name:'p-150×75×4.5', shape:'rect', W:14.9, inCalc:true },
+  { name:'p-150×75×6.0', shape:'rect', W:19.3, inCalc:true },
+  { name:'p-150×80×4.5', shape:'rect', W:15.2, inCalc:true },
+  { name:'p-150×80×6.0', shape:'rect', W:19.8, inCalc:true },
+  { name:'p-150×100×2.3', shape:'rect', W:8.75, inCalc:true },
+  { name:'p-150×100×3.2', shape:'rect', W:12, inCalc:true },
+  { name:'p-150×100×4.5', shape:'rect', W:16.6, inCalc:true },
+  { name:'p-150×100×6.0', shape:'rect', W:21.7, inCalc:true },
+  { name:'p-150×100×9.0', shape:'rect', W:31.1, inCalc:true },
+  { name:'p-150×100×12.0', shape:'rect', W:39.7, inCalc:true },
+  { name:'p-200×100×3.2', shape:'rect', W:14.5, inCalc:true },
+  { name:'p-200×100×4.5', shape:'rect', W:20.1, inCalc:true },
+  { name:'p-200×100×6.0', shape:'rect', W:26.4, inCalc:true },
+  { name:'p-200×100×9.0', shape:'rect', W:38.2, inCalc:true },
+  { name:'p-200×100×12.0', shape:'rect', W:49.1, inCalc:true }
+];
+
+const ECONOMY_PIPE_DATA = [
+  { name:'p-75×75×1.6', shape:'square', W:3.64, inCalc:true },
+  { name:'p-50×20×1.6', shape:'rect', W:1.63, inCalc:true },
+  { name:'p-50×20×2.3', shape:'rect', W:2.25, inCalc:true },
+  { name:'p-50×20×3.2', shape:'rect', W:3.12, inCalc:true },
+  { name:'p-75×45×1.6', shape:'rect', W:2.88, inCalc:true },
+  { name:'p-100×20×1.6', shape:'rect', W:2.95, inCalc:true },
+  { name:'p-100×20×2.3', shape:'rect', W:4.2, inCalc:true },
+  { name:'p-100×40×1.6', shape:'rect', W:3.38, inCalc:true },
+  { name:'p-100×40×2.3', shape:'rect', W:4.78, inCalc:true },
+  { name:'p-100×40×3.2', shape:'rect', W:6.51, inCalc:true },
+  { name:'p-100×50×1.6', shape:'rect', W:3.64, inCalc:true },
+  { name:'p-125×40×1.6', shape:'rect', W:4.01, inCalc:true },
+  { name:'p-125×40×2.3', shape:'rect', W:5.69, inCalc:true },
+  { name:'p-125×40×3.2', shape:'rect', W:7.76, inCalc:true },
+  { name:'p-150×50×2.3', shape:'rect', W:6.95, inCalc:true },
+  { name:'p-150×50×3.2', shape:'rect', W:9.52, inCalc:true }
+];
+
+const SMALL_SQUARE_PIPE_DATA = [
+  { name:'p-9×9×1.0', shape:'square', W:0.289, inCalc:true },
+  { name:'p-11×11×1.2', shape:'square', W:0.435, inCalc:true },
+  { name:'p-13×13×1.6', shape:'square', W:0.69, inCalc:true },
+  { name:'p-14×14×1.2', shape:'square', W:0.53, inCalc:true },
+  { name:'p-16×16×1.2', shape:'square', W:0.621, inCalc:true },
+  { name:'p-16×16×1.6', shape:'square', W:0.813, inCalc:true },
+  { name:'p-19×19×1.2', shape:'square', W:0.716, inCalc:true },
+  { name:'p-19×19×1.6', shape:'square', W:0.939, inCalc:true },
+  { name:'p-21×21×1.2', shape:'square', W:0.811, inCalc:true },
+  { name:'p-21×21×1.6', shape:'square', W:1.07, inCalc:true },
+  { name:'p-24×24×1.6', shape:'square', W:1.19, inCalc:true },
+  { name:'p-25×25×1.2', shape:'square', W:0.971, inCalc:true },
+  { name:'p-25×25×1.6', shape:'square', W:1.28, inCalc:true },
+  { name:'Rp-26×26×1.6', shape:'square', W:1.19, inCalc:true },
+  { name:'p-28×28×1.6', shape:'square', W:1.44, inCalc:true },
+  { name:'Rp-31×31×1.2', shape:'square', W:1.09, inCalc:true },
+  { name:'Rp-31×31×1.6', shape:'square', W:1.44, inCalc:true },
+  { name:'p-32×32×1.2', shape:'square', W:1.23, inCalc:true },
+  { name:'p-32×32×1.6', shape:'square', W:1.62, inCalc:true },
+  { name:'p-38×38×1.6', shape:'square', W:1.94, inCalc:true },
+  { name:'Rp-40×40×1.6', shape:'square', W:1.94, inCalc:true },
+  { name:'Rp-40×40×2.0', shape:'square', W:2.41, inCalc:true },
+  { name:'p-45×45×1.6', shape:'square', W:2.32, inCalc:true },
+  { name:'p-20×20×2.3', shape:'square', W:1.31, inCalc:true },
+  { name:'p-25×25×2.3', shape:'square', W:1.67, inCalc:true },
+  { name:'p-25×25×3.2', shape:'square', W:2.26, inCalc:true },
+  { name:'p-30×30×2.3', shape:'square', W:2.03, inCalc:true },
+  { name:'p-30×30×3.2', shape:'square', W:2.75, inCalc:true },
+  { name:'p-35×35×3.2', shape:'square', W:3.3, inCalc:true },
+  { name:'p-40×40×2.3', shape:'square', W:2.62, inCalc:true },
+  { name:'p-40×40×3.2', shape:'square', W:3.58, inCalc:true },
+  { name:'p-40×40×4.5', shape:'square', W:4.61, inCalc:true },
+  { name:'p-45×45×2.3', shape:'square', W:3.1, inCalc:true },
+  { name:'p-45×45×3.2', shape:'square', W:4.25, inCalc:true }
+];
+
+const SMALL_RECT_PIPE_DATA = [
+  { name:'p-22×10×1.2', shape:'rect', W:0.621, inCalc:true },
+  { name:'p-22×10×1.6', shape:'rect', W:0.813, inCalc:true },
+  { name:'p-25×12×1.2', shape:'rect', W:0.716, inCalc:true },
+  { name:'p-25×12×1.6', shape:'rect', W:0.939, inCalc:true },
+  { name:'p-28×18×1.2', shape:'rect', W:0.906, inCalc:true },
+  { name:'p-28×18×1.6', shape:'rect', W:1.19, inCalc:true },
+  { name:'Rp-30×20×1.2', shape:'rect', W:0.906, inCalc:true },
+  { name:'Rp-30×20×1.6', shape:'rect', W:1.19, inCalc:true },
+  { name:'p-32×14×1.2', shape:'rect', W:0.906, inCalc:true },
+  { name:'p-32×14×1.6', shape:'rect', W:1.19, inCalc:true },
+  { name:'p-40×16×1.2', shape:'rect', W:1.09, inCalc:true },
+  { name:'p-40×16×1.6', shape:'rect', W:1.44, inCalc:true },
+  { name:'Rp-40×20×1.2', shape:'rect', W:1.09, inCalc:true },
+  { name:'Rp-40×20×1.6', shape:'rect', W:1.44, inCalc:true },
+  { name:'p-40×25×1.2', shape:'rect', W:1.23, inCalc:true },
+  { name:'p-40×25×1.6', shape:'rect', W:1.62, inCalc:true },
+  { name:'p-50×18×1.6', shape:'rect', W:1.71, inCalc:true },
+  { name:'p-50×26×1.6', shape:'rect', W:1.94, inCalc:true },
+  { name:'Rp-50×30×1.6', shape:'rect', W:1.94, inCalc:true },
+  { name:'p-60×30×1.6', shape:'rect', W:2.32, inCalc:true },
+  { name:'p-60×35×1.6', shape:'rect', W:2.44, inCalc:true },
+  { name:'p-70×25×1.6', shape:'rect', W:2.44, inCalc:true },
+  { name:'Rp-75×25×1.6', shape:'rect', W:2.44, inCalc:true },
+  { name:'Rp-70×30×1.6', shape:'rect', W:2.44, inCalc:true },
+  { name:'Rp-80×40×1.6', shape:'rect', W:2.95, inCalc:true },
+  { name:'p-84×32×2.0', shape:'rect', W:3.66, inCalc:true },
+  { name:'Rp-90×30×1.6', shape:'rect', W:2.95, inCalc:true },
+  { name:'p-30×20×2.3', shape:'rect', W:1.67, inCalc:true },
+  { name:'p-40×20×2.3', shape:'rect', W:2.03, inCalc:true },
+  { name:'p-40×20×3.2', shape:'rect', W:2.75, inCalc:true },
+  { name:'p-50×30×2.3', shape:'rect', W:2.62, inCalc:true },
+  { name:'p-50×30×3.2', shape:'rect', W:3.58, inCalc:true },
+  { name:'p-60×40×2.3', shape:'rect', W:3.34, inCalc:true },
+  { name:'p-60×40×3.2', shape:'rect', W:4.76, inCalc:true },
+  { name:'p-70×30×2.3', shape:'rect', W:3.47, inCalc:true },
+  { name:'p-75×20×1.6', shape:'rect', W:2.32, inCalc:true },
+  { name:'p-75×20×2.3', shape:'rect', W:3.3, inCalc:true },
+  { name:'p-80×40×2.3', shape:'rect', W:4.2, inCalc:true },
+  { name:'p-80×40×3.2', shape:'rect', W:5.77, inCalc:true },
+  { name:'p-90×30×2.3', shape:'rect', W:4.2, inCalc:true },
+  { name:'p-90×30×3.2', shape:'rect', W:5.77, inCalc:true },
+  { name:'p-90×45×2.3', shape:'rect', W:4.86, inCalc:true },
+  { name:'p-90×45×3.2', shape:'rect', W:6.68, inCalc:true }
+];
+
+const LIGHT_GAUGE_CHANNEL_DATA = [
+  { name:'[-40×20×1.6', W:0.939 },
+  { name:'[-40×20×2.3', W:1.31 },
+  { name:'[-40×40×3.2', W:2.75 },
+  { name:'[-60×30×1.6', W:1.44 },
+  { name:'[-60×30×2.3', W:2.03 },
+  { name:'[-80×40×2.3', W:2.75 },
+  { name:'[-100×40×2.3', W:3.11 },
+  { name:'[-100×40×3.2', W:4.26 },
+  { name:'[-100×50×2.3', W:3.47 },
+  { name:'[-100×50×3.2', W:4.76 },
+  { name:'[-120×40×3.2', W:4.76 },
+  { name:'[-150×50×3.2', W:6.02 },
+  { name:'[-150×50×4.5', W:8.31 },
+  { name:'[-150×75×4.5', W:10.1 },
+  { name:'[-150×75×6.0', W:13.2 },
+  { name:'[-200×50×3.2', W:7.27 },
+  { name:'[-200×50×4.0', W:9 },
+  { name:'[-200×50×4.5', W:10.1 },
+  { name:'[-200×50×6.0', W:13.2 },
+  { name:'[-200×75×4.5', W:11.8 },
+  { name:'[-200×75×6.0', W:15.6 },
+  { name:'[-250×50×4.0', W:10.6 },
+  { name:'[-250×50×4.5', W:11.8 },
+  { name:'[-250×75×4.5', W:13.6 },
+  { name:'[-250×75×6.0', W:17.9 },
+  { name:'[-300×50×4.0', W:12.1 },
+  { name:'[-300×50×4.5', W:13.6 },
+  { name:'[-350×50×4.5', W:15.4 },
+  { name:'[-400×75×4.5', W:18.9 },
+  { name:'[-400×75×6.0', W:25 },
+  { name:'[-450×75×4.5', W:20.7 },
+  { name:'[-450×75×6.0', W:27.3 }
+];
+
 const SGP_PIPE_DATA = [
   { name:'6A',  inch:'1/8',   D:10.5,  d:6.5,   t:2.0, W:0.419, S:0.033, A:0.534, I:0.051, Z:0.097, i:0.309 },
   { name:'8A',  inch:'1/4',   D:13.8,  d:9.2,   t:2.3, W:0.652, S:0.043, A:0.831, I:0.143, Z:0.207, i:0.415 },
@@ -336,45 +569,6 @@ const BCR295_DATA = [
   { name:'BCR-550x550x22.0', H:550, B:550, t:22.0, r:55.0, Asec:448.0, W:352,  I:204000,i:21.3, Z:7420, Zp:8750, Ht:25.0, rank:'FA' },
   { name:'BCR-550x550x25.0', H:550, B:550, t:25.0, r:62.5, Asec:503.5, W:395,  I:226000,i:21.2, Z:8210, Zp:9760, Ht:22.0, rank:'FA' },
   { name:'BCR-550x550x28.0', H:550, B:550, t:28.0, r:70.0, Asec:557.7, W:438,  I:246000,i:21.0, Z:8960, Zp:10700,Ht:19.6, rank:'FA' }
-];
-
-const JBCR385_DATA = [
-  { name:'JBCR385-250x250x6.0',  H:250, B:250, t:6.0,  r:15.0, Asec:57.32, W:45.0, I:5620,  i:9.90, Z:450,  Zp:521,  Ht:41.7, rank:'FD' },
-  { name:'JBCR385-250x250x9.0',  H:250, B:250, t:9.0,  r:22.5, Asec:83.98, W:65.9, I:7980,  i:9.75, Z:639,  Zp:750,  Ht:27.8, rank:'FB' },
-  { name:'JBCR385-250x250x12.0', H:250, B:250, t:12.0, r:30.0, Asec:109.3, W:85.8, I:10100, i:9.59, Z:805,  Zp:959,  Ht:20.8, rank:'FA' },
-  { name:'JBCR385-250x250x16.0', H:250, B:250, t:16.0, r:40.0, Asec:141.0, W:111,  I:12400, i:9.38, Z:992,  Zp:1210, Ht:15.6, rank:'FA' },
-  { name:'JBCR385-300x300x6.0',  H:300, B:300, t:6.0,  r:15.0, Asec:69.32, W:54.4, I:9890,  i:11.9, Z:660,  Zp:760,  Ht:50.0, rank:'FD' },
-  { name:'JBCR385-300x300x9.0',  H:300, B:300, t:9.0,  r:22.5, Asec:102.0, W:80.1, I:14200, i:11.8, Z:946,  Zp:1100, Ht:33.3, rank:'FC' },
-  { name:'JBCR385-300x300x12.0', H:300, B:300, t:12.0, r:30.0, Asec:133.3, W:105,  I:18100, i:11.6, Z:1200, Zp:1420, Ht:25.0, rank:'FA' },
-  { name:'JBCR385-300x300x16.0', H:300, B:300, t:16.0, r:40.0, Asec:173.0, W:136,  I:22600, i:11.4, Z:1510, Zp:1810, Ht:18.8, rank:'FA' },
-  { name:'JBCR385-300x300x19.0', H:300, B:300, t:19.0, r:47.5, Asec:201.2, W:158,  I:25500, i:11.3, Z:1700, Zp:2070, Ht:15.8, rank:'FA' },
-  { name:'JBCR385-350x350x9.0',  H:350, B:350, t:9.0,  r:22.5, Asec:120.0, W:94.2, I:23000, i:13.8, Z:1310, Zp:1520, Ht:38.9, rank:'FD' },
-  { name:'JBCR385-350x350x12.0', H:350, B:350, t:12.0, r:30.0, Asec:157.3, W:123,  I:29400, i:13.7, Z:1680, Zp:1970, Ht:29.2, rank:'FC' },
-  { name:'JBCR385-350x350x16.0', H:350, B:350, t:16.0, r:40.0, Asec:205.0, W:161,  I:37200, i:13.5, Z:2130, Zp:2530, Ht:21.9, rank:'FA' },
-  { name:'JBCR385-350x350x19.0', H:350, B:350, t:19.0, r:47.5, Asec:239.2, W:188,  I:42400, i:13.3, Z:2420, Zp:2910, Ht:18.4, rank:'FA' },
-  { name:'JBCR385-350x350x22.0', H:350, B:350, t:22.0, r:55.0, Asec:272.0, W:214,  I:47100, i:13.2, Z:2690, Zp:3270, Ht:15.9, rank:'FA' },
-  { name:'JBCR385-400x400x9.0',  H:400, B:400, t:9.0,  r:22.5, Asec:138.0, W:108,  I:34800, i:15.9, Z:1740, Zp:2010, Ht:44.4, rank:'FD' },
-  { name:'JBCR385-400x400x12.0', H:400, B:400, t:12.0, r:30.0, Asec:181.3, W:142,  I:44800, i:15.7, Z:2240, Zp:2610, Ht:33.3, rank:'FC' },
-  { name:'JBCR385-400x400x16.0', H:400, B:400, t:16.0, r:40.0, Asec:237.0, W:186,  I:57100, i:15.5, Z:2850, Zp:3370, Ht:25.0, rank:'FA' },
-  { name:'JBCR385-400x400x19.0', H:400, B:400, t:19.0, r:47.5, Asec:277.2, W:218,  I:65400, i:15.4, Z:3270, Zp:3900, Ht:21.1, rank:'FA' },
-  { name:'JBCR385-400x400x22.0', H:400, B:400, t:22.0, r:55.0, Asec:316.0, W:248,  I:73000, i:15.2, Z:3650, Zp:4390, Ht:18.2, rank:'FA' },
-  { name:'JBCR385-400x400x25.0', H:400, B:400, t:25.0, r:62.5, Asec:353.5, W:278,  I:80000, i:15.0, Z:4000, Zp:4860, Ht:16.0, rank:'FA' },
-  { name:'JBCR385-450x450x9.0',  H:450, B:450, t:9.0,  r:22.5, Asec:156.0, W:122,  I:50100, i:17.9, Z:2230, Zp:2560, Ht:50.0, rank:'FD' },
-  { name:'JBCR385-450x450x12.0', H:450, B:450, t:12.0, r:30.0, Asec:205.3, W:161,  I:64800, i:17.8, Z:2880, Zp:3340, Ht:37.5, rank:'FC' },
-  { name:'JBCR385-450x450x16.0', H:450, B:450, t:16.0, r:40.0, Asec:269.0, W:211,  I:82900, i:17.6, Z:3690, Zp:4330, Ht:28.1, rank:'FB' },
-  { name:'JBCR385-450x450x19.0', H:450, B:450, t:19.0, r:47.5, Asec:315.2, W:247,  I:95500, i:17.4, Z:4240, Zp:5020, Ht:23.7, rank:'FA' },
-  { name:'JBCR385-450x450x22.0', H:450, B:450, t:22.0, r:55.0, Asec:360.0, W:283,  I:107000,i:17.2, Z:4760, Zp:5680, Ht:20.5, rank:'FA' },
-  { name:'JBCR385-450x450x25.0', H:450, B:450, t:25.0, r:62.5, Asec:403.5, W:317,  I:118000,i:17.1, Z:5240, Zp:6300, Ht:18.0, rank:'FA' },
-  { name:'JBCR385-500x500x9.0',  H:500, B:500, t:9.0,  r:22.5, Asec:174.0, W:137,  I:69300, i:20.0, Z:2770, Zp:3190, Ht:55.6, rank:'FD' },
-  { name:'JBCR385-500x500x12.0', H:500, B:500, t:12.0, r:30.0, Asec:229.3, W:180,  I:90000, i:19.8, Z:3600, Zp:4160, Ht:41.7, rank:'FD' },
-  { name:'JBCR385-500x500x16.0', H:500, B:500, t:16.0, r:40.0, Asec:301.0, W:236,  I:116000,i:19.6, Z:4630, Zp:5410, Ht:31.3, rank:'FC' },
-  { name:'JBCR385-500x500x19.0', H:500, B:500, t:19.0, r:47.5, Asec:353.2, W:277,  I:134000,i:19.4, Z:5340, Zp:6290, Ht:26.3, rank:'FB' },
-  { name:'JBCR385-500x500x22.0', H:500, B:500, t:22.0, r:55.0, Asec:404.0, W:317,  I:150000,i:19.3, Z:6010, Zp:7130, Ht:22.7, rank:'FA' },
-  { name:'JBCR385-500x500x25.0', H:500, B:500, t:25.0, r:62.5, Asec:453.5, W:356,  I:166000,i:19.1, Z:6640, Zp:7940, Ht:20.0, rank:'FA' },
-  { name:'JBCR385-550x550x16.0', H:550, B:550, t:16.0, r:40.0, Asec:333.0, W:261,  I:156000,i:21.6, Z:5670, Zp:6610, Ht:34.4, rank:'FC' },
-  { name:'JBCR385-550x550x19.0', H:550, B:550, t:19.0, r:47.5, Asec:391.2, W:307,  I:181000,i:21.5, Z:6570, Zp:7700, Ht:28.9, rank:'FC' },
-  { name:'JBCR385-550x550x22.0', H:550, B:550, t:22.0, r:55.0, Asec:448.0, W:352,  I:204000,i:21.3, Z:7420, Zp:8750, Ht:25.0, rank:'FA' },
-  { name:'JBCR385-550x550x25.0', H:550, B:550, t:25.0, r:62.5, Asec:503.5, W:395,  I:226000,i:21.2, Z:8210, Zp:9760, Ht:22.0, rank:'FA' }
 ];
 
 const ROUND_BAR_DATA = [
@@ -708,6 +902,7 @@ const FLAT_BAR_DATA_PART2 = [
 const SECTION_DATA = {
   'H形鋼': {
     type: 'H',
+    showInCalc: true,
     label: 'H形鋼',
     jis: 'JIS G 3192',
     jisSub: 'Hot-rolled H beams',
@@ -722,6 +917,8 @@ SECTION_DATA['H形鋼'].specs = [
 
 SECTION_DATA['山形鋼'] = {
   type: 'L',
+  showInCalc: true,
+  calcKey: '等辺山形鋼',
   label: '等辺山形鋼',
   jis: 'JIS G 3192',
   jisSub: 'Equal leg angles',
@@ -765,12 +962,18 @@ SECTION_DATA['山形鋼'] = {
     { name:'L-200×200×20', A:200, B:200, t:20, r1:17,  r2:12,  Ac:76.0,  W:59.7,  Cx:5.67,  Cy:5.67,  Ix:2820,  Iy:2820,  Iu:4490,  Iv:1160,  ix:6.09,  iy:6.09,  iu:7.68,  iv:3.90,  Zx:197,   Zy:197 },
     { name:'L-200×200×25', A:200, B:200, t:25, r1:17,  r2:12,  Ac:93.8,  W:73.6,  Cx:5.86,  Cy:5.86,  Ix:3420,  Iy:3420,  Iu:5420,  Iv:1410,  ix:6.04,  iy:6.04,  iu:7.61,  iv:3.88,  Zx:242,   Zy:242 },
     { name:'L-250×250×25', A:250, B:250, t:25, r1:24,  r2:18,  Ac:119.4, W:93.7,  Cx:7.10,  Cy:7.10,  Ix:6950,  Iy:6950,  Iu:11000, Iv:2860,  ix:7.63,  iy:7.63,  iu:9.62,  iv:4.90,  Zx:388,   Zy:388 },
-    { name:'L-250×250×35', A:250, B:250, t:35, r1:24,  r2:18,  Ac:162.6, W:128.0, Cx:7.45,  Cy:7.45,  Ix:9110,  Iy:9110,  Iu:14400, Iv:3790,  ix:7.49,  iy:7.49,  iu:9.42,  iv:4.83,  Zx:519,   Zy:519 }
+    { name:'L-250×250×35', A:250, B:250, t:35, r1:24,  r2:18,  Ac:162.6, W:128.0, Cx:7.45,  Cy:7.45,  Ix:9110,  Iy:9110,  Iu:14400, Iv:3790,  ix:7.49,  iy:7.49,  iu:9.42,  iv:4.83,  Zx:519,   Zy:519 },
+    { name:'L-20×20×3',    W:0.885 },
+    { name:'L-30×30×5',    W:2.16 },
+    { name:'L-75×75×6',    W:6.85 },
+    { name:'L-130×130×9',  W:17.90 },
+    { name:'L-200×200×15', W:45.30 }
   ]
 };
 
 SECTION_DATA['不等辺山形鋼'] = {
   type: 'LU',
+  showInCalc: true,
   label: '不等辺山形鋼',
   jis: 'JIS G 3192',
   jisSub: 'Unequal leg angles',
@@ -791,6 +994,7 @@ SECTION_DATA['不等辺山形鋼'] = {
 
 SECTION_DATA['不等辺不等厚山形鋼'] = {
   type: 'LUT',
+  showInCalc: false,
   label: '不等辺不等厚山形鋼',
   jis: 'JIS G 3192',
   jisSub: 'Unequal leg and unequal thickness angles',
@@ -807,6 +1011,7 @@ SECTION_DATA['不等辺不等厚山形鋼'] = {
 
 SECTION_DATA['平鋼'] = {
   type: 'FL',
+  showInCalc: true,
   label: '平鋼',
   jis: 'JIS G 3194',
   jisSub: 'Hot rolled flat steel',
@@ -819,22 +1024,34 @@ SECTION_DATA['平鋼'] = {
 
 SECTION_DATA['溝形鋼'] = {
   type: 'C',
+  showInCalc: true,
   label: '溝形鋼',
   jis: 'JIS G 3192',
   jisSub: 'Hot-rolled steel channels',
   specs: CHANNEL_DATA
 };
 
-SECTION_DATA['軽量C形鋼'] = {
+SECTION_DATA['C形鋼'] = {
   type: 'C_LIGHT',
+  showInCalc: true,
   label: '軽量溝形鋼',
   jis: 'JIS G 3350',
   jisSub: 'Light gauge steel C-channel',
   specs: C_CHANNEL_DATA
 };
 
+SECTION_DATA['軽量溝形鋼'] = {
+  type: 'LGC',
+  showInCalc: true,
+  label: '軽量溝形鋼',
+  jis: 'JIS G 3350',
+  jisSub: 'Light gauge steel channel',
+  specs: LIGHT_GAUGE_CHANNEL_DATA
+};
+
 SECTION_DATA['I形鋼'] = {
   type: 'I',
+  showInCalc: true,
   label: 'I形鋼',
   jis: 'JIS G 3192',
   jisSub: 'Hot-rolled steel I-beams',
@@ -843,6 +1060,7 @@ SECTION_DATA['I形鋼'] = {
 
 SECTION_DATA['丸鋼'] = {
   type: 'RB',
+  showInCalc: true,
   label: '丸鋼',
   jis: 'JIS G 3191',
   jisSub: 'Hot-rolled steel bar - Round bar',
@@ -851,33 +1069,44 @@ SECTION_DATA['丸鋼'] = {
 
 SECTION_DATA['角鋼'] = {
   type: 'SB',
+  showInCalc: false,
   label: '角鋼',
   jis: 'JIS G 3191',
   jisSub: 'Hot-rolled steel bar - Square bar',
   specs: SQUARE_BAR_DATA
 };
 
-SECTION_DATA['角パイプ（正方形）'] = {
+SECTION_DATA['角パイプ'] = {
   type: 'SQUARE_PIPE',
-  label: '角形鋼管（正方形）',
+  showInCalc: true,
+  label: '角パイプ',
   jis: 'JIS G 3466',
-  jisSub: 'Square steel tube',
+  jisSub: 'Square/Rectangular steel tube',
   specs: [
-    ...SQUARE_PIPE_DATA,
-    ...SQUARE_PIPE_DATA_REST
+    ...SQUARE_PIPE_DATA.map(function(s){ return Object.assign({ shape:'square', inCalc:false }, s); }),
+    ...SQUARE_PIPE_DATA_REST.map(function(s){ return Object.assign({ shape:'square', inCalc:false }, s); }),
+    ...RECT_PIPE_DATA.map(function(s){ return Object.assign({ shape:'rect', inCalc:false }, s); }),
+    ...SQUARE_PIPE_MARKET,
+    ...RECT_PIPE_MARKET,
+    ...ECONOMY_PIPE_DATA
   ]
 };
 
-SECTION_DATA['角パイプ（長方形）'] = {
-  type: 'RECT_PIPE',
-  label: '角形鋼管（長方形）',
-  jis: 'JIS G 3466',
-  jisSub: 'Rectangle steel tube',
-  specs: RECT_PIPE_DATA
+SECTION_DATA['スモール角パイプ'] = {
+  type: 'SQUARE_PIPE',
+  showInCalc: true,
+  label: 'スモール・スーパー角パイプ',
+  jis: '',
+  jisSub: 'Small/Super square & rectangular steel tube',
+  specs: [
+    ...SMALL_SQUARE_PIPE_DATA,
+    ...SMALL_RECT_PIPE_DATA
+  ]
 };
 
 SECTION_DATA['SGP配管'] = {
   type: 'PIPE',
+  showInCalc: false,
   label: '配管用炭素鋼鋼管（SGP）',
   jis: 'JIS G 3452',
   jisSub: 'Carbon steel pipe for ordinary piping',
@@ -886,22 +1115,12 @@ SECTION_DATA['SGP配管'] = {
 
 SECTION_DATA['BCR295'] = {
   type: 'BCR',
+  showInCalc: false,
   label: 'BCR295',
   jis: 'BCP 235',
   jisSub: 'Cold roll formed square steel tube',
   specs: BCR295_DATA
 };
-
-SECTION_DATA['JBCR385'] = {
-  type: 'BCR',
-  label: 'JBCR385',
-  jis: 'BCP 325',
-  jisSub: 'Cold roll formed square steel tube',
-  specs: JBCR385_DATA
-};
-
-
-
 
 function calcUnitWeightFromArea(Ac){
   return typeof jisRound === 'function'
@@ -1289,7 +1508,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '角パイプ（長方形）', 'BCR295', 'JBCR385', 'SGP配管', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', 'C形鋼', '軽量溝形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ', 'スモール角パイプ', 'BCR295', 'SGP配管', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -1755,3 +1974,33 @@ function selectDataSpec(idx, kind) {
 function dataSelectSpec(idx) {
   selectDataSpec(idx);
 }
+
+// ===== STEEL を SECTION_DATA から再構築 =====
+// calc.js で定義された STEEL をここで上書きする
+// （data.js は calc.js より後に読み込まれるため可能）
+(function rebuildSTEEL() {
+  if (typeof STEEL === 'undefined' || typeof SECTION_DATA === 'undefined') return;
+
+  Object.keys(STEEL).forEach(function(key) {
+    delete STEEL[key];
+  });
+
+  getDataKindOrder().forEach(function(key) {
+    var entry = SECTION_DATA[key];
+    if (!entry || !entry.showInCalc) return;
+
+    var calcKey = entry.calcKey || key;
+    var specs = (entry.specs || []).filter(function(spec) {
+      if (spec.inCalc === false) return false;
+      return spec.W != null && spec.W > 0;
+    });
+
+    if (!specs.length) return;
+
+    STEEL[calcKey] = specs.map(function(spec) {
+      return [spec.name, spec.W];
+    });
+  });
+
+  console.log('[TORIAI] STEEL rebuilt from SECTION_DATA:', Object.keys(STEEL));
+})();
