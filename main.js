@@ -95,7 +95,7 @@ function toggleKuiku() {
   var wrap = document.querySelector('.pt-wrap');
   var hdKuiku = document.getElementById('ptHdKuiku');
   if (wrap) wrap.classList.toggle('kuiku-on', enabled);
-  if (hdKuiku) hdKuiku.style.display = enabled ? 'inline-block' : 'none';
+  if (hdKuiku) hdKuiku.style.display = enabled ? '' : 'none';
   for (var i = 0; i < totalRows; i++) {
     var pz = document.getElementById('pz' + i);
     if (pz) pz.style.display = enabled ? '' : 'none';
@@ -376,7 +376,7 @@ function addPartRowAt(i) {
     '<span class="pt-n">' + (i+1) + '</span>' +
     '<input type="number" id="pl' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'l\')" style="text-align:right">' +
     '<input type="number" id="pq' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'q\')" style="text-align:right">' +
-    '<input type="text" id="pz' + i + '" placeholder="工区" style="' + (kuikuEnabled ? '' : 'display:none') + '">' +
+    '<input type="text" id="pz' + i + '" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'z\')" style="' + (kuikuEnabled ? '' : 'display:none') + '">' +
     '<span class="pt-kg" id="pk' + i + '">—</span>';
   pl.appendChild(d);
 }
@@ -385,20 +385,39 @@ function addPartRowAt(i) {
 function ptEnter(e, i, col) {
   if (e.key !== 'Enter') return;
   e.preventDefault();
+  var kuikuOn = document.getElementById('useKuiku') && document.getElementById('useKuiku').checked;
   if (col === 'l') {
     // 長さ → 数量へ
     var next = document.getElementById('pq' + i);
     if (next) { next.focus(); next.select(); }
   } else if (col === 'q') {
-    // 数量 → 次の行の長さへ（なければ行追加）
-    var nextRow = document.getElementById('pl' + (i+1));
-    if (nextRow) {
-      nextRow.focus(); nextRow.select();
+    if (kuikuOn) {
+      // 工区ONのとき: 数量 → 同行の工区へ
+      var pz = document.getElementById('pz' + i);
+      if (pz) { pz.focus(); pz.select(); }
+    } else {
+      // 工区OFFのとき: 数量 → 次行の長さへ（なければ行追加）
+      var nextRow = document.getElementById('pl' + (i+1));
+      if (nextRow) {
+        nextRow.focus(); nextRow.select();
+      } else {
+        addPartRow();
+        setTimeout(function() {
+          var nr = document.getElementById('pl' + (i+1));
+          if (nr) { nr.focus(); nr.select(); }
+        }, 30);
+      }
+    }
+  } else if (col === 'z') {
+    // 工区 → 次行の工区へ（なければ行追加してから工区へ）
+    var nextPz = document.getElementById('pz' + (i+1));
+    if (nextPz) {
+      nextPz.focus(); nextPz.select();
     } else {
       addPartRow();
       setTimeout(function() {
-        var nr = document.getElementById('pl' + (i+1));
-        if (nr) { nr.focus(); nr.select(); }
+        var nz = document.getElementById('pz' + (i+1));
+        if (nz) { nz.focus(); nz.select(); }
       }, 30);
     }
   }
