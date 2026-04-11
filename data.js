@@ -158,7 +158,6 @@ function dataSelectKind(kind) {
   _dataKind = kind;
   _dataSpecIdx = 0;
   renderDataKindTabs();
-  renderDataSpecPicker();
   renderDataSpec();
 }
 
@@ -184,8 +183,9 @@ function renderDataSpecPicker() {
 
   if (input) {
     input.onfocus = function() {
-      this.select();
-      filterDataSpecOptions('');
+      renderDataSpecDropdownList(kindData.specs.map(function(item, index) {
+        return { index: index, name: item.name };
+      }));
       toggleDataSpecDropdown(true);
     };
     input.oninput = function() {
@@ -196,7 +196,7 @@ function renderDataSpecPicker() {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         toggleDataSpecDropdown(true);
-        var first = document.querySelector('.data-spec-option');
+        var first = document.querySelector('#dataSpecDropdown .data-spec-option');
         if (first) first.focus();
       } else if (e.key === 'Enter') {
         e.preventDefault();
@@ -214,13 +214,27 @@ function renderDataSpecPicker() {
   if (btn) {
     btn.onclick = function() {
       var wantOpen = !_dataSpecDropdownOpen;
-      filterDataSpecOptions('');
+      if (wantOpen) {
+        renderDataSpecDropdownList(kindData.specs.map(function(item, index) {
+          return { index: index, name: item.name };
+        }));
+      }
       toggleDataSpecDropdown(wantOpen);
       if (wantOpen && input) input.focus();
     };
   }
 
-  filterDataSpecOptions(input ? input.value : '');
+  const dropdown = document.getElementById('dataSpecDropdown');
+  if (dropdown) {
+    dropdown.onclick = function(e) {
+      var option = e.target.closest('.data-spec-option');
+      if (!option) return;
+      var index = parseInt(option.getAttribute('data-index'), 10);
+      if (!isNaN(index)) selectDataSpec(index);
+    };
+  }
+
+  closeDataSpecDropdown();
 }
 
 function toggleDataSpecDropdown(forceOpen) {
@@ -230,38 +244,40 @@ function toggleDataSpecDropdown(forceOpen) {
   dd.classList.toggle('open', _dataSpecDropdownOpen);
 }
 
+function renderDataSpecDropdownList(specs) {
+  const dropdown = document.getElementById('dataSpecDropdown');
+  if (!dropdown) return;
+
+  if (!specs.length) {
+    dropdown.innerHTML = '<div class="data-spec-empty">候補がありません</div>';
+    return;
+  }
+
+  dropdown.innerHTML = specs.map(function(item) {
+    return '<div class="data-spec-option' + (item.index === _dataSpecIdx ? ' active' : '') + '" data-index="' + item.index + '" tabindex="0">' + item.name + '</div>';
+  }).join('');
+}
+
 function filterDataSpecOptions(keyword) {
   const kindData = SECTION_DATA[_dataKind];
-  const dd = document.getElementById('dataSpecDropdown');
-  if (!kindData || !dd) return;
+  if (!kindData) return;
 
   const q = normalizeDataSpecText(keyword);
   _dataSpecFiltered = kindData.specs
     .map(function(spec, index) {
-      return { spec: spec, index: index, norm: normalizeDataSpecText(spec.name) };
+      return { index: index, name: spec.name, norm: normalizeDataSpecText(spec.name) };
     })
     .filter(function(item) {
       return !q || item.norm.indexOf(q) >= 0;
     });
 
-  if (!_dataSpecFiltered.length) {
-    dd.innerHTML = '<div class="data-spec-empty">該当する規格がありません</div>';
-    return;
-  }
+  renderDataSpecDropdownList(_dataSpecFiltered);
 
-  dd.innerHTML = _dataSpecFiltered.map(function(item) {
-    return '<button type="button" class="data-spec-option' + (item.index === _dataSpecIdx ? ' active' : '') + '" data-spec-index="' + item.index + '">' + item.spec.name + '</button>';
-  }).join('');
-
-  Array.prototype.forEach.call(dd.querySelectorAll('.data-spec-option'), function(btn, idx, all) {
-    btn.onmousedown = function(e) {
-      e.preventDefault();
-      selectDataSpec(parseInt(this.getAttribute('data-spec-index'), 10));
-    };
-    btn.onkeydown = function(e) {
+  Array.prototype.forEach.call(document.querySelectorAll('#dataSpecDropdown .data-spec-option'), function(option, idx, all) {
+    option.onkeydown = function(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        selectDataSpec(parseInt(this.getAttribute('data-spec-index'), 10));
+        selectDataSpec(parseInt(this.getAttribute('data-index'), 10));
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         var next = all[Math.min(idx + 1, all.length - 1)];
@@ -284,10 +300,12 @@ function filterDataSpecOptions(keyword) {
 }
 
 function closeDataSpecDropdown() {
-  toggleDataSpecDropdown(false);
+  const dd = document.getElementById('dataSpecDropdown');
+  _dataSpecDropdownOpen = false;
+  if (dd) dd.classList.remove('open');
 }
 
-document.addEventListener('mousedown', function(e) {
+document.addEventListener('click', function(e) {
   var picker = document.querySelector('.data-spec-picker');
   if (!picker || !picker.contains(e.target)) {
     closeDataSpecDropdown();
@@ -373,7 +391,6 @@ function renderDataSpec() {
 /* スペック選択 */
 function selectDataSpec(idx) {
   _dataSpecIdx = idx;
-  renderDataSpecPicker();
   renderDataSpec();
   closeDataSpecDropdown();
 }
