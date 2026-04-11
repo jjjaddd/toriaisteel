@@ -150,7 +150,23 @@ input[type=checkbox]{width:13px;height:13px;accent-color:#d8ccff;cursor:pointer;
 #ptHdKuiku{text-align:center}
 .pt-row input[id^="pz"]{text-align:center;font-size:11px}
 .pt-row:last-child{border-bottom:none}
+/* Ctrl+A 全選択状態 */
+.pt-row.pt-selected{background:rgba(109,40,217,.07)}
+.pt-row.pt-selected input{background:rgba(109,40,217,.06)}
 .pt-n{font-size:11px;color:#8888a8;display:flex;align-items:center;justify-content:center;font-family:monospace}
+/* 計算ボタン Ctrl+Enter ヒント（キーキャップ風） */
+.run-hint{
+  font-size:9px;
+  font-weight:500;
+  opacity:.4;
+  margin-left:8px;
+  border:1px solid rgba(26,26,46,.25);
+  border-radius:3px;
+  padding:1px 5px;
+  font-family:monospace;
+  letter-spacing:.02em;
+  text-transform:none;
+}
 .pt-row input{background:transparent;border:1px solid transparent;color:#2a2a3e;font-family:'Space Grotesk',monospace;font-size:12px;padding:5px 6px;outline:none;transition:.12s;width:100%}
 .pt-row input:hover,
 .pt-row input:focus{background:#faf5ff;outline:none;box-shadow:none}

@@ -9,6 +9,48 @@
 var ROWS         = 10;   // 部材リスト初期行数
 var curKind      = 'H形鋼';
 
+// ── 行選択（Ctrl+A / Delete） ────────────────────────────
+var _selectedRows = [];   // 選択中の行インデックス
+
+/** 切り出し部材リストの全行を選択状態にする */
+function ptSelectAll() {
+  ptDeselect(); // 既存選択をリセット
+  for (var i = 0; i < totalRows; i++) {
+    var row = document.getElementById('pr' + i);
+    if (row) { row.classList.add('pt-selected'); _selectedRows.push(i); }
+  }
+}
+
+/** 選択行のデータをすべてクリアする */
+function ptClearSelected() {
+  if (!_selectedRows.length) return;
+  pushUndoManual();
+  for (var si = 0; si < _selectedRows.length; si++) {
+    var i = _selectedRows[si];
+    var l = document.getElementById('pl' + i);
+    var q = document.getElementById('pq' + i);
+    var z = document.getElementById('pz' + i);
+    var k = document.getElementById('pk' + i);
+    if (l) l.value = '';
+    if (q) q.value = '';
+    if (z) z.value = '';
+    if (k) k.textContent = '—';
+    var row = document.getElementById('pr' + i);
+    if (row) row.classList.remove('pt-selected');
+  }
+  _selectedRows = [];
+  updKg();
+}
+
+/** 選択状態を解除する */
+function ptDeselect() {
+  for (var i = 0; i < _selectedRows.length; i++) {
+    var row = document.getElementById('pr' + _selectedRows[i]);
+    if (row) row.classList.remove('pt-selected');
+  }
+  _selectedRows = [];
+}
+
 // ── アンドゥ/リドゥ ─────────────────────────────────────
 var _undoStack = [];
 var _redoStack = [];
@@ -107,6 +149,30 @@ document.addEventListener('keydown', function(e) {
   var tag = document.activeElement ? document.activeElement.tagName : '';
   var isInPtRow = document.activeElement && document.activeElement.closest &&
                   document.activeElement.closest('.pt-row');
+
+  // Ctrl+A：切り出し部材リスト全行を選択（ptList内にフォーカスがある場合）
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+    if (isInPtRow) {
+      e.preventDefault();
+      ptSelectAll();
+      // 入力欄からフォーカスを外してDeleteキーが即使えるようにする
+      var ptList = document.getElementById('ptList');
+      if (ptList) ptList.focus();
+      return;
+    }
+  }
+
+  // Delete / Backspace：選択行をクリア（行が選択されているとき優先処理）
+  if ((e.key === 'Delete' || e.key === 'Backspace') && _selectedRows.length > 0) {
+    e.preventDefault();
+    ptClearSelected();
+    return;
+  }
+
+  // その他のキーを押したら行選択を解除
+  if (_selectedRows.length > 0 && e.key !== 'Delete' && e.key !== 'Backspace') {
+    ptDeselect();
+  }
 
   // Ctrl+Z：アンドゥ（pt-row内、またはページフォーカス時）
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
@@ -2078,8 +2144,12 @@ function clearParts() {
   for (var i = 0; i < totalRows; i++) {
     var lEl = document.getElementById('pl' + i);
     var qEl = document.getElementById('pq' + i);
+    var zEl = document.getElementById('pz' + i);
     var kEl = document.getElementById('pk' + i);
-    if (lEl) { lEl.value = ''; qEl.value = ''; kEl.textContent = '—'; }
+    if (lEl) lEl.value = '';
+    if (qEl) qEl.value = '';
+    if (zEl) zEl.value = '';
+    if (kEl) kEl.textContent = '—';
   }
   document.getElementById('totkg').textContent = '—';
 }

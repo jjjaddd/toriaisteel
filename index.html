@@ -144,7 +144,7 @@
     </section>
 
     <div class="calc-note">本ソフトは計算支援を目的としたツールです。計算結果や切断指示は、実作業前に必ずご確認ください。</div>
-    <button class="run" id="runBtn" onclick="runCalc()">計算を実行する <span class="arr">→</span><span style="font-size:9px;font-weight:400;opacity:.45;margin-left:4px">Ctrl+Enter</span></button>
+    <button class="run" id="runBtn" onclick="runCalc()">計算を実行する <span class="arr">→</span><span class="run-hint">⌃↵</span></button>
   </div>
 
   <div class="sb-panel" id="sbPanel2">
@@ -268,7 +268,7 @@
           <span class="ds-tog-track"></span>
         </label>
       </div>
-      <div class="ds-toggle-row" onclick="document.getElementById('useCarbonFootprint').click()">
+      <div class="ds-toggle-row wip-block" onclick="document.getElementById('useCarbonFootprint').click()">
         <div class="ds-toggle-label">
           <span>カーボンフットプリント計算</span>
           <small>切断計画と同時にCO2排出量を算出します</small>
