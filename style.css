@@ -2638,3 +2638,171 @@ input:focus,select:focus,textarea:focus{
   }
 }
 
+/* データタブ 半画面最適化 */
+.data-page-shell{
+  max-width:1200px;
+  width:min(1200px, calc(100vw - 32px));
+}
+
+.data-main-grid{
+  grid-template-columns:minmax(320px, 1fr) minmax(320px, 420px);
+  gap:18px;
+  align-items:start;
+}
+
+.data-topbar{
+  margin-bottom:14px;
+}
+
+.data-figure-card,
+.data-info-card{
+  border-radius:22px;
+  padding:16px;
+}
+
+#dataSpecInput,
+#dataSpecToggleBtn{
+  height:40px;
+}
+
+#dataSVGWrap{
+  min-height:320px;
+}
+
+#dataSVGWrap svg{
+  max-width:360px;
+}
+
+#dataDimGrid,
+#dataPerfGrid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:8px;
+}
+
+.dp-cell{
+  min-height:62px;
+  padding:10px 8px;
+  border-radius:12px;
+}
+
+#dataExtraInfo{
+  display:grid;
+  gap:10px;
+}
+
+.dp-kgm-bar{
+  padding:8px 10px;
+}
+
+@media (max-width: 980px) and (min-width: 760px){
+  .data-page-shell{
+    width:min(100%, calc(100vw - 20px));
+  }
+
+  .data-topbar{
+    margin-bottom:12px;
+  }
+
+  .data-main-grid{
+    grid-template-columns:minmax(280px, 1fr) minmax(260px, 340px);
+    gap:14px;
+  }
+
+  .data-figure-card,
+  .data-info-card{
+    padding:12px;
+    border-radius:18px;
+  }
+
+  #dataSpecInput,
+  #dataSpecToggleBtn{
+    height:36px;
+  }
+
+  #dataSpecInput{
+    font-size:13px;
+    padding:0 12px;
+  }
+
+  #dataSVGWrap{
+    min-height:250px;
+  }
+
+  #dataSVGWrap svg{
+    max-width:250px;
+  }
+
+  #dataDimGrid,
+  #dataPerfGrid{
+    gap:6px;
+  }
+
+  .dp-cell{
+    min-height:54px;
+    padding:8px 6px;
+    border-radius:10px;
+  }
+
+  .dp-cell span{
+    font-size:10px;
+  }
+
+  .dp-cell strong{
+    font-size:15px;
+    line-height:1.1;
+  }
+
+  .dp-kgm-bar{
+    padding:7px 9px;
+  }
+
+  .dp-box{
+    padding:10px 12px;
+    border-radius:12px;
+  }
+
+  .dp-box strong{
+    font-size:16px;
+  }
+
+  .dp-spec-name{
+    font-size:28px;
+    line-height:1.1;
+  }
+
+  .dp-spec-sub,
+  .dp-jis-badge,
+  .dp-type-badge{
+    font-size:11px;
+  }
+
+  .data-topbar-label,
+  .dp-section-title{
+    font-size:12px;
+  }
+
+  #dataExtraInfo{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+}
+
+@media (max-width: 759px){
+  .data-main-grid{
+    grid-template-columns:1fr;
+  }
+
+  #dataSVGWrap{
+    min-height:220px;
+  }
+
+  #dataSVGWrap svg{
+    max-width:220px;
+  }
+
+  .dp-cell strong{
+    font-size:16px;
+  }
+}
+
