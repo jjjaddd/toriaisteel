@@ -3,18 +3,50 @@
    ================================================================ */
 
 /* ── 断面寸法・性能データ（JIS G 3192） ── */
+const H_SHAPES_JIS = [
+  { name:'H-100×50×5×7', H:100, B:50, t1:5, t2:7, r:8, Ac:11.85, W:9.30, Ix:187, Iy:14.8, Zx:37.5, Zy:5.91, ix:3.98, iy:1.12 },
+  { name:'H-100×100×6×8', H:100, B:100, t1:6, t2:8, r:8, Ac:21.59, W:16.9, Ix:378, Iy:134, Zx:75.6, Zy:26.7, ix:4.18, iy:2.49 },
+  { name:'H-125×60×6×8', H:125, B:60, t1:6, t2:8, r:8, Ac:16.69, W:13.1, Ix:409, Iy:29.1, Zx:65.5, Zy:9.71, ix:4.95, iy:1.32 },
+  { name:'H-125×125×6.5×9', H:125, B:125, t1:6.5, t2:9, r:8, Ac:30.00, W:23.6, Ix:839, Iy:293, Zx:134, Zy:46.9, ix:5.29, iy:3.13 },
+  { name:'H-150×75×5×7', H:150, B:75, t1:5, t2:7, r:8, Ac:17.85, W:14.0, Ix:666, Iy:49.5, Zx:88.8, Zy:13.2, ix:6.11, iy:1.66 },
+  { name:'H-148×100×6×9', H:148, B:100, t1:6, t2:9, r:8, Ac:26.35, W:20.7, Ix:1000, Iy:150, Zx:135, Zy:30.1, ix:6.17, iy:2.39 },
+  { name:'H-150×150×7×10', H:150, B:150, t1:7, t2:10, r:8, Ac:39.65, W:31.1, Ix:1620, Iy:563, Zx:216, Zy:75.1, ix:6.40, iy:3.77 },
+  { name:'H-175×90×5×8', H:175, B:90, t1:5, t2:8, r:8, Ac:22.90, W:18.0, Ix:1210, Iy:97.5, Zx:138, Zy:21.7, ix:7.26, iy:2.06 },
+  { name:'H-175×175×7.5×11', H:175, B:175, t1:7.5, t2:11, r:13, Ac:51.43, W:40.4, Ix:2900, Iy:984, Zx:331, Zy:112, ix:7.50, iy:4.37 },
+  { name:'H-198×99×4.5×7', H:198, B:99, t1:4.5, t2:7, r:8, Ac:22.69, W:17.8, Ix:1540, Iy:113, Zx:156, Zy:22.9, ix:8.25, iy:2.24 },
+  { name:'H-200×100×5.5×8', H:200, B:100, t1:5.5, t2:8, r:8, Ac:26.67, W:20.9, Ix:1810, Iy:134, Zx:181, Zy:26.7, ix:8.23, iy:2.24 },
+  { name:'H-194×150×6×9', H:194, B:150, t1:6, t2:9, r:8, Ac:38.11, W:29.9, Ix:2630, Iy:507, Zx:271, Zy:67.6, ix:8.30, iy:3.65 },
+  { name:'H-200×200×8×12', H:200, B:200, t1:8, t2:12, r:13, Ac:63.53, W:49.9, Ix:4720, Iy:1600, Zx:472, Zy:160, ix:8.62, iy:5.02 },
+  { name:'H-248×124×5×8', H:248, B:124, t1:5, t2:8, r:8, Ac:31.99, W:25.1, Ix:3450, Iy:255, Zx:278, Zy:41.1, ix:10.4, iy:2.82 },
+  { name:'H-250×125×6×9', H:250, B:125, t1:6, t2:9, r:8, Ac:36.97, W:29.0, Ix:3960, Iy:294, Zx:317, Zy:47.0, ix:10.4, iy:2.82 },
+  { name:'H-244×175×7×11', H:244, B:175, t1:7, t2:11, r:13, Ac:55.49, W:43.6, Ix:6040, Iy:984, Zx:495, Zy:112, ix:10.4, iy:4.21 },
+  { name:'H-250×250×9×14', H:250, B:250, t1:9, t2:14, r:13, Ac:91.43, W:71.8, Ix:10700, Iy:3650, Zx:860, Zy:292, ix:10.8, iy:6.32 },
+  { name:'H-300×150×6.5×9', H:300, B:150, t1:6.5, t2:9, r:13, Ac:46.78, W:36.7, Ix:7210, Iy:508, Zx:481, Zy:67.7, ix:12.4, iy:3.29 },
+  { name:'H-300×300×10×15', H:300, B:300, t1:10, t2:15, r:13, Ac:118.5, W:93.0, Ix:20200, Iy:6750, Zx:1350, Zy:450, ix:13.1, iy:7.55 },
+  { name:'H-350×175×7×11', H:350, B:175, t1:7, t2:11, r:13, Ac:62.91, W:49.4, Ix:13500, Iy:984, Zx:771, Zy:112, ix:14.6, iy:3.96 },
+  { name:'H-350×350×12×19', H:350, B:350, t1:12, t2:19, r:13, Ac:171.9, W:135, Ix:39800, Iy:13600, Zx:2280, Zy:776, ix:15.2, iy:8.89 }
+];
+
 const SECTION_DATA = {
   'H形鋼': {
     type: 'H',
     label: 'H形鋼',
     jis: 'JIS G 3192',
     jisSub: 'Hot-rolled H beams',
-    specs: [
-      { name:'H-100×50×5×7',  H:100, B:50,  t1:5, t2:7, r:8, Ac:11.85, W:9.30,  Ix:187,  Iy:14.8, Zx:37.5, Zy:5.91, ix:3.98, iy:1.12 },
-      { name:'H-100×100×6×8', H:100, B:100, t1:6, t2:8, r:8, Ac:21.59, W:16.9,  Ix:378,  Iy:134,  Zx:75.6, Zy:26.7, ix:4.18, iy:2.49 },
-    ]
+    specs: []
   }
 };
+
+SECTION_DATA['H形鋼'].specs = H_SHAPES_JIS;
+
+function calcUnitWeightFromArea(Ac){
+  return +(Ac * 0.785).toFixed(2);
+}
+
+function calcHPaintAreaPerMeter(s){
+  const P = 4*s.B + 2*s.H - 2*s.t1 + (2*Math.PI*s.r) - (8*s.r);
+  return +(P/1000).toFixed(3);
+}
 
 /* ── H形鋼 断面SVG生成 ──
    H=全高, B=フランジ幅, t1=ウェブ厚, t2=フランジ厚, r=フィレット半径 (mm)
@@ -130,7 +162,7 @@ function renderDataSpec() {
   // SVG断面図（H形鋼）
   const svgEl = document.getElementById('dataSVGWrap');
   if (svgEl) {
-    svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 260, 210);
+    svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 420, 320);
   }
 
   // 断面寸法グリッド
@@ -161,6 +193,24 @@ function renderDataSpec() {
   const kgmEl = document.getElementById('dataKgmBar');
   if (kgmEl) {
     kgmEl.innerHTML = `<span>単位質量 W</span><strong>${spec.W} kg/m</strong>`;
+  }
+
+  const extraEl = document.getElementById('dataExtraInfo');
+  if (extraEl) {
+    const calcW = calcUnitWeightFromArea(spec.Ac);
+    const S = calcHPaintAreaPerMeter(spec);
+
+    extraEl.innerHTML = `
+      <div class="dp-box">
+        <div>単位重量の計算式</div>
+        <strong>${spec.Ac} × 0.785 = ${calcW}</strong>
+      </div>
+
+      <div class="dp-box">
+        <div>塗装面積（参考）</div>
+        <strong>${S} m²/m</strong>
+      </div>
+    `;
   }
 }
 
