@@ -172,6 +172,45 @@ const SQUARE_PIPE_DATA_REST = [
   { name:'□350x350x12.0', A:350, B:350, t:12.0, W:124,  Asec:158.5, Ix:29800, Iy:29800, Zx:1700, Zy:1700, ix:13.7, iy:13.7 }
 ];
 
+const RECT_PIPE_DATA = [
+  { name:'□50x20x1.6', A:50, B:20, t:1.6, W:1.63, Asec:2.072, Ix:6.08, Iy:1.42, Zx:2.43, Zy:1.42 },
+  { name:'□50x20x2.3', A:50, B:20, t:2.3, W:2.25, Asec:2.872, Ix:8.00, Iy:1.83, Zx:3.20, Zy:1.83 },
+  { name:'□50x30x1.6', A:50, B:30, t:1.6, W:1.88, Asec:2.392, Ix:7.96, Iy:3.60, Zx:3.18, Zy:2.40 },
+  { name:'□50x30x2.3', A:50, B:30, t:2.3, W:2.62, Asec:3.332, Ix:10.6, Iy:4.76, Zx:4.25, Zy:3.17 },
+  { name:'□60x30x1.6', A:60, B:30, t:1.6, W:2.13, Asec:2.712, Ix:12.5, Iy:4.25, Zx:4.16, Zy:2.83 },
+  { name:'□60x30x2.3', A:60, B:30, t:2.3, W:2.98, Asec:3.792, Ix:16.8, Iy:5.65, Zx:5.61, Zy:3.76 },
+  { name:'□60x30x3.2', A:60, B:30, t:3.2, W:3.99, Asec:5.087, Ix:21.4, Iy:7.08, Zx:7.15, Zy:4.72 },
+  { name:'□75x45x1.6', A:75, B:45, t:1.6, W:2.88, Asec:3.672, Ix:28.4, Iy:12.9, Zx:7.56, Zy:5.75 },
+  { name:'□75x45x2.3', A:75, B:45, t:2.3, W:4.06, Asec:5.172, Ix:38.9, Iy:17.6, Zx:10.4, Zy:7.82 },
+  { name:'□75x45x3.2', A:75, B:45, t:3.2, W:5.50, Asec:7.007, Ix:50.8, Iy:22.8, Zx:13.5, Zy:10.1 },
+  { name:'□100x50x2.3', A:100, B:50, t:2.3, W:5.10, Asec:6.552, Ix:84.8, Iy:29.0, Zx:17.0, Zy:11.6 },
+  { name:'□100x50x3.2', A:100, B:50, t:3.2, W:7.00, Asec:8.927, Ix:112, Iy:38.0, Zx:22.5, Zy:15.2 },
+  { name:'□100x50x4.5', A:100, B:50, t:4.5, W:9.60, Asec:12.17, Ix:147, Iy:48.9, Zx:29.3, Zy:19.5 },
+  { name:'□125x75x3.2', A:125, B:75, t:3.2, W:9.50, Asec:12.13, Ix:257, Iy:117, Zx:41.1, Zy:31.1 },
+  { name:'□125x75x4.5', A:125, B:75, t:4.5, W:13.1, Asec:16.67, Ix:342, Iy:155, Zx:54.8, Zy:41.2 },
+  { name:'□125x75x6.0', A:125, B:75, t:6.0, W:17.0, Asec:21.63, Ix:428, Iy:192, Zx:68.5, Zy:51.1 },
+  { name:'□150x75x3.2', A:150, B:75, t:3.2, W:10.8, Asec:13.73, Ix:402, Iy:137, Zx:53.6, Zy:36.6 },
+  { name:'□150x75x4.5', A:150, B:75, t:4.5, W:15.2, Asec:19.37, Ix:563, Iy:211, Zx:75.0, Zy:52.9 },
+  { name:'□150x100x4.5', A:150, B:100, t:4.5, W:16.6, Asec:21.17, Ix:658, Iy:352, Zx:87.7, Zy:70.4 },
+  { name:'□150x100x6.0', A:150, B:100, t:6.0, W:21.7, Asec:27.63, Ix:835, Iy:444, Zx:111, Zy:88.8 },
+  { name:'□150x100x9.0', A:150, B:100, t:9.0, W:31.1, Asec:39.67, Ix:1130, Iy:595, Zx:151, Zy:119 },
+  { name:'□200x100x4.5', A:200, B:100, t:4.5, W:20.1, Asec:25.67, Ix:1330, Iy:455, Zx:133, Zy:90.9 },
+  { name:'□200x100x6.0', A:200, B:100, t:6.0, W:26.4, Asec:33.63, Ix:1700, Iy:577, Zx:170, Zy:115 },
+  { name:'□200x100x9.0', A:200, B:100, t:9.0, W:38.2, Asec:48.67, Ix:2350, Iy:782, Zx:235, Zy:156 },
+  { name:'□200x150x6.0', A:200, B:150, t:6.0, W:35.8, Asec:45.63, Ix:3890, Iy:1770, Zx:311, Zy:236 },
+  { name:'□200x150x9.0', A:200, B:150, t:9.0, W:52.3, Asec:66.67, Ix:5480, Iy:2470, Zx:438, Zy:330 },
+  { name:'□200x150x12.0', A:200, B:150, t:12.0, W:67.9, Asec:86.53, Ix:6850, Iy:3070, Zx:548, Zy:409 },
+  { name:'□300x200x6.0', A:300, B:200, t:6.0, W:45.2, Asec:57.63, Ix:7370, Iy:3960, Zx:491, Zy:396 },
+  { name:'□300x200x9.0', A:300, B:200, t:9.0, W:66.5, Asec:84.67, Ix:10500, Iy:5630, Zx:702, Zy:563 },
+  { name:'□300x200x12.0', A:300, B:200, t:12.0, W:86.8, Asec:110.5, Ix:13400, Iy:7110, Zx:890, Zy:711 },
+  { name:'□350x150x6.0', A:350, B:150, t:6.0, W:45.2, Asec:57.63, Ix:8910, Iy:2390, Zx:509, Zy:319 },
+  { name:'□350x150x9.0', A:350, B:150, t:9.0, W:66.5, Asec:84.67, Ix:12700, Iy:3370, Zx:726, Zy:449 },
+  { name:'□350x150x12.0', A:350, B:150, t:12.0, W:86.8, Asec:110.5, Ix:16100, Iy:4200, Zx:921, Zy:562 },
+  { name:'□400x200x6.0', A:400, B:200, t:6.0, W:54.7, Asec:69.63, Ix:14800, Iy:5090, Zx:739, Zy:509 },
+  { name:'□400x200x9.0', A:400, B:200, t:9.0, W:80.6, Asec:102.7, Ix:21300, Iy:7270, Zx:1070, Zy:721 },
+  { name:'□400x200x12.0', A:400, B:200, t:12.0, W:106, Asec:134.5, Ix:27300, Iy:9230, Zx:1360, Zy:923 }
+];
+
 const ROUND_BAR_DATA = [
   { name:'RB-5.5', D:5.5, W:0.187, A:0.238, I:0.004, i:0.138, Z:0.016 },
   { name:'RB-6',   D:6,   W:0.222, A:0.283, I:0.006, i:0.150, Z:0.021 },
@@ -664,6 +703,14 @@ SECTION_DATA['角パイプ（正方形）'] = {
   ]
 };
 
+SECTION_DATA['角パイプ（長方形）'] = {
+  type: 'RECT_PIPE',
+  label: '角形鋼管（長方形）',
+  jis: 'JIS G 3466',
+  jisSub: 'Rectangle steel tube',
+  specs: RECT_PIPE_DATA
+};
+
 
 
 
@@ -1032,7 +1079,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '角パイプ（長方形）', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -1293,7 +1340,7 @@ function renderDataSpec() {
       svgEl.innerHTML = drawRoundBarSVG(spec.D, 260, 210);
     } else if (kindData.type === 'SB') {
       svgEl.innerHTML = drawSquareBarSVG(spec.a, 260, 210);
-    } else if (kindData.type === 'SQUARE_PIPE') {
+    } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, 260, 210);
     } else if (kindData.type === 'FL') {
       svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, 260, 210);
@@ -1374,7 +1421,7 @@ function renderDataSpec() {
         <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
         <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
       `;
-    } else if (kindData.type === 'SQUARE_PIPE') {
+    } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       dimEl.innerHTML = `
         <div class="dp-cell"><span>A</span><strong>${spec.A} mm</strong></div>
         <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
@@ -1394,7 +1441,7 @@ function renderDataSpec() {
         <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
         <div class="dp-cell"><span>i</span><strong>${spec.i} cm</strong></div>
       `;
-    } else if (kindData.type === 'SQUARE_PIPE') {
+    } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       perfEl.innerHTML = `
         <div class="dp-cell"><span>Ix</span><strong>${spec.Ix} cm⁴</strong></div>
         <div class="dp-cell"><span>Iy</span><strong>${spec.Iy != null ? spec.Iy : spec.Ix} cm⁴</strong></div>
@@ -1423,7 +1470,7 @@ function renderDataSpec() {
   if (extraEl) {
     const weightArea = (kindData.type === 'RB' || kindData.type === 'SB')
       ? spec.A
-      : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'C_LIGHT') ? spec.Asec : spec.Ac);
+      : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'C_LIGHT') ? spec.Asec : spec.Ac);
     const calcW = calcUnitWeightFromArea(weightArea);
     const S = (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT')
       ? calcLAnglePaintAreaPerMeter(spec)
@@ -1431,7 +1478,7 @@ function renderDataSpec() {
           ? calcRoundBarPaintAreaPerMeter(spec)
       : (kindData.type === 'SB')
           ? calcSquareBarPaintAreaPerMeter(spec)
-      : (kindData.type === 'SQUARE_PIPE')
+      : (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE')
           ? calcSquarePipePaintAreaPerMeter(spec)
       : (kindData.type === 'C_LIGHT')
           ? calcLightCChannelPaintAreaPerMeter(spec)
