@@ -2645,7 +2645,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 .data-main-grid{
-  grid-template-columns:minmax(320px, 1fr) minmax(320px, 420px);
+  grid-template-columns:minmax(420px, 520px) minmax(420px, 500px);
   gap:18px;
   align-items:start;
 }
@@ -2660,17 +2660,21 @@ input:focus,select:focus,textarea:focus{
   padding:16px;
 }
 
+.data-figure-card{
+  padding:14px 14px 12px;
+}
+
 #dataSpecInput,
 #dataSpecToggleBtn{
   height:40px;
 }
 
 #dataSVGWrap{
-  min-height:320px;
+  min-height:360px;
 }
 
 #dataSVGWrap svg{
-  max-width:360px;
+  max-width:460px;
 }
 
 #dataDimGrid,
@@ -2693,6 +2697,15 @@ input:focus,select:focus,textarea:focus{
 
 .dp-kgm-bar{
   padding:8px 10px;
+}
+
+.dp-spec-name{
+  margin:6px 0 4px;
+  line-height:1.1;
+}
+
+.dp-spec-sub{
+  margin-bottom:8px;
 }
 
 @media (max-width: 980px) and (min-width: 760px){
