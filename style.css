@@ -2645,9 +2645,10 @@ input:focus,select:focus,textarea:focus{
 }
 
 .data-main-grid{
-  grid-template-columns:minmax(420px, 520px) minmax(420px, 500px);
+  grid-template-columns:minmax(420px, 460px) minmax(420px, 460px);
   gap:18px;
   align-items:start;
+  justify-content:center;
 }
 
 .data-topbar{
@@ -2661,7 +2662,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 .data-figure-card{
-  padding:14px 14px 12px;
+  padding:14px;
 }
 
 #dataSpecInput,
@@ -2671,10 +2672,11 @@ input:focus,select:focus,textarea:focus{
 
 #dataSVGWrap{
   min-height:360px;
+  padding:6px;
 }
 
 #dataSVGWrap svg{
-  max-width:460px;
+  max-width:420px;
 }
 
 #dataDimGrid,
@@ -2700,8 +2702,8 @@ input:focus,select:focus,textarea:focus{
 }
 
 .dp-spec-name{
-  margin:6px 0 4px;
-  line-height:1.1;
+  margin:8px 0 4px;
+  line-height:1.08;
 }
 
 .dp-spec-sub{

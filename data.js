@@ -314,7 +314,7 @@ function renderDataSpec() {
   // SVG断面図（H形鋼）
   const svgEl = document.getElementById('dataSVGWrap');
   if (svgEl) {
-    svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 480, 360);
+    svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 460, 340);
   }
 
   // 断面寸法グリッド
