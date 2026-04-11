@@ -104,9 +104,22 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
 /* ── データページ初期化 ── */
 let _dataKind = 'H形鋼';
 let _dataSpecIdx = 0;
+let _dataSpecDropdownOpen = false;
+let _dataSpecFiltered = [];
+
+function normalizeDataSpecText(value) {
+  return String(value || '')
+    .replace(/[０-９Ａ-Ｚａ-ｚ]/g, function(ch) {
+      return String.fromCharCode(ch.charCodeAt(0) - 65248);
+    })
+    .replace(/×/g, 'x')
+    .replace(/\s+/g, '')
+    .toLowerCase();
+}
 
 function dataInit() {
   renderDataKindTabs();
+  renderDataSpecPicker();
   renderDataSpec();
 }
 
@@ -131,8 +144,141 @@ function dataSelectKind(kind) {
   _dataKind = kind;
   _dataSpecIdx = 0;
   renderDataKindTabs();
+  renderDataSpecPicker();
   renderDataSpec();
 }
+
+function renderDataSpecPicker() {
+  const wrap = document.getElementById('dataSpecPicker');
+  const kindData = SECTION_DATA[_dataKind];
+  if (!wrap || !kindData) return;
+
+  wrap.innerHTML = `
+    <div class="data-spec-picker">
+      <div class="data-spec-input-wrap">
+        <input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索">
+        <button type="button" id="dataSpecToggleBtn">▼</button>
+      </div>
+      <div id="dataSpecDropdown" class="data-spec-dropdown"></div>
+    </div>
+  `;
+
+  const input = document.getElementById('dataSpecInput');
+  const btn = document.getElementById('dataSpecToggleBtn');
+  const spec = kindData.specs[_dataSpecIdx];
+  if (input && spec) input.value = spec.name;
+
+  if (input) {
+    input.onfocus = function() {
+      this.select();
+      filterDataSpecOptions('');
+      toggleDataSpecDropdown(true);
+    };
+    input.oninput = function() {
+      filterDataSpecOptions(this.value);
+      toggleDataSpecDropdown(true);
+    };
+    input.onkeydown = function(e) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        toggleDataSpecDropdown(true);
+        var first = document.querySelector('.data-spec-option');
+        if (first) first.focus();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (_dataSpecFiltered.length === 1) {
+          selectDataSpec(_dataSpecFiltered[0].index);
+        } else {
+          toggleDataSpecDropdown(true);
+        }
+      } else if (e.key === 'Escape') {
+        closeDataSpecDropdown();
+      }
+    };
+  }
+
+  if (btn) {
+    btn.onclick = function() {
+      var wantOpen = !_dataSpecDropdownOpen;
+      filterDataSpecOptions('');
+      toggleDataSpecDropdown(wantOpen);
+      if (wantOpen && input) input.focus();
+    };
+  }
+
+  filterDataSpecOptions(input ? input.value : '');
+}
+
+function toggleDataSpecDropdown(forceOpen) {
+  const dd = document.getElementById('dataSpecDropdown');
+  if (!dd) return;
+  _dataSpecDropdownOpen = typeof forceOpen === 'boolean' ? forceOpen : !_dataSpecDropdownOpen;
+  dd.classList.toggle('open', _dataSpecDropdownOpen);
+}
+
+function filterDataSpecOptions(keyword) {
+  const kindData = SECTION_DATA[_dataKind];
+  const dd = document.getElementById('dataSpecDropdown');
+  if (!kindData || !dd) return;
+
+  const q = normalizeDataSpecText(keyword);
+  _dataSpecFiltered = kindData.specs
+    .map(function(spec, index) {
+      return { spec: spec, index: index, norm: normalizeDataSpecText(spec.name) };
+    })
+    .filter(function(item) {
+      return !q || item.norm.indexOf(q) >= 0;
+    });
+
+  if (!_dataSpecFiltered.length) {
+    dd.innerHTML = '<div class="data-spec-empty">該当する規格がありません</div>';
+    return;
+  }
+
+  dd.innerHTML = _dataSpecFiltered.map(function(item) {
+    return '<button type="button" class="data-spec-option' + (item.index === _dataSpecIdx ? ' active' : '') + '" data-spec-index="' + item.index + '">' + item.spec.name + '</button>';
+  }).join('');
+
+  Array.prototype.forEach.call(dd.querySelectorAll('.data-spec-option'), function(btn, idx, all) {
+    btn.onmousedown = function(e) {
+      e.preventDefault();
+      selectDataSpec(parseInt(this.getAttribute('data-spec-index'), 10));
+    };
+    btn.onkeydown = function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectDataSpec(parseInt(this.getAttribute('data-spec-index'), 10));
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        var next = all[Math.min(idx + 1, all.length - 1)];
+        if (next) next.focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (idx === 0) {
+          var input = document.getElementById('dataSpecInput');
+          if (input) input.focus();
+        } else {
+          all[idx - 1].focus();
+        }
+      } else if (e.key === 'Escape') {
+        closeDataSpecDropdown();
+        var inputEl = document.getElementById('dataSpecInput');
+        if (inputEl) inputEl.focus();
+      }
+    };
+  });
+}
+
+function closeDataSpecDropdown() {
+  toggleDataSpecDropdown(false);
+}
+
+document.addEventListener('mousedown', function(e) {
+  var picker = document.querySelector('.data-spec-picker');
+  if (!picker || !picker.contains(e.target)) {
+    closeDataSpecDropdown();
+  }
+});
 
 /* 断面図・データ描画 */
 function renderDataSpec() {
@@ -140,14 +286,6 @@ function renderDataSpec() {
   if (!kindData) return;
   const spec = kindData.specs[_dataSpecIdx];
   if (!spec) return;
-
-  // スペック選択ボタン
-  const specSel = document.getElementById('dataSpecSel');
-  if (specSel) {
-    specSel.innerHTML = kindData.specs.map((s, i) =>
-      `<button class="spec-btn${i===_dataSpecIdx?' active':''}" onclick="dataSelectSpec(${i})">${s.name}</button>`
-    ).join('');
-  }
 
   // JISバッジ + 名称
   const infoEl = document.getElementById('dataSpecInfo');
@@ -212,11 +350,21 @@ function renderDataSpec() {
       </div>
     `;
   }
+
+  const input = document.getElementById('dataSpecInput');
+  if (input) input.value = spec.name;
+  filterDataSpecOptions('');
 }
 
 /* スペック選択 */
-function dataSelectSpec(idx) {
+function selectDataSpec(idx) {
   _dataSpecIdx = idx;
+  renderDataSpecPicker();
   renderDataSpec();
+  closeDataSpecDropdown();
+}
+
+function dataSelectSpec(idx) {
+  selectDataSpec(idx);
 }
 

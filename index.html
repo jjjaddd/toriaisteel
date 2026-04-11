@@ -699,46 +699,38 @@
       <!-- JS で描画 -->
     </div>
 
-    <!-- メインコンテンツ（左：断面図、右：データ） -->
-    <div class="dp-main">
-
-      <!-- 左カラム：断面図 -->
-      <div class="dp-left">
-        <div id="dataSpecInfo" class="dp-spec-info">
-          <!-- JS で描画 -->
-        </div>
-        <div class="dp-diagram-bg">
-          <div id="dataSVGWrap"></div>
-        </div>
+    <div class="data-page-shell">
+      <div class="data-topbar">
+        <div class="data-topbar-label">サイズ選択</div>
+        <div id="dataSpecPicker"></div>
       </div>
 
-      <!-- 右カラム：寸法＋性能 -->
-      <div class="dp-right">
+      <div class="data-main-grid">
+        <section class="data-figure-card">
+          <div id="dataSpecInfo" class="dp-spec-info">
+            <!-- JS で描画 -->
+          </div>
+          <div class="dp-diagram-bg">
+            <div id="dataSVGWrap"></div>
+          </div>
+        </section>
 
-        <!-- スペック選択ボタン群 -->
-        <div class="dp-spec-row-label">サイズ選択</div>
-        <div class="dp-spec-sel" id="dataSpecSel">
-          <!-- JS で描画 -->
-        </div>
+        <section class="data-info-card">
+          <div class="dp-section-title">断面寸法</div>
+          <div class="dp-grid" id="dataDimGrid">
+            <!-- JS で描画 -->
+          </div>
 
-        <!-- 断面寸法 -->
-        <div class="dp-section-title">断面寸法</div>
-        <div class="dp-grid" id="dataDimGrid">
-          <!-- JS で描画 -->
-        </div>
+          <div class="dp-section-title" style="margin-top:10px">断面性能</div>
+          <div class="dp-grid" id="dataPerfGrid">
+            <!-- JS で描画 -->
+          </div>
 
-        <!-- 断面性能 -->
-        <div class="dp-section-title" style="margin-top:10px">断面性能</div>
-        <div class="dp-grid" id="dataPerfGrid">
-          <!-- JS で描画 -->
-        </div>
-
-        <!-- kg/mバー -->
-        <div class="dp-kgm-bar" id="dataKgmBar">
-          <!-- JS で描画 -->
-        </div>
-        <div id="dataExtraInfo"></div>
-
+          <div class="dp-kgm-bar" id="dataKgmBar">
+            <!-- JS で描画 -->
+          </div>
+          <div id="dataExtraInfo"></div>
+        </section>
       </div>
     </div>
 
