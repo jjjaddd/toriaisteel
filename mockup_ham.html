@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>TORIAI ☰ 設定メニュー モックアップ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#e2e8f0;
+  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic UI',sans-serif;
+  padding:32px 24px;
+}
+
+/* ─── Site frame ─── */
+.site{
+  max-width:960px;margin:0 auto;
+  border-radius:10px;overflow:visible;
+  box-shadow:0 16px 60px rgba(0,0,0,.15),0 0 0 1px rgba(0,0,0,.08);
+  position:relative;
+}
+
+/* ─── Header ─── */
+.hdr{
+  display:flex;align-items:center;
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  padding:0 20px;height:50px;gap:0;
+  border-radius:10px 10px 0 0;
+  position:relative;z-index:100;
+}
+.logo{font-size:20px;font-weight:900;color:#111;letter-spacing:.05em;margin-right:16px;flex-shrink:0}
+.nav{display:flex;align-items:center;flex:1}
+.nav-tab{
+  padding:0 16px;height:50px;display:flex;align-items:center;
+  font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;
+}
+.nav-tab.act{color:#7c3aed;border-bottom-color:#7c3aed;background:#faf5ff}
+.nav-tab:hover:not(.act){background:#faf5ff;color:#374151}
+
+.hdr-right{
+  display:flex;align-items:center;gap:6px;
+  margin-left:auto;flex-shrink:0;position:relative;
+}
+
+/* カートボタン */
+.cart-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:8px;
+  border:1.5px solid #ede9fe;background:#faf5ff;
+  font-size:12px;font-weight:700;color:#374151;cursor:pointer;
+  transition:background .15s;
+}
+.cart-btn:hover{background:#ede9fe}
+.cart-badge{
+  background:#ede9fe;color:#6d28d9;
+  font-size:10px;font-weight:700;
+  padding:1px 6px;border-radius:10px;
+}
+
+/* ☰ ボタン */
+.ham-btn{
+  width:34px;height:34px;border-radius:8px;
+  border:none;background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;transition:background .15s;
+}
+.ham-btn:hover{background:#faf5ff}
+.ham-btn.open{background:#ede9fe}
+.ham-line{
+  display:block;width:14px;height:2px;
+  background:#6b7280;border-radius:1px;
+}
+
+/* ドロップダウン */
+.ham-menu{
+  position:absolute;top:calc(100% + 8px);right:0;
+  width:232px;
+  background:#fff;
+  border:1px solid #ede9fe;
+  border-radius:12px;
+  box-shadow:0 8px 32px rgba(109,40,217,.08),0 2px 8px rgba(0,0,0,.05);
+  overflow:hidden;
+  opacity:0;pointer-events:none;
+  transform:translateY(-8px) scale(.97);
+  transform-origin:top right;
+  transition:opacity .18s,transform .18s cubic-bezier(.32,.72,0,1);
+  z-index:500;
+}
+.ham-menu.show{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+
+.hm-section{padding:6px 0}
+.hm-section+.hm-section{border-top:1px solid #f5f3ff}
+
+.hm-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;cursor:pointer;transition:background .1s;
+}
+.hm-row:hover{background:#faf5ff}
+.hm-txt{flex:1;font-size:13px;font-weight:600;color:#1f2937}
+.hm-arr{font-size:14px;color:#c4b5fd}
+.hm-ver{font-size:11px;color:#a78bfa}
+
+/* ダークモードトグル */
+.hm-tog{
+  display:inline-block;
+  width:34px;height:19px;
+  background:#ede9fe;border-radius:10px;
+  position:relative;flex-shrink:0;
+  cursor:pointer;transition:background .2s;
+}
+.hm-tog.on{background:#8b5cf6}
+.hm-tog::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:15px;height:15px;background:#fff;border-radius:8px;
+  transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.15);
+}
+.hm-tog.on::after{transform:translateX(15px)}
+
+/* 外クリック */
+.ham-overlay{display:none;position:fixed;inset:0;z-index:499}
+.ham-overlay.show{display:block}
+
+/* ─── Body ─── */
+.site-body{display:flex;background:#f3f4f6;border-radius:0 0 10px 10px}
+
+.sidebar{
+  width:320px;background:#fff;border-right:1px solid #e5e7eb;
+  flex-shrink:0;border-radius:0 0 0 10px;
+}
+.sb-tabs{display:flex;border-bottom:1px solid #e5e7eb}
+.sb-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;color:#9ca3af;cursor:pointer}
+.sb-tab.act{background:#faf5ff;color:#7c3aed;border-bottom:2px solid #7c3aed}
+.sb-body{padding:16px}
+.field-label{font-size:11px;font-weight:700;color:#374151;margin-bottom:6px}
+.search-row{
+  display:flex;align-items:center;gap:8px;
+  border:1px solid #e5e7eb;border-radius:8px;padding:6px 10px;margin-bottom:4px;
+}
+.search-row:hover{background:#faf5ff}
+.kgm{text-align:right;font-size:11px;color:#9ca3af;margin-bottom:14px}
+.list-label{font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.list-btns{display:flex;gap:4px}
+.list-btn{
+  padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;
+  border:1px solid #ede9fe;background:#faf5ff;color:#6d28d9;cursor:pointer;
+}
+.list-btn:hover{background:#ede9fe}
+.list-table{width:100%;border-collapse:collapse;font-size:11px}
+.list-table th{color:#9ca3af;font-weight:600;padding:4px 6px;text-align:left;border-bottom:1px solid #f3f4f6}
+.list-table td{padding:5px 6px;color:#d1d5db;border-bottom:1px solid #f9fafb}
+.calc-btn{
+  margin:16px;padding:12px;border-radius:8px;
+  background:#faf5ff;border:1.5px solid #ede9fe;
+  color:#6d28d9;font-size:13px;font-weight:700;
+  text-align:center;cursor:pointer;transition:background .15s;
+}
+.calc-btn:hover{background:#ede9fe}
+
+.main{flex:1;padding:20px;display:flex;flex-direction:column;gap:14px}
+.empty-card{
+  background:#fff;border-radius:12px;padding:48px 20px;
+  text-align:center;border:1px solid #e5e7eb;
+}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.2}
+.empty-txt{font-size:13px;color:#9ca3af;margin-bottom:6px}
+.empty-sub{font-size:11px;color:#d1d5db}
+.co2-card{
+  background:#fff;border-radius:12px;padding:16px 20px;
+  border:1px solid #e5e7eb;
+}
+.co2-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#fef3c7;color:#d97706}
+.co2-sub{font-size:11px;color:#d1d5db;margin-top:3px}
+</style>
+</head>
+<body>
+
+<div class="ham-overlay" id="ddOverlay" onclick="closeMenu()"></div>
+
+<div class="site">
+  <!-- ── Header ── -->
+  <div class="hdr">
+    <div class="logo">TORIAI</div>
+    <div class="nav">
+      <div class="nav-tab act">計算</div>
+      <div class="nav-tab">重量</div>
+      <div class="nav-tab">データ</div>
+      <div class="nav-tab">履歴・在庫</div>
+      <div class="nav-tab">お問い合わせ</div>
+    </div>
+    <div class="hdr-right">
+      <div class="cart-btn">カート <span class="cart-badge">0件</span></div>
+
+      <div class="ham-btn" id="hamBtn" onclick="toggleMenu()">
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+        <span class="ham-line"></span>
+      </div>
+
+      <div class="ham-menu" id="hamMenu">
+        <div class="hm-section">
+          <div class="hm-row">
+            <span class="hm-txt">ダークモード</span>
+            <span class="hm-tog" id="dmTog" onclick="event.stopPropagation();this.classList.toggle('on')"></span>
+          </div>
+        </div>
+        <div class="hm-section">
+          <div class="hm-row"><span class="hm-txt">データ書き出し</span><span class="hm-arr">›</span></div>
+          <div class="hm-row"><span class="hm-txt">データ読み込み</span><span class="hm-arr">›</span></div>
+          <div class="hm-row"><span class="hm-txt">バージョン管理</span><span class="hm-ver">v1.2.0</span></div>
+        </div>
+        <div class="hm-section">
+          <div class="hm-row"><span class="hm-txt">使い方ガイド</span><span class="hm-arr">›</span></div>
+          <div class="hm-row"><span class="hm-txt">お問い合わせ</span><span class="hm-arr">›</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Body ── -->
+  <div class="site-body">
+    <div class="sidebar">
+      <div class="sb-tabs">
+        <div class="sb-tab act">基本</div>
+        <div class="sb-tab">詳細設定</div>
+      </div>
+      <div class="sb-body">
+        <div class="field-label">鋼材種類・規格</div>
+        <div class="search-row">
+          <span style="font-size:13px;color:#7c3aed">🔍</span>
+          <div style="flex:1;font-size:12px;color:#9ca3af">例：H100、平9、丸32</div>
+        </div>
+        <div class="kgm">16.9 kg/m</div>
+        <div class="list-label">
+          切り出し部材リスト
+          <div class="list-btns">
+            <div class="list-btn">貼付</div>
+            <div class="list-btn">＋</div>
+            <div class="list-btn">✕</div>
+          </div>
+        </div>
+        <table class="list-table">
+          <tr><th>長さ (MM)</th><th>数量</th><th>重量</th></tr>
+          <tr><td>1</td><td>—</td><td>—</td></tr>
+          <tr><td>2</td><td>—</td><td>—</td></tr>
+          <tr><td>3</td><td>—</td><td>—</td></tr>
+          <tr><td>4</td><td>—</td><td>—</td></tr>
+          <tr><td colspan="2" style="font-weight:700;color:#374151;padding:5px 6px">部材合計重量</td><td style="color:#374151">—</td></tr>
+        </table>
+      </div>
+      <div class="calc-btn">計算を実行する　→</div>
+    </div>
+    <div class="main">
+      <div class="empty-card">
+        <div class="empty-icon">⊞</div>
+        <div class="empty-txt">設定・部材を入力して「計算を実行する」を押してください</div>
+        <div class="empty-sub">刃厚・端部ロス・鋼材規格・定尺を確認してから実行</div>
+      </div>
+      <div class="co2-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span style="font-size:12px;font-weight:800;color:#374151">CO₂　CO₂排出量</span>
+          <span class="co2-badge">準備中</span>
+        </div>
+        <div class="co2-sub">重量をもとにCO₂排出量を自動計算します（近日実装）。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let isOpen = false;
+function toggleMenu(){
+  isOpen = !isOpen;
+  document.getElementById('hamBtn').classList.toggle('open', isOpen);
+  document.getElementById('hamMenu').classList.toggle('show', isOpen);
+  document.getElementById('ddOverlay').classList.toggle('show', isOpen);
+}
+function closeMenu(){
+  isOpen = false;
+  document.getElementById('hamBtn').classList.remove('open');
+  document.getElementById('hamMenu').classList.remove('show');
+  document.getElementById('ddOverlay').classList.remove('show');
+}
+</script>
+</body>
+</html>

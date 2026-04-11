@@ -1,4 +1,4 @@
-const CACHE_NAME = 'steel-optimizer-v5';
+const CACHE_NAME = 'steel-optimizer-v6';
 const ASSETS = [
   '/',
   '/index.html',
@@ -16,7 +16,12 @@ self.addEventListener('install', function(e) {
       return cache.addAll(ASSETS);
     })
   );
-  self.skipWaiting();
+});
+
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', function(e) {

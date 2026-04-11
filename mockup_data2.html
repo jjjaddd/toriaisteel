@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>断面図 Rあり版</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#e8e8f0;padding:24px;display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
+h2{font-size:10px;font-weight:700;color:#888;letter-spacing:.08em;text-align:center;margin-bottom:14px;text-transform:uppercase}
+.panel{width:300px;background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+
+.jis-badge{display:inline-flex;align-items:center;gap:4px;background:#f0f4ff;border:1px solid #c7d2fe;color:#4f46e5;font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;letter-spacing:.04em;margin-bottom:10px}
+
+.search-row{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.search-btn{width:32px;height:32px;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.search-input{flex:1;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;padding:7px 10px;font-size:12px;color:#1a1a2e;outline:none;font-family:inherit}
+
+.kind-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.kind-tab{padding:4px 10px;border-radius:16px;font-size:10px;font-weight:700;border:1.5px solid #eee;color:#aaa;cursor:pointer;background:#f8f8fc}
+.kind-tab.on{background:#ede9fe;border-color:#6d28d9;color:#6d28d9}
+
+.diagram-wrap{background:#f8f8fc;border-radius:10px;padding:12px;display:flex;justify-content:center;align-items:center;margin-bottom:12px;min-height:170px}
+
+/* 寸法テーブル */
+.dim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px}
+.dim-cell{background:#f8f8fc;border-radius:8px;padding:6px 8px;text-align:center}
+.dim-cell span{display:block;font-size:9px;color:#aaa;font-weight:700;margin-bottom:2px}
+.dim-cell strong{font-size:12px;color:#1a1a2e;font-weight:800}
+.dim-cell.r-cell{background:#fff7ed}
+.dim-cell.r-cell span{color:#ea580c}
+.dim-cell.r-cell strong{color:#ea580c}
+
+.kgm-row{display:flex;align-items:center;justify-content:space-between;padding:6px 2px}
+.kgm-row .label{font-size:11px;color:#aaa;font-weight:600}
+.kgm-row .val{font-size:14px;color:#6d28d9;font-weight:800}
+</style>
+</head>
+<body>
+
+<!-- 等辺山形鋼 L-65×65×8 R=8 -->
+<div class="panel">
+  <h2>等辺山形鋼 — R=8 反映</h2>
+
+  <div class="jis-badge">📋 JIS G 3192</div>
+
+  <div class="search-row">
+    <div class="search-btn">🔍</div>
+    <input class="search-input" placeholder="例：L65、L75、L90…">
+  </div>
+
+  <div class="kind-tabs">
+    <div class="kind-tab">H形鋼</div>
+    <div class="kind-tab on">等辺山形鋼</div>
+    <div class="kind-tab">溝形鋼</div>
+    <div class="kind-tab">平鋼</div>
+    <div class="kind-tab">丸鋼</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <!--
+      L-65×65×8, R=8 断面図
+      スケール: 1mm ≈ 1.8px
+      A=B=65mm → 117px, t=8mm → 14px, R=8mm → 14px
+      座標原点: 左下外角
+
+      path:
+      外側左上 (10, 15)
+      → 外側左下 (10, 155) ← 外コーナー
+      → 外側右下 (127, 155)
+      → 内側右下-水平面上端 (127, 141)
+      → 水平内面タンジェント (10+14+14, 141) = (38, 141)
+      → フィレット弧 (R=14px) → (24, 127) ← 垂直内面タンジェント
+      → 垂直内面上へ (24, 15)
+      Z
+    -->
+    <svg width="200" height="180" viewBox="0 0 200 180">
+
+      <!-- 断面塗り -->
+      <path d="M 10 15
+               L 10 155
+               L 127 155
+               L 127 141
+               L 38 141
+               A 14 14 0 0 0 24 127
+               L 24 15
+               Z"
+        fill="#ede9fe" stroke="#6d28d9" stroke-width="2" stroke-linejoin="round"/>
+
+      <!-- ── 寸法線 ── -->
+
+      <!-- A（垂直脚 高さ）左側 -->
+      <line x1="2" y1="15" x2="2" y2="155" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="0" y1="15" x2="6" y2="15" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="0" y1="155" x2="6" y2="155" stroke="#6d28d9" stroke-width="1"/>
+      <text x="2" y="88" font-size="10" font-weight="700" fill="#6d28d9" text-anchor="middle" dominant-baseline="middle"
+            transform="rotate(-90,2,88)">A=65</text>
+
+      <!-- B（水平脚 幅）下側 -->
+      <line x1="10" y1="163" x2="127" y2="163" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="10" y1="161" x2="10" y2="165" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="127" y1="161" x2="127" y2="165" stroke="#6d28d9" stroke-width="1"/>
+      <text x="68" y="173" font-size="10" font-weight="700" fill="#6d28d9" text-anchor="middle">B=65</text>
+
+      <!-- t（脚厚）水平脚の上 -->
+      <line x1="130" y1="141" x2="130" y2="155" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="128" y1="141" x2="134" y2="141" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="128" y1="155" x2="134" y2="155" stroke="#1a1a2e" stroke-width="1"/>
+      <text x="142" y="149" font-size="10" font-weight="700" fill="#1a1a2e" dominant-baseline="middle">t=8</text>
+
+      <!-- R=8 アーク表示 -->
+      <!-- Rの中心は (38, 127) -->
+      <!-- Rの表示: 中心から引き出し線 -->
+      <line x1="38" y1="127" x2="52" y2="113" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <circle cx="38" cy="127" r="2" fill="#ea580c"/>
+      <!-- R の弧を強調 -->
+      <path d="M 38 141 A 14 14 0 0 0 24 127"
+        fill="none" stroke="#ea580c" stroke-width="2.5"/>
+      <text x="56" y="110" font-size="11" font-weight="800" fill="#ea580c" dominant-baseline="middle">r₁=8</text>
+
+      <!-- 脚先端 r2（小さいR） -->
+      <!-- 垂直脚先端: (10,15)→(24,15) に小Rあり -->
+      <!-- 水平脚先端: (127,141)→(127,155) に小Rあり -->
+      <text x="135" y="136" font-size="9" fill="#aaa">r₂=4</text>
+
+    </svg>
+  </div>
+
+  <!-- 寸法表 -->
+  <div class="dim-grid">
+    <div class="dim-cell"><span>A = B</span><strong>65mm</strong></div>
+    <div class="dim-cell"><span>t</span><strong>8mm</strong></div>
+    <div class="dim-cell r-cell"><span>r₁</span><strong>8mm</strong></div>
+    <div class="dim-cell"><span>断面積</span><strong>9.93cm²</strong></div>
+    <div class="dim-cell"><span>Ix = Iy</span><strong>29.3cm⁴</strong></div>
+    <div class="dim-cell"><span>塗装面積</span><strong>0.248m²</strong></div>
+  </div>
+  <div class="kgm-row">
+    <span class="label">単位重量</span>
+    <span class="val">7.80 kg/m</span>
+  </div>
+</div>
+
+
+<!-- H形鋼 H-100×50 フィレットR=8 -->
+<div class="panel">
+  <h2>H形鋼 — フィレットR 反映</h2>
+
+  <div class="jis-badge">📋 JIS G 3192</div>
+
+  <div class="search-row">
+    <div class="search-btn">🔍</div>
+    <input class="search-input" placeholder="例：H100、H150、H200…">
+  </div>
+
+  <div class="kind-tabs">
+    <div class="kind-tab on">H形鋼</div>
+    <div class="kind-tab">等辺山形鋼</div>
+    <div class="kind-tab">溝形鋼</div>
+    <div class="kind-tab">平鋼</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <!--
+      H-100×50×5×7.6 フィレットR=8
+      スケール: 1mm ≈ 1.6px
+      H=100→160px, B=50→80px, tw=5→8px, tf=7.6→12px, R=8→13px
+      中心X=100, 上フランジ top Y=12
+
+      上フランジ: X 60~140, Y 12~24
+      下フランジ: X 60~140, Y 148~160
+      ウェブ:    X 96~104, Y 24~148
+      フィレット: 4箇所 (ウェブ-フランジ接合部)
+    -->
+    <svg width="200" height="180" viewBox="0 0 200 180">
+
+      <!--
+        上フランジ左側フィレット:
+          フランジ下面 Y=24, ウェブ左面 X=96
+          フィレット中心 (96+13, 24+13) = (109, 37) — wrong, it's outside
+
+          実際: フィレット中心 (96-0, 24+0) でなく
+          フランジ内面 = Y=24
+          ウェブ外左面 = X=96
+          → フィレット凸: 中心 (96+13, 24+13) = (109, 37) — this is the convex fillet
+
+          Actually H形鋼のフィレットはウェブとフランジの接合部の外側(凸側)
+          フランジ下面からウェブ側面への遷移
+
+          Let me draw it simpler: 4 quarter-circle arcs at the web-flange junctions
+
+          Top flange bottom (y=24), web left (x=96), R=13
+          Arc center at (96+13, 24+13) = (109, 37)? No...
+
+          The fillet is on the OUTSIDE of the junction (convex)
+          Upper flange bottom inner face: y=24, from x=60 to x=96 (left side) and x=104 to x=140 (right side)
+          The fillet radius R connects:
+            - point on flange inner face: (96-R, 24) = (83, 24)
+            - point on web outer face: (96, 24+R) = (96, 37)
+          Center at (83, 37)
+
+          The fillet curve is CONVEX (bulges inward)
+
+          Let me draw this as a shape using path:
+      -->
+
+      <!-- 全体形状（フィレットなし・ベース） -->
+      <!-- 上フランジ -->
+      <rect x="60" y="12" width="80" height="12" fill="#ede9fe" stroke="none"/>
+      <!-- 下フランジ -->
+      <rect x="60" y="148" width="80" height="12" fill="#ede9fe" stroke="none"/>
+      <!-- ウェブ -->
+      <rect x="92" y="24" width="16" height="124" fill="#ede9fe" stroke="none"/>
+
+      <!-- フィレット4箇所（凸、塗りつぶし） -->
+      <!-- 上フランジ左フィレット: center(92+13,24+13)=(105,37)... -->
+      <!-- Let me use simpler approach: draw fillets as quarter circles filling the gap -->
+      <!-- Upper-left fillet: between web left (x=92) and upper flange bottom (y=24) -->
+      <!-- The gap to fill is the square corner area from (79,24) to (92,37) -->
+      <!-- Arc: M 79 24 A 13 13 0 0 1 92 37 L 92 24 Z -->
+      <path d="M 79 24 A 13 13 0 0 1 92 37 L 92 24 Z" fill="#ede9fe" stroke="none"/>
+      <!-- Upper-right fillet -->
+      <path d="M 121 24 A 13 13 0 0 0 108 37 L 108 24 Z" fill="#ede9fe" stroke="none"/>
+      <!-- Lower-left fillet -->
+      <path d="M 79 148 A 13 13 0 0 0 92 135 L 92 148 Z" fill="#ede9fe" stroke="none"/>
+      <!-- Lower-right fillet -->
+      <path d="M 121 148 A 13 13 0 0 1 108 135 L 108 148 Z" fill="#ede9fe" stroke="none"/>
+
+      <!-- アウトライン（全体） -->
+      <path d="
+        M 60 12 L 140 12 L 140 24
+        L 121 24 A 13 13 0 0 0 108 37
+        L 108 135 A 13 13 0 0 0 121 148
+        L 140 148 L 140 160 L 60 160 L 60 148
+        L 79 148 A 13 13 0 0 0 92 135
+        L 92 37 A 13 13 0 0 0 79 24
+        L 60 24 Z"
+        fill="none" stroke="#6d28d9" stroke-width="2" stroke-linejoin="round"/>
+
+      <!-- ── 寸法線 ── -->
+
+      <!-- H（高さ）左側 -->
+      <line x1="48" y1="12" x2="48" y2="160" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="44" y1="12" x2="52" y2="12" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="44" y1="160" x2="52" y2="160" stroke="#6d28d9" stroke-width="1"/>
+      <text x="38" y="86" font-size="10" font-weight="700" fill="#6d28d9" text-anchor="middle"
+            dominant-baseline="middle" transform="rotate(-90,38,86)">H=100</text>
+
+      <!-- B（幅）下側 -->
+      <line x1="60" y1="168" x2="140" y2="168" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="60" y1="166" x2="60" y2="170" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="140" y1="166" x2="140" y2="170" stroke="#6d28d9" stroke-width="1"/>
+      <text x="100" y="177" font-size="10" font-weight="700" fill="#6d28d9" text-anchor="middle">B=50</text>
+
+      <!-- tf（フランジ厚）右側 -->
+      <line x1="147" y1="12" x2="147" y2="24" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="143" y1="12" x2="151" y2="12" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="143" y1="24" x2="151" y2="24" stroke="#1a1a2e" stroke-width="1"/>
+      <text x="158" y="18" font-size="9" font-weight="700" fill="#1a1a2e" dominant-baseline="middle">tf=7.6</text>
+
+      <!-- tw（ウェブ厚）右側 -->
+      <line x1="147" y1="70" x2="147" y2="100" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="143" y1="70" x2="151" y2="70" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="143" y1="100" x2="151" y2="100" stroke="#1a1a2e" stroke-width="1"/>
+      <text x="155" y="85" font-size="9" font-weight="700" fill="#1a1a2e" dominant-baseline="middle">tw=5</text>
+
+      <!-- R フィレット表示（右上フィレット） -->
+      <line x1="108" y1="24" x2="95" y2="37" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <text x="86" y="45" font-size="11" font-weight="800" fill="#ea580c" text-anchor="middle">r=8</text>
+      <!-- Rの弧を強調（右上） -->
+      <path d="M 121 24 A 13 13 0 0 0 108 37"
+        fill="none" stroke="#ea580c" stroke-width="2.5"/>
+
+    </svg>
+  </div>
+
+  <!-- 寸法表 -->
+  <div class="dim-grid">
+    <div class="dim-cell"><span>H</span><strong>100mm</strong></div>
+    <div class="dim-cell"><span>B</span><strong>50mm</strong></div>
+    <div class="dim-cell"><span>tw</span><strong>5mm</strong></div>
+    <div class="dim-cell"><span>tf</span><strong>7.6mm</strong></div>
+    <div class="dim-cell r-cell"><span>r</span><strong>8mm</strong></div>
+    <div class="dim-cell"><span>Ix</span><strong>187cm⁴</strong></div>
+  </div>
+  <div class="kgm-row">
+    <span class="label">単位重量</span>
+    <span class="val">17.2 kg/m</span>
+  </div>
+</div>
+
+<!-- 溝形鋼 C-100×50×5×7.5 R=8 -->
+<div class="panel">
+  <h2>溝形鋼 — r₁・r₂ 反映</h2>
+
+  <div class="jis-badge">📋 JIS G 3192</div>
+
+  <div class="search-row">
+    <div class="search-btn">🔍</div>
+    <input class="search-input" placeholder="例：C100、C125、C150…">
+  </div>
+
+  <div class="kind-tabs">
+    <div class="kind-tab">H形鋼</div>
+    <div class="kind-tab">等辺山形鋼</div>
+    <div class="kind-tab on">溝形鋼</div>
+    <div class="kind-tab">平鋼</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <!--
+      C-100×50×5×7.5 r1=8, r2=4
+      H=100→160px, B=50→80px, tw=5→8px, tf=7.5→12px
+      r1=8→13px (ウェブ-フランジ内側フィレット)
+      r2=4→6px (フランジ先端フィレット)
+
+      ウェブ: 左辺 x=30, 右辺x=38
+      全体高さ: y 10~170
+      上フランジ: x=30~110, y=10~22
+      下フランジ: x=30~110, y=158~170
+      ウェブ: x=30~38, y=10~170
+    -->
+    <svg width="200" height="190" viewBox="0 0 200 190">
+
+      <!-- 溝形鋼 アウトライン (C字型) -->
+      <!-- 上フランジ+ウェブ+下フランジ -->
+      <path d="
+        M 30 10 L 110 10 L 110 22
+        L 51 22 A 13 13 0 0 0 38 35
+        L 38 155 A 13 13 0 0 0 51 168
+        L 110 168 L 110 180 L 30 180 Z"
+        fill="#ede9fe" stroke="#6d28d9" stroke-width="2" stroke-linejoin="round"/>
+
+      <!-- r1 フィレット強調（上、内側） -->
+      <path d="M 51 22 A 13 13 0 0 0 38 35"
+        fill="none" stroke="#ea580c" stroke-width="2.5"/>
+      <line x1="51" y1="22" x2="57" y2="12" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="3,2"/>
+      <text x="60" y="10" font-size="11" font-weight="800" fill="#ea580c" dominant-baseline="middle">r₁=8</text>
+
+      <!-- r2 フランジ先端（上端） -->
+      <text x="112" y="14" font-size="9" fill="#aaa">r₂=4</text>
+
+      <!-- ── 寸法線 ── -->
+      <!-- H 右側 -->
+      <line x1="118" y1="10" x2="118" y2="180" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="114" y1="10" x2="122" y2="10" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="114" y1="180" x2="122" y2="180" stroke="#6d28d9" stroke-width="1"/>
+      <text x="130" y="95" font-size="10" font-weight="700" fill="#6d28d9" dominant-baseline="middle"
+            transform="rotate(90,130,95)">H=100</text>
+
+      <!-- B 上側 -->
+      <line x1="30" y1="2" x2="110" y2="2" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="30" y1="0" x2="30" y2="4" stroke="#6d28d9" stroke-width="1"/>
+      <line x1="110" y1="0" x2="110" y2="4" stroke="#6d28d9" stroke-width="1"/>
+      <text x="70" y="8" font-size="10" font-weight="700" fill="#6d28d9" text-anchor="middle">B=50</text>
+
+      <!-- tf -->
+      <line x1="148" y1="10" x2="148" y2="22" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="144" y1="10" x2="152" y2="10" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="144" y1="22" x2="152" y2="22" stroke="#1a1a2e" stroke-width="1"/>
+      <text x="160" y="16" font-size="9" font-weight="700" fill="#1a1a2e" dominant-baseline="middle">tf=7.5</text>
+
+      <!-- tw -->
+      <line x1="22" y1="80" x2="22" y2="110" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="18" y1="80" x2="26" y2="80" stroke="#1a1a2e" stroke-width="1"/>
+      <line x1="18" y1="110" x2="26" y2="110" stroke="#1a1a2e" stroke-width="1"/>
+      <text x="12" y="95" font-size="9" font-weight="700" fill="#1a1a2e" dominant-baseline="middle"
+            text-anchor="middle">tw=5</text>
+    </svg>
+  </div>
+
+  <div class="dim-grid">
+    <div class="dim-cell"><span>H</span><strong>100mm</strong></div>
+    <div class="dim-cell"><span>B</span><strong>50mm</strong></div>
+    <div class="dim-cell"><span>tw</span><strong>5mm</strong></div>
+    <div class="dim-cell"><span>tf</span><strong>7.5mm</strong></div>
+    <div class="dim-cell r-cell"><span>r₁</span><strong>8mm</strong></div>
+    <div class="dim-cell r-cell"><span>r₂</span><strong>4mm</strong></div>
+  </div>
+  <div class="kgm-row">
+    <span class="label">単位重量</span>
+    <span class="val">9.36 kg/m</span>
+  </div>
+</div>
+
+</body>
+</html>

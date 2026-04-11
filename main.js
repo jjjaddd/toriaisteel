@@ -9,6 +9,22 @@
 var ROWS         = 10;   // 部材リスト初期行数
 var curKind      = 'H形鋼';
 
+function jisRound(value, decimals) {
+  var factor = Math.pow(10, decimals);
+  var shifted = value * factor;
+  var floor = Math.floor(shifted);
+  var diff = shifted - floor;
+  if (Math.abs(diff - 0.5) < 1e-10) {
+    return (floor % 2 === 0 ? floor : floor + 1) / factor;
+  }
+  return Math.round(shifted) / factor;
+}
+
+function jisRoundKg(kg) {
+  if (kg <= 0) return 0;
+  return jisRound(kg, 0);
+}
+
 // ── 行選択（Ctrl+A / Delete） ────────────────────────────
 var _selectedRows = [];   // 選択中の行インデックス
 
@@ -451,6 +467,14 @@ function addPartRowAt(i) {
 function ptEnter(e, i, col) {
   if (e.key !== 'Enter') return;
   e.preventDefault();
+  if (e.shiftKey) {
+    var specInput = document.getElementById('dataSpecInput');
+    if (specInput) {
+      specInput.focus();
+      setTimeout(function() { specInput.select(); }, 0);
+    }
+    return;
+  }
   var kuikuOn = document.getElementById('useKuiku') && document.getElementById('useKuiku').checked;
   if (col === 'l') {
     // 長さ → 数量へ
@@ -827,13 +851,13 @@ function updKg() {
     var el = document.getElementById('pk' + i);
     if (l > 0 && q > 0) {
       var kg = (l / 1000) * kgm * q;
-      el.textContent = Math.round(kg) + 'kg';
+      el.textContent = jisRoundKg(kg) + 'kg';
       tot += kg;
     } else {
       el.textContent = '—';
     }
   }
-  document.getElementById('totkg').textContent = tot > 0 ? Math.round(tot) + ' kg' : '—';
+  document.getElementById('totkg').textContent = tot > 0 ? jisRoundKg(tot) + ' kg' : '—';
 }
 
 // ============================================================
@@ -1861,8 +1885,8 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           '<div class="cc-stats" style="margin-left:auto">' +
             '<div class="cs"><div class="cl">歩留まり</div><div class="cv">' + yld2 + ' %</div></div>' +
             '<div class="cs"><div class="cl">カット数</div><div class="cv">' + (yb.chg || '—') + ' 回</div></div>' +
-            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + Math.round(yb.barKg) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + Math.round(yb.lossKg) + ' kg</div></div>' +
+            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + jisRoundKg(yb.barKg) + ' kg</div></div>' +
+            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + jisRoundKg(yb.lossKg) + ' kg</div></div>' +
             '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + barCount + ' 本</div></div>' +
           '</div>' +
 '<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + yCardId2 + '" onclick="cartAdd(\'' + yCardId2 + '\',this)">＋ 追加</button>' + '</div>' +
@@ -2031,8 +2055,8 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
             '<div class="cs"><div class="cl">同一パターン</div><div class="cv">' + m.samePatternCount + ' 本</div></div>' +
             '<div class="cs"><div class="cl">歩留まり</div><div class="cv">' + m.yieldPct.toFixed(1) + ' %</div></div>' +
             '<div class="cs"><div class="cl">カット数</div><div class="cv">' + m.totalCuts + ' 回</div></div>' +
-            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + Math.round(m.barKg||0) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + Math.round(m.lossKg||0) + ' kg</div></div>' +
+            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + jisRoundKg(m.barKg||0) + ' kg</div></div>' +
+            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + jisRoundKg(m.lossKg||0) + ' kg</div></div>' +
             '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + m.barCount + ' 本</div></div>' +
           '</div>' +
 '<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + cardId2 + '" onclick="cartAdd(\'' + cardId2 + '\',this)">＋ 追加</button>' + '</div>' +
@@ -4376,7 +4400,7 @@ function getRemnants() {
         ? '重量計算リスト'
         : (d.isYield ? '歩留まり最大' : '取り合いパターン');
       var subLabel = d.isWeight
-        ? (Math.round(d.sumKg || 0).toLocaleString() + ' kg　' +
+        ? (jisRoundKg(d.sumKg || 0).toLocaleString() + ' kg　' +
            (d.anyPrice ? '概算 ' + Number(d.sumAmt || 0).toLocaleString() + ' 円' : ''))
         : ((d.spec || '') + '　' + (((d.job || {}).client) || '') + '　' + (((d.job || {}).name) || ''));
       return '<div class="cart-item">' +
@@ -4486,7 +4510,7 @@ function cartDoPrint() {
           '<td style="padding:4px 8px">' + r.spec + '</td>' +
           '<td style="padding:4px 8px;text-align:right">' + r.len.toLocaleString() + '</td>' +
           '<td style="padding:4px 8px;text-align:right">' + r.qty + '</td>' +
-          '<td style="padding:4px 8px;text-align:right;font-weight:700">' + Math.round(r.kgTotal).toLocaleString() + ' kg</td>' +
+          '<td style="padding:4px 8px;text-align:right;font-weight:700">' + jisRoundKg(r.kgTotal).toLocaleString() + ' kg</td>' +
           (d.anyPrice ? '<td style="padding:4px 8px;text-align:right">' +
             (r.amount !== null ? Number(r.amount).toLocaleString() + ' 円' : '—') + '</td>' : '') +
           '</tr>';
@@ -4510,7 +4534,7 @@ function cartDoPrint() {
           '</tr></thead><tbody>' + rowsHtml + '</tbody>' +
           '<tfoot><tr style="background:#f4f4fa;font-weight:700">' +
             '<td colspan="6" style="padding:6px 8px">合　計</td>' +
-            '<td style="padding:6px 8px;text-align:right">' + Math.round(d.sumKg).toLocaleString() + ' kg</td>' +
+            '<td style="padding:6px 8px;text-align:right">' + jisRoundKg(d.sumKg).toLocaleString() + ' kg</td>' +
             (d.anyPrice ? '<td style="padding:6px 8px;text-align:right">' + Number(d.sumAmt).toLocaleString() + ' 円</td>' : '') +
           '</tr></tfoot></table></div>'
       });
