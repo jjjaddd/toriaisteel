@@ -144,6 +144,9 @@ input[type=checkbox]{width:13px;height:13px;accent-color:#d8ccff;cursor:pointer;
 .pt-hd{display:grid;grid-template-columns:18px 1fr 54px 56px;border-bottom:1px solid #d4d4dc;padding:4px 0;background:#fff}
 .pt-hd span{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5a5a78;padding:0 5px}
 .pt-row{display:grid;grid-template-columns:18px 1fr 54px 56px;border-bottom:1px solid #e8e8ed}
+/* 工区カラム有効時 */
+.pt-wrap.kuiku-on .pt-hd{grid-template-columns:18px 1fr 54px 56px 56px}
+.pt-wrap.kuiku-on .pt-row{grid-template-columns:18px 1fr 54px 56px 56px}
 .pt-row:last-child{border-bottom:none}
 .pt-n{font-size:11px;color:#8888a8;display:flex;align-items:center;justify-content:center;font-family:monospace}
 .pt-row input{background:transparent;border:1px solid transparent;color:#2a2a3e;font-family:'Space Grotesk',monospace;font-size:12px;padding:5px 6px;outline:none;transition:.12s;width:100%}

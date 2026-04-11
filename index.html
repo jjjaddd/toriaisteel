@@ -57,10 +57,6 @@
           <span class="hm-txt">使い方ガイド</span>
           <span class="hm-arr">›</span>
         </button>
-        <button class="hm-row" type="button" onclick="closeHeaderMenu(); goPage('contact');">
-          <span class="hm-txt">お問い合わせ</span>
-          <span class="hm-arr">›</span>
-        </button>
       </div>
     </div>
   </div>
@@ -95,10 +91,11 @@
             <input
               type="text"
               id="cmdInput"
-              placeholder="例：H100、平9、丸32"
+              placeholder="H100 / F9 / RB32"
               autocomplete="off"
               oninput="cmdFilter()"
               onkeydown="cmdKey(event)"
+              onfocus="this.select()"
               style="flex:1;box-sizing:border-box;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;transition:.15s;"
             >
           </div>
@@ -140,7 +137,7 @@
       </div>
 
       <div class="pt-wrap">
-        <div class="pt-hd"><span></span><span>長さ (mm)</span><span style="text-align:right">数量</span><span style="text-align:right;padding-right:6px">重量</span></div>
+        <div class="pt-hd"><span></span><span>長さ (mm)</span><span style="text-align:right">数量</span><span id="ptHdKuiku" style="text-align:right;display:none">工区</span><span style="text-align:right;padding-right:6px">重量</span></div>
         <div id="ptList"></div>
         <div class="tot"><span class="tot-l">部材合計重量</span><span class="tot-v" id="totkg">21030.04 kg</span></div>
       </div>
@@ -251,13 +248,13 @@
 
     <!-- オプション（トグルスイッチ） -->
     <div class="ds-toggle-area">
-      <div class="ds-toggle-row wip-block" onclick="document.getElementById('useKuiku').click()">
+      <div class="ds-toggle-row" onclick="document.getElementById('useKuiku').click()">
         <div class="ds-toggle-label">
           <span>工区を入力する</span>
           <small>チェックで部材リストに工区欄が表示されます</small>
         </div>
         <label class="ds-tog" onclick="event.stopPropagation()">
-          <input type="checkbox" id="useKuiku" onchange="saveSettings()">
+          <input type="checkbox" id="useKuiku" onchange="saveSettings(); toggleKuiku()">
           <span class="ds-tog-track"></span>
         </label>
       </div>

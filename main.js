@@ -8,6 +8,129 @@
 // ── アプリ状態 ─────────────────────────────────────────
 var ROWS         = 10;   // 部材リスト初期行数
 var curKind      = 'H形鋼';
+
+// ── アンドゥ/リドゥ ─────────────────────────────────────
+var _undoStack = [];
+var _redoStack = [];
+var _preEditSnap = null;  // フォーカス時に保存した変更前スナップショット
+
+/** 部材リストの現在状態をスナップショットとして返す */
+function _snapParts() {
+  var rows = [];
+  for (var i = 0; i < totalRows; i++) {
+    var l = document.getElementById('pl' + i);
+    var q = document.getElementById('pq' + i);
+    var z = document.getElementById('pz' + i);
+    rows.push({ l: l ? l.value : '', q: q ? q.value : '', z: z ? z.value : '' });
+  }
+  return rows;
+}
+
+/** スナップショットを部材リストに復元する */
+function _restoreParts(rows) {
+  var ptl = document.getElementById('ptList');
+  if (!ptl) return;
+  ptl.innerHTML = '';
+  totalRows = 0;
+  rows.forEach(function(row, i) {
+    addPartRowAt(i);
+    var l = document.getElementById('pl' + i);
+    var q = document.getElementById('pq' + i);
+    var z = document.getElementById('pz' + i);
+    if (l) l.value = row.l;
+    if (q) q.value = row.q;
+    if (z) z.value = row.z;
+  });
+  totalRows = rows.length;
+  // 最低ROWS行を確保
+  while (totalRows < ROWS) { addPartRowAt(totalRows); totalRows++; }
+  updKg();
+}
+
+/** 手動でアンドゥスタックにプッシュ（clearParts・executePaste 前に呼ぶ） */
+function pushUndoManual() {
+  _undoStack.push(_snapParts());
+  if (_undoStack.length > 50) _undoStack.shift();
+  _redoStack = [];
+}
+
+/** pt-row入力フォーカス時：変更前状態を保存 */
+function ptUndoFocus() {
+  if (_preEditSnap === null) {
+    _preEditSnap = _snapParts();
+  }
+}
+
+/** pt-row入力ブラー時：変更があればアンドゥスタックに積む */
+function ptUndoBlur() {
+  if (_preEditSnap === null) return;
+  var cur = _snapParts();
+  if (JSON.stringify(cur) !== JSON.stringify(_preEditSnap)) {
+    _undoStack.push(_preEditSnap);
+    if (_undoStack.length > 50) _undoStack.shift();
+    _redoStack = [];
+  }
+  _preEditSnap = null;
+}
+
+/** Ctrl+Z：アンドゥ */
+function undoAction() {
+  if (!_undoStack.length) return;
+  _redoStack.push(_snapParts());
+  _restoreParts(_undoStack.pop());
+}
+
+/** Ctrl+Shift+Z：リドゥ */
+function redoAction() {
+  if (!_redoStack.length) return;
+  _undoStack.push(_snapParts());
+  _restoreParts(_redoStack.pop());
+}
+
+// ── 工区トグル ───────────────────────────────────────────
+/** 詳細設定「工区を入力する」チェックボックス変更時に呼ぶ */
+function toggleKuiku() {
+  var cb = document.getElementById('useKuiku');
+  var enabled = cb && cb.checked;
+  var wrap = document.querySelector('.pt-wrap');
+  var hdKuiku = document.getElementById('ptHdKuiku');
+  if (wrap) wrap.classList.toggle('kuiku-on', enabled);
+  if (hdKuiku) hdKuiku.style.display = enabled ? 'inline-block' : 'none';
+  for (var i = 0; i < totalRows; i++) {
+    var pz = document.getElementById('pz' + i);
+    if (pz) pz.style.display = enabled ? '' : 'none';
+  }
+}
+
+// ── グローバルキーボードショートカット ────────────────────
+document.addEventListener('keydown', function(e) {
+  var tag = document.activeElement ? document.activeElement.tagName : '';
+  var isInPtRow = document.activeElement && document.activeElement.closest &&
+                  document.activeElement.closest('.pt-row');
+
+  // Ctrl+Z：アンドゥ（pt-row内、またはページフォーカス時）
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
+    if ((tag === 'INPUT' || tag === 'TEXTAREA') && !isInPtRow) return; // 他inputはブラウザ既定
+    e.preventDefault();
+    undoAction();
+    return;
+  }
+  // Ctrl+Shift+Z：リドゥ
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'z') {
+    if ((tag === 'INPUT' || tag === 'TEXTAREA') && !isInPtRow) return;
+    e.preventDefault();
+    redoAction();
+    return;
+  }
+  // Ctrl+Enter：計算実行（計算ページ表示中のみ）
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    var cp = document.getElementById('cp');
+    if (cp && cp.classList.contains('show')) {
+      e.preventDefault();
+      runCalc();
+    }
+  }
+});
 var totalRows    = 0;
 var remnantCount = 0;
 var pieceColorMap = {};
@@ -248,11 +371,12 @@ function addPartRowAt(i) {
   var d = document.createElement('div');
   d.className = 'pt-row';
   d.id = 'pr' + i;
+  var kuikuEnabled = document.getElementById('useKuiku') && document.getElementById('useKuiku').checked;
   d.innerHTML =
     '<span class="pt-n">' + (i+1) + '</span>' +
-    '<input type="number" id="pl' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onkeydown="ptEnter(event,' + i + ',\'l\')" style="text-align:right">' +
-    '<input type="number" id="pq' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onkeydown="ptEnter(event,' + i + ',\'q\')" style="text-align:right">' +
-    '<input type="text" id="pz' + i + '" placeholder="工区" style="display:none">' +
+    '<input type="number" id="pl' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'l\')" style="text-align:right">' +
+    '<input type="number" id="pq' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'q\')" style="text-align:right">' +
+    '<input type="text" id="pz' + i + '" placeholder="工区" style="' + (kuikuEnabled ? '' : 'display:none') + '">' +
     '<span class="pt-kg" id="pk' + i + '">—</span>';
   pl.appendChild(d);
 }
@@ -373,23 +497,60 @@ function cmdOutside(e) {
   }
 }
 
+// 鋼材種類 プレフィックスマップ（長い順に並べて先に評価）
+var CMD_PREFIX_MAP = [
+  { prefix: 'fb', kinds: ['平鋼'] },
+  { prefix: 'rb', kinds: ['丸鋼'] },
+  { prefix: 'h',  kinds: ['H形鋼'] },
+  { prefix: 'l',  kinds: ['等辺山形鋼', '不等辺山形鋼'] },
+  { prefix: 'u',  kinds: ['溝形鋼'] },
+  { prefix: 'i',  kinds: ['I形鋼'] },
+  { prefix: 'f',  kinds: ['平鋼'] },
+  { prefix: 'r',  kinds: ['丸鋼'] }
+];
+
 // コマンドパレット：絞り込み描画
 function cmdFilter() {
   var input = document.getElementById('cmdInput');
   var dd = document.getElementById('cmdDropdown');
   if (!input || !dd) return;
-  var q = (input.value || '').trim().toLowerCase();
+  var raw = (input.value || '').trim();
+  var q = raw.toLowerCase();
   if (!q) {
     dd.style.display = 'none';
     return;
   }
 
   var all = cmdBuildAll();
-  var filtered = all.filter(function(it) {
-    return it.kind.toLowerCase().indexOf(q) >= 0 ||
-           it.spec.toLowerCase().indexOf(q) >= 0 ||
-           it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
-  });
+  var filtered;
+
+  // プレフィックスで種類を絞り込む
+  var kindFilter = null;
+  var numQuery = '';
+  for (var pi = 0; pi < CMD_PREFIX_MAP.length; pi++) {
+    var pm = CMD_PREFIX_MAP[pi];
+    if (q.indexOf(pm.prefix) === 0) {
+      kindFilter = pm.kinds;
+      numQuery = q.slice(pm.prefix.length).replace(/[^0-9]/g, '');
+      break;
+    }
+  }
+
+  if (kindFilter) {
+    filtered = all.filter(function(it) {
+      if (kindFilter.indexOf(it.kind) < 0) return false;
+      if (!numQuery) return true;
+      var specNums = it.spec.replace(/[^0-9]/g, '');
+      return specNums.indexOf(numQuery) >= 0;
+    });
+  } else {
+    // 数字のみ or 未知の入力: 全種類から数字一致で検索
+    filtered = all.filter(function(it) {
+      return it.kind.toLowerCase().indexOf(q) >= 0 ||
+             it.spec.toLowerCase().indexOf(q) >= 0 ||
+             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+    });
+  }
 
   dd.innerHTML = '';
   if (filtered.length === 0) {
@@ -470,7 +631,12 @@ function cmdKey(e) {
     if (prev) { prev.classList.add('cmd-focus'); prev.scrollIntoView({block:'nearest'}); }
   } else if (e.key === 'Enter') {
     e.preventDefault();
-    if (focused && focused.onmousedown) focused.onmousedown(e);
+    // 候補が1件だけなら即選択
+    if (items.length === 1) {
+      if (items[0].onmousedown) items[0].onmousedown(e);
+    } else if (focused && focused.onmousedown) {
+      focused.onmousedown(e);
+    }
   } else if (e.key === 'Escape') {
     dd.style.display = 'none';
   }
@@ -597,6 +763,7 @@ function togglePaste() {
 }
 
 function executePaste() {
+  pushUndoManual();
   var text = document.getElementById('pasteText').value.trim();
   if (!text) { alert('データを貼り付けてください'); return; }
 
@@ -1888,6 +2055,7 @@ function autoRegisterAfterPrint() {
 }
 
 function clearParts() {
+  pushUndoManual();
   for (var i = 0; i < totalRows; i++) {
     var lEl = document.getElementById('pl' + i);
     var qEl = document.getElementById('pq' + i);
