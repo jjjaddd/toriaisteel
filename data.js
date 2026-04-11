@@ -238,6 +238,106 @@ const SGP_PIPE_DATA = [
   { name:'500A',inch:'20',    D:508.0, d:492.2, t:7.9, W:97.4,  S:1.60,  A:124,   I:38812, Z:1528,  i:17.7 }
 ];
 
+const BCR295_DATA = [
+  { name:'BCR-150x150x6.0',  H:150, B:150, t:6.0,  r:15.0, Asec:33.32, W:26.2, I:1130,  i:5.82, Z:150,  Zp:178,  Ht:25.0, rank:'FA' },
+  { name:'BCR-150x150x9.0',  H:150, B:150, t:9.0,  r:22.5, Asec:47.98, W:37.7, I:1540,  i:5.66, Z:205,  Zp:248,  Ht:16.7, rank:'FA' },
+  { name:'BCR-150x150x12.0', H:150, B:150, t:12.0, r:30.0, Asec:61.30, W:48.1, I:1850,  i:5.50, Z:247,  Zp:307,  Ht:12.5, rank:'FA' },
+  { name:'BCR-175x175x6.0',  H:175, B:175, t:6.0,  r:15.0, Asec:39.32, W:30.9, I:1840,  i:6.84, Z:210,  Zp:246,  Ht:29.2, rank:'FA' },
+  { name:'BCR-175x175x9.0',  H:175, B:175, t:9.0,  r:22.5, Asec:56.98, W:44.7, I:2550,  i:6.68, Z:291,  Zp:348,  Ht:19.4, rank:'FA' },
+  { name:'BCR-175x175x12.0', H:175, B:175, t:12.0, r:30.0, Asec:73.30, W:57.5, I:3120,  i:6.52, Z:356,  Zp:437,  Ht:14.6, rank:'FA' },
+  { name:'BCR-200x200x6.0',  H:200, B:200, t:6.0,  r:15.0, Asec:45.32, W:35.6, I:2800,  i:7.86, Z:280,  Zp:327,  Ht:33.3, rank:'FC' },
+  { name:'BCR-200x200x8.0',  H:200, B:200, t:8.0,  r:20.0, Asec:59.24, W:46.5, I:3570,  i:7.76, Z:357,  Zp:421,  Ht:25.0, rank:'FA' },
+  { name:'BCR-200x200x9.0',  H:200, B:200, t:9.0,  r:22.5, Asec:65.98, W:51.8, I:3920,  i:7.71, Z:392,  Zp:465,  Ht:22.2, rank:'FA' },
+  { name:'BCR-200x200x12.0', H:200, B:200, t:12.0, r:30.0, Asec:85.30, W:67.0, I:4860,  i:7.55, Z:486,  Zp:588,  Ht:16.7, rank:'FA' },
+  { name:'BCR-250x250x6.0',  H:250, B:250, t:6.0,  r:15.0, Asec:57.32, W:45.0, I:5620,  i:9.90, Z:450,  Zp:521,  Ht:41.7, rank:'FC' },
+  { name:'BCR-250x250x8.0',  H:250, B:250, t:8.0,  r:20.0, Asec:75.24, W:59.1, I:7230,  i:9.80, Z:578,  Zp:676,  Ht:31.3, rank:'FB' },
+  { name:'BCR-250x250x9.0',  H:250, B:250, t:9.0,  r:22.5, Asec:83.98, W:65.9, I:7980,  i:9.75, Z:639,  Zp:750,  Ht:27.8, rank:'FA' },
+  { name:'BCR-250x250x12.0', H:250, B:250, t:12.0, r:30.0, Asec:109.3, W:85.8, I:10100, i:9.59, Z:805,  Zp:959,  Ht:20.8, rank:'FA' },
+  { name:'BCR-250x250x14.0', H:250, B:250, t:14.0, r:35.0, Asec:125.4, W:98.5, I:11300, i:9.49, Z:903,  Zp:1090, Ht:17.9, rank:'FA' },
+  { name:'BCR-250x250x16.0', H:250, B:250, t:16.0, r:40.0, Asec:141.0, W:111,  I:12400, i:9.38, Z:992,  Zp:1210, Ht:15.6, rank:'FA' },
+  { name:'BCR-300x300x6.0',  H:300, B:300, t:6.0,  r:15.0, Asec:69.32, W:54.4, I:9890,  i:11.9, Z:660,  Zp:760,  Ht:50.0, rank:'FD' },
+  { name:'BCR-300x300x8.0',  H:300, B:300, t:8.0,  r:20.0, Asec:91.24, W:71.6, I:12800, i:11.8, Z:853,  Zp:991,  Ht:37.5, rank:'FC' },
+  { name:'BCR-300x300x9.0',  H:300, B:300, t:9.0,  r:22.5, Asec:102.0, W:80.1, I:14200, i:11.8, Z:946,  Zp:1100, Ht:33.3, rank:'FC' },
+  { name:'BCR-300x300x12.0', H:300, B:300, t:12.0, r:30.0, Asec:133.3, W:105,  I:18100, i:11.6, Z:1200, Zp:1420, Ht:25.0, rank:'FA' },
+  { name:'BCR-300x300x14.0', H:300, B:300, t:14.0, r:35.0, Asec:153.4, W:120,  I:20400, i:11.5, Z:1360, Zp:1620, Ht:21.4, rank:'FA' },
+  { name:'BCR-300x300x16.0', H:300, B:300, t:16.0, r:40.0, Asec:173.0, W:136,  I:22600, i:11.4, Z:1510, Zp:1810, Ht:18.8, rank:'FA' },
+  { name:'BCR-300x300x19.0', H:300, B:300, t:19.0, r:47.5, Asec:201.2, W:158,  I:25500, i:11.3, Z:1700, Zp:2070, Ht:15.8, rank:'FA' },
+  { name:'BCR-300x300x22.0', H:300, B:300, t:22.0, r:55.0, Asec:228.0, W:179,  I:28100, i:11.1, Z:1870, Zp:2310, Ht:13.6, rank:'FA' },
+  { name:'BCR-350x350x9.0',  H:350, B:350, t:9.0,  r:22.5, Asec:120.0, W:94.2, I:23000, i:13.8, Z:1310, Zp:1520, Ht:38.9, rank:'FC' },
+  { name:'BCR-350x350x12.0', H:350, B:350, t:12.0, r:30.0, Asec:157.3, W:123,  I:29400, i:13.7, Z:1680, Zp:1970, Ht:29.2, rank:'FA' },
+  { name:'BCR-350x350x14.0', H:350, B:350, t:14.0, r:35.0, Asec:181.4, W:142,  I:33400, i:13.6, Z:1910, Zp:2260, Ht:25.0, rank:'FA' },
+  { name:'BCR-350x350x16.0', H:350, B:350, t:16.0, r:40.0, Asec:205.0, W:161,  I:37200, i:13.5, Z:2130, Zp:2530, Ht:21.9, rank:'FA' },
+  { name:'BCR-350x350x19.0', H:350, B:350, t:19.0, r:47.5, Asec:239.2, W:188,  I:42400, i:13.3, Z:2420, Zp:2910, Ht:18.4, rank:'FA' },
+  { name:'BCR-350x350x22.0', H:350, B:350, t:22.0, r:55.0, Asec:272.0, W:214,  I:47100, i:13.2, Z:2690, Zp:3270, Ht:15.9, rank:'FA' },
+  { name:'BCR-350x350x25.0', H:350, B:350, t:25.0, r:62.5, Asec:303.5, W:238,  I:51200, i:13.0, Z:2930, Zp:3600, Ht:14.0, rank:'FA' },
+  { name:'BCR-400x400x9.0',  H:400, B:400, t:9.0,  r:22.5, Asec:138.0, W:108,  I:34800, i:15.9, Z:1740, Zp:2010, Ht:44.4, rank:'FD' },
+  { name:'BCR-400x400x12.0', H:400, B:400, t:12.0, r:30.0, Asec:181.3, W:142,  I:44800, i:15.7, Z:2240, Zp:2610, Ht:33.3, rank:'FC' },
+  { name:'BCR-400x400x14.0', H:400, B:400, t:14.0, r:35.0, Asec:209.4, W:164,  I:51100, i:15.6, Z:2560, Zp:3000, Ht:28.6, rank:'FA' },
+  { name:'BCR-400x400x16.0', H:400, B:400, t:16.0, r:40.0, Asec:237.0, W:186,  I:57100, i:15.5, Z:2850, Zp:3370, Ht:25.0, rank:'FA' },
+  { name:'BCR-400x400x19.0', H:400, B:400, t:19.0, r:47.5, Asec:277.2, W:218,  I:65400, i:15.4, Z:3270, Zp:3900, Ht:21.1, rank:'FA' },
+  { name:'BCR-400x400x22.0', H:400, B:400, t:22.0, r:55.0, Asec:316.0, W:248,  I:73000, i:15.2, Z:3650, Zp:4390, Ht:18.2, rank:'FA' },
+  { name:'BCR-400x400x25.0', H:400, B:400, t:25.0, r:62.5, Asec:353.5, W:278,  I:80000, i:15.0, Z:4000, Zp:4860, Ht:16.0, rank:'FA' },
+  { name:'BCR-450x450x9.0',  H:450, B:450, t:9.0,  r:22.5, Asec:156.0, W:122,  I:50100, i:17.9, Z:2230, Zp:2560, Ht:50.0, rank:'FD' },
+  { name:'BCR-450x450x12.0', H:450, B:450, t:12.0, r:30.0, Asec:205.3, W:161,  I:64800, i:17.8, Z:2880, Zp:3340, Ht:37.5, rank:'FC' },
+  { name:'BCR-450x450x14.0', H:450, B:450, t:14.0, r:35.0, Asec:237.4, W:186,  I:74100, i:17.7, Z:3290, Zp:3840, Ht:32.1, rank:'FB' },
+  { name:'BCR-450x450x16.0', H:450, B:450, t:16.0, r:40.0, Asec:269.0, W:211,  I:82900, i:17.6, Z:3690, Zp:4330, Ht:28.1, rank:'FA' },
+  { name:'BCR-450x450x19.0', H:450, B:450, t:19.0, r:47.5, Asec:315.2, W:247,  I:95500, i:17.4, Z:4240, Zp:5020, Ht:23.7, rank:'FA' },
+  { name:'BCR-450x450x22.0', H:450, B:450, t:22.0, r:55.0, Asec:360.0, W:283,  I:107000,i:17.2, Z:4760, Zp:5680, Ht:20.5, rank:'FA' },
+  { name:'BCR-450x450x25.0', H:450, B:450, t:25.0, r:62.5, Asec:403.5, W:317,  I:118000,i:17.1, Z:5240, Zp:6300, Ht:18.0, rank:'FA' },
+  { name:'BCR-450x450x28.0', H:450, B:450, t:28.0, r:70.0, Asec:445.7, W:350,  I:128000,i:16.9, Z:5680, Zp:6890, Ht:16.1, rank:'FA' },
+  { name:'BCR-500x500x12.0', H:500, B:500, t:12.0, r:30.0, Asec:229.3, W:180,  I:90000, i:19.8, Z:3600, Zp:4160, Ht:41.7, rank:'FC' },
+  { name:'BCR-500x500x14.0', H:500, B:500, t:14.0, r:35.0, Asec:265.4, W:208,  I:103000,i:19.7, Z:4120, Zp:4790, Ht:35.7, rank:'FC' },
+  { name:'BCR-500x500x16.0', H:500, B:500, t:16.0, r:40.0, Asec:301.0, W:236,  I:116000,i:19.6, Z:4630, Zp:5410, Ht:31.3, rank:'FB' },
+  { name:'BCR-500x500x19.0', H:500, B:500, t:19.0, r:47.5, Asec:353.2, W:277,  I:134000,i:19.4, Z:5340, Zp:6290, Ht:26.3, rank:'FA' },
+  { name:'BCR-500x500x22.0', H:500, B:500, t:22.0, r:55.0, Asec:404.0, W:317,  I:150000,i:19.3, Z:6010, Zp:7130, Ht:22.7, rank:'FA' },
+  { name:'BCR-500x500x25.0', H:500, B:500, t:25.0, r:62.5, Asec:453.5, W:356,  I:166000,i:19.1, Z:6640, Zp:7940, Ht:20.0, rank:'FA' },
+  { name:'BCR-500x500x28.0', H:500, B:500, t:28.0, r:70.0, Asec:501.7, W:394,  I:181000,i:19.0, Z:7230, Zp:8700, Ht:17.9, rank:'FA' },
+  { name:'BCR-550x550x16.0', H:550, B:550, t:16.0, r:40.0, Asec:333.0, W:261,  I:156000,i:21.6, Z:5670, Zp:6610, Ht:34.4, rank:'FC' },
+  { name:'BCR-550x550x19.0', H:550, B:550, t:19.0, r:47.5, Asec:391.2, W:307,  I:181000,i:21.5, Z:6570, Zp:7700, Ht:28.9, rank:'FA' },
+  { name:'BCR-550x550x22.0', H:550, B:550, t:22.0, r:55.0, Asec:448.0, W:352,  I:204000,i:21.3, Z:7420, Zp:8750, Ht:25.0, rank:'FA' },
+  { name:'BCR-550x550x25.0', H:550, B:550, t:25.0, r:62.5, Asec:503.5, W:395,  I:226000,i:21.2, Z:8210, Zp:9760, Ht:22.0, rank:'FA' },
+  { name:'BCR-550x550x28.0', H:550, B:550, t:28.0, r:70.0, Asec:557.7, W:438,  I:246000,i:21.0, Z:8960, Zp:10700,Ht:19.6, rank:'FA' }
+];
+
+const JBCR385_DATA = [
+  { name:'JBCR385-250x250x6.0',  H:250, B:250, t:6.0,  r:15.0, Asec:57.32, W:45.0, I:5620,  i:9.90, Z:450,  Zp:521,  Ht:41.7, rank:'FD' },
+  { name:'JBCR385-250x250x9.0',  H:250, B:250, t:9.0,  r:22.5, Asec:83.98, W:65.9, I:7980,  i:9.75, Z:639,  Zp:750,  Ht:27.8, rank:'FB' },
+  { name:'JBCR385-250x250x12.0', H:250, B:250, t:12.0, r:30.0, Asec:109.3, W:85.8, I:10100, i:9.59, Z:805,  Zp:959,  Ht:20.8, rank:'FA' },
+  { name:'JBCR385-250x250x16.0', H:250, B:250, t:16.0, r:40.0, Asec:141.0, W:111,  I:12400, i:9.38, Z:992,  Zp:1210, Ht:15.6, rank:'FA' },
+  { name:'JBCR385-300x300x6.0',  H:300, B:300, t:6.0,  r:15.0, Asec:69.32, W:54.4, I:9890,  i:11.9, Z:660,  Zp:760,  Ht:50.0, rank:'FD' },
+  { name:'JBCR385-300x300x9.0',  H:300, B:300, t:9.0,  r:22.5, Asec:102.0, W:80.1, I:14200, i:11.8, Z:946,  Zp:1100, Ht:33.3, rank:'FC' },
+  { name:'JBCR385-300x300x12.0', H:300, B:300, t:12.0, r:30.0, Asec:133.3, W:105,  I:18100, i:11.6, Z:1200, Zp:1420, Ht:25.0, rank:'FA' },
+  { name:'JBCR385-300x300x16.0', H:300, B:300, t:16.0, r:40.0, Asec:173.0, W:136,  I:22600, i:11.4, Z:1510, Zp:1810, Ht:18.8, rank:'FA' },
+  { name:'JBCR385-300x300x19.0', H:300, B:300, t:19.0, r:47.5, Asec:201.2, W:158,  I:25500, i:11.3, Z:1700, Zp:2070, Ht:15.8, rank:'FA' },
+  { name:'JBCR385-350x350x9.0',  H:350, B:350, t:9.0,  r:22.5, Asec:120.0, W:94.2, I:23000, i:13.8, Z:1310, Zp:1520, Ht:38.9, rank:'FD' },
+  { name:'JBCR385-350x350x12.0', H:350, B:350, t:12.0, r:30.0, Asec:157.3, W:123,  I:29400, i:13.7, Z:1680, Zp:1970, Ht:29.2, rank:'FC' },
+  { name:'JBCR385-350x350x16.0', H:350, B:350, t:16.0, r:40.0, Asec:205.0, W:161,  I:37200, i:13.5, Z:2130, Zp:2530, Ht:21.9, rank:'FA' },
+  { name:'JBCR385-350x350x19.0', H:350, B:350, t:19.0, r:47.5, Asec:239.2, W:188,  I:42400, i:13.3, Z:2420, Zp:2910, Ht:18.4, rank:'FA' },
+  { name:'JBCR385-350x350x22.0', H:350, B:350, t:22.0, r:55.0, Asec:272.0, W:214,  I:47100, i:13.2, Z:2690, Zp:3270, Ht:15.9, rank:'FA' },
+  { name:'JBCR385-400x400x9.0',  H:400, B:400, t:9.0,  r:22.5, Asec:138.0, W:108,  I:34800, i:15.9, Z:1740, Zp:2010, Ht:44.4, rank:'FD' },
+  { name:'JBCR385-400x400x12.0', H:400, B:400, t:12.0, r:30.0, Asec:181.3, W:142,  I:44800, i:15.7, Z:2240, Zp:2610, Ht:33.3, rank:'FC' },
+  { name:'JBCR385-400x400x16.0', H:400, B:400, t:16.0, r:40.0, Asec:237.0, W:186,  I:57100, i:15.5, Z:2850, Zp:3370, Ht:25.0, rank:'FA' },
+  { name:'JBCR385-400x400x19.0', H:400, B:400, t:19.0, r:47.5, Asec:277.2, W:218,  I:65400, i:15.4, Z:3270, Zp:3900, Ht:21.1, rank:'FA' },
+  { name:'JBCR385-400x400x22.0', H:400, B:400, t:22.0, r:55.0, Asec:316.0, W:248,  I:73000, i:15.2, Z:3650, Zp:4390, Ht:18.2, rank:'FA' },
+  { name:'JBCR385-400x400x25.0', H:400, B:400, t:25.0, r:62.5, Asec:353.5, W:278,  I:80000, i:15.0, Z:4000, Zp:4860, Ht:16.0, rank:'FA' },
+  { name:'JBCR385-450x450x9.0',  H:450, B:450, t:9.0,  r:22.5, Asec:156.0, W:122,  I:50100, i:17.9, Z:2230, Zp:2560, Ht:50.0, rank:'FD' },
+  { name:'JBCR385-450x450x12.0', H:450, B:450, t:12.0, r:30.0, Asec:205.3, W:161,  I:64800, i:17.8, Z:2880, Zp:3340, Ht:37.5, rank:'FC' },
+  { name:'JBCR385-450x450x16.0', H:450, B:450, t:16.0, r:40.0, Asec:269.0, W:211,  I:82900, i:17.6, Z:3690, Zp:4330, Ht:28.1, rank:'FB' },
+  { name:'JBCR385-450x450x19.0', H:450, B:450, t:19.0, r:47.5, Asec:315.2, W:247,  I:95500, i:17.4, Z:4240, Zp:5020, Ht:23.7, rank:'FA' },
+  { name:'JBCR385-450x450x22.0', H:450, B:450, t:22.0, r:55.0, Asec:360.0, W:283,  I:107000,i:17.2, Z:4760, Zp:5680, Ht:20.5, rank:'FA' },
+  { name:'JBCR385-450x450x25.0', H:450, B:450, t:25.0, r:62.5, Asec:403.5, W:317,  I:118000,i:17.1, Z:5240, Zp:6300, Ht:18.0, rank:'FA' },
+  { name:'JBCR385-500x500x9.0',  H:500, B:500, t:9.0,  r:22.5, Asec:174.0, W:137,  I:69300, i:20.0, Z:2770, Zp:3190, Ht:55.6, rank:'FD' },
+  { name:'JBCR385-500x500x12.0', H:500, B:500, t:12.0, r:30.0, Asec:229.3, W:180,  I:90000, i:19.8, Z:3600, Zp:4160, Ht:41.7, rank:'FD' },
+  { name:'JBCR385-500x500x16.0', H:500, B:500, t:16.0, r:40.0, Asec:301.0, W:236,  I:116000,i:19.6, Z:4630, Zp:5410, Ht:31.3, rank:'FC' },
+  { name:'JBCR385-500x500x19.0', H:500, B:500, t:19.0, r:47.5, Asec:353.2, W:277,  I:134000,i:19.4, Z:5340, Zp:6290, Ht:26.3, rank:'FB' },
+  { name:'JBCR385-500x500x22.0', H:500, B:500, t:22.0, r:55.0, Asec:404.0, W:317,  I:150000,i:19.3, Z:6010, Zp:7130, Ht:22.7, rank:'FA' },
+  { name:'JBCR385-500x500x25.0', H:500, B:500, t:25.0, r:62.5, Asec:453.5, W:356,  I:166000,i:19.1, Z:6640, Zp:7940, Ht:20.0, rank:'FA' },
+  { name:'JBCR385-550x550x16.0', H:550, B:550, t:16.0, r:40.0, Asec:333.0, W:261,  I:156000,i:21.6, Z:5670, Zp:6610, Ht:34.4, rank:'FC' },
+  { name:'JBCR385-550x550x19.0', H:550, B:550, t:19.0, r:47.5, Asec:391.2, W:307,  I:181000,i:21.5, Z:6570, Zp:7700, Ht:28.9, rank:'FC' },
+  { name:'JBCR385-550x550x22.0', H:550, B:550, t:22.0, r:55.0, Asec:448.0, W:352,  I:204000,i:21.3, Z:7420, Zp:8750, Ht:25.0, rank:'FA' },
+  { name:'JBCR385-550x550x25.0', H:550, B:550, t:25.0, r:62.5, Asec:503.5, W:395,  I:226000,i:21.2, Z:8210, Zp:9760, Ht:22.0, rank:'FA' }
+];
+
 const ROUND_BAR_DATA = [
   { name:'RB-5.5', D:5.5, W:0.187, A:0.238, I:0.004, i:0.138, Z:0.016 },
   { name:'RB-6',   D:6,   W:0.222, A:0.283, I:0.006, i:0.150, Z:0.021 },
@@ -746,6 +846,22 @@ SECTION_DATA['SGP配管'] = {
   specs: SGP_PIPE_DATA
 };
 
+SECTION_DATA['BCR295'] = {
+  type: 'BCR',
+  label: 'BCR295',
+  jis: 'BCP 235',
+  jisSub: 'Cold roll formed square steel tube',
+  specs: BCR295_DATA
+};
+
+SECTION_DATA['JBCR385'] = {
+  type: 'BCR',
+  label: 'JBCR385',
+  jis: 'BCP 325',
+  jisSub: 'Cold roll formed square steel tube',
+  specs: JBCR385_DATA
+};
+
 
 
 
@@ -1135,7 +1251,7 @@ let _dataSpecDropdownOpen = false;
 let _dataSpecFiltered = [];
 
 function getDataKindOrder() {
-  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '角パイプ（長方形）', 'SGP配管', '丸パイプ'];
+  const preferred = ['H形鋼', '山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼', '溝形鋼', '軽量C形鋼', 'I形鋼', '平鋼', '丸鋼', '角鋼', '角パイプ（正方形）', '角パイプ（長方形）', 'BCR295', 'JBCR385', 'SGP配管', '丸パイプ'];
   const keys = Object.keys(SECTION_DATA);
   const ordered = preferred.filter(function(kind) { return keys.indexOf(kind) >= 0; });
   keys.forEach(function(kind) {
@@ -1401,7 +1517,7 @@ function renderDataSpec() {
       svgEl.innerHTML = drawSquareBarSVG(spec.a, 260, 210);
     } else if (kindData.type === 'PIPE') {
       svgEl.innerHTML = drawPipeSVG(spec.D, spec.d, 260, 210);
-    } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
+    } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'BCR') {
       svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, 260, 210);
     } else if (kindData.type === 'FL') {
       svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, 260, 210);
@@ -1499,6 +1615,15 @@ function renderDataSpec() {
         <div class="dp-cell"><span>断面積 A</span><strong>${spec.Asec} cm²</strong></div>
         <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
       `;
+    } else if (kindData.type === 'BCR') {
+      dimEl.innerHTML = `
+        <div class="dp-cell"><span>H</span><strong>${spec.H} mm</strong></div>
+        <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
+        <div class="dp-cell"><span>t</span><strong>${spec.t} mm</strong></div>
+        <div class="dp-cell dp-r"><span>r</span><strong>${spec.r} mm</strong></div>
+        <div class="dp-cell"><span>t/r</span><strong>${spec.Ht}</strong></div>
+        <div class="dp-cell"><span>ランク</span><strong>${spec.rank}</strong></div>
+      `;
     }
   }
 
@@ -1519,6 +1644,13 @@ function renderDataSpec() {
         <div class="dp-cell"><span>Zy</span><strong>${spec.Zy != null ? spec.Zy : spec.Zx} cm³</strong></div>
         <div class="dp-cell"><span>ix</span><strong>${spec.ix} cm</strong></div>
         <div class="dp-cell"><span>iy</span><strong>${spec.iy != null ? spec.iy : spec.ix} cm</strong></div>`;
+    } else if (kindData.type === 'BCR') {
+      perfEl.innerHTML = `
+        <div class="dp-cell"><span>I</span><strong>${spec.I} cm⁴</strong></div>
+        <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
+        <div class="dp-cell"><span>Zp</span><strong>${spec.Zp} cm³</strong></div>
+        <div class="dp-cell"><span>i</span><strong>${spec.i} cm</strong></div>
+      `;
     } else {
       perfEl.innerHTML = `
         <div class="dp-cell"><span>Ix</span><strong>${spec.Ix} cm⁴</strong></div>
@@ -1540,7 +1672,7 @@ function renderDataSpec() {
   if (extraEl) {
     const weightArea = (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE')
       ? spec.A
-      : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'C_LIGHT') ? spec.Asec : spec.Ac);
+      : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'C_LIGHT' || kindData.type === 'BCR') ? spec.Asec : spec.Ac);
     const calcW = calcUnitWeightFromArea(weightArea);
     const S = (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT')
       ? calcLAnglePaintAreaPerMeter(spec)
@@ -1550,7 +1682,7 @@ function renderDataSpec() {
           ? calcSquareBarPaintAreaPerMeter(spec)
       : (kindData.type === 'PIPE')
           ? calcPipePaintAreaPerMeter(spec)
-      : (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE')
+      : (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'BCR')
           ? calcSquarePipePaintAreaPerMeter(spec)
       : (kindData.type === 'C_LIGHT')
           ? calcLightCChannelPaintAreaPerMeter(spec)
