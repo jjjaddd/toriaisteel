@@ -1559,36 +1559,42 @@ renderInventoryPage = function() {
 })();
 
 (function enforceHistoryNewestFirst() {
-  var _baseRenderHistory = typeof renderHistory === 'function' ? renderHistory : null;
-  if (!_baseRenderHistory) return;
-
   renderHistory = function() {
     var cont = document.getElementById('histList');
     var empty = document.getElementById('histEmpty');
-    if (!cont) return _baseRenderHistory.apply(this, arguments);
+    if (!cont) return;
 
     var hist = getCutHistory().slice();
-    var fc = (((document.getElementById('hsClient') || {}).value) || '').toLowerCase();
-    var fn = (((document.getElementById('hsName') || {}).value) || '').toLowerCase();
-    var fdf = ((document.getElementById('hsDateFrom') || {}).value || '');
-    var fdt = ((document.getElementById('hsDateTo') || {}).value || '');
-    var fs = ((document.getElementById('hsSt') || {}).value || '');
-    var fk = ((document.getElementById('hsKind') || {}).value || '');
+    var fc      = (((document.getElementById('hsClient')  || {}).value) || '').toLowerCase();
+    var fn      = (((document.getElementById('hsName')    || {}).value) || '').toLowerCase();
+    var fdf     = ((document.getElementById('hsDateFrom') || {}).value || '');
+    var fdt     = ((document.getElementById('hsDateTo')   || {}).value || '');
+    var fs      = ((document.getElementById('hsSt')       || {}).value || '');
+    var fk      = ((document.getElementById('hsKind')     || {}).value || '');
     var keyword = (((document.getElementById('hsKeyword') || {}).value) || '').toLowerCase();
-    var sort = ((document.getElementById('hsSort') || {}).value || 'date_desc');
+    var sort    = ((document.getElementById('hsSort')     || {}).value || 'date_desc');
 
     if (fc) hist = hist.filter(function(h) { return (h.client || '').toLowerCase().indexOf(fc) >= 0; });
-    if (fn) hist = hist.filter(function(h) { return (h.name || '').toLowerCase().indexOf(fn) >= 0; });
-    if (fdf) hist = hist.filter(function(h) { return parseDateValue(h.deadline) >= parseDateValue(fdf); });
-    if (fdt) hist = hist.filter(function(h) { return parseDateValue(h.deadline) <= parseDateValue(fdt); });
+    if (fn) hist = hist.filter(function(h) { return (h.name   || '').toLowerCase().indexOf(fn) >= 0; });
+    var chipFrom = (typeof _chipDateFrom !== 'undefined' ? _chipDateFrom : '') || '';
+    var chipTo   = (typeof _chipDateTo   !== 'undefined' ? _chipDateTo   : '') || '';
+    if (chipFrom) hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) >= chipFrom; });
+    if (chipTo)   hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) <= chipTo;   });
+    if (fdf && !chipFrom) hist = hist.filter(function(h) { return parseDateValue(h.date) >= parseDateValue(fdf); });
+    if (fdt && !chipTo)   hist = hist.filter(function(h) { return parseDateValue(h.date) <= parseDateValue(fdt); });
     if (fs) hist = hist.filter(function(h) { return (h.spec || '') === fs; });
     if (fk) hist = hist.filter(function(h) { return (h.kind || '') === fk; });
     if (keyword) hist = hist.filter(function(h) { return [h.client, h.name, h.spec, h.kind, h.worker].join(' ').toLowerCase().indexOf(keyword) >= 0; });
 
+    // 種別フィルター
+    var typeFilter = (typeof _histTypeFilter !== 'undefined') ? _histTypeFilter : 'all';
+    if (typeFilter === 'cut')    hist = hist.filter(function(h) { return !h.type || h.type === 'cut'; });
+    if (typeFilter === 'weight') hist = hist.filter(function(h) { return h.type === 'weight'; });
+
     hist.sort(function(a, b) {
-      if (sort === 'date_asc') return parseDateValue(a.date) - parseDateValue(b.date);
+      if (sort === 'date_asc')     return parseDateValue(a.date) - parseDateValue(b.date);
       if (sort === 'deadline_asc') return parseDateValue(a.deadline) - parseDateValue(b.deadline);
-      if (sort === 'spec_asc') return String(a.spec || '').localeCompare(String(b.spec || ''), 'ja');
+      if (sort === 'spec_asc')     return String(a.spec || '').localeCompare(String(b.spec || ''), 'ja');
       return parseDateValue(b.date) - parseDateValue(a.date);
     });
 
@@ -1607,9 +1613,38 @@ renderInventoryPage = function() {
 
     var countLabel = document.getElementById('hiCountLabel');
     if (countLabel) countLabel.textContent = hist.length.toLocaleString() + '件';
+
     cont.innerHTML = pageData.items.map(function(h) {
-      var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
-      var specLabel = h.spec || '規格未設定';
+      var isWeight = h.type === 'weight';
+      if (isWeight) {
+        var w = h.weight || {};
+        var kgStr   = w.sumKg  ? (Math.round(w.sumKg * 10) / 10).toLocaleString() + ' kg' : '—';
+        var amtStr  = w.sumAmt != null ? '概算 ' + Math.round(w.sumAmt).toLocaleString() + ' 円' : '';
+        var rowCount = (w.rows || []).length;
+        var clientLabel = h.client || '';
+        return '<div class="hi-card hi-card--weight" onclick="recallWeightHistory(' + h.id + ')">' +
+          '<div class="hi-card-top">' +
+            '<div style="display:flex;align-items:center;gap:6px">' +
+              '<span class="hi-tag hi-tag-weight">⚖ 重量</span>' +
+              (clientLabel ? '<span class="hi-card-client">' + escapeHtml(clientLabel) + '</span>' : '') +
+              (h.name      ? '<span style="font-size:12px;color:#8888a8">' + escapeHtml(h.name) + '</span>' : '') +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">' +
+              '<div class="hi-card-date">' + escapeHtml(h.dateLabel || '') + '</div>' +
+              '<button onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')" class="hist-del-btn">削除</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="hi-tags">' +
+            '<span class="hi-tag">' + escapeHtml(h.spec || '複数規格') + '</span>' +
+            '<span class="hi-tag">' + rowCount + '行</span>' +
+            '<span class="hi-tag" style="font-weight:700;color:#1a1a2e">' + kgStr + '</span>' +
+            (amtStr ? '<span class="hi-tag">' + amtStr + '</span>' : '') +
+          '</div>' +
+        '</div>';
+      }
+      // 取り合いカード
+      var remCount   = h.result && h.result.remnants ? h.result.remnants.length : 0;
+      var specLabel  = h.spec   || '規格未設定';
       var clientLabel = h.client || '顧客未設定';
       return '<div class="hi-card" onclick="showHistPreview(' + h.id + ')">' +
         '<div class="hi-card-top">' +

@@ -85,6 +85,7 @@ nav a:hover,nav a.active{color:#1a1a2e;background:rgba(109,40,217,.1);text-shado
 .hi-tags { display: flex; gap: 4px; flex-wrap: wrap; }
 .hi-tag { font-size: 10px; padding: 2px 7px; border-radius: 20px; background: #f0f0f8; color: #5a5a78; font-weight: 600; }
 .hi-tag-kind { background: #ede9fe; color: #6d28d9; }
+.hi-tag-weight { background: #ecfdf5; color: #059669; }
 .inv-card-new { border: 1px solid #eee; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 6px; cursor: pointer; transition: all .15s; }
 .inv-card-new:hover { border-color: #16a34a; background: #f0fdf4; }
 .inv-card-len { font-size: 18px; font-weight: 800; color: #1a1a2e; min-width: 80px; }
@@ -3364,13 +3365,4 @@ html[data-theme="dark"] #contactSubmitBtn:focus{
 html[data-theme="dark"] #contactSubmitBtn:active{
   background:rgba(167,139,250,.3)!important;
 }
-html[data-theme="dark"] .contact-pen-label{
-  color:var(--ink)!important;
-}
-
-/* wip-badge dark mode */
-html[data-theme="dark"] .wip-badge{
-  background:rgba(234,88,12,.15);
-  border-color:rgba(234,88,12,.35);
-  color:#fb923c;
-}
+html[data-theme="dark"] .contact-pen-l
