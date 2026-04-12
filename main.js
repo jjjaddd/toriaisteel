@@ -3538,14 +3538,14 @@ function recallWeightFromPreview() {
   if (!id) return;
   closeWeightHistPreview();
   var hist = getCutHistory();
-  var entry = hist.filter(function(h) { return h.id === id; })[0];
+  var entry = hist.filter(function(h) { return h.id == id; })[0];
   if (!entry || !entry.weight) return;
+  // 先にデータをセットしてからタブを開く
+  // → wInit() 内の wRenderRows() が正しいデータで描画される
+  if (typeof wRecallFromHistory === 'function') {
+    wRecallFromHistory(entry.weight.rows, entry.weight.opts, entry);
+  }
   if (typeof goPage === 'function') goPage('w');
-  setTimeout(function() {
-    if (typeof wRecallFromHistory === 'function') {
-      wRecallFromHistory(entry.weight.rows, entry.weight.opts, entry);
-    }
-  }, 150);
 }
 
 function _escHtml(s) {
