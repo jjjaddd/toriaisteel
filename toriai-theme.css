@@ -909,6 +909,11 @@ html[data-theme="dark"] .data-topbar {
   color: var(--ink) !important;
 }
 html[data-theme="dark"] .data-spec-dropdown { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .data-spec-option {
+  background: var(--bg2) !important;
+  color: var(--ink) !important;
+  border-bottom-color: var(--line) !important;
+}
 html[data-theme="dark"] .data-spec-option:hover,
 html[data-theme="dark"] .data-spec-option.active { background: var(--hb) !important; }
 html[data-theme="dark"] .data-kind-select { background-color: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
