@@ -5151,6 +5151,10 @@ function cartPrintWeight() {
 
   var w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
+  saveCart(getCart().filter(function(x) { return !x.data.isWeight; }));
+  updateCartBadge();
+  renderCartModal();
+  closeCartModal();
 }
 
 function cartExportWeightCsv() {
@@ -5183,6 +5187,10 @@ function cartExportWeightCsv() {
   a.download = '重量計算リスト.csv';
   a.click();
   URL.revokeObjectURL(url);
+  saveCart(getCart().filter(function(x) { return !x.data.isWeight; }));
+  updateCartBadge();
+  renderCartModal();
+  closeCartModal();
 }
 
 // ── コピー プレビュー ──────────────────────────────────────────
