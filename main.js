@@ -505,6 +505,7 @@ function closeInvAddModal() {
 var _hiChipActive = 0;
 var _chipDateFrom = '';   // renderHistory が直接参照
 var _chipDateTo   = '';
+var _histTypeFilter = 'all'; // 'all' | 'cut' | 'weight'
 
 function hiChip(n) {
   _hiChipActive = (_hiChipActive === n) ? 0 : n;
@@ -529,6 +530,20 @@ function hiChip(n) {
     _chipDateFrom = '';
     _chipDateTo   = '';
   }
+  historyPage = 1;
+  renderHistory();
+}
+
+function hiTypeFilter(type) {
+  _histTypeFilter = type;
+  ['hTypeAll', 'hTypeCut', 'hTypeWeight'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('on');
+  });
+  var active = document.getElementById(
+    type === 'cut' ? 'hTypeCut' : type === 'weight' ? 'hTypeWeight' : 'hTypeAll'
+  );
+  if (active) active.classList.add('on');
   historyPage = 1;
   renderHistory();
 }
@@ -3267,6 +3282,10 @@ function renderHistory() {
   if (fdt && !chipTo)   hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) <= normDateStr(fdt); });
   if (fs) hist = hist.filter(function(h) { return (h.spec || '') === fs; });
   if (fk) hist = hist.filter(function(h) { return (h.kind || '') === fk; });
+  if (_histTypeFilter === 'cut')
+    hist = hist.filter(function(h) { return !h.type || h.type === 'cut'; });
+  if (_histTypeFilter === 'weight')
+    hist = hist.filter(function(h) { return h.type === 'weight'; });
   if (keyword) hist = hist.filter(function(h) { return [h.client, h.name, h.spec, h.kind, h.worker].join(' ').toLowerCase().indexOf(keyword) >= 0; });
   hist.sort(function(a, b) {
     if (sort === 'date_asc') return parseDateValue(a.date) - parseDateValue(b.date);
@@ -3295,12 +3314,44 @@ function renderHistory() {
   });
   cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
     return '<div class="hist-card">' +
-      '<div class="hist-card-header"><span class="inv-spec-label">' + spec + '</span><span class="inv-count-badge">' + groups[spec].length + '件</span></div>' +
+      '<div class="hist-card-header">' +
+        '<span class="inv-spec-label">' + spec + '</span>' +
+        '<span class="inv-count-badge">' + groups[spec].length + '件</span>' +
+      '</div>' +
       groups[spec].map(function(h) {
+        var isWeight = h.type === 'weight';
+
+        if (isWeight) {
+          var w = h.weight || {};
+          var kgStr = w.sumKg ? (Math.round(w.sumKg * 10) / 10).toLocaleString() + ' kg' : '—';
+          var amtStr = w.sumAmt != null ? '概算 ' + Math.round(w.sumAmt).toLocaleString() + ' 円' : '';
+          var rowCount = (w.rows || []).length;
+          return '<div class="hist-row hist-row--weight" onclick="recallWeightHistory(' + h.id + ')">' +
+            '<div class="hist-row-main">' +
+              '<div style="display:flex;align-items:center;gap:6px">' +
+                '<span class="hist-type-badge hist-type-badge--weight">⚖ 重量</span>' +
+                '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
+                '<span class="hist-name">' + (h.name || '') + '</span>' +
+              '</div>' +
+              '<div class="hist-meta">' +
+                '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
+                '<span class="hist-rem">' + rowCount + '行</span>' +
+                '<span class="hist-rem" style="font-weight:700;color:#1a1a2e">' + kgStr + '</span>' +
+                (amtStr ? '<span class="hist-rem">' + amtStr + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+            '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+          '</div>';
+        }
+
         var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
         return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
           '<div class="hist-row-main">' +
-            '<div><span class="hist-client">' + (h.client || '案件未設定') + '</span><span class="hist-name">' + (h.name || '') + '</span></div>' +
+            '<div style="display:flex;align-items:center;gap:6px">' +
+              '<span class="hist-type-badge hist-type-badge--cut">✂ 取り合い</span>' +
+              '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
+              '<span class="hist-name">' + (h.name || '') + '</span>' +
+            '</div>' +
             '<div class="hist-meta">' +
               '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
               '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
@@ -3314,6 +3365,19 @@ function renderHistory() {
     '</div>';
   }).join('');
   renderPager('histPagination', historyPage, pageData.totalPages, 'setHistoryPage');
+}
+
+function recallWeightHistory(id) {
+  var hist = getCutHistory();
+  var entry = hist.filter(function(h) { return h.id === id; })[0];
+  if (!entry || entry.type !== 'weight' || !entry.weight) return;
+  if (!confirm('重量タブにデータを復元しますか？\n現在のリストは置き換えられます。')) return;
+  if (typeof goPage === 'function') goPage('w');
+  setTimeout(function() {
+    if (typeof wRecallFromHistory === 'function') {
+      wRecallFromHistory(entry.weight.rows, entry.weight.opts, entry);
+    }
+  }, 150);
 }
 
 function clearHistSearch() {
@@ -3332,6 +3396,11 @@ function clearHistSearch() {
   });
   var hsSbCont = document.getElementById('hsSbKinds');
   if (hsSbCont) hsSbCont.querySelectorAll('.hi-sb-item').forEach(function(el) { el.classList.remove('on'); });
+  _histTypeFilter = 'all';
+  ['hTypeAll', 'hTypeCut', 'hTypeWeight'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.toggle('on', id === 'hTypeAll'); }
+  });
   historyPage = 1;
   renderHistory();
 }
@@ -5129,6 +5198,10 @@ function showHistPreview(id) {
   var hist = getCutHistory();
   var h = hist.find(function(x){ return x.id===id; });
   if (!h) return;
+  if (h.type === 'weight') {
+    recallWeightHistory(id);
+    return;
+  }
   var modal = document.getElementById('histPreviewModal');
   var body  = document.getElementById('histPreviewBody');
   if (!modal || !body) return;

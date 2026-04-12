@@ -56,7 +56,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
     <a id="na" class="" onclick="goPage(&#39;c&#39;)">計算</a>
     <a id="nw" onclick="goPage(&#39;w&#39;)">重量</a>
     <a id="nd" onclick="goPage('data')">データ</a>
-    <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">履歴・在庫</a>
+    <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">作業履歴・在庫</a>
   </nav>
   <div class="hdr-right">
     <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">カート 0件</button>
@@ -325,7 +325,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <!-- 履歴・在庫統合ページ -->
 <div id="hip" class="pg show">
   <div class="hi-tabs">
-    <div class="hi-tab hi-tab-active" id="hiTabH" onclick="hiSwitch(&#39;h&#39;)">切断履歴</div>
+    <div class="hi-tab hi-tab-active" id="hiTabH" onclick="hiSwitch(&#39;h&#39;)">作業履歴</div>
     <div class="hi-tab" id="hiTabI" onclick="hiSwitch(&#39;i&#39;)">残材在庫</div>
   </div>
   <div id="hiPanelH" class="hi-panel">
@@ -333,6 +333,12 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 
       <!-- ── Sidebar ── -->
       <div class="hi-sb">
+        <div class="hi-sb-sec" id="hsSbType" style="margin-bottom:4px">
+          <div class="hi-sb-lbl">種別</div>
+          <div class="hi-sb-item on" id="hTypeAll" onclick="hiTypeFilter(&#39;all&#39;)"><span class="hi-sb-dot"></span>すべて</div>
+          <div class="hi-sb-item" id="hTypeCut" onclick="hiTypeFilter(&#39;cut&#39;)"><span class="hi-sb-dot"></span>取り合い</div>
+          <div class="hi-sb-item" id="hTypeWeight" onclick="hiTypeFilter(&#39;weight&#39;)"><span class="hi-sb-dot"></span>重量計算</div>
+        </div>
         <div class="hi-sb-sec">
           <div class="hi-sb-lbl">期間</div>
           <div class="hi-sb-item hi-sb-period" id="hChip1" onclick="hiChip(1)"><span class="hi-sb-dot"></span>今月</div>
@@ -701,6 +707,22 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
       </p>
     </aside>
     <main class="mn" id="wMain">
+      <!-- 工事名バナー -->
+      <div id="wJobBanner"
+           style="display:flex;align-items:center;gap:8px;padding:7px 14px;
+                  background:#f8f8fc;border-bottom:1px solid #ebebf0;
+                  font-size:12px;cursor:pointer;user-select:none"
+           onclick="wJobBannerEdit()"
+           title="クリックして工事名を入力">
+        <span style="font-size:10px;font-weight:700;letter-spacing:.08em;
+                     color:#9999b8;text-transform:uppercase;white-space:nowrap">工事名</span>
+        <span id="wJobNameDisp"
+              style="flex:1;color:#5a5a78;font-weight:600;min-width:0;
+                     overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+          未設定
+        </span>
+        <span style="font-size:10px;color:#c0c0d0">✎</span>
+      </div>
       <div id="wEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#c0c0d0;gap:12px;min-height:300px">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2 2"/></svg>
         <p style="font-size:13px">左の入力欄で設定して「リストに追加」を押してください</p>

@@ -13,6 +13,10 @@ var _wSavedCalcs = (function() {
   try { return JSON.parse(localStorage.getItem('wSavedCalcs') || '[]'); }
   catch (e) { return []; }
 })();
+var _wJobName = (function() {
+  try { return localStorage.getItem('wJobName') || ''; }
+  catch (e) { return ''; }
+})();
 
 // コマンドパレット
 var _wCmdAll = [];
@@ -113,6 +117,7 @@ function wInit() {
   }, 80);
 
   renderWSavedList();
+  wJobBannerInit();
 }
 
 // ── Enter フロー ──────────────────────────────────────────────
@@ -626,7 +631,8 @@ function wSaveCalc() {
     name: name,
     savedAt: new Date().toISOString(),
     rows: JSON.parse(JSON.stringify(_wRows)),
-    opts: JSON.parse(JSON.stringify(_wOpts))
+    opts: JSON.parse(JSON.stringify(_wOpts)),
+    jobName: _wJobName
   };
   _wSavedCalcs.unshift(rec);
   if (_wSavedCalcs.length > 20) _wSavedCalcs.pop();
@@ -635,15 +641,60 @@ function wSaveCalc() {
   alert('「' + name + '」を保存しました。');
 }
 
+// ── 工事名バナー ──────────────────────────
+function wJobBannerInit() {
+  var disp = document.getElementById('wJobNameDisp');
+  if (disp) {
+    disp.textContent = _wJobName || '未設定';
+    disp.style.color = _wJobName ? '#1a1a2e' : '#9999b8';
+    disp.style.fontStyle = _wJobName ? 'normal' : 'italic';
+  }
+}
+
+function wJobBannerEdit() {
+  var val = prompt('工事名を入力してください（空白でクリア）', _wJobName || '');
+  if (val === null) return;
+  _wJobName = val.trim();
+  try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
+  wJobBannerInit();
+}
+
+function wGetJobForHistory() {
+  var base = (typeof getJobInfo === 'function') ? getJobInfo() : {};
+  if (_wJobName) base.name = _wJobName;
+  return base;
+}
+
 function wLoadCalc(id) {
   var rec = _wSavedCalcs.find(function(r) { return r.id === id; });
   if (!rec) return;
   if (!confirm('「' + rec.name + '」を読み込みます。現在のリストは置き換えられます。')) return;
   _wRows = JSON.parse(JSON.stringify(rec.rows));
+  _wJobName = (rec.jobName || '').trim();
+  try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
   Object.keys(rec.opts || {}).forEach(function(key) {
     if (_wOpts[key] !== rec.opts[key]) wToggleOpt(key);
   });
   _wCartAdded = false;
+  wJobBannerInit();
+  wRenderRows();
+}
+
+function wRecallFromHistory(rows, opts, job) {
+  if (!rows || !rows.length) return;
+  _wRows = JSON.parse(JSON.stringify(rows));
+  var defaultOpts = { price: false, name: false, kuiku: false, rev: false, paint: false, m2: false, co2: false };
+  opts = opts || {};
+  Object.keys(defaultOpts).forEach(function(key) {
+    if (_wOpts[key] !== !!opts[key]) wToggleOpt(key);
+  });
+  if (job && job.name) {
+    _wJobName = job.name;
+    try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
+    wJobBannerInit();
+  }
+  _wCartAdded = false;
+  wJobBannerInit();
   wRenderRows();
 }
 
@@ -750,7 +801,7 @@ function wAddToCart() {
   var data = {
     isWeight: true,
     title: title,
-    job: typeof getJobInfo === 'function' ? getJobInfo() : {},
+    job: wGetJobForHistory(),
     rows: _wRows.slice(),
     sumKg: sumKg,
     sumM2: sumM2,
@@ -759,11 +810,11 @@ function wAddToCart() {
   };
 
   if (typeof addToCart === 'function') addToCart('weight_' + Date.now(), data);
-  if (typeof saveWeightHistory === 'function' && typeof getJobInfo === 'function') {
+  if (typeof saveWeightHistory === 'function') {
     saveWeightHistory(
       JSON.parse(JSON.stringify(_wRows)),
       JSON.parse(JSON.stringify(_wOpts)),
-      getJobInfo()
+      wGetJobForHistory()
     );
   }
   if (typeof updateCartBadge === 'function') updateCartBadge();
@@ -833,11 +884,11 @@ function wPrint() {
 
 function wPrint() {
   if (_wRows.length === 0) { alert('リストが空です。'); return; }
-  if (typeof saveWeightHistory === 'function' && typeof getJobInfo === 'function') {
+  if (typeof saveWeightHistory === 'function') {
     saveWeightHistory(
       JSON.parse(JSON.stringify(_wRows)),
       JSON.parse(JSON.stringify(_wOpts)),
-      getJobInfo()
+      wGetJobForHistory()
     );
   }
 

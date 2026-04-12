@@ -635,6 +635,25 @@ html[data-theme="dark"] .hi-sort { color: var(--ink2) !important; background: tr
 .hist-card-header { background: var(--bg2) !important; border-bottom-color: var(--line2) !important; }
 .hist-row { border-bottom-color: var(--line2) !important; }
 .hist-row:hover { background: var(--hp) !important; }
+.hist-type-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.hist-type-badge--cut {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+.hist-type-badge--weight {
+  background: #dcfce7;
+  color: #166534;
+}
+.hist-row--weight:hover {
+  background: #f0fdf4 !important;
+}
 .hist-client { color: var(--ink) !important; }
 .hist-date { color: var(--ink) !important; }
 /* 鋼材種類 → black */
@@ -710,6 +729,15 @@ html[data-theme="dark"] .hist-card { background: var(--bg2) !important; border-b
 html[data-theme="dark"] .hist-card-header { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
 html[data-theme="dark"] .hist-row { border-bottom-color: var(--line) !important; }
 html[data-theme="dark"] .hist-row:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .hist-type-badge--cut {
+  background: rgba(109, 40, 217, 0.22) !important;
+  color: #c4b5fd !important;
+}
+html[data-theme="dark"] .hist-type-badge--weight {
+  background: rgba(22, 101, 52, 0.28) !important;
+  color: #86efac !important;
+}
+html[data-theme="dark"] .hist-row--weight:hover { background: rgba(34, 197, 94, 0.12) !important; }
 html[data-theme="dark"] .hist-client { color: var(--ink) !important; }
 html[data-theme="dark"] .hist-spec-badge { color: var(--ink) !important; background: var(--bg3) !important; }
 html[data-theme="dark"] .hist-del-btn { color: var(--ink3) !important; }
@@ -2215,3 +2243,11 @@ input[type=number], input[type=text], input[type=date], select, textarea {
 
 /* パターンカード */
 .pc { border-radius: var(--r-sm) !important; }
+
+/* 重量タブ 工事名バナー */
+#wJobBanner:hover {
+  background: #f0f0f8;
+}
+#wJobBanner:hover span:last-child {
+  color: #6d28d9;
+}
