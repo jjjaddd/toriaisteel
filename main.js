@@ -4102,7 +4102,7 @@ function normalizeInterfaceChrome() {
   ['#cartModal button[onclick="cartPrintCutting()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
     var el = document.querySelector(sel);
     if (el) {
-      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : 'まとめて印刷';
+      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : '印刷';
       if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
     }
   });
@@ -5559,7 +5559,7 @@ function normalizeInterfaceChrome() {
   ['#cartModal button[onclick="cartPrintCutting()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
     var el = document.querySelector(sel);
     if (el) {
-      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : 'まとめて印刷';
+      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : '印刷';
       if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
     }
   });
