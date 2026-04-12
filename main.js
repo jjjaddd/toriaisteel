@@ -3423,8 +3423,12 @@ var _weightHistPreviewId = null;
 
 function showWeightHistPreview(id) {
   var hist = getCutHistory();
-  var entry = hist.filter(function(h) { return h.id === id; })[0];
-  if (!entry || entry.type !== 'weight' || !entry.weight) return;
+  // == で比較（JSON.parse後の型変換に対応）
+  var entry = hist.filter(function(h) { return h.id == id; })[0];
+  if (!entry) return;
+  // type が未設定のエントリーも weight として扱う（weightプロパティがあれば）
+  if (entry.type && entry.type !== 'weight') return;
+  if (!entry.weight) return;
 
   _weightHistPreviewId = id;
   var modal = document.getElementById('weightHistPreviewModal');
@@ -3502,6 +3506,31 @@ function closeWeightHistPreview() {
   var modal = document.getElementById('weightHistPreviewModal');
   if (modal) modal.style.display = 'none';
   _weightHistPreviewId = null;
+}
+
+function printWeightHistPreview() {
+  var body = document.getElementById('weightHistPreviewBody');
+  if (!body) return;
+  var meta = (document.getElementById('weightHistPreviewMeta') || {}).textContent || '';
+  var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>重量計算プレビュー</title>' +
+    '<style>' +
+    '*{box-sizing:border-box}' +
+    'body{font-family:sans-serif;font-size:11px;padding:16px;color:#000}' +
+    'h2{font-size:13px;margin:0 0 6px;color:#1a1a2e}' +
+    '.meta{font-size:10px;color:#888;margin-bottom:12px}' +
+    'table{border-collapse:collapse;width:100%}' +
+    'th{font-size:10px;font-weight:600;color:#555;border-bottom:1.5px solid #ccc;padding:5px 8px;text-align:left;white-space:nowrap}' +
+    'th.r,td.r{text-align:right}' +
+    'td{border-bottom:1px solid #eee;padding:5px 8px;font-size:11px}' +
+    'tfoot td{font-weight:700;border-top:1.5px solid #ccc;border-bottom:none;padding:6px 8px}' +
+    '@media print{body{padding:0}}' +
+    '</style></head><body>' +
+    '<h2>重量計算プレビュー</h2>' +
+    (meta ? '<div class="meta">' + meta + '</div>' : '') +
+    body.innerHTML +
+    '</body></html>';
+  var w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
 }
 
 function recallWeightFromPreview() {
