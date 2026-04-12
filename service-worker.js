@@ -1,8 +1,9 @@
-const CACHE_NAME = 'steel-optimizer-v6';
+const CACHE_NAME = 'steel-optimizer-v22';
 const ASSETS = [
   '/',
   '/index.html',
   '/style.css',
+  '/toriai-theme.css',
   '/storage.js',
   '/calc.js',
   '/main.js',
@@ -11,6 +12,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', function(e) {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
       return cache.addAll(ASSETS);

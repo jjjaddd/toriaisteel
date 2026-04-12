@@ -509,18 +509,18 @@ function wRenderRows() {
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
 
     var kuikuTag = r.kuiku
-      ? ' <span style="display:inline-block;font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:#ede9fe;color:#7c3aed;margin-left:3px">' + _esc(r.kuiku) + '</span>'
+      ? ' <span style="display:inline-block;font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:#f0f0f0;color:#555555;margin-left:3px">' + _esc(r.kuiku) + '</span>'
       : '';
     var memoTitle = _esc(r.memo) + (r.kuiku ? '　' + _esc(r.kuiku) : '');
-    var m2Cell = '<td style="' + _tdR + 'color:#0891b2;font-weight:700;' + (_wOpts.m2 ? '' : 'display:none;') + '">' + _wFmt(r.m2Total, 2) + '</td>';
+    var m2Cell = '<td style="' + _tdR + 'color:#111111;font-weight:700;' + (_wOpts.m2 ? '' : 'display:none;') + '">' + _wFmt(r.m2Total, 2) + '</td>';
     var amtDisp = _wOpts.price ? '' : 'display:none;';
     var amtCell = r.amount !== null
-      ? '<td style="' + _tdR + amtDisp + 'color:#16a34a;font-weight:700">' + _wFmt(r.amount, 0) +
+      ? '<td style="' + _tdR + amtDisp + 'color:#111111;font-weight:700">' + _wFmt(r.amount, 0) +
         '<br><span style="font-size:9px;color:#aaa;font-weight:400">@' + r.price + '円/kg</span></td>'
       : '<td style="' + _tdR + amtDisp + 'color:#ccc">—</td>';
     var paintDisp = _wOpts.paint ? '' : 'display:none;';
     var paintAmtCell = r.paintAmount !== null
-      ? '<td style="' + _tdR + paintDisp + 'color:#0891b2;font-weight:700">' + _wFmt(r.paintAmount, 0) +
+      ? '<td style="' + _tdR + paintDisp + 'color:#111111;font-weight:700">' + _wFmt(r.paintAmount, 0) +
         '<br><span style="font-size:9px;color:#aaa;font-weight:400">@' + r.paintPrice + '円/m²</span></td>'
       : '<td style="' + _tdR + paintDisp + 'color:#ccc">—</td>';
     var rowBg = (_wEditIdx === i) ? 'background:#fffde7;' : (i % 2 === 1 ? 'background:#fafafa;' : '');
@@ -537,7 +537,7 @@ function wRenderRows() {
       '<td style="' + _tdR + '">' + r.len.toLocaleString() + '</td>' +
       '<td style="' + _tdR + '">' + r.qty.toLocaleString() + '</td>' +
       '<td style="' + _tdR + '">' + _wFmtKg(r.kg1) + '</td>' +
-      '<td style="' + _tdR + 'color:#6d28d9;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
+      '<td style="' + _tdR + 'color:#111111;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
       m2Cell +
       amtCell +
       paintAmtCell +
@@ -555,16 +555,16 @@ function wRenderRows() {
 
   var totalAmtCell = _wOpts.price
     ? (anyPrice
-        ? '<td style="' + _tdR + 'color:#16a34a;font-weight:800;font-size:13px">' + _wFmt(sumAmt, 0) + '</td>'
+        ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumAmt, 0) + '</td>'
         : '<td style="' + _tdR + 'color:#ccc">—</td>')
     : '';
   var totalPaintCell = _wOpts.paint
     ? (anyPaintAmt
-        ? '<td style="' + _tdR + 'color:#0891b2;font-weight:800;font-size:13px">' + _wFmt(sumPaint, 0) + '</td>'
+        ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumPaint, 0) + '</td>'
         : '<td style="' + _tdR + 'color:#ccc">—</td>')
     : '';
   var totalM2Cell = _wOpts.m2
-    ? '<td style="' + _tdR + 'color:#0891b2;font-weight:800;font-size:13px">' + _wFmt(sumM2v, 2) + ' m²</td>'
+    ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumM2v, 2) + ' m²</td>'
     : '';
   var nameCols = _wOpts.name ? 1 : 0;
 
@@ -573,7 +573,7 @@ function wRenderRows() {
     '<td colspan="' + (5 + nameCols) + '" style="padding:10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#5a5a78">合　計</td>' +
     '<td style="' + _tdR + 'color:#5a5a78">—</td>' +
     '<td style="' + _tdR + 'color:#5a5a78">—</td>' +
-    '<td style="' + _tdR + 'color:#6d28d9;font-weight:800;font-size:14px">' + _wFmtKg(sumKg) + ' kg</td>' +
+    '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:14px">' + _wFmtKg(sumKg) + ' kg</td>' +
     totalM2Cell +
     totalAmtCell +
     totalPaintCell +

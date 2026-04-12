@@ -230,6 +230,36 @@ function parseDateValue(value) {
   return isNaN(parsed) ? 0 : parsed;
 }
 
+/** ISO タイムスタンプまたは Date を LOCAL の YYYY-MM-DD に変換 */
+function toLocalYMD(d) {
+  if (!d) return '';
+  if (typeof d === 'string') d = new Date(d);
+  if (isNaN(d.getTime())) return '';
+  var mo = d.getMonth() + 1;
+  var dy = d.getDate();
+  return d.getFullYear() + '-' + (mo < 10 ? '0' + mo : mo) + '-' + (dy < 10 ? '0' + dy : dy);
+}
+
+/**
+ * 任意の日付値を "YYYY-MM-DD" 文字列に正規化（文字列比較用）
+ * "2026/4/12" → "2026-04-12"
+ * "2026-04-12T06:30:00Z" → "2026-04-12"
+ */
+function normDateStr(value) {
+  if (!value) return '';
+  // Already YYYY-MM-DD[T...]
+  if (/^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);
+  // YYYY/M/D or YYYY/MM/DD  (toLocaleDateString 'ja-JP' 形式)
+  var m = /^(\d{4})\/(\d{1,2})\/(\d{1,2})/.exec(value);
+  if (m) {
+    var mo = Number(m[2]) < 10 ? '0' + m[2] : '' + m[2];
+    var dy = Number(m[3]) < 10 ? '0' + m[3] : '' + m[3];
+    return m[1] + '-' + mo + '-' + dy;
+  }
+  // fallback: parse as Date then convert local
+  return toLocalYMD(new Date(value));
+}
+
 function paginateItems(items, page, size) {
   var totalPages = Math.max(1, Math.ceil(items.length / size));
   var safePage = Math.min(Math.max(page, 1), totalPages);
@@ -282,8 +312,8 @@ function hiSwitch(tab) {
   });
   var navEl = document.getElementById(showH ? 'nhi' : 'ninv');
   if (navEl) navEl.classList.add('active');
-  if (showH) { buildHistSpecDropdown(); renderHistory(); }
-  else { buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
+  if (showH) { buildHistSidebar(); buildHistSpecDropdown(); renderHistory(); }
+  else { buildInvSidebar(); buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
 }
 
 function hiToggleFilter() {
@@ -304,8 +334,178 @@ function invToggleFilter() {
   if (btn) btn.classList.toggle('active', !open);
 }
 
-// 期間チップ
+// ── サイドバー：詳細パネル開閉 ──
+function hiToggleDetail() {
+  var panel = document.getElementById('hiDetailPanel');
+  var btn = document.getElementById('hiDetailBtn');
+  if (!panel) return;
+  var open = panel.classList.contains('open');
+  // close inv panel if open
+  var invPanel = document.getElementById('invDetailPanel');
+  if (invPanel) { invPanel.classList.remove('open'); var ib = document.getElementById('invDetailBtn'); if(ib) ib.classList.remove('active'); }
+  panel.classList.toggle('open', !open);
+  if (btn) btn.classList.toggle('active', !open);
+}
+
+function invToggleDetail() {
+  var panel = document.getElementById('invDetailPanel');
+  var btn = document.getElementById('invDetailBtn');
+  if (!panel) return;
+  var open = panel.classList.contains('open');
+  // close hist panel if open
+  var hiPanel = document.getElementById('hiDetailPanel');
+  if (hiPanel) { hiPanel.classList.remove('open'); var hb = document.getElementById('hiDetailBtn'); if(hb) hb.classList.remove('active'); }
+  panel.classList.toggle('open', !open);
+  if (btn) btn.classList.toggle('active', !open);
+}
+
+// パネル外クリックで詳細パネルを閉じる
+document.addEventListener('click', function(e) {
+  ['hi', 'inv'].forEach(function(prefix) {
+    var panel = document.getElementById(prefix === 'hi' ? 'hiDetailPanel' : 'invDetailPanel');
+    var btn   = document.getElementById(prefix === 'hi' ? 'hiDetailBtn'   : 'invDetailBtn');
+    if (!panel || !panel.classList.contains('open')) return;
+    if (panel.contains(e.target) || (btn && btn.contains(e.target))) return;
+    panel.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  });
+});
+
+// ── サイドバー：鋼材種類リスト構築 ──
+function buildHistSidebar() {
+  var cont = document.getElementById('hsSbKinds');
+  if (!cont) return;
+  var hist = getCutHistory ? getCutHistory() : [];
+  var kinds = [];
+  hist.forEach(function(h) { if (h.kind && kinds.indexOf(h.kind) < 0) kinds.push(h.kind); });
+  kinds.sort(function(a, b) { return a.localeCompare(b, 'ja'); });
+  var currentKind = (document.getElementById('hsKind') || {}).value || '';
+  cont.innerHTML = kinds.map(function(k) {
+    var on = (k === currentKind) ? ' on' : '';
+    return '<div class="hi-sb-item' + on + '" onclick="hiSbKind(\'' + k.replace(/'/g, "\\'") + '\')">' +
+      '<span class="hi-sb-dot"></span>' + k + '</div>';
+  }).join('');
+}
+
+function buildInvSidebar() {
+  var cont = document.getElementById('invSbKinds');
+  if (!cont) return;
+  var inv = getInventory ? getInventory() : [];
+  var kinds = [];
+  inv.forEach(function(x) { if (x.kind && kinds.indexOf(x.kind) < 0) kinds.push(x.kind); });
+  kinds.sort(function(a, b) { return a.localeCompare(b, 'ja'); });
+  var currentKind = (document.getElementById('invFilterKind') || {}).value || '';
+  cont.innerHTML = kinds.map(function(k) {
+    var on = (k === currentKind) ? ' on' : '';
+    return '<div class="hi-sb-item' + on + '" onclick="invSbKind(\'' + k.replace(/'/g, "\\'") + '\')">' +
+      '<span class="hi-sb-dot"></span>' + k + '</div>';
+  }).join('');
+}
+
+// ── サイドバー：種類クリック ──
+function hiSbKind(kind) {
+  var hidden = document.getElementById('hsKind');
+  if (!hidden) return;
+  var prev = hidden.value;
+  hidden.value = (prev === kind) ? '' : kind;
+  // サイドバーの .on を更新
+  var cont = document.getElementById('hsSbKinds');
+  if (cont) {
+    cont.querySelectorAll('.hi-sb-item').forEach(function(el) {
+      var elKind = el.textContent.trim();
+      el.classList.toggle('on', elKind === hidden.value);
+    });
+  }
+  buildHistSpecDropdown();
+  historyPage = 1;
+  renderHistory();
+}
+
+function invSbKind(kind) {
+  var hidden = document.getElementById('invFilterKind');
+  if (!hidden) return;
+  var prev = hidden.value;
+  hidden.value = (prev === kind) ? '' : kind;
+  var cont = document.getElementById('invSbKinds');
+  if (cont) {
+    cont.querySelectorAll('.hi-sb-item').forEach(function(el) {
+      var elKind = el.textContent.trim();
+      el.classList.toggle('on', elKind === hidden.value);
+    });
+  }
+  buildInvFilterSpec();
+  inventoryPage = 1;
+  renderInventoryPage();
+}
+
+// ── サイドバー：在庫 登録日プリセット ──
+var _invSbDateActive = '';
+function invSbDate(preset) {
+  _invSbDateActive = (_invSbDateActive === preset) ? '' : preset;
+  // .on クラス更新
+  var chipMap = { week: 'invChipW', month: 'invChipM', all: 'invChipA' };
+  Object.keys(chipMap).forEach(function(p) {
+    var el = document.getElementById(chipMap[p]);
+    if (el) el.classList.toggle('on', p === _invSbDateActive);
+  });
+  var now = new Date();
+  var from = '';
+  if (_invSbDateActive === 'week') {
+    var day = now.getDay();
+    var diff = (day === 0) ? -6 : 1 - day;
+    var mon = new Date(now);
+    mon.setDate(now.getDate() + diff);
+    from = mon.toISOString().slice(0, 10);
+  } else if (_invSbDateActive === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+  }
+  // 'all' or '' → from = '' (全件表示)
+  var df = document.getElementById('invDateFrom');
+  if (df) df.value = from;
+  inventoryPage = 1;
+  renderInventoryPage();
+}
+
+// ── 在庫検索クリア ──
+function clearInvSearch() {
+  ['invKeyword', 'invFilterSpec', 'invFilterKind', 'invDateFrom'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  var sortEl = document.getElementById('invSort');
+  if (sortEl) sortEl.value = 'date_desc';
+  _invSbDateActive = '';
+  ['invChipW', 'invChipM', 'invChipA'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.remove('on');
+  });
+  var invSbCont = document.getElementById('invSbKinds');
+  if (invSbCont) invSbCont.querySelectorAll('.hi-sb-item').forEach(function(el) { el.classList.remove('on'); });
+  inventoryPage = 1;
+  renderInventoryPage();
+}
+
+// ── 手動追加モーダル ──
+function openInvAddModal() {
+  buildInvAddKind();
+  var m = document.getElementById('invAddModal');
+  if (m) m.classList.add('open');
+  // 入力リセット
+  ['invAddLen','invAddCompany','invAddNote'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  var qty = document.getElementById('invAddQty'); if(qty) qty.value = '1';
+}
+function closeInvAddModal() {
+  var m = document.getElementById('invAddModal');
+  if (m) m.classList.remove('open');
+}
+
+// 期間チップ --- DOM input を経由せずグローバル変数で保持
 var _hiChipActive = 0;
+var _chipDateFrom = '';   // renderHistory が直接参照
+var _chipDateTo   = '';
+
 function hiChip(n) {
   _hiChipActive = (_hiChipActive === n) ? 0 : n;
   [1,2,3,4].forEach(function(i) {
@@ -313,24 +513,23 @@ function hiChip(n) {
     if (c) c.classList.toggle('on', i === _hiChipActive);
   });
   var now = new Date();
-  var from = '', to = '';
   if (_hiChipActive === 1) {
-    from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
-    to = now.toISOString().slice(0,10);
+    _chipDateFrom = toLocalYMD(new Date(now.getFullYear(), now.getMonth(), 1));
+    _chipDateTo   = toLocalYMD(now);
   } else if (_hiChipActive === 2) {
-    from = new Date(now.getFullYear(), now.getMonth()-1, 1).toISOString().slice(0,10);
-    to = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().slice(0,10);
+    _chipDateFrom = toLocalYMD(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+    _chipDateTo   = toLocalYMD(new Date(now.getFullYear(), now.getMonth(), 0));
   } else if (_hiChipActive === 3) {
-    from = new Date(now.getFullYear(), now.getMonth()-3, 1).toISOString().slice(0,10);
-    to = now.toISOString().slice(0,10);
+    _chipDateFrom = toLocalYMD(new Date(now.getFullYear(), now.getMonth() - 3, 1));
+    _chipDateTo   = toLocalYMD(now);
   } else if (_hiChipActive === 4) {
-    from = now.getFullYear() + '-01-01';
-    to = now.toISOString().slice(0,10);
+    _chipDateFrom = now.getFullYear() + '-01-01';
+    _chipDateTo   = toLocalYMD(now);
+  } else {
+    _chipDateFrom = '';
+    _chipDateTo   = '';
   }
-  var df = document.getElementById('hsDateFrom');
-  var dt = document.getElementById('hsDateTo');
-  if (df) df.value = from;
-  if (dt) dt.value = to;
+  historyPage = 1;
   renderHistory();
 }
 
@@ -376,8 +575,8 @@ function goPage(p) {
     if (hiPanelI) hiPanelI.style.display = showH ? 'none' : 'block';
     if (hiTabH) hiTabH.classList.toggle('hi-tab-active', showH);
     if (hiTabI) hiTabI.classList.toggle('hi-tab-active', !showH);
-    if (showH) { buildHistSpecDropdown(); renderHistory(); }
-    else { buildInvFilterKind(); renderInventoryPage(); }
+    if (showH) { buildHistSidebar(); buildHistSpecDropdown(); renderHistory(); }
+    else { buildInvSidebar(); buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
   }
 }
 
@@ -793,14 +992,14 @@ function updateInventoryUseButton(forceReady) {
   if (!btn) return;
   if (forceReady) {
     btn.textContent = '✓追加済み';
-    btn.style.background = '#16a34a';
-    btn.style.color = '#fff';
+    btn.style.background = '#f0f0f0';
+    btn.style.color = '#555555';
     btn.disabled = true;
     return;
   }
-  btn.textContent = '計算に使う';
+  btn.textContent = '＋ 計算に使う';
   btn.style.background = 'transparent';
-  btn.style.color = '#16a34a';
+  btn.style.color = '#111111';
   btn.disabled = !(sel && sel.value);
 }
 
@@ -821,14 +1020,14 @@ function legacyAddFromInventory_v1() {
   var btn = document.getElementById('invUseBtn');
   if (btn) {
     btn.textContent = '✓ 追加済み';
-    btn.style.background = '#16a34a';
-    btn.style.color = '#fff';
+    btn.style.background = '#f0f0f0';
+    btn.style.color = '#555555';
     btn.disabled = true;
     // 2秒後に戻す
     setTimeout(function() {
       btn.textContent = '＋ 計算に使う';
       btn.style.background = 'transparent';
-      btn.style.color = '#16a34a';
+      btn.style.color = '#111111';
       btn.disabled = false;
     }, 2000);
   }
@@ -1261,8 +1460,13 @@ function renderHistory() {
 
   if (fc)  hist = hist.filter(function(h){ return (h.client||'').toLowerCase().includes(fc); });
   if (fn)  hist = hist.filter(function(h){ return (h.name  ||'').toLowerCase().includes(fn); });
-  if (fdf) hist = hist.filter(function(h){ return (h.deadline||'') >= fdf; });
-  if (fdt) hist = hist.filter(function(h){ return (h.deadline||'') <= fdt; });
+  // チップ日付（グローバル変数）と詳細パネル入力の両方を適用
+  var chipFrom = _chipDateFrom || '';
+  var chipTo   = _chipDateTo   || '';
+  if (chipFrom) hist = hist.filter(function(h){ return normDateStr(h.dateLabel || h.date) >= chipFrom; });
+  if (chipTo)   hist = hist.filter(function(h){ return normDateStr(h.dateLabel || h.date) <= chipTo;   });
+  if (fdf && !chipFrom) hist = hist.filter(function(h){ return normDateStr(h.dateLabel || h.date) >= normDateStr(fdf); });
+  if (fdt && !chipTo)   hist = hist.filter(function(h){ return normDateStr(h.dateLabel || h.date) <= normDateStr(fdt); });
   if (fs)  hist = hist.filter(function(h){ return (h.spec  ||'') === fs; });
   if (fk)  hist = hist.filter(function(h){ return (h.kind  ||'') === fk; });
 
@@ -3050,8 +3254,12 @@ function renderHistory() {
   var sort = ((document.getElementById('hsSort') || {}).value || 'date_desc');
   if (fc) hist = hist.filter(function(h) { return (h.client || '').toLowerCase().indexOf(fc) >= 0; });
   if (fn) hist = hist.filter(function(h) { return (h.name || '').toLowerCase().indexOf(fn) >= 0; });
-  if (fdf) hist = hist.filter(function(h) { return parseDateValue(h.deadline) >= parseDateValue(fdf); });
-  if (fdt) hist = hist.filter(function(h) { return parseDateValue(h.deadline) <= parseDateValue(fdt); });
+  var chipFrom = _chipDateFrom || '';
+  var chipTo   = _chipDateTo   || '';
+  if (chipFrom) hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) >= chipFrom; });
+  if (chipTo)   hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) <= chipTo;   });
+  if (fdf && !chipFrom) hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) >= normDateStr(fdf); });
+  if (fdt && !chipTo)   hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) <= normDateStr(fdt); });
   if (fs) hist = hist.filter(function(h) { return (h.spec || '') === fs; });
   if (fk) hist = hist.filter(function(h) { return (h.kind || '') === fk; });
   if (keyword) hist = hist.filter(function(h) { return [h.client, h.name, h.spec, h.kind, h.worker].join(' ').toLowerCase().indexOf(keyword) >= 0; });
@@ -3111,10 +3319,14 @@ function clearHistSearch() {
   var sortEl = document.getElementById('hsSort');
   if (sortEl) sortEl.value = 'date_desc';
   _hiChipActive = 0;
+  _chipDateFrom = '';
+  _chipDateTo   = '';
   [1,2,3,4].forEach(function(i) {
     var c = document.getElementById('hChip' + i);
     if (c) c.classList.remove('on');
   });
+  var hsSbCont = document.getElementById('hsSbKinds');
+  if (hsSbCont) hsSbCont.querySelectorAll('.hi-sb-item').forEach(function(el) { el.classList.remove('on'); });
   historyPage = 1;
   renderHistory();
 }
@@ -3624,8 +3836,6 @@ function normalizeInterfaceChrome() {
   }
 
   var labelMap = [
-    ['#hiPanelH > div > div:first-child', '切断履歴'],
-    ['#hiPanelI > div > div:first-child', '残材在庫'],
     ['#histModal div[style*="font-size:14px;font-weight:700"]', '入力履歴'],
     ['#cartModal .cart-modal-hd span[style*="font-size:15px"]', '印刷カート'],
     ['#histPreviewModal div[style*="font-size:14px;font-weight:700;color:#1a1a2e"]', '作業指示書プレビュー']
@@ -4798,8 +5008,6 @@ function normalizeInterfaceChrome() {
   }
 
   var labelMap = [
-    ['#hiPanelH > div > div:first-child', '切断履歴'],
-    ['#hiPanelI > div > div:first-child', '残材在庫'],
     ['#histModal div[style*="font-size:14px;font-weight:700"]', '入力履歴'],
     ['#cartModal .cart-modal-hd span[style*="font-size:15px"]', '印刷カート'],
     ['#histPreviewModal div[style*="font-size:14px;font-weight:700;color:#1a1a2e"]', '作業指示書プレビュー']
@@ -4844,4 +5052,142 @@ function normalizeInterfaceChrome() {
     });
   }
 }
+
+// ── Universal Custom <select> ──────────────────────────────
+/**
+ * Replace a native <select> with a fully-styleable custom dropdown.
+ * The native element is hidden but kept in the DOM so all existing
+ * JS (onchange, value reads, etc.) continues to work unchanged.
+ *
+ * opts: {
+ *   cls      : extra CSS class on the wrapper (e.g. 'cs-sort', 'cs-inv')
+ *   dataTab  : boolean — adds cs-wrap--data for blue hover variant
+ *   flex1    : boolean — wrapper gets flex:1 (for flex children)
+ *   block    : boolean — wrapper displays as block (full width)
+ * }
+ */
+function initCustomSelect(id, opts) {
+  opts = opts || {};
+  var native = document.getElementById(id);
+  if (!native || native._csInit) return;
+  native._csInit = true;
+
+  // ── Build wrapper ──────────────────────────────────────
+  var wrapClass = 'cs-wrap';
+  if (opts.cls)     wrapClass += ' ' + opts.cls;
+  if (opts.dataTab) wrapClass += ' cs-wrap--data';
+  if (opts.flex1)   wrapClass += ' cs-flex1';
+  if (opts.block)   wrapClass += ' cs-block';
+
+  var wrap     = document.createElement('div');
+  var trigger  = document.createElement('button');
+  var lbl      = document.createElement('span');
+  var arrow    = document.createElement('span');
+  var dropdown = document.createElement('div');
+
+  wrap.className     = wrapClass;
+  if (opts.wrapStyle) wrap.style.cssText = opts.wrapStyle;
+  trigger.type       = 'button';
+  trigger.className  = 'cs-trigger';
+  lbl.className      = 'cs-label';
+  arrow.className    = 'cs-arrow';
+  arrow.textContent  = '▾';
+  dropdown.className = 'cs-dropdown';
+
+  trigger.appendChild(lbl);
+  trigger.appendChild(arrow);
+  wrap.appendChild(trigger);
+  wrap.appendChild(dropdown);
+
+  // Insert wrapper before native, then hide native
+  native.parentNode.insertBefore(wrap, native);
+  native.style.display = 'none';
+  // Move native inside wrap so it stays logically grouped
+  wrap.appendChild(native);
+
+  // ── Sync custom UI ← native options ───────────────────
+  function sync() {
+    var selVal = native.value;
+    var selText = null;
+    dropdown.innerHTML = '';
+    Array.from(native.options).forEach(function(opt) {
+      var div = document.createElement('div');
+      div.className = 'cs-option' + (opt.value === selVal ? ' cs-option--selected' : '');
+      div.dataset.value = opt.value;
+      div.textContent = opt.text;
+      div.addEventListener('mousedown', function(e) {
+        e.preventDefault(); // prevent blur-before-click race
+        if (native.value !== opt.value) {
+          native.value = opt.value;
+          native.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        close();
+      });
+      dropdown.appendChild(div);
+      if (opt.value === selVal) selText = opt.text;
+    });
+    lbl.textContent = selText !== null ? selText
+      : (native.options[0] ? native.options[0].text : '');
+  }
+
+  // ── Open / Close ───────────────────────────────────────
+  function open() {
+    document.querySelectorAll('.cs-wrap.cs-open').forEach(function(w) {
+      if (w !== wrap) w.classList.remove('cs-open');
+    });
+    wrap.classList.add('cs-open');
+    var sel = dropdown.querySelector('.cs-option--selected');
+    if (sel) sel.scrollIntoView({ block: 'nearest' });
+  }
+  function close() { wrap.classList.remove('cs-open'); }
+  function toggle() { wrap.classList.contains('cs-open') ? close() : open(); }
+
+  trigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggle();
+  });
+  document.addEventListener('mousedown', function(e) {
+    if (!wrap.contains(e.target)) close();
+  });
+  // Keyboard: Enter/Space toggle, Escape close, arrows navigate
+  trigger.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!wrap.classList.contains('cs-open')) { open(); return; }
+      var items = dropdown.querySelectorAll('.cs-option');
+      var cur = Array.from(items).findIndex(function(o) { return o.classList.contains('cs-option--selected'); });
+      var next = e.key === 'ArrowDown' ? Math.min(cur + 1, items.length - 1) : Math.max(cur - 1, 0);
+      if (items[next]) items[next].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    }
+  });
+
+  // ── Watch native for external option / value changes ──
+  new MutationObserver(sync).observe(native, {
+    childList: true, subtree: true,
+    attributes: true, attributeFilter: ['value', 'selected']
+  });
+  native.addEventListener('change', sync);
+
+  sync();
+}
+
+// ── Initialize all custom selects ─────────────────────────
+(function() {
+  function doInit() {
+    initCustomSelect('hsSort',         { cls: 'cs-sort' });
+    initCustomSelect('invSort',        { cls: 'cs-sort' });
+    initCustomSelect('invSelect',      { cls: 'cs-inv', flex1: true });
+    initCustomSelect('dataKindSelect', {
+      block: true, dataTab: true,
+      wrapStyle: 'margin:10px 0 14px;max-width:280px'
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', doInit, { once: true });
+  } else {
+    doInit();
+  }
+})();
 

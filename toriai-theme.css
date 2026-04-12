@@ -1,0 +1,1747 @@
+/* ═══════════════════════════════════════════════════════════════
+   TORIAI DESIGN SYSTEM v3
+   ---------------------------------------------------------------
+   Rules:
+     • Text   → #111 (black only, no colored text)
+     • Hover  → rgba(107,70,255,.06) light-purple BG, no border
+     • Active → rgba(107,70,255,.09) slightly deeper
+     • Borders → none by default (#e8e8e8 only where structural)
+     • Purple  → hover/selected BG ONLY. No purple text/borders
+     • Data tab → rgba(14,165,233,.06) light-blue hover instead
+     • Dark mode → Claude-matching neutral dark grays
+═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. CSS Variables ──────────────────────────────────────── */
+:root {
+  /* Hover / selected */
+  --hp:  rgba(107,70,255,.06);   /* hover  purple bg */
+  --sp:  rgba(107,70,255,.09);   /* select purple bg */
+  --hb:  rgba(14,165,233,.06);   /* hover  blue bg (data tab) */
+
+  /* Achromatic palette */
+  --ink:   #111111;
+  --ink2:  #555555;
+  --ink3:  #999999;
+  --bg:    #ffffff;
+  --bg2:   #f7f7f7;
+  --bg3:   #f0f0f0;
+  --line:  #e8e8e8;
+  --line2: #f0f0f0;
+
+  /* Status */
+  --gn: #16a34a;
+  --rd: #dc2626;
+  --cy: #0891b2;
+  --am: #d97706;
+
+  /* Radius */
+  --r:    8px;
+  --r-sm: 6px;
+  --r-lg: 12px;
+}
+
+/* ── 2. Dark mode — Claude-matching neutral grays ──────────── */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --hp:  rgba(255,255,255,.07);
+  --sp:  rgba(255,255,255,.11);
+  --hb:  rgba(14,165,233,.1);
+  --ink:  #ececec;
+  --ink2: #aaaaaa;
+  --ink3: #666666;
+  --bg:   #1c1c1c;
+  --bg2:  #242424;
+  --bg3:  #2c2c2c;
+  --line: #3a3a3a;
+  --line2:#2c2c2c;
+}
+
+/* ── 3. Base ────────────────────────────────────────────────── */
+html, body {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] body {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+
+/* ── 4. Header ──────────────────────────────────────────────── */
+header {
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+html[data-theme="dark"] header {
+  background: var(--bg2) !important;
+  border-bottom-color: var(--line) !important;
+}
+
+/* Nav links */
+nav a { color: var(--ink) !important; }
+nav a:hover, nav a.active {
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] nav a { color: var(--ink) !important; }
+html[data-theme="dark"] nav a:hover,
+html[data-theme="dark"] nav a.active {
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+}
+
+/* Logo */
+.logo { color: var(--ink) !important; }
+.logo .dot { color: var(--ink) !important; }
+.logo .beta { color: var(--ink) !important; border-color: var(--ink) !important; }
+html[data-theme="dark"] .logo { color: var(--ink) !important; }
+html[data-theme="dark"] .logo-image {
+  mix-blend-mode: normal !important;
+  filter: brightness(0) invert(1) !important;
+}
+
+/* Hamburger button */
+.ham-btn { color: var(--ink2) !important; background: transparent !important; }
+.ham-btn:hover, .ham-btn.open {
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .ham-btn { color: var(--ink2) !important; }
+html[data-theme="dark"] .ham-btn:hover,
+html[data-theme="dark"] .ham-btn.open {
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+}
+
+/* Ham menu */
+.ham-menu {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,.08) !important;
+}
+.hm-section + .hm-section { border-top-color: var(--line2) !important; }
+.hm-row:hover { background: var(--hp) !important; }
+.hm-txt { color: var(--ink) !important; }
+.hm-arr { color: var(--ink3) !important; }
+.hm-ver, .hm-note { color: var(--ink3) !important; }
+html[data-theme="dark"] .ham-menu {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4) !important;
+}
+html[data-theme="dark"] .hm-section + .hm-section { border-top-color: var(--line) !important; }
+html[data-theme="dark"] .hm-row:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .hm-txt { color: var(--ink) !important; }
+
+/* Theme pill */
+.hm-theme-pill { background: var(--bg3) !important; color: var(--ink2) !important; }
+.hm-row#themeToggleBtn.is-on .hm-theme-pill {
+  background: var(--sp) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .hm-theme-pill { background: var(--bg3) !important; color: var(--ink2) !important; }
+
+/* Cart badge — same bg as header until hover */
+.cart-badge {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.cart-badge:hover { background: var(--hp) !important; }
+.cart-badge.empty { background: var(--bg2) !important; color: var(--ink3) !important; border-color: var(--line) !important; }
+.hdr-right > #cartBadge {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+.hdr-right > #cartBadge:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .cart-badge {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .cart-badge:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .hdr-right > #cartBadge {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .hdr-right > #cartBadge:hover { background: var(--hp) !important; }
+
+/* ── 5. Layout / Sidebar ────────────────────────────────────── */
+.sb {
+  background: var(--bg) !important;
+  border-right-color: var(--line) !important;
+}
+.mn { background: var(--bg) !important; }
+html[data-theme="dark"] .sb {
+  background: var(--bg2) !important;
+  border-right-color: var(--line) !important;
+}
+html[data-theme="dark"] .mn { background: var(--bg) !important; }
+
+/* Sidebar tabs */
+.sb-tab { color: var(--ink2) !important; background: transparent !important; border: none !important; }
+.sb-tab:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.sb-tab.active { background: var(--sp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .sb-tab { color: var(--ink2) !important; }
+html[data-theme="dark"] .sb-tab:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .sb-tab.active { background: var(--sp) !important; color: var(--ink) !important; }
+
+.shd { color: var(--ink) !important; }
+.field label { color: var(--ink2) !important; }
+html[data-theme="dark"] .shd { color: var(--ink) !important; }
+html[data-theme="dark"] .field label { color: var(--ink2) !important; }
+
+/* ── 6. Inputs / Selects — global ───────────────────────────── */
+input[type=number],
+input[type=text],
+input[type=date],
+select,
+textarea {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  outline: none !important;
+}
+input[type=number]:hover,
+input[type=text]:hover,
+input[type=date]:hover,
+select:hover,
+textarea:hover,
+input[type=number]:focus,
+input[type=text]:focus,
+input[type=date]:focus,
+select:focus,
+textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+select option { background: var(--bg) !important; color: var(--ink) !important; }
+html[data-theme="dark"] input[type=number],
+html[data-theme="dark"] input[type=text],
+html[data-theme="dark"] input[type=date],
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] input:hover,
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] select:hover,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:hover,
+html[data-theme="dark"] textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] select option { background: var(--bg2) !important; color: var(--ink) !important; }
+
+/* ── 7. Type buttons (tbtn) ─────────────────────────────────── */
+.tbtn {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+.tbtn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.tbtn.on {
+  background: var(--sp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .tbtn {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .tbtn:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .tbtn.on { background: var(--sp) !important; }
+
+/* ── 8. Stock rows ──────────────────────────────────────────── */
+.stk-row {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+}
+.stk-nm { color: var(--ink) !important; }
+.stk-nm small { color: var(--ink2) !important; }
+.stk-mx {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.stk-mx:hover, .stk-mx:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] .stk-row { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .stk-nm { color: var(--ink) !important; }
+html[data-theme="dark"] .stk-mx { background: var(--bg3) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+
+/* ── 9. Remnant area ────────────────────────────────────────── */
+.remnant-area { border-color: var(--line) !important; background: var(--bg) !important; }
+.remnant-head { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+.remnant-head span { color: var(--ink) !important; }
+.rem-row { border-bottom-color: var(--line2) !important; }
+.rem-del { color: var(--ink3) !important; }
+.rem-del:hover { color: var(--rd) !important; }
+.rem-label { color: var(--ink2) !important; }
+.add-btn {
+  background: transparent !important;
+  border: 1px dashed var(--line) !important;
+  color: var(--ink2) !important;
+}
+.add-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .remnant-area { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .remnant-head { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .remnant-head span { color: var(--ink) !important; }
+html[data-theme="dark"] .add-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .add-btn:hover { background: var(--hp) !important; }
+
+/* ── 10. invDropCont ────────────────────────────────────────── */
+#invDropCont {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r) !important;
+  margin-bottom: 0 !important;
+}
+#invSelect {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+#invBadge {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+html[data-theme="dark"] #invDropCont { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] #invSelect { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] #invBadge { background: var(--bg3) !important; border-color: var(--line) !important; color: var(--ink2) !important; }
+
+/* ── 11. Parts table ────────────────────────────────────────── */
+.pt-wrap { border-color: var(--line) !important; background: var(--bg) !important; }
+.pt-hd { border-bottom-color: var(--line) !important; background: var(--bg) !important; }
+.pt-hd span { color: var(--ink2) !important; }
+.pt-row { border-bottom-color: var(--line2) !important; }
+.pt-row input { color: var(--ink) !important; }
+.pt-row input:hover, .pt-row input:focus { background: var(--hp) !important; }
+.pt-n { color: var(--ink3) !important; }
+.pt-kg { color: var(--ink2) !important; }
+.tot {
+  border: none !important;
+  border-top: 1px solid var(--line) !important;
+  background: var(--bg2) !important;
+}
+.tot-l { color: var(--ink2) !important; }
+.tot-v { color: var(--ink) !important; }
+.pt-row.pt-selected { background: var(--hp) !important; }
+.pt-row.pt-selected input { background: var(--hp) !important; }
+html[data-theme="dark"] .pt-wrap { border-color: var(--line) !important; background: var(--bg2) !important; }
+html[data-theme="dark"] .pt-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .pt-row { border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .pt-row input { color: var(--ink) !important; }
+html[data-theme="dark"] .pt-row input:hover,
+html[data-theme="dark"] .pt-row input:focus { background: var(--hp) !important; }
+html[data-theme="dark"] .tot { background: var(--bg3) !important; border-top-color: var(--line) !important; }
+html[data-theme="dark"] .tot-l { color: var(--ink2) !important; }
+html[data-theme="dark"] .tot-v { color: var(--ink) !important; }
+
+/* ── 12. Paste area / Excel-CAD copy-paste ──────────────────── */
+/* Paste area: remove purple border */
+.paste-area {
+  border: 1px solid var(--line) !important;
+  background: var(--bg2) !important;
+}
+.paste-area textarea {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.paste-area textarea:hover,
+.paste-area textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+.paste-hint { color: var(--ink2) !important; }
+.paste-hint strong { color: var(--ink) !important; }
+
+/* Excel/CAD ボタン hover → black */
+.sm-btn.paste:hover { border-color: var(--ink) !important; color: var(--ink) !important; }
+
+/* 一括入力ボタン → ＋追加と同仕様（緑枠・緑文字） */
+.paste-exec {
+  background: transparent !important;
+  border: 1.5px solid var(--gn) !important;
+  color: var(--gn) !important;
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 5px 12px !important;
+  border-radius: var(--r-sm) !important;
+  cursor: pointer !important;
+  transition: background .15s, color .15s !important;
+}
+.paste-exec:hover { background: rgba(22,163,74,.08) !important; }
+.paste-exec.added {
+  background: var(--gn) !important;
+  color: #fff !important;
+  border-color: var(--gn) !important;
+}
+
+html[data-theme="dark"] .paste-area { border-color: var(--line) !important; background: var(--bg3) !important; }
+html[data-theme="dark"] .paste-area textarea { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .paste-area textarea:hover,
+html[data-theme="dark"] .paste-area textarea:focus { background: var(--hp) !important; }
+html[data-theme="dark"] .paste-hint { color: var(--ink2) !important; }
+html[data-theme="dark"] .paste-hint strong { color: var(--ink) !important; }
+
+/* ── 13. Small buttons ──────────────────────────────────────── */
+.sm-btn {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.sm-btn:hover { border-color: var(--ink) !important; color: var(--ink) !important; background: transparent !important; }
+.sm-btn.del:hover { border-color: var(--rd) !important; color: var(--rd) !important; }
+.sm-btn.add:hover { border-color: var(--gn) !important; color: var(--gn) !important; }
+html[data-theme="dark"] .sm-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .sm-btn:hover { border-color: var(--ink) !important; color: var(--ink) !important; }
+
+/* ── 14. Run button ─────────────────────────────────────────── */
+.run {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1.5px solid var(--line) !important;
+}
+.run:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .run { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .run:hover { background: var(--hp) !important; }
+
+/* ── 15. Result cards ───────────────────────────────────────── */
+.ph { background: var(--bg) !important; border-color: var(--line) !important; }
+.ph p { color: var(--ink) !important; }
+.ph small { color: var(--ink2) !important; }
+.cc { background: var(--bg) !important; border-color: var(--line) !important; box-shadow: 0 2px 12px rgba(0,0,0,.06) !important; }
+.cc.r1,.cc.r2,.cc.r3 { border-color: var(--line) !important; }
+.cc-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+.yield-card .cc-hd { background: var(--bg2) !important; }
+.cc-desc { color: var(--ink) !important; }
+.r1 .cc-desc,.r2 .cc-desc,.r3 .cc-desc { color: var(--ink) !important; }
+.cs .cl { color: var(--ink2) !important; }
+.cs .cv { color: var(--ink) !important; }
+.r1 .cs .cv,.r2 .cs .cv,.r3 .cs .cv { color: var(--ink) !important; }
+.cc-pat { background: var(--bg2) !important; }
+.cut-diagram { background: var(--bg2) !important; border-top-color: var(--line) !important; }
+.cut-diagram-title { color: var(--ink) !important; }
+.cut-diagram-title::after { background: var(--line) !important; }
+.bar-vis-label { color: var(--ink) !important; }
+.bar-track { background: var(--bg2) !important; border-color: var(--line) !important; }
+.diag-toggle { color: var(--ink2) !important; border-top-color: var(--line) !important; }
+.diag-toggle:hover, .diag-toggle.open { background: var(--hp) !important; color: var(--ink) !important; }
+
+/* rank badge */
+.rbdg { background: var(--bg3) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; }
+.r1 .rbdg { background: var(--ink) !important; color: var(--bg) !important; border-color: var(--ink) !important; }
+
+/* tags */
+.tag-best { background: var(--ink) !important; color: var(--bg) !important; border-color: var(--ink) !important; box-shadow: none !important; }
+.tag-chg { border-color: var(--line) !important; color: var(--ink2) !important; }
+.res-ttl { color: var(--ink) !important; }
+.chg-note { color: var(--ink) !important; }
+.chg-note strong { color: var(--ink) !important; }
+
+/* pattern cards */
+.pc { background: var(--bg) !important; border-color: var(--line) !important; }
+.pc-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; color: var(--ink) !important; }
+.pc-row { color: var(--ink) !important; border-bottom-color: var(--line2) !important; }
+.px { background: var(--bg3) !important; color: var(--ink) !important; }
+
+/* preview buttons */
+.preview-action-btn {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.preview-action-btn:hover, .preview-action-btn:active {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+.cc-btn-print {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.cc-btn-print:hover { background: var(--hp) !important; border-color: var(--line) !important; }
+.cart-bulk-print {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.cart-bulk-print:hover { background: var(--hp) !important; border-color: var(--line) !important; }
+.print-btn { background: var(--bg) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; }
+.print-btn:hover { background: var(--hp) !important; border-color: var(--line) !important; }
+
+html[data-theme="dark"] .ph { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .cc { background: var(--bg2) !important; border-color: var(--line) !important; box-shadow: 0 4px 20px rgba(0,0,0,.3) !important; }
+html[data-theme="dark"] .cc-hd { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .cc-desc { color: var(--ink) !important; }
+html[data-theme="dark"] .cs .cl { color: var(--ink2) !important; }
+html[data-theme="dark"] .cs .cv { color: var(--ink) !important; }
+html[data-theme="dark"] .cc-pat { background: var(--bg3) !important; }
+html[data-theme="dark"] .cut-diagram { background: var(--bg3) !important; border-top-color: var(--line) !important; }
+html[data-theme="dark"] .bar-track { background: var(--bg3) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .diag-toggle { color: var(--ink2) !important; border-top-color: var(--line) !important; }
+html[data-theme="dark"] .diag-toggle:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pc { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .pc-hd { background: var(--bg3) !important; border-bottom-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pc-row { color: var(--ink) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .preview-action-btn { background: var(--bg2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .preview-action-btn:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .cc-btn-print { background: var(--bg2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .cart-bulk-print { background: var(--bg2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+
+/* ── 16. Spec items (sidebar) ───────────────────────────────── */
+.spec-item {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border-bottom-color: var(--line2) !important;
+}
+.spec-item:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.spec-item.on { background: var(--sp) !important; color: var(--ink) !important; }
+#specSelected:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .spec-item { background: var(--bg2) !important; color: var(--ink) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .spec-item:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .spec-item.on { background: var(--sp) !important; }
+
+/* ── 17. cmd palette ────────────────────────────────────────── */
+#cmdDropdown, #wCmdDropdown {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,.1) !important;
+}
+.cmd-item { color: var(--ink) !important; border-bottom-color: var(--line2) !important; }
+.cmd-item:hover, .cmd-item.cmd-focus { background: var(--hp) !important; color: var(--ink) !important; }
+.cmd-cat { background: var(--bg2) !important; color: var(--ink3) !important; }
+html[data-theme="dark"] #cmdDropdown,
+html[data-theme="dark"] #wCmdDropdown { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .cmd-item { color: var(--ink) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .cmd-item:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .cmd-cat { background: var(--bg3) !important; color: var(--ink2) !important; }
+
+/* ── 18. History / Inventory tabs ───────────────────────────── */
+#hip { background: var(--bg) !important; }
+.hi-panel { background: var(--bg) !important; }
+html[data-theme="dark"] #hip { background: var(--bg) !important; }
+html[data-theme="dark"] .hi-panel { background: var(--bg) !important; }
+
+/* hi-tabs */
+.hi-tabs { background: var(--bg2) !important; }
+.hi-tab { color: var(--ink3) !important; }
+.hi-tab-active { background: var(--bg) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-tabs { background: var(--bg3) !important; }
+html[data-theme="dark"] .hi-tab { color: var(--ink2) !important; }
+html[data-theme="dark"] .hi-tab-active { background: var(--bg2) !important; color: var(--ink) !important; }
+
+/* search bar */
+.hi-search-wrap input {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.hi-search-wrap input:hover,
+.hi-search-wrap input:focus { background: var(--hp) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .hi-search-wrap input { background: var(--bg3) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-search-wrap input:focus { background: var(--hp) !important; }
+
+/* filter btn */
+.hi-filter-btn {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.hi-filter-btn:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.hi-filter-btn.active {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .hi-filter-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .hi-filter-btn.active { background: var(--hp) !important; color: var(--ink) !important; }
+
+/* Period chips (今月/先月/etc.) — remove purple border/text */
+.hi-chip {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.hi-chip:hover { background: var(--hp) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+.hi-chip.on {
+  background: var(--sp) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .hi-chip { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .hi-chip:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-chip.on { background: var(--sp) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+
+/* Sort row — count label separate positioning */
+.hi-sort-row {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-direction: row-reverse;   /* sort on left, count on right */
+  justify-content: flex-end;
+}
+.hi-count {
+  font-size: 11px;
+  color: var(--ink3) !important;
+  margin-left: auto;
+}
+.hi-sort {
+  background: transparent !important;
+  border: none !important;
+  color: var(--ink2) !important;
+  font-size: 11px;
+  font-weight: 700;
+}
+.hi-sort:hover, .hi-sort:focus { background: transparent !important; border: none !important; }
+html[data-theme="dark"] .hi-count { color: var(--ink3) !important; }
+html[data-theme="dark"] .hi-sort { color: var(--ink2) !important; background: transparent !important; }
+
+/* History cards */
+.hist-card {
+  background: var(--bg) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+  margin-bottom: 0 !important;
+}
+.hist-card:first-child { border-top: 1px solid var(--line2) !important; }
+.hist-card-header { background: var(--bg2) !important; border-bottom-color: var(--line2) !important; }
+.hist-row { border-bottom-color: var(--line2) !important; }
+.hist-row:hover { background: var(--hp) !important; }
+.hist-client { color: var(--ink) !important; }
+.hist-date { color: var(--ink) !important; }
+/* 鋼材種類 → black */
+.hist-spec-badge {
+  color: var(--ink) !important;
+  background: var(--bg2) !important;
+  border: none !important;
+  font-size: 11px;
+  padding: 1px 8px;
+}
+.hist-desc { color: var(--ink3) !important; }
+.hist-rem { color: var(--ink2) !important; }
+/* Delete button same style as spec-badge × */
+.hist-del-btn {
+  background: transparent !important;
+  border: none !important;
+  color: var(--ink3) !important;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.hist-del-btn:hover { color: var(--rd) !important; background: rgba(220,38,38,.07) !important; }
+
+/* Inventory cards */
+.inv-card {
+  background: var(--bg) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+  margin-bottom: 0 !important;
+}
+.inv-card-header { background: var(--bg2) !important; border-bottom-color: var(--line2) !important; }
+.inv-spec-label { color: var(--ink) !important; }
+.inv-count-badge {
+  background: transparent !important;
+  border: none !important;
+  color: var(--ink3) !important;
+  font-size: 11px;
+}
+.inv-row { border-bottom-color: var(--line2) !important; }
+.inv-row:hover { background: var(--hp) !important; }
+.inv-len { color: var(--ink) !important; }
+.inv-len-unit { color: var(--ink3) !important; }
+.inv-note-text { color: var(--ink2) !important; }
+.inv-date { color: var(--ink3) !important; }
+.inv-qty { background: var(--bg2) !important; border: none !important; color: var(--ink2) !important; }
+/* inv delete btn - same as hist */
+.inv-del-btn {
+  background: transparent !important;
+  border: none !important;
+  color: var(--ink3) !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+}
+.inv-del-btn:hover { color: var(--rd) !important; background: rgba(220,38,38,.07) !important; }
+
+/* Manual add form */
+.hi-add-btn {
+  background: transparent !important;
+  border: 1px dashed var(--line) !important;
+  color: var(--ink2) !important;
+}
+.hi-add-btn:hover { background: var(--hp) !important; border-color: var(--line) !important; }
+.hi-add-form-inner { background: var(--bg) !important; border-color: var(--line) !important; }
+.hi-submit-btn {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+.hi-submit-btn:hover { background: var(--hp) !important; }
+
+html[data-theme="dark"] .hist-card { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .hist-card-header { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .hist-row { border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .hist-row:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .hist-client { color: var(--ink) !important; }
+html[data-theme="dark"] .hist-spec-badge { color: var(--ink) !important; background: var(--bg3) !important; }
+html[data-theme="dark"] .hist-del-btn { color: var(--ink3) !important; }
+html[data-theme="dark"] .hist-del-btn:hover { color: var(--rd) !important; background: rgba(220,38,38,.1) !important; }
+html[data-theme="dark"] .inv-card { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .inv-card-header { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .inv-spec-label { color: var(--ink) !important; }
+html[data-theme="dark"] .inv-row { border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .inv-row:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .inv-del-btn { color: var(--ink3) !important; }
+html[data-theme="dark"] .inv-del-btn:hover { color: var(--rd) !important; background: rgba(220,38,38,.1) !important; }
+html[data-theme="dark"] .hi-add-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .hi-add-btn:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .hi-add-form-inner { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .hi-submit-btn { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+
+/* ── 19. hi-card (history card alternate) ───────────────────── */
+.hi-card { border: none !important; border-bottom: 1px solid var(--line2) !important; border-radius: 0 !important; }
+.hi-card:hover { background: var(--hp) !important; border-bottom-color: var(--line2) !important; }
+.hi-card-client { color: var(--ink) !important; }
+.hi-tag { background: var(--bg2) !important; color: var(--ink2) !important; }
+.hi-tag-kind { background: var(--bg3) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-card { border-bottom-color: var(--line) !important; background: transparent !important; }
+html[data-theme="dark"] .hi-card:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .hi-card-client { color: var(--ink) !important; }
+html[data-theme="dark"] .hi-tag { background: var(--bg3) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .hi-tag-kind { background: var(--bg3) !important; color: var(--ink) !important; }
+
+/* remnant pills */
+.rem-pill { background: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--ink) !important; }
+.rem-pill-empty { color: var(--ink3) !important; }
+html[data-theme="dark"] .rem-pill { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+
+/* inv-card-new (dropdown) */
+.inv-card-new { background: var(--bg) !important; border: none !important; border-bottom: 1px solid var(--line2) !important; border-radius: 0 !important; }
+.inv-card-new:hover { background: var(--hp) !important; border-color: var(--line2) !important; }
+html[data-theme="dark"] .inv-card-new { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .inv-card-new:hover { background: var(--hp) !important; }
+
+/* ── 20. Weight tab ─────────────────────────────────────────── */
+/* opt chips — remove purple border, use light purple bg */
+.w-opt-chip {
+  border: none !important;
+  background: var(--bg2) !important;
+  color: var(--ink2) !important;
+}
+.w-opt-chip:hover {
+  border: none !important;
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+}
+.w-opt-chip--on {
+  border: none !important;
+  background: var(--sp) !important;
+  color: var(--ink) !important;
+}
+.w-opt-chip--on:hover {
+  background: var(--sp) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .w-opt-chip { background: var(--bg3) !important; color: var(--ink2) !important; border: none !important; }
+html[data-theme="dark"] .w-opt-chip:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .w-opt-chip--on { background: var(--sp) !important; color: var(--ink) !important; }
+
+/* w-edit-btn hover → light purple */
+.w-edit-btn {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink3) !important;
+}
+.w-edit-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .w-edit-btn { background: transparent !important; border-color: var(--line) !important; color: var(--ink3) !important; }
+html[data-theme="dark"] .w-edit-btn:hover { background: var(--hp) !important; color: var(--ink) !important; }
+
+/* Weight table inputs — remove selection border */
+#hiPanelH input, #hiPanelH select,
+#hiPanelI input, #hiPanelI select {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+#hiPanelH input:focus, #hiPanelH select:focus,
+#hiPanelI input:focus, #hiPanelI select:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #hiPanelH input,
+html[data-theme="dark"] #hiPanelH select,
+html[data-theme="dark"] #hiPanelI input,
+html[data-theme="dark"] #hiPanelI select {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+/* wTable */
+#wTable thead tr { background: var(--bg2) !important; border-bottom: 2px solid var(--line) !important; }
+#wTable th { color: var(--ink2) !important; }
+#wTable tbody tr:hover { background: var(--hp) !important; }
+#wTable tfoot tr { background: var(--bg2) !important; }
+#wMainHd { border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] #wTable thead tr { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] #wTable th { color: var(--ink2) !important; }
+html[data-theme="dark"] #wTable tbody tr:hover { background: var(--hp) !important; }
+html[data-theme="dark"] #wTable tfoot tr { background: var(--bg3) !important; }
+html[data-theme="dark"] #wMainHd { border-bottom-color: var(--line) !important; }
+
+/* w-edit-btn / w-del-btn */
+.w-edit-btn, .w-del-btn {
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+  background: transparent !important;
+}
+.w-edit-btn:hover, .w-del-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .w-edit-btn,
+html[data-theme="dark"] .w-del-btn {
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .w-edit-btn:hover,
+html[data-theme="dark"] .w-del-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+/* ── 21. Data tab — light BLUE hover ─────────────────────────── */
+#dpp input:hover, #dpp input:focus,
+#dpp select:hover, #dpp select:focus,
+.dp-page input:hover, .dp-page input:focus,
+.dp-page select:hover, .dp-page select:focus,
+.data-spec-option:hover, .data-spec-option.active {
+  background: var(--hb) !important;
+  border-color: var(--line) !important;
+}
+.data-spec-dropdown { background: var(--bg) !important; border-color: var(--line) !important; }
+.data-figure-card, .data-info-card, .data-topbar {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+/* data-kind-select: neutral, blue hover, no purple */
+.data-kind-select {
+  background-color: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.data-kind-select:hover, .data-kind-select:focus {
+  background-color: var(--hb) !important;
+  border-color: var(--line) !important;
+}
+/* ▼ toggle button — neutral, blue hover */
+#dataSpecToggleBtn {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+#dataSpecToggleBtn:hover, #dataSpecToggleBtn:focus {
+  background: var(--hb) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* dataSpecInput — neutral, blue hover */
+#dataSpecInput {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+#dataSpecInput:hover, #dataSpecInput:focus {
+  background: var(--hb) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.dp-page { background: var(--bg) !important; }
+html[data-theme="dark"] .data-figure-card,
+html[data-theme="dark"] .data-info-card,
+html[data-theme="dark"] .data-topbar {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .data-spec-dropdown { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .data-spec-option:hover,
+html[data-theme="dark"] .data-spec-option.active { background: var(--hb) !important; }
+html[data-theme="dark"] .data-kind-select { background-color: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .data-kind-select:hover, html[data-theme="dark"] .data-kind-select:focus { background-color: var(--hb) !important; }
+html[data-theme="dark"] #dataSpecToggleBtn {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+html[data-theme="dark"] #dataSpecToggleBtn:hover, html[data-theme="dark"] #dataSpecToggleBtn:focus {
+  background: var(--hb) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] #dataSpecInput {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] #dataSpecInput:hover, html[data-theme="dark"] #dataSpecInput:focus {
+  background: var(--hb) !important;
+}
+html[data-theme="dark"] .dp-page { background: var(--bg) !important; }
+
+/* ── 22. Contact page ───────────────────────────────────────── */
+#cop, #contactp { background: var(--bg) !important; }
+.contact-card { background: var(--bg) !important; border: 1px solid var(--line) !important; box-shadow: 0 4px 20px rgba(0,0,0,.04) !important; }
+.contact-title { color: var(--ink) !important; }
+.contact-lead { color: var(--ink2) !important; }
+.contact-field label { color: var(--ink2) !important; }
+.contact-field input, .contact-field select, .contact-field textarea {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+.contact-field input:hover, .contact-field select:hover, .contact-field textarea:hover,
+.contact-field input:focus, .contact-field select:focus, .contact-field textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+}
+#cop input:hover, #cop input:focus,
+#cop select:hover, #cop select:focus,
+#cop textarea:hover, #cop textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+#contactSubject { color: var(--ink) !important; }
+#contactSubject option { background: var(--bg) !important; color: var(--ink) !important; }
+.contact-pen-label { color: var(--ink) !important; }
+/* Submit button: default white, hover light purple */
+#feedbackSubmitBtn {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+#feedbackSubmitBtn:hover, #feedbackSubmitBtn:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+}
+#feedbackSubmitBtn:active { background: var(--sp) !important; }
+#contactSubmitBtn {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+#contactSubmitBtn:hover, #contactSubmitBtn:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+}
+
+/* ── 23. Sidebar layout (履歴・在庫 案D) ────────────────────── */
+
+/* Panel layout: sidebar + main side by side */
+.hi-panel-layout {
+  display: flex;
+  height: calc(100vh - 108px);
+  overflow: hidden;
+}
+/* Sidebar */
+.hi-sb {
+  width: 168px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--line2) !important;
+  overflow-y: auto;
+  background: var(--bg2) !important;
+  padding: 10px 0 16px;
+}
+.hi-sb-sec { margin-bottom: 14px; }
+.hi-sb-lbl {
+  padding: 0 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink3) !important;
+}
+.hi-sb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  font-size: 11px;
+  color: var(--ink2) !important;
+  cursor: pointer;
+  transition: background .1s;
+  user-select: none;
+  line-height: 1.3;
+  word-break: break-all;
+}
+.hi-sb-item:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.hi-sb-item.on   { background: var(--hp) !important; color: var(--ink) !important; font-weight: 700; }
+.hi-sb-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.hi-sb-item.on .hi-sb-dot { background: var(--ink) !important; }
+
+/* Main content area */
+.hi-sb-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative; /* anchor for popup detail panel */
+}
+
+/* Search toolbar row */
+.hi-topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  flex-shrink: 0;
+}
+.hi-topbar .hi-search-wrap { flex: 1; position: relative; }
+/* Kill the ::before 🔍 emoji injected by style.css */
+.hi-search-wrap::before { content: '' !important; display: none !important; }
+/* SVG icon is handled via background-image — hide the DOM element */
+.hi-search-ico { display: none !important; }
+
+.hi-sb-kinput {
+  width: 100%;
+  height: 34px;
+  border: 1.5px solid var(--line) !important;
+  border-radius: 9px !important;
+  padding: 0 10px 0 36px !important;
+  font-size: 12px !important;
+  color: var(--ink) !important;
+  background-color: var(--bg2) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23999999' stroke-width='1.8'%3E%3Ccircle cx='6.5' cy='6.5' r='4.5'/%3E%3Cpath d='M10.5 10.5L14 14'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: 11px center !important;
+  background-size: 13px 13px !important;
+  outline: none !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+  transition: background-color .12s, border-color .12s;
+}
+.hi-sb-kinput:hover, .hi-sb-kinput:focus {
+  background-color: var(--bg) !important;
+  border-color: var(--ink3) !important;
+}
+
+/* Icon toggle button (detail filter) */
+.hi-detail-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1.5px solid var(--line) !important;
+  background: var(--bg2) !important;
+  color: var(--ink2) !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all .12s;
+}
+.hi-detail-toggle svg { width: 14px; height: 14px; }
+.hi-detail-toggle:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.hi-detail-toggle.active {
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+  border-color: rgba(107,70,255,.25) !important;
+}
+
+/* Detail filter popup (floats over list, does not push content) */
+.hi-detail-panel {
+  display: none;
+  position: absolute;
+  top: 54px;     /* height of .hi-topbar */
+  left: 0;
+  right: 0;
+  z-index: 80;
+  padding: 14px 14px 10px;
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.10) !important;
+}
+.hi-detail-panel.open { display: block; }
+.hi-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.hi-df { display: flex; flex-direction: column; gap: 3px; }
+.hi-df--full { grid-column: 1 / -1; }
+.hi-df label { font-size: 10px; font-weight: 700; color: var(--ink3) !important; }
+.hi-df input, .hi-df select {
+  width: 100% !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 7px !important;
+  padding: 5px 8px !important;
+  font-size: 11px !important;
+  color: var(--ink) !important;
+  background: var(--bg) !important;
+  outline: none !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+}
+.hi-df input:hover, .hi-df input:focus,
+.hi-df select:hover, .hi-df select:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+.hi-df-footer { display: flex; justify-content: flex-end; }
+.hi-df-footer button {
+  background: none !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 7px !important;
+  padding: 4px 12px !important;
+  font-size: 11px !important;
+  color: var(--ink2) !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  transition: all .1s;
+}
+.hi-df-footer button:hover { background: var(--hp) !important; color: var(--ink) !important; }
+
+/* Scrollable list area */
+.hi-list-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 14px 16px;
+}
+
+/* "手動で残材を追加" trigger button */
+.inv-add-open-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: var(--bg2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink2) !important;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background .1s, color .1s;
+}
+.inv-add-open-btn:hover { background: var(--hp) !important; color: var(--ink) !important; }
+
+/* Modal overlay */
+.inv-add-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 1200;
+  align-items: center;
+  justify-content: center;
+}
+.inv-add-modal-overlay.open { display: flex; }
+
+/* Modal box */
+.inv-add-modal-box {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 16px !important;
+  width: min(480px, 92vw);
+  box-shadow: 0 16px 48px rgba(0,0,0,.18) !important;
+  overflow: hidden;
+}
+.inv-add-modal-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line) !important;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink) !important;
+}
+.inv-add-modal-close {
+  background: none !important;
+  border: none !important;
+  font-size: 17px;
+  color: var(--ink3) !important;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  font-family: inherit;
+}
+.inv-add-modal-close:hover { color: var(--ink) !important; }
+.inv-add-modal-body { padding: 18px; }
+.inv-add-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.inv-add-field { display: flex; flex-direction: column; gap: 4px; }
+.inv-add-field--full { grid-column: 1 / -1; }
+.inv-add-field label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink3) !important;
+  letter-spacing: .04em;
+}
+.inv-add-field input,
+.inv-add-field select {
+  width: 100% !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 7px !important;
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+  color: var(--ink) !important;
+  background: var(--bg2) !important;
+  outline: none !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+}
+.inv-add-field input:focus,
+.inv-add-field select:focus {
+  border-color: var(--hb) !important;
+  background: var(--bg) !important;
+}
+.inv-add-submit-btn {
+  width: 100%;
+  padding: 11px;
+  background: var(--ink) !important;
+  color: var(--bg) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity .1s;
+}
+.inv-add-submit-btn:hover { opacity: .85; }
+
+/* Dark mode */
+html[data-theme="dark"] .inv-add-open-btn { background: var(--bg3) !important; }
+html[data-theme="dark"] .inv-add-modal-box { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .inv-add-field input,
+html[data-theme="dark"] .inv-add-field select { background: var(--bg3) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .inv-add-submit-btn { background: var(--ink) !important; color: var(--bg) !important; }
+
+/* Dark mode overrides */
+html[data-theme="dark"] .hi-sb {
+  background: var(--bg2) !important;
+  border-right-color: var(--line) !important;
+}
+html[data-theme="dark"] .hi-sb-kinput {
+  background-color: var(--bg3) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23666666' stroke-width='1.8'%3E%3Ccircle cx='6.5' cy='6.5' r='4.5'/%3E%3Cpath d='M10.5 10.5L14 14'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: 11px center !important;
+  background-size: 13px 13px !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .hi-sb-kinput:focus { background-color: var(--bg2) !important; }
+html[data-theme="dark"] .hi-detail-toggle {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+html[data-theme="dark"] .hi-detail-toggle:hover,
+html[data-theme="dark"] .hi-detail-toggle.active { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-detail-panel {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.30) !important;
+}
+html[data-theme="dark"] .hi-df input,
+html[data-theme="dark"] .hi-df select { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .inv-add-form-wrap { border-color: var(--line) !important; }
+html[data-theme="dark"] .inv-add-toggle { background: var(--bg3) !important; }
+
+/* ── 24. Custom Select (cs-wrap) ────────────────────────────── */
+.cs-wrap {
+  position: relative;
+  display: inline-block;
+}
+.cs-wrap.cs-block { display: block; width: 100%; }
+.cs-wrap.cs-flex1 { flex: 1; min-width: 0; }
+.cs-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink) !important;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background .12s;
+}
+.cs-trigger:hover { background: var(--hp) !important; }
+.cs-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cs-arrow {
+  font-size: 9px;
+  color: var(--ink3) !important;
+  flex-shrink: 0;
+  transition: transform .15s;
+  line-height: 1;
+}
+.cs-wrap.cs-open .cs-arrow { transform: rotate(180deg); }
+.cs-dropdown {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  min-width: 100%;
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.10) !important;
+  z-index: 500;
+  overflow: hidden;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.cs-wrap.cs-open .cs-dropdown { display: block; }
+.cs-option {
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--ink) !important;
+  cursor: pointer;
+  transition: background .1s;
+  white-space: nowrap;
+}
+.cs-option:hover { background: var(--hp) !important; }
+.cs-option--selected {
+  font-weight: 700;
+}
+/* data-tab variant: blue hover */
+.cs-wrap--data .cs-trigger:hover { background: var(--hb) !important; }
+.cs-wrap--data .cs-option:hover { background: var(--hb) !important; }
+
+/* sort row: compact trigger */
+.cs-sort .cs-trigger {
+  border: none !important;
+  background: transparent !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: var(--ink2) !important;
+}
+.cs-sort .cs-trigger:hover { background: var(--hp) !important; }
+.cs-sort .cs-dropdown { right: 0; left: auto; min-width: 140px; }
+
+/* invSelect: tiny font */
+.cs-inv .cs-trigger { font-size: 11px !important; font-weight: 500 !important; padding: 5px 8px !important; }
+.cs-inv .cs-option { font-size: 11px !important; padding: 7px 12px !important; }
+
+/* dark mode */
+html[data-theme="dark"] .cs-trigger {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .cs-trigger:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .cs-dropdown {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4) !important;
+}
+html[data-theme="dark"] .cs-option { color: var(--ink) !important; }
+html[data-theme="dark"] .cs-option:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .cs-sort .cs-trigger {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--ink2) !important;
+}
+html[data-theme="dark"] .cs-wrap--data .cs-trigger:hover,
+html[data-theme="dark"] .cs-wrap--data .cs-option:hover { background: var(--hb) !important; }
+#contactSubmitBtn:active { background: var(--sp) !important; }
+.contact-destination { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink2) !important; }
+
+html[data-theme="dark"] #cop,
+html[data-theme="dark"] #contactp { background: var(--bg) !important; }
+html[data-theme="dark"] .contact-card { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .contact-title { color: var(--ink) !important; }
+html[data-theme="dark"] .contact-field input,
+html[data-theme="dark"] .contact-field select,
+html[data-theme="dark"] .contact-field textarea {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .contact-field input:focus,
+html[data-theme="dark"] .contact-field textarea:focus {
+  background: var(--hp) !important;
+}
+html[data-theme="dark"] #feedbackSubmitBtn { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] #feedbackSubmitBtn:hover { background: var(--hp) !important; }
+html[data-theme="dark"] #contactSubmitBtn { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] #contactSubmitBtn:hover { background: var(--hp) !important; }
+
+/* ── 23. Cart modal ─────────────────────────────────────────── */
+.cart-modal-inner { background: var(--bg) !important; }
+.cart-modal-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+.cart-item { border-bottom-color: var(--line2) !important; }
+.cart-item-del { background: transparent !important; border: none !important; color: var(--ink3) !important; }
+.cart-item-del:hover { color: var(--rd) !important; background: rgba(220,38,38,.07) !important; }
+html[data-theme="dark"] .cart-modal-inner { background: var(--bg2) !important; }
+html[data-theme="dark"] .cart-modal-hd { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .cart-item { border-bottom-color: var(--line) !important; }
+
+/* ── 24. ds-toggle rows (settings panel WIP) ─────────────────── */
+.ds-toggle-row { border-color: var(--line2) !important; }
+.ds-toggle-row:hover { background: var(--hp) !important; }
+.ds-toggle-label span { color: var(--ink) !important; }
+.ds-toggle-label small { color: var(--ink2) !important; }
+html[data-theme="dark"] .ds-toggle-row { border-color: var(--line) !important; }
+html[data-theme="dark"] .ds-toggle-row:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .ds-toggle-label span { color: var(--ink) !important; }
+
+/* ── 25. WIP badges ─────────────────────────────────────────── */
+.wip-badge { background: rgba(234,88,12,.08) !important; border: 1px solid rgba(234,88,12,.25) !important; color: #c2410c !important; }
+html[data-theme="dark"] .wip-badge { background: rgba(234,88,12,.12) !important; border-color: rgba(234,88,12,.3) !important; color: #fb923c !important; }
+
+/* ── 26. Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar-track { background: var(--bg2) !important; }
+::-webkit-scrollbar-thumb { background: var(--ink3) !important; }
+html[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg2) !important; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--bg3) !important; }
+
+/* ── 27. Dark mode — body/global background ──────────────────── */
+html[data-theme="dark"] body { background: var(--bg) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pg { background: var(--bg) !important; }
+html[data-theme="dark"] .layout { background: var(--bg) !important; }
+
+/* ── 28. hi-panel inner items ───────────────────────────────── */
+.hi-page-title { color: var(--ink) !important; }
+.hi-label { color: var(--ink3) !important; }
+.hi-input { background: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--ink) !important; }
+.hi-input:hover, .hi-input:focus { background: var(--hp) !important; border-color: var(--line) !important; }
+.hi-clear-btn { background: transparent !important; border: 1px solid var(--line) !important; color: var(--ink2) !important; }
+.hi-clear-btn:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-page-title { color: var(--ink) !important; }
+html[data-theme="dark"] .hi-input { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-input:focus { background: var(--hp) !important; }
+html[data-theme="dark"] .hi-clear-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+
+/* ── 29. inv-note badge/save ─────────────────────────────────── */
+.inv-note-badge, .inv-note-save {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.inv-note-badge:hover, .inv-note-save:hover { background: var(--hp) !important; }
+.inv-note-input { background: var(--bg) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+.inv-note-input:focus { background: var(--hp) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .inv-note-badge,
+html[data-theme="dark"] .inv-note-save { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .inv-note-input { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+
+/* ── 30. Pager ──────────────────────────────────────────────── */
+.pager button { background: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--ink) !important; }
+.pager button:hover { background: var(--hp) !important; }
+.pager button.active { background: var(--sp) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .pager button { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pager button:hover { background: var(--hp) !important; }
+
+/* ── 31. Critical: remove toriai-theme-critical inline colors ── */
+/* The <style id="toriai-theme-critical"> in <head> is also cleaned via this */
+html[data-theme="dark"] {
+  background: var(--bg) !important;
+}
+html[data-theme="dark"] body {
+  background: var(--bg) !important;
+}
+
+/* ── 32. 印刷カート modal redesign ─────────────────────────── */
+
+/* Overlay: flex-center when shown (JS sets display:block → override) */
+#cartModal[style*="block"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+#cartModal {
+  padding: 20px 16px !important;
+}
+
+/* Modal box */
+.cart-modal-inner {
+  max-width: 520px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  background: var(--bg) !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.18) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: calc(100vh - 48px) !important;
+}
+
+/* Header */
+.cart-modal-hd {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 18px 22px !important;
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--line) !important;
+  flex-shrink: 0 !important;
+}
+.cart-modal-hd-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cart-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: .01em;
+}
+.cart-modal-count {
+  font-size: 11px;
+  color: var(--ink3);
+  background: var(--bg2);
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+.cart-modal-count:empty { display: none; }
+.cart-modal-hd-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Body scroll area */
+.cart-modal-body {
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+}
+
+/* Sections */
+.cart-section {
+  padding: 18px 22px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+.cart-section:last-child {
+  border-bottom: none !important;
+}
+.cart-section-title {
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  color: var(--ink3) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .09em !important;
+  margin-bottom: 14px !important;
+}
+
+/* Output action grid: 3 cols, print spans full width */
+.cart-actions-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+}
+.cart-action-btn {
+  padding: 11px 14px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border: 1.5px solid var(--line) !important;
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  text-align: center !important;
+  transition: background .15s, border-color .15s !important;
+}
+.cart-action-btn:hover:not(:disabled) {
+  background: var(--hp) !important;
+  border-color: #ccc !important;
+}
+/* Primary print CTA — full width, solid dark */
+.cart-action-primary {
+  grid-column: span 3 !important;
+  background: var(--ink) !important;
+  color: #fff !important;
+  border-color: var(--ink) !important;
+  font-size: 14px !important;
+  padding: 13px !important;
+  letter-spacing: .02em !important;
+}
+.cart-action-primary:hover:not(:disabled) {
+  background: #333 !important;
+  border-color: #333 !important;
+  color: #fff !important;
+}
+.cart-action-btn:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+/* Cart items */
+.cart-item {
+  padding: 12px 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  margin: 0 !important;
+}
+.cart-item:last-child {
+  border-bottom: none !important;
+}
+.cart-item-del {
+  background: none !important;
+  border: 1.5px solid var(--line) !important;
+  color: var(--ink3) !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+  font-size: 11px !important;
+  flex-shrink: 0 !important;
+  font-family: inherit !important;
+  transition: border-color .15s, color .15s !important;
+}
+.cart-item-del:hover {
+  border-color: #f87171 !important;
+  color: #f87171 !important;
+}
+
+/* Danger btn (全クリア) */
+.cart-danger-btn {
+  background: none !important;
+  border: 1.5px solid var(--line) !important;
+  color: #e55 !important;
+  border-radius: 9px !important;
+  padding: 7px 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  transition: background .15s, border-color .15s !important;
+}
+.cart-danger-btn:hover {
+  background: #fff4f4 !important;
+  border-color: #e55 !important;
+}
+
+/* Close btn — neutral, override cart-danger-btn if applied by normalizeInterfaceChrome */
+.cart-close-btn,
+.cart-close-btn.cart-danger-btn {
+  background: none !important;
+  border: 1.5px solid var(--line) !important;
+  color: var(--ink2) !important;
+  border-radius: 9px !important;
+  padding: 7px 14px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  transition: background .15s, border-color .15s !important;
+}
+.cart-close-btn:hover,
+.cart-close-btn.cart-danger-btn:hover {
+  background: var(--bg2) !important;
+  border-color: #aaa !important;
+  color: var(--ink) !important;
+}
+
+/* Dark mode adjustments */
+html[data-theme="dark"] .cart-action-primary {
+  background: #e8e8f0 !important;
+  color: #111 !important;
+  border-color: #e8e8f0 !important;
+}
+html[data-theme="dark"] .cart-action-primary:hover:not(:disabled) {
+  background: #fff !important;
+  border-color: #fff !important;
+}
+html[data-theme="dark"] .cart-modal-count {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink3) !important;
+}
+html[data-theme="dark"] .cart-danger-btn:hover {
+  background: rgba(255,80,80,.1) !important;
+}
+html[data-theme="dark"] .cart-close-btn:hover,
+html[data-theme="dark"] .cart-close-btn.cart-danger-btn:hover {
+  background: var(--bg2) !important;
+}

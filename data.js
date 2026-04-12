@@ -1561,15 +1561,12 @@ function dataInit() {
 
 /* 鋼種タブ描画 */
 function renderDataKindTabs() {
-  const wrap = document.getElementById('dataKindTabs');
-  if (!wrap) return;
+  const sel = document.getElementById('dataKindSelect');
+  if (!sel) return;
   const allKinds = getDataKindOrder();
-  wrap.innerHTML = allKinds.map(k => {
-    const isActive = k === _dataKind;
-    return `<button
-      class="dk-tab${isActive?' active':''}"
-      onclick="dataSelectKind('${k}')"
-    >${k}</button>`;
+  sel.innerHTML = allKinds.map(function(k) {
+    var label = (SECTION_DATA[k] && SECTION_DATA[k].label) ? SECTION_DATA[k].label : k;
+    return '<option value="' + k + '"' + (k === _dataKind ? ' selected' : '') + '>' + label + '</option>';
   }).join('');
 }
 
