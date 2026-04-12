@@ -173,28 +173,11 @@ html[data-theme="dark"] .hdr-right > #cartBadge:hover { background: var(--hp) !i
   border-right-color: var(--line) !important;
 }
 .mn { background: var(--bg) !important; }
-/* ── カッティングマット背景 (ダーク専用) ────────────────────────
-   白線ではなく色の濃淡でチェッカー格子を表現。
-   repeating-conic-gradient で 40×40px のマス目を交互に
-   rgba(0,0,0,.12) で塗ることで線なし・濃淡のみのマット感。
-   .mn (結果エリア) と .sb (サイドバー/データタブ) 両方に適用。  */
 html[data-theme="dark"] .sb {
-  background-color: var(--bg2) !important;
-  background-image: repeating-conic-gradient(
-    rgba(0,0,0,0) 0% 25%,
-    rgba(0,0,0,.10) 0% 50%
-  ) !important;
-  background-size: 40px 40px !important;
+  background: var(--bg2) !important;
   border-right-color: var(--line) !important;
 }
-html[data-theme="dark"] .mn {
-  background-color: var(--bg) !important;
-  background-image: repeating-conic-gradient(
-    rgba(0,0,0,0) 0% 25%,
-    rgba(0,0,0,.12) 0% 50%
-  ) !important;
-  background-size: 40px 40px !important;
-}
+html[data-theme="dark"] .mn { background: var(--bg) !important; }
 
 /* Sidebar tabs */
 .sb-tab { color: var(--ink2) !important; background: transparent !important; border: none !important; }
