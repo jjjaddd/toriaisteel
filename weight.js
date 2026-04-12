@@ -963,3 +963,185 @@ function wPrint() {
   var w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
 }
+function wCmdBuildAll() {
+  _wCmdAll = [];
+  if (typeof STEEL !== 'object' || !STEEL) return;
+  Object.keys(STEEL).forEach(function(kind) {
+    (STEEL[kind] || []).forEach(function(row) {
+      _wCmdAll.push({ kind: kind, spec: row[0], kgm: row[1], label: kind + ' ' + row[0] });
+    });
+  });
+}
+
+function wCmdActivate(el) {
+  if (!el) return;
+  el.focus();
+  if (typeof el.select === 'function') el.select();
+  if (el.value && el.value.trim()) {
+    wCmdFilter();
+  } else {
+    wCmdOpenBrowse();
+  }
+}
+
+function wCmdOpenBrowse() {
+  var dd = document.getElementById('wCmdDropdown');
+  if (!dd) return;
+  var html = '';
+  Object.keys(STEEL).forEach(function(kind) {
+    html += '<div class="cmd-cat" style="cursor:pointer;color:#1a1a2e;font-size:11px" ' +
+            'onmousedown="event.preventDefault();wCmdShowKind(\'' + kind + '\')">' +
+            kind + ' <span style="color:#bbb;font-size:10px">▶</span></div>';
+  });
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+  _wCmdIdx = -1;
+  document.addEventListener('click', wCmdOutside);
+}
+
+function wCmdShowKind(kind) {
+  var dd   = document.getElementById('wCmdDropdown');
+  var list = STEEL[kind] || [];
+  if (!dd) return;
+  var html = '<div class="cmd-cat" style="cursor:pointer;color:#aaa;display:flex;align-items:center;gap:4px" ' +
+             'onmousedown="event.preventDefault();wCmdOpenBrowse()">◀ 戻る　<strong style="color:#5a5a78">' + kind + '</strong></div>';
+  list.forEach(function(row) {
+    var it = { kind: kind, spec: row[0], kgm: row[1] };
+    html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
+            '<span>' + row[0] + '</span>' +
+            '<span style="color:#aaa;font-size:10px">' + row[1] + ' kg/m</span>' +
+            '</div>';
+  });
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+  _wCmdIdx = -1;
+}
+
+var W_PREFIX_MAP = [
+  { prefix: 'fb', kinds: ['平鋼'] },
+  { prefix: 'rb', kinds: ['丸鋼'] },
+  { prefix: 'h',  kinds: ['H形鋼'] },
+  { prefix: 'l',  kinds: ['等辺山形鋼', '不等辺山形鋼'] },
+  { prefix: 'u',  kinds: ['溝形鋼'] },
+  { prefix: 'i',  kinds: ['I形鋼'] },
+  { prefix: 'f',  kinds: ['平鋼'] },
+  { prefix: 'r',  kinds: ['丸鋼'] },
+  { prefix: 'p',  kinds: ['角パイプ', 'スモール角パイプ'] },
+  { prefix: '[',  kinds: ['軽量溝形鋼'] },
+  { prefix: 'c',  kinds: ['C形鋼'] }
+];
+
+function wCmdFilter() {
+  var input = document.getElementById('wCmdInput');
+  var dd    = document.getElementById('wCmdDropdown');
+  if (!input || !dd) return;
+  var q = input.value.trim().toLowerCase();
+  if (!q) { dd.style.display = 'none'; return; }
+  var kindFilter = null;
+  for (var pi = 0; pi < W_PREFIX_MAP.length; pi++) {
+    var pm = W_PREFIX_MAP[pi];
+    if (q.indexOf(pm.prefix) === 0) { kindFilter = pm.kinds; break; }
+  }
+  var filtered;
+  if (kindFilter) {
+    filtered = _wCmdAll.filter(function(it) {
+      if (kindFilter.indexOf(it.kind) < 0) return false;
+      return it.spec.toLowerCase().indexOf(q) >= 0 ||
+             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+    });
+  } else {
+    filtered = _wCmdAll.filter(function(it) {
+      return it.label.toLowerCase().indexOf(q) >= 0 ||
+             it.spec.toLowerCase().indexOf(q)  >= 0 ||
+             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+    });
+  }
+  if (filtered.length === 0) {
+    dd.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">見つかりません</div>';
+    dd.style.display = 'block';
+    _wCmdIdx = -1;
+    document.addEventListener('click', wCmdOutside);
+    return;
+  }
+  var grouped = {};
+  filtered.forEach(function(it) {
+    if (!grouped[it.kind]) grouped[it.kind] = [];
+    grouped[it.kind].push(it);
+  });
+  var html = '';
+  Object.keys(grouped).forEach(function(kind) {
+    html += '<div class="cmd-cat">' + kind + '</div>';
+    grouped[kind].forEach(function(it) {
+      html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
+              '<span>' + it.spec + '</span>' +
+              '<span style="color:#aaa;font-size:10px">' + it.kgm + ' kg/m</span>' +
+              '</div>';
+    });
+  });
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+  _wCmdIdx = -1;
+  document.addEventListener('click', wCmdOutside);
+}
+
+function wCmdSelect(it) {
+  var kindEl   = document.getElementById('wKind');
+  var specEl   = document.getElementById('wSpec');
+  var kgmEl    = document.getElementById('wKgm');
+  var kgmDisp  = document.getElementById('wCmdKgm');
+  var kgmValEl = document.getElementById('wKgmVal');
+  var input    = document.getElementById('wCmdInput');
+  var dd       = document.getElementById('wCmdDropdown');
+  if (kindEl) kindEl.value = it.kind;
+  wOnKind();
+  if (specEl)   specEl.value        = it.spec;
+  if (kgmEl)    kgmEl.value         = String(it.kgm);
+  if (kgmValEl) kgmValEl.textContent = it.kgm + ' kg/m';
+  if (input)    input.value         = it.kind + '　' + it.spec;
+  if (kgmDisp)  kgmDisp.textContent = it.kgm + ' kg/m';
+  if (dd)       dd.style.display    = 'none';
+  _wCmdIdx = -1;
+  document.removeEventListener('click', wCmdOutside);
+  setTimeout(function() {
+    var lenEl = document.getElementById('wLen');
+    if (lenEl) { lenEl.focus(); lenEl.select(); }
+  }, 0);
+  wPreview();
+}
+
+function wCmdOutside(e) {
+  var wrap = document.getElementById('wCmdWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    var dd = document.getElementById('wCmdDropdown');
+    if (dd) dd.style.display = 'none';
+    document.removeEventListener('click', wCmdOutside);
+  }
+}
+
+function wCmdKey(e) {
+  var dd = document.getElementById('wCmdDropdown');
+  if (!dd || dd.style.display === 'none') return;
+  var items = dd.querySelectorAll('.cmd-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _wCmdIdx = Math.min(_wCmdIdx + 1, items.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _wCmdIdx = Math.max(_wCmdIdx - 1, 0);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    var target = _wCmdIdx >= 0 ? items[_wCmdIdx] : (items.length === 1 ? items[0] : null);
+    if (target) { target.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); }
+    return;
+  } else if (e.key === 'Escape') {
+    dd.style.display = 'none';
+    _wCmdIdx = -1;
+    return;
+  } else { return; }
+  items.forEach(function(el) { el.classList.remove('cmd-focus'); });
+  if (_wCmdIdx >= 0) {
+    items[_wCmdIdx].classList.add('cmd-focus');
+    items[_wCmdIdx].scrollIntoView({ block: 'nearest' });
+  }
+}
