@@ -2606,6 +2606,7 @@ function cartClearAll() {
     btn.classList.remove('added');
     btn.disabled = false;
   });
+  closeCartModal();
 }
 
 /** カート内容をまとめて印刷 */
