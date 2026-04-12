@@ -6,7 +6,7 @@ var _wInited    = false;
 var _wRows      = [];
 var _wUndoStack = [];
 var _wRedoStack = [];
-var _wOpts      = { price: false, name: false, kuiku: false, rev: false, paint: false, m2: false, co2: false };
+var _wOpts      = { price: false, name: false, rev: false, paint: false, m2: false, co2: false };
 var _wEditIdx   = -1;
 var _wCartAdded = false;
 var _wSavedCalcs = (function() {
@@ -129,8 +129,8 @@ function wInit() {
 
 // ── Enter フロー ──────────────────────────────────────────────
 function wNextOptOrAdd(from) {
-  var order    = ['price', 'name', 'kuiku'];
-  var fieldMap = { price: 'wPrice', name: 'wMemo', kuiku: 'wKuiku' };
+  var order    = ['price', 'name'];
+  var fieldMap = { price: 'wPrice', name: 'wMemo' };
   var startIdx = (from === 'qty') ? 0 : order.indexOf(from) + 1;
   for (var i = startIdx; i < order.length; i++) {
     var opt = order[i];
@@ -184,7 +184,7 @@ function wSetupEnter() {
     qtyEl.addEventListener('focus', function() { this.select(); });
   }
 
-  [['wPrice','price'], ['wMemo','name'], ['wKuiku','kuiku']].forEach(function(pair) {
+  [['wPrice','price'], ['wMemo','name']].forEach(function(pair) {
     var el = document.getElementById(pair[0]);
     var optKey = pair[1];
     if (el) {
@@ -235,7 +235,7 @@ function wToggleOpt(opt) {
 
   if (_wOpts[opt]) {
     // チップ ON → その欄にフォーカス
-    var focusMap = { price:'wPrice', name:'wMemo', kuiku:'wKuiku', paint:'wPaintPrice', rev:'wRevKg' };
+    var focusMap = { price:'wPrice', name:'wMemo', paint:'wPaintPrice', rev:'wRevKg' };
     var focusId  = focusMap[opt];
     if (focusId) {
       setTimeout(function() {
@@ -247,7 +247,6 @@ function wToggleOpt(opt) {
     // チップ OFF → 値クリア
     if (opt === 'price') { var pe  = document.getElementById('wPrice');       if (pe)  pe.value  = ''; }
     if (opt === 'name')  { var me  = document.getElementById('wMemo');        if (me)  me.value  = ''; }
-    if (opt === 'kuiku') { var ke  = document.getElementById('wKuiku');       if (ke)  ke.value  = ''; }
     if (opt === 'paint') { var ppe = document.getElementById('wPaintPrice');  if (ppe) ppe.value = ''; }
     if (opt === 'rev')   { wClearReverse(); }
   }
@@ -368,11 +367,9 @@ function wAddRow() {
 
   var priceEl      = document.getElementById('wPrice');
   var memoEl       = document.getElementById('wMemo');
-  var kuikuEl      = document.getElementById('wKuiku');
   var paintPriceEl = document.getElementById('wPaintPrice');
   var price      = (_wOpts.price && priceEl)      ? (parseFloat(priceEl.value)       || 0) : 0;
   var memo       = (_wOpts.name  && memoEl)       ? (memoEl.value   || '')            : '';
-  var kuiku      = (_wOpts.kuiku && kuikuEl)      ? (kuikuEl.value  || '')            : '';
   var paintPrice = (_wOpts.paint && paintPriceEl) ? (parseFloat(paintPriceEl.value)  || 0) : 0;
 
   var kg1  = kgm * len / 1000;
@@ -384,7 +381,7 @@ function wAddRow() {
   wPushUndo();
 
   var rowData = {
-    kind: kind, spec: spec, memo: memo, kuiku: kuiku,
+    kind: kind, spec: spec, memo: memo,
     len: len, qty: qty, kgm: kgm,
     kg1: kg1, kgTotal: kg,
     m2_1: m2_1, m2Total: m2,
@@ -437,10 +434,6 @@ function wEditRow(idx) {
   if (r.memo) {
     if (!_wOpts.name) wToggleOpt('name');
     var me = document.getElementById('wMemo'); if (me) me.value = r.memo;
-  }
-  if (r.kuiku) {
-    if (!_wOpts.kuiku) wToggleOpt('kuiku');
-    var ke = document.getElementById('wKuiku'); if (ke) ke.value = r.kuiku;
   }
   if (r.paintPrice > 0) {
     if (!_wOpts.paint) wToggleOpt('paint');
@@ -542,10 +535,7 @@ function wRenderRows() {
     if (r.amount !== null) sumAmt += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
 
-    var kuikuTag = r.kuiku
-      ? ' <span style="font-size:inherit;font-weight:600;color:#555555;margin-left:6px">工区: ' + _esc(r.kuiku) + '</span>'
-      : '';
-    var memoTitle = _esc(r.memo) + (r.kuiku ? '　' + _esc(r.kuiku) : '');
+    var memoTitle = _esc(r.memo || '');
     var m2Cell = '<td style="' + _tdR + 'color:#111111;font-weight:700;' + (_wOpts.m2 ? '' : 'display:none;') + '">' + _wFmt(r.m2Total, 2) + '</td>';
     var co2Disp = _wOpts.co2 ? '' : 'display:none;';
     var co2Cell = '<td style="' + _tdR + co2Disp + 'color:#2d6a2d;font-weight:700">' +
@@ -567,7 +557,7 @@ function wRenderRows() {
       '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' + (i + 1) + '</td>' +
       '<td style="padding:7px 10px;font-size:11px;color:#5a5a78;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
         (_wOpts.name ? '' : 'display:none') + '" title="' + memoTitle + '">' +
-        _esc(r.memo || '—') + kuikuTag +
+        _esc(r.memo || '—') +
       '</td>' +
       '<td style="' + _tdL + '">' + _esc(r.kind) + '</td>' +
       '<td style="' + _tdL + 'font-weight:600">' + _esc(r.spec) + '</td>' +
@@ -693,7 +683,7 @@ function wLoadCalc(id) {
 function wRecallFromHistory(rows, opts, job) {
   if (!rows || !rows.length) return;
   _wRows = JSON.parse(JSON.stringify(rows));
-  var defaultOpts = { price: false, name: false, kuiku: false, rev: false, paint: false, m2: false, co2: false };
+  var defaultOpts = { price: false, name: false, rev: false, paint: false, m2: false, co2: false };
   opts = opts || {};
   Object.keys(defaultOpts).forEach(function(key) {
     if (_wOpts[key] !== !!opts[key]) wToggleOpt(key);
@@ -748,7 +738,6 @@ function wPrint() {
     if (r.amount      !== null) sumAmt   += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
     var memoStr = r.memo ? _esc(r.memo) : '—';
-    if (r.kuiku) memoStr += '　<span style="font-size:inherit;font-weight:600;color:#555555;margin-left:6px">工区: ' + _esc(r.kuiku) + '</span>';
     return '<tr>' +
       '<td style="text-align:center">' + (i+1) + '</td>' +
       '<td>' + memoStr + '</td>' +
@@ -850,9 +839,6 @@ function wPrint() {
     if (r.amount !== null) sumAmt += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
     var memoStr = r.memo ? _esc(r.memo) : '—';
-    if (r.kuiku) {
-      memoStr += '　<span style="font-size:inherit;font-weight:600;color:#555555;margin-left:6px">工区: ' + _esc(r.kuiku) + '</span>';
-    }
     return '<tr>' +
       '<td style="text-align:center">' + (i + 1) + '</td>' +
       '<td>' + memoStr + '</td>' +
@@ -912,9 +898,6 @@ function wPrint() {
     if (r.amount !== null) sumAmt += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
     var memoStr = r.memo ? _esc(r.memo) : '—';
-    if (r.kuiku) {
-      memoStr += '　<span style="font-size:inherit;font-weight:600;color:#555555;margin-left:6px">工区: ' + _esc(r.kuiku) + '</span>';
-    }
     return '<tr>' +
       '<td style="text-align:center">' + (i + 1) + '</td>' +
       '<td>' + memoStr + '</td>' +
