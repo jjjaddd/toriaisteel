@@ -746,14 +746,13 @@ function wCmdShowKind(kind) {
 var W_PREFIX_MAP = [
   { prefix: 'fb', kinds: ['平鋼'] },
   { prefix: 'rb', kinds: ['丸鋼'] },
-  { prefix: 'rp', kinds: ['スモール角パイプ（正方形）', 'スモール角パイプ（長方形）', 'エコノミー角'] },
   { prefix: 'h',  kinds: ['H形鋼'] },
   { prefix: 'l',  kinds: ['等辺山形鋼', '不等辺山形鋼'] },
   { prefix: 'u',  kinds: ['溝形鋼'] },
   { prefix: 'i',  kinds: ['I形鋼'] },
   { prefix: 'f',  kinds: ['平鋼'] },
   { prefix: 'r',  kinds: ['丸鋼'] },
-  { prefix: 'p',  kinds: ['中径角パイプ（正方形）', '中径角パイプ（長方形）', 'スモール角パイプ（正方形）', 'スモール角パイプ（長方形）', 'スーパー角パイプ（正方形）', 'スーパー角パイプ（長方形）', 'エコノミー角'] },
+  { prefix: 'p',  kinds: ['角パイプ', 'スモール角パイプ'] },
   { prefix: '[',  kinds: ['軽量溝形鋼'] },
   { prefix: 'c',  kinds: ['C形鋼'] }
 ];

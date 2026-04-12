@@ -1755,12 +1755,14 @@ function renderDataSpec() {
   // SVG断面図（鋼種タイプに応じて切り替え）
   const svgEl = document.getElementById('dataSVGWrap');
   if (svgEl) {
+    const compactViewW = 340;
+    const compactViewH = 260;
     if (kindData.type === 'H') {
       svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 460, 340);
     } else if (kindData.type === 'C') {
       svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
     } else if (kindData.type === 'C_LIGHT') {
-      svgEl.innerHTML = drawCChannelSVG(spec.H, spec.A, spec.B, spec.t, 260, 210);
+      svgEl.innerHTML = drawCChannelSVG(spec.H, spec.A, spec.B, spec.t, compactViewW, compactViewH);
     } else if (kindData.type === 'LGC') {
       svgEl.innerHTML = ''; // 軽量溝形鋼: 断面図は準備中
     } else if (kindData.type === 'I') {
@@ -1768,15 +1770,15 @@ function renderDataSpec() {
     } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {
       svgEl.innerHTML = drawLAngleSVG(spec, 460, 340);
     } else if (kindData.type === 'RB') {
-      svgEl.innerHTML = drawRoundBarSVG(spec.D, 260, 210);
+      svgEl.innerHTML = drawRoundBarSVG(spec.D, compactViewW, compactViewH);
     } else if (kindData.type === 'SB') {
-      svgEl.innerHTML = drawSquareBarSVG(spec.a, 260, 210);
+      svgEl.innerHTML = drawSquareBarSVG(spec.a, compactViewW, compactViewH);
     } else if (kindData.type === 'PIPE') {
-      svgEl.innerHTML = drawPipeSVG(spec.D, spec.d, 260, 210);
+      svgEl.innerHTML = drawPipeSVG(spec.D, spec.d, compactViewW, compactViewH);
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'BCR') {
-      svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, 260, 210);
+      svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, compactViewW, compactViewH);
     } else if (kindData.type === 'FL') {
-      svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, 260, 210);
+      svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, compactViewW, compactViewH);
     }
   }
 
