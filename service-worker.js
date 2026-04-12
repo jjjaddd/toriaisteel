@@ -1,4 +1,4 @@
-const CACHE_NAME = 'steel-optimizer-v32';
+const CACHE_NAME = 'steel-optimizer-v33';
 const ASSETS = [
   '/',
   '/index.html',

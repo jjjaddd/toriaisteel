@@ -1971,3 +1971,97 @@ html[data-theme="dark"] .cc *[style*="color: #1a1a2e"] {
 /* スクロールバー (ダーク) */
 html[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg2) !important; }
 html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--ink3) !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   § 35  COMPONENT NORMALIZATION
+   ─ ボタン・入力・カードを統一ルールに揃える ─
+   Button  → 角丸 var(--r-sm)、地味カラー、hover=var(--hp)のみ
+   Input   → focus 時は border-color 変化のみ、背景は変えない
+   Card    → border 1px var(--line)、影ほぼなし
+   ══════════════════════════════════════════════════════════════ */
+
+/* ① Inputs — focus = border change only (no bg flash) */
+input[type=number]:hover, input[type=text]:hover,
+input[type=date]:hover, select:hover, textarea:hover {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+}
+input[type=number]:focus, input[type=text]:focus,
+input[type=date]:focus, select:focus, textarea:focus {
+  background: var(--bg) !important;
+  border-color: var(--ink3) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] input:hover, html[data-theme="dark"] select:hover,
+html[data-theme="dark"] textarea:hover {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] input:focus, html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:focus {
+  background: var(--bg2) !important;
+  border-color: var(--ink3) !important;
+  box-shadow: none !important;
+}
+/* search bar: same */
+.hi-search-wrap input:hover,
+.hi-search-wrap input:focus {
+  background: var(--bg2) !important;
+  border-color: var(--ink3) !important;
+}
+html[data-theme="dark"] .hi-search-wrap input:hover,
+html[data-theme="dark"] .hi-search-wrap input:focus {
+  background: var(--bg3) !important;
+  border-color: var(--ink3) !important;
+}
+/* cmd palette input */
+#cmdInput:hover, #cmdInput:focus { background: var(--bg) !important; border-color: var(--ink3) !important; }
+html[data-theme="dark"] #cmdInput:hover,
+html[data-theme="dark"] #cmdInput:focus { background: var(--bg2) !important; border-color: var(--ink3) !important; }
+/* stk-mx (max qty) */
+.stk-mx:focus { background: var(--bg) !important; border-color: var(--ink3) !important; box-shadow: none !important; }
+html[data-theme="dark"] .stk-mx:focus { background: var(--bg2) !important; }
+/* paste textarea */
+.paste-area textarea:hover, .paste-area textarea:focus {
+  background: var(--bg) !important; border-color: var(--ink3) !important;
+}
+html[data-theme="dark"] .paste-area textarea:hover,
+html[data-theme="dark"] .paste-area textarea:focus {
+  background: var(--bg2) !important; border-color: var(--ink3) !important;
+}
+
+/* ② Cards — 影ほぼなし、枠薄い */
+.cc { box-shadow: 0 1px 2px rgba(0,0,0,.04) !important; border: 1px solid var(--line) !important; }
+.cc.r1, .cc.r2, .cc.r3 { box-shadow: 0 1px 2px rgba(0,0,0,.04) !important; border: 1px solid var(--line) !important; }
+.yield-card { border: 1px solid var(--gn) !important; box-shadow: none !important; }
+html[data-theme="dark"] .cc { box-shadow: 0 1px 3px rgba(0,0,0,.2) !important; }
+/* history / inventory cards */
+.hi-card, .inv-card-new {
+  box-shadow: 0 1px 2px rgba(0,0,0,.04) !important;
+  border: 1px solid var(--line) !important;
+}
+html[data-theme="dark"] .hi-card,
+html[data-theme="dark"] .inv-card-new { box-shadow: 0 1px 3px rgba(0,0,0,.2) !important; }
+/* modals / overlays */
+.inv-add-modal-box { box-shadow: 0 4px 16px rgba(0,0,0,.12) !important; }
+html[data-theme="dark"] .inv-add-modal-box { box-shadow: 0 4px 24px rgba(0,0,0,.5) !important; }
+
+/* ③ Tags — glow 完全撤廃 */
+.tag, .tag-best, .tag-yield, .tag-chg { box-shadow: none !important; }
+
+/* ④ Buttons — 地味色に統一 */
+/* Run button: 1px border (1.5px から変更) */
+.run { border-width: 1px !important; }
+/* paste-exec: green → neutral */
+.paste-exec {
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.paste-exec:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.paste-exec.added {
+  background: transparent !important;
+  border-color: var(--gn) !important;
+  color: var(--gn) !important;
+}
+html[data-theme="dark"] .paste-exec { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .paste-exec.added { border-color: var(--gn) !important; color: var(--gn) !important; }
