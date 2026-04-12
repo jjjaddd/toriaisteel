@@ -627,7 +627,7 @@ function init() {
   updateCartBadge();
   var invSelect = document.getElementById('invSelect');
   if (invSelect) invSelect.addEventListener('change', updateInventoryUseButton);
-  var cartBulkPrintBtn = document.querySelector('#cartModal [onclick="cartDoPrint()"]');
+  var cartBulkPrintBtn = document.querySelector('#cartModal [onclick="cartPrintCutting()"]');
   if (cartBulkPrintBtn) cartBulkPrintBtn.classList.add('cart-bulk-print');
   updateInventoryUseButton();
 
@@ -2464,9 +2464,13 @@ function updateCartBadge() {
   var cart = getCart();
   var badge = document.getElementById('cartBadge');
   if (!badge) return;
-  var n = cart.length;
-  badge.textContent = 'カート ' + n + '件';
-  badge.className = 'cart-badge' + (n === 0 ? ' empty' : '');
+  var cutN = cart.filter(function(x) { return !x.data.isWeight; }).length;
+  var weightN = cart.filter(function(x) { return x.data.isWeight; }).length;
+  var total = cart.length;
+  badge.textContent = total === 0 ? '0件'
+    : (cutN > 0 && weightN > 0) ? '取' + cutN + ' 重' + weightN
+    : total + '件';
+  badge.classList.toggle('empty', total === 0);
 }
 
 /** カードの情報を収集してカートに追加 */
@@ -3686,9 +3690,13 @@ function updateCartBadge() {
   var cart = getCart();
   var badge = document.getElementById('cartBadge');
   if (!badge) return;
-  var n = cart.length;
-  badge.textContent = n + '件';
-  badge.classList.toggle('empty', !n);
+  var cutN = cart.filter(function(x) { return !x.data.isWeight; }).length;
+  var weightN = cart.filter(function(x) { return x.data.isWeight; }).length;
+  var total = cart.length;
+  badge.textContent = total === 0 ? '0件'
+    : (cutN > 0 && weightN > 0) ? '取' + cutN + ' 重' + weightN
+    : total + '件';
+  badge.classList.toggle('empty', total === 0);
 }
 
 function formatPatternSummary(pattern) {
@@ -3846,10 +3854,10 @@ function normalizeInterfaceChrome() {
     if (el) el.textContent = entry[1];
   });
 
-  ['#cartModal button[onclick="cartDoPrint()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
+  ['#cartModal button[onclick="cartPrintCutting()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
     var el = document.querySelector(sel);
     if (el) {
-      el.textContent = sel.indexOf('#cartModal') === 0 ? '印刷' : 'まとめて印刷';
+      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : 'まとめて印刷';
       if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
     }
   });
@@ -4636,32 +4644,61 @@ function getRemnants() {
 
   renderCartModal = function() {
     var cart = getCart();
-    var body = document.getElementById('cartItemsList') || document.getElementById('cartModalBody');
-    if (!body) return;
-    if (!cart.length) {
-      body.innerHTML = '<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">カートは空です。作業指示書に追加した項目がここに表示されます。</div>';
-      return;
+
+    var cutItems = cart.filter(function(x) { return !x.data.isWeight; });
+    var weightItems = cart.filter(function(x) { return x.data.isWeight; });
+
+    var cutList = document.getElementById('cartCutList');
+    var cutPrintBtn = document.getElementById('cartCutPrintBtn');
+    if (cutList) {
+      if (cutItems.length === 0) {
+        cutList.innerHTML = '<div class="cart-empty-msg">追加された取り合いはありません</div>';
+      } else {
+        cutList.innerHTML = cutItems.map(function(item) {
+          var d = item.data;
+          return '<div class="cart-item">' +
+            '<div style="flex:1;min-width:0">' +
+              '<div class="cart-item-title">' +
+                (d.isYield ? '歩留まり最大' : '取り合いパターン') + ' — ' + d.title +
+              '</div>' +
+              '<div class="cart-item-sub">' +
+                (d.spec || '') + '　' + ((d.job && d.job.client) || '') + '　' + ((d.job && d.job.name) || '') +
+              '</div>' +
+            '</div>' +
+            '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">✕</button>' +
+          '</div>';
+        }).join('');
+      }
+      if (cutPrintBtn) cutPrintBtn.disabled = cutItems.length === 0;
     }
-    body.innerHTML = cart.map(function(item) {
-      var d = item.data || {};
-      var typeLabel = d.isWeight
-        ? '⚖ 重量計算リスト'
-        : (d.isYield ? '歩留まり最大' : '取り合いパターン');
-      var subLabel = d.isWeight
-        ? (jisRoundKg(d.sumKg || 0).toLocaleString() + ' kg　' +
-           (d.anyPrice ? '概算 ' + Number(d.sumAmt || 0).toLocaleString() + ' 円' : ''))
-        : ((d.spec || '') + '　' + (((d.job || {}).client) || '') + '　' + (((d.job || {}).name) || ''));
-      return '<div class="cart-item">' +
-        '<div style="flex:1;min-width:0">' +
-          '<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">' +
-            typeLabel + ' - ' + (d.title || '') +
-          '</div>' +
-          '<div style="font-size:11px;color:#8888a8">' + subLabel + '</div>' +
-          '<div class="cart-item-status">保存のみ</div>' +
-        '</div>' +
-        '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">削除</button>' +
-      '</div>';
-    }).join('');
+
+    var weightList = document.getElementById('cartWeightList');
+    var weightPrintBtn = document.getElementById('cartWeightPrintBtn');
+    var weightCsvBtn = document.getElementById('cartWeightCsvBtn');
+    if (weightList) {
+      if (weightItems.length === 0) {
+        weightList.innerHTML = '<div class="cart-empty-msg">追加された重量リストはありません</div>';
+      } else {
+        weightList.innerHTML = weightItems.map(function(item) {
+          var d = item.data;
+          return '<div class="cart-item">' +
+            '<div style="flex:1;min-width:0">' +
+              '<div class="cart-item-title">重量計算リスト — ' + d.title + '</div>' +
+              '<div class="cart-item-sub">' +
+                d.rows.length + '行　' +
+                (typeof _wFmtKg === 'function' ? _wFmtKg(d.sumKg) : d.sumKg.toFixed(1)) + ' kg' +
+                (d.anyPrice ? '　概算 ' + Number(d.sumAmt).toLocaleString() + ' 円' : '') +
+              '</div>' +
+            '</div>' +
+            '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">✕</button>' +
+          '</div>';
+        }).join('');
+      }
+      if (weightPrintBtn) weightPrintBtn.disabled = weightItems.length === 0;
+      if (weightCsvBtn) weightCsvBtn.disabled = weightItems.length === 0;
+    }
+
+    updateCartBadge();
   };
 
   if (document.readyState !== 'loading') {
@@ -4742,52 +4779,13 @@ function cartAdd(cardId, btn) {
   if (_lastCalcResult) saveCutHistory(_lastCalcResult, cardId);
 }
 
-function cartDoPrint() {
-  var cart = getCart();
-  if (!cart.length) { alert('カートが空です。'); return; }
+function cartPrintCutting() {
+  var cart = getCart().filter(function(x) { return !x.data.isWeight; });
+  if (!cart.length) { alert('取り合いがカートにありません。'); return; }
   var job = cart[0].data.job || {};
   var sections = [];
   cart.forEach(function(item, ci) {
     var d = item.data || {};
-    if (d.isWeight) {
-      var rowsHtml = (d.rows || []).map(function(r, idx) {
-        return '<tr style="border-bottom:1px solid #eee">' +
-          '<td style="padding:4px 8px">' + (idx + 1) + '</td>' +
-          '<td style="padding:4px 8px">' + (r.memo || '—') + '</td>' +
-          '<td style="padding:4px 8px">' + r.kind + '</td>' +
-          '<td style="padding:4px 8px">' + r.spec + '</td>' +
-          '<td style="padding:4px 8px;text-align:right">' + r.len.toLocaleString() + '</td>' +
-          '<td style="padding:4px 8px;text-align:right">' + r.qty + '</td>' +
-          '<td style="padding:4px 8px;text-align:right;font-weight:700">' + jisRoundKg(r.kgTotal).toLocaleString() + ' kg</td>' +
-          (d.anyPrice ? '<td style="padding:4px 8px;text-align:right">' +
-            (r.amount !== null ? Number(r.amount).toLocaleString() + ' 円' : '—') + '</td>' : '') +
-          '</tr>';
-      }).join('');
-      sections.push({
-        idx: ci + 1,
-        customHtml: '<div style="margin-bottom:16px;border:1px solid #ddd;border-radius:8px;overflow:hidden">' +
-          '<div style="background:#f0fdf4;padding:8px 12px;font-weight:700;font-size:13px;border-bottom:1px solid #ddd">' +
-            '重量計算リスト - ' + d.title +
-          '</div>' +
-          '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
-          '<thead><tr style="background:#f4f4fa">' +
-            '<th style="padding:4px 8px;text-align:left">#</th>' +
-            '<th style="padding:4px 8px;text-align:left">部材名</th>' +
-            '<th style="padding:4px 8px;text-align:left">種類</th>' +
-            '<th style="padding:4px 8px;text-align:left">規格</th>' +
-            '<th style="padding:4px 8px;text-align:right">長さ(mm)</th>' +
-            '<th style="padding:4px 8px;text-align:right">本数</th>' +
-            '<th style="padding:4px 8px;text-align:right">合計重量(kg)</th>' +
-            (d.anyPrice ? '<th style="padding:4px 8px;text-align:right">概算金額(円)</th>' : '') +
-          '</tr></thead><tbody>' + rowsHtml + '</tbody>' +
-          '<tfoot><tr style="background:#f4f4fa;font-weight:700">' +
-            '<td colspan="6" style="padding:6px 8px">合　計</td>' +
-            '<td style="padding:6px 8px;text-align:right">' + jisRoundKg(d.sumKg).toLocaleString() + ' kg</td>' +
-            (d.anyPrice ? '<td style="padding:6px 8px;text-align:right">' + Number(d.sumAmt).toLocaleString() + ' 円</td>' : '') +
-          '</tr></tfoot></table></div>'
-      });
-      return;
-    }
     var patDiv = document.createElement('div');
     patDiv.innerHTML = d.patHtml || '';
     var sumMap = {};
@@ -4827,14 +4825,110 @@ function cartDoPrint() {
     });
   });
   openPrintWindow(buildPrintPages(job, sections));
-  clearCart();
+  saveCart(getCart().filter(function(x) { return x.data.isWeight; }));
   updateCartBadge();
+  renderCartModal();
   closeCartModal();
   document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
-    btn.textContent = '＋ 作業指示書に追加';
-    btn.classList.remove('added');
-    btn.disabled = false;
+    var cardId = btn.id.replace('add_', '');
+    var stillInCart = getCart().some(function(x) { return x.data.cardId === cardId; });
+    if (!stillInCart) {
+      btn.textContent = '＋ 作業指示書に追加';
+      btn.classList.remove('added');
+      btn.disabled = false;
+    }
   });
+}
+
+function cartPrintWeight() {
+  var cart = getCart().filter(function(x) { return x.data.isWeight; });
+  if (!cart.length) { alert('重量リストがカートにありません。'); return; }
+
+  var allSections = cart.map(function(item) {
+    var d = item.data;
+    var sumKg = d.sumKg;
+    var sumAmt = d.sumAmt;
+    var anyPrice = d.anyPrice;
+    var rows = (d.rows || []).map(function(r, i) {
+      return '<tr style="border-bottom:1px solid #eee">' +
+        '<td style="padding:4px 8px;text-align:center">' + (i + 1) + '</td>' +
+        '<td style="padding:4px 8px">' + (r.memo || '—') +
+          (r.kuiku ? ' <span style="font-size:9px;background:#f0f0f0;padding:1px 5px;border-radius:8px">' + r.kuiku + '</span>' : '') +
+        '</td>' +
+        '<td style="padding:4px 8px">' + r.kind + '</td>' +
+        '<td style="padding:4px 8px">' + r.spec + '</td>' +
+        '<td style="padding:4px 8px;text-align:right">' + r.len.toLocaleString() + '</td>' +
+        '<td style="padding:4px 8px;text-align:right">' + r.qty + '</td>' +
+        '<td style="padding:4px 8px;text-align:right;font-weight:700">' +
+          (typeof _wFmtKg === 'function' ? _wFmtKg(r.kgTotal) : r.kgTotal.toFixed(1)) + '</td>' +
+        (anyPrice ? '<td style="padding:4px 8px;text-align:right">' +
+          (r.amount !== null ? Number(r.amount).toLocaleString() + ' 円' : '—') + '</td>' : '') +
+      '</tr>';
+    }).join('');
+
+    return '<div style="margin-bottom:24px">' +
+      '<h3 style="font-size:12px;margin-bottom:6px;color:#444">重量計算リスト — ' + d.title + '</h3>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
+      '<thead><tr style="background:#f4f4fa;border-bottom:2px solid #e0e0ea">' +
+        '<th style="padding:5px 8px;text-align:left">#</th>' +
+        '<th style="padding:5px 8px;text-align:left">部材名</th>' +
+        '<th style="padding:5px 8px;text-align:left">種類</th>' +
+        '<th style="padding:5px 8px;text-align:left">規格</th>' +
+        '<th style="padding:5px 8px;text-align:right">長さ(mm)</th>' +
+        '<th style="padding:5px 8px;text-align:right">本数</th>' +
+        '<th style="padding:5px 8px;text-align:right">合計重量(kg)</th>' +
+        (anyPrice ? '<th style="padding:5px 8px;text-align:right">概算金額(円)</th>' : '') +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '<tfoot><tr style="background:#f4f4fa;font-weight:700">' +
+        '<td colspan="6" style="padding:5px 8px;text-align:right">合　計</td>' +
+        '<td style="padding:5px 8px;text-align:right">' +
+          (typeof _wFmtKg === 'function' ? _wFmtKg(sumKg) : sumKg.toFixed(1)) + ' kg</td>' +
+        (anyPrice ? '<td style="padding:5px 8px;text-align:right">' + Number(sumAmt).toLocaleString() + ' 円</td>' : '') +
+      '</tr></tfoot></table></div>';
+  }).join('<hr style="border:none;border-top:1px solid #e0e0ea;margin:24px 0">');
+
+  var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8">' +
+    '<title>重量計算書</title>' +
+    '<style>*{box-sizing:border-box}body{font-family:sans-serif;font-size:12px;padding:20px}' +
+    'h2{font-size:14px;margin-bottom:16px}' +
+    '@media print{body{padding:0}}</style></head><body>' +
+    '<h2>重量計算書</h2>' + allSections + '</body></html>';
+
+  var w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
+}
+
+function cartExportWeightCsv() {
+  var cart = getCart().filter(function(x) { return x.data.isWeight; });
+  if (!cart.length) return;
+
+  var lines = ['\uFEFF#,部材名,工区,種類,規格,長さ(mm),本数,合計重量(kg),概算金額(円),塗装金額(円)'];
+  var idx = 1;
+  cart.forEach(function(item) {
+    (item.data.rows || []).forEach(function(r) {
+      lines.push([
+        idx++,
+        '"' + (r.memo || '') + '"',
+        '"' + (r.kuiku || '') + '"',
+        '"' + r.kind + '"',
+        '"' + r.spec + '"',
+        r.len,
+        r.qty,
+        r.kgTotal.toFixed(2),
+        r.amount !== null ? r.amount : '',
+        r.paintAmount !== null ? r.paintAmount : ''
+      ].join(','));
+    });
+  });
+
+  var blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '重量計算リスト.csv';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function showHistPreview(id) {
@@ -5027,10 +5121,10 @@ function normalizeInterfaceChrome() {
     invSelect.options[0].textContent = '在庫から使いたい残材を選択';
   }
 
-  ['#cartModal button[onclick="cartDoPrint()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
+  ['#cartModal button[onclick="cartPrintCutting()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
     var el = document.querySelector(sel);
     if (el) {
-      el.textContent = sel.indexOf('#cartModal') === 0 ? '印刷' : 'まとめて印刷';
+      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : 'まとめて印刷';
       if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
     }
   });

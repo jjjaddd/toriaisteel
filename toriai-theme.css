@@ -1693,6 +1693,27 @@ html[data-theme="dark"] body {
   letter-spacing: .09em !important;
   margin-bottom: 14px !important;
 }
+.cart-section-actions {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  padding: 10px 0 4px !important;
+}
+.cart-empty-msg {
+  padding: 12px 0 !important;
+  font-size: 12px !important;
+  color: var(--ink3) !important;
+}
+.cart-item-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+  margin-bottom: 2px !important;
+}
+.cart-item-sub {
+  font-size: 11px !important;
+  color: var(--ink3) !important;
+}
 
 /* Output action grid: 3 cols, print spans full width */
 .cart-actions-grid {
