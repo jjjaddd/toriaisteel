@@ -2014,7 +2014,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
     var remEndHtml = Object.keys(remEndCounted).length
       ? Object.keys(remEndCounted).map(Number).sort(function(a,b){return b-a;}).map(function(l){
           var n=remEndCounted[l];
-          return '<span style="font-size:11px;background:#f8f8fc;padding:2px 7px;border-radius:4px;margin:2px">'+l.toLocaleString()+'mm'+(n>1?' <b>×'+n+'</b>':'')+'</span>';
+          return '<span class="rem-pill-item">'+l.toLocaleString()+'mm'+(n>1?' <b>×'+n+'</b>':'')+'</span>';
         }).join('')
       : '<span style="font-size:11px;color:#8888a8">なし</span>';
 
@@ -2216,7 +2216,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
       var remHtml = remRaw.length
         ? Object.keys(remCounted).map(Number).sort(function(a,b){return b-a;}).map(function(l){
             var n = remCounted[l];
-            return '<span style="font-size:11px;background:#f8f8fc;padding:2px 7px;border-radius:4px;margin:2px">' + l.toLocaleString() + 'mm' + (n>1?' <b>×'+n+'</b>':'') + '</span>';
+            return '<span class="rem-pill-item">' + l.toLocaleString() + 'mm' + (n>1?' <b>×'+n+'</b>':'') + '</span>';
           }).join('')
         : '<span style="font-size:11px;color:#8888a8">なし（' + minRemnantLen.toLocaleString() + 'mm未満除外）</span>';
 

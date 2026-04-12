@@ -746,6 +746,21 @@ html[data-theme="dark"] .hi-tag-kind { background: var(--bg3) !important; color:
 .rem-pill-empty { color: var(--ink3) !important; }
 html[data-theme="dark"] .rem-pill { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
 
+/* rem-pill-item: inline remnant length chips in calc results */
+.rem-pill-item {
+  display: inline-block;
+  font-size: 11px;
+  background: var(--bg3) !important;
+  color: var(--ink) !important;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin: 2px;
+}
+html[data-theme="dark"] .rem-pill-item {
+  background: var(--bg2) !important;
+  color: var(--ink) !important;
+}
+
 /* inv-card-new (dropdown) */
 .inv-card-new { background: var(--bg) !important; border: none !important; border-bottom: 1px solid var(--line2) !important; border-radius: 0 !important; }
 .inv-card-new:hover { background: var(--hp) !important; border-color: var(--line2) !important; }
@@ -1821,6 +1836,21 @@ html[data-theme="dark"] .dp-right {
   background: var(--bg2) !important;
   box-shadow: 0 2px 20px rgba(0,0,0,.4) !important;
 }
+
+/* 計算式・塗装面積ボックス */
+html[data-theme="dark"] .dp-box {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+html[data-theme="dark"] .dp-box * { color: var(--ink2) !important; }
+
+/* 単位質量バー */
+html[data-theme="dark"] .dp-kgm-bar {
+  background: rgba(14,165,233,.1) !important;
+}
+html[data-theme="dark"] .dp-kgm-bar span { color: #7dd3fc !important; }
+html[data-theme="dark"] .dp-kgm-bar strong { color: #38bdf8 !important; }
 
 /* 断面図背景 */
 html[data-theme="dark"] .dp-diagram-bg {
