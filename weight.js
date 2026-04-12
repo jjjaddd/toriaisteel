@@ -509,7 +509,7 @@ function wRenderRows() {
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
 
     var kuikuTag = r.kuiku
-      ? ' <span style="display:inline-block;font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:#f0f0f0;color:#555555;margin-left:3px">' + _esc(r.kuiku) + '</span>'
+      ? ' <span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:10px;background:#f0f0f0;color:#555555;margin-left:4px">工区: ' + _esc(r.kuiku) + '</span>'
       : '';
     var memoTitle = _esc(r.memo) + (r.kuiku ? '　' + _esc(r.kuiku) : '');
     var m2Cell = '<td style="' + _tdR + 'color:#111111;font-weight:700;' + (_wOpts.m2 ? '' : 'display:none;') + '">' + _wFmt(r.m2Total, 2) + '</td>';
@@ -572,7 +572,6 @@ function wRenderRows() {
     '<tr style="background:#f4f4fa;border-top:2px solid #e0e0ea">' +
     '<td colspan="' + (5 + nameCols) + '" style="padding:10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#5a5a78">合　計</td>' +
     '<td style="' + _tdR + 'color:#5a5a78">—</td>' +
-    '<td style="' + _tdR + 'color:#5a5a78">—</td>' +
     '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:14px">' + _wFmtKg(sumKg) + ' kg</td>' +
     totalM2Cell +
     totalAmtCell +
@@ -591,7 +590,7 @@ function wPrint() {
     if (r.amount      !== null) sumAmt   += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
     var memoStr = r.memo ? _esc(r.memo) : '—';
-    if (r.kuiku) memoStr += '　<span style="font-size:9px;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:8px">' + _esc(r.kuiku) + '</span>';
+    if (r.kuiku) memoStr += '　<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:10px;background:#f0f0f0;color:#555555;margin-left:4px">工区: ' + _esc(r.kuiku) + '</span>';
     return '<tr>' +
       '<td style="text-align:center">' + (i+1) + '</td>' +
       '<td>' + memoStr + '</td>' +
@@ -646,7 +645,7 @@ function wPrint() {
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
     var memoStr = r.memo ? _esc(r.memo) : '—';
     if (r.kuiku) {
-      memoStr += '　<span style="font-size:9px;background:#ede9fe;color:#7c3aed;padding:1px 5px;border-radius:8px">' + _esc(r.kuiku) + '</span>';
+      memoStr += '　<span style="display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:10px;background:#f0f0f0;color:#555555;margin-left:4px">工区: ' + _esc(r.kuiku) + '</span>';
     }
     return '<tr>' +
       '<td style="text-align:center">' + (i + 1) + '</td>' +
