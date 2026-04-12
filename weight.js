@@ -6,7 +6,7 @@ var _wInited    = false;
 var _wRows      = [];
 var _wUndoStack = [];
 var _wRedoStack = [];
-var _wOpts      = { price: false, name: false, kuiku: false, rev: false, paint: false, m2: false };
+var _wOpts      = { price: false, name: false, kuiku: false, rev: false, paint: false, m2: false, co2: false };
 var _wEditIdx   = -1;
 var _wCartAdded = false;
 var _wSavedCalcs = (function() {
@@ -475,6 +475,7 @@ function wClearAll() {
 
 // ── レンダリング ───────────────────────────────────────────────
 function wRenderRows() {
+  var CO2_FACTOR = 2.1; // kg-CO2 per kg
   var empty       = document.getElementById('wEmpty');
   var tableWrap   = document.getElementById('wTableWrap');
   var tbody       = document.getElementById('wTbody');
@@ -482,6 +483,7 @@ function wRenderRows() {
   var cartBtn     = document.getElementById('wCartBtn');
   var mainHd      = document.getElementById('wMainHd');
   var thM2        = document.getElementById('wThM2');
+  var thCo2       = document.getElementById('wThCo2');
   var thName      = document.getElementById('wThName');
   var thAmt       = document.getElementById('wThAmt');
   var thPaint     = document.getElementById('wThPaint');
@@ -508,6 +510,7 @@ function wRenderRows() {
   if (mainHd)  mainHd.style.display  = 'flex';
 
   if (thM2)    thM2.style.display    = _wOpts.m2 ? '' : 'none';
+  if (thCo2)   thCo2.style.display   = _wOpts.co2 ? '' : 'none';
   if (thName)  thName.style.display  = _wOpts.name ? '' : 'none';
   if (thAmt)   thAmt.style.display   = _wOpts.price ? '' : 'none';
   if (thPaint) thPaint.style.display = _wOpts.paint ? '' : 'none';
@@ -515,12 +518,14 @@ function wRenderRows() {
   var anyPrice    = _wRows.some(function(r) { return r.amount !== null; });
   var anyPaintAmt = _wRows.some(function(r) { return r.paintAmount !== null; });
   var sumKg = 0;
+  var sumCo2 = 0;
   var sumM2v = 0;
   var sumAmt = 0;
   var sumPaint = 0;
 
   tbody.innerHTML = _wRows.map(function(r, i) {
     sumKg += r.kgTotal;
+    sumCo2 += r.kgTotal * CO2_FACTOR;
     sumM2v += r.m2Total;
     if (r.amount !== null) sumAmt += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
@@ -530,6 +535,9 @@ function wRenderRows() {
       : '';
     var memoTitle = _esc(r.memo) + (r.kuiku ? '　' + _esc(r.kuiku) : '');
     var m2Cell = '<td style="' + _tdR + 'color:#111111;font-weight:700;' + (_wOpts.m2 ? '' : 'display:none;') + '">' + _wFmt(r.m2Total, 2) + '</td>';
+    var co2Disp = _wOpts.co2 ? '' : 'display:none;';
+    var co2Cell = '<td style="' + _tdR + co2Disp + 'color:#2d6a2d;font-weight:700">' +
+      (r.kgTotal * CO2_FACTOR).toFixed(1) + '</td>';
     var amtDisp = _wOpts.price ? '' : 'display:none;';
     var amtCell = r.amount !== null
       ? '<td style="' + _tdR + amtDisp + 'color:#111111;font-weight:700">' + _wFmt(r.amount, 0) +
@@ -555,6 +563,7 @@ function wRenderRows() {
       '<td style="' + _tdR + '">' + r.qty.toLocaleString() + '</td>' +
       '<td style="' + _tdR + '">' + _wFmtKg(r.kg1) + '</td>' +
       '<td style="' + _tdR + 'color:#111111;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
+      co2Cell +
       m2Cell +
       amtCell +
       paintAmtCell +
@@ -580,6 +589,9 @@ function wRenderRows() {
         ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumPaint, 0) + '</td>'
         : '<td style="' + _tdR + 'color:#ccc">—</td>')
     : '';
+  var totalCo2Cell = _wOpts.co2
+    ? '<td style="' + _tdR + 'color:#2d6a2d;font-weight:800;font-size:13px">' + sumCo2.toFixed(1) + ' kg-CO2</td>'
+    : '';
   var totalM2Cell = _wOpts.m2
     ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumM2v, 2) + ' m²</td>'
     : '';
@@ -590,6 +602,7 @@ function wRenderRows() {
     '<td colspan="' + (5 + nameCols) + '" style="padding:10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#5a5a78">合　計</td>' +
     '<td style="' + _tdR + 'color:#5a5a78">—</td>' +
     '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:14px">' + _wFmtKg(sumKg) + ' kg</td>' +
+    totalCo2Cell +
     totalM2Cell +
     totalAmtCell +
     totalPaintCell +
@@ -664,9 +677,11 @@ function renderWSavedList() {
 function wPrint() {
   if (_wRows.length === 0) { alert('リストが空です。'); return; }
 
-  var sumKg = 0, sumAmt = 0, sumPaint = 0;
+  var CO2_FACTOR = 2.1;
+  var sumKg = 0, sumAmt = 0, sumPaint = 0, sumCo2 = 0;
   var rows = _wRows.map(function(r, i) {
     sumKg += r.kgTotal;
+    sumCo2 += r.kgTotal * CO2_FACTOR;
     if (r.amount      !== null) sumAmt   += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
     var memoStr = r.memo ? _esc(r.memo) : '—';
@@ -679,6 +694,7 @@ function wPrint() {
       '<td style="text-align:right">' + r.len.toLocaleString() + '</td>' +
       '<td style="text-align:right">' + r.qty + '</td>' +
       '<td style="text-align:right;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
+      (_wOpts.co2 ? '<td style="text-align:right" class="co2">' + (r.kgTotal * CO2_FACTOR).toFixed(1) + ' kg-CO₂</td>' : '') +
       (r.amount      !== null ? '<td style="text-align:right">' + _wFmt(r.amount, 0)      + '<br><small>@' + r.price      + '円/kg</small></td>' : '<td style="text-align:center;color:#ccc">—</td>') +
       (r.paintAmount !== null ? '<td style="text-align:right">' + _wFmt(r.paintAmount, 0) + '<br><small>@' + r.paintPrice + '円/m²</small></td>' : '<td style="text-align:center;color:#ccc">—</td>') +
       '</tr>';
@@ -756,9 +772,11 @@ function wAddToCart() {
 function wPrint() {
   if (_wRows.length === 0) { alert('リストが空です。'); return; }
 
-  var sumKg = 0, sumAmt = 0, sumPaint = 0;
+  var CO2_FACTOR = 2.1;
+  var sumKg = 0, sumAmt = 0, sumPaint = 0, sumCo2 = 0;
   var rows = _wRows.map(function(r, i) {
     sumKg += r.kgTotal;
+    sumCo2 += r.kgTotal * CO2_FACTOR;
     if (r.amount !== null) sumAmt += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
     var memoStr = r.memo ? _esc(r.memo) : '—';
@@ -773,6 +791,7 @@ function wPrint() {
       '<td style="text-align:right">' + r.len.toLocaleString() + '</td>' +
       '<td style="text-align:right">' + r.qty + '</td>' +
       '<td style="text-align:right;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
+      (_wOpts.co2 ? '<td style="text-align:right" class="co2">' + (r.kgTotal * CO2_FACTOR).toFixed(1) + ' kg-CO₂</td>' : '') +
       (r.amount !== null ? '<td style="text-align:right">' + _wFmt(r.amount, 0) + '<br><small>@' + r.price + '円/kg</small></td>' : '<td style="text-align:center;color:#ccc">—</td>') +
       (r.paintAmount !== null ? '<td style="text-align:right">' + _wFmt(r.paintAmount, 0) + '<br><small>@' + r.paintPrice + '円/m²</small></td>' : '<td style="text-align:center;color:#ccc">—</td>') +
       '</tr>';
@@ -800,6 +819,83 @@ function wPrint() {
     '<td style="text-align:right">' + (sumAmt > 0 ? _wFmt(sumAmt, 0) + ' 円' : '—') + '</td>' +
     '<td style="text-align:right">' + (sumPaint > 0 ? _wFmt(sumPaint, 0) + ' 円' : '—') + '</td>' +
     '</tr></tfoot></table></body></html>';
+
+  var w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
+}
+
+function wPrint() {
+  if (_wRows.length === 0) { alert('リストが空です。'); return; }
+
+  var CO2_FACTOR = 2.1;
+  var sumKg = 0, sumAmt = 0, sumPaint = 0, sumCo2 = 0;
+  var rows = _wRows.map(function(r, i) {
+    sumKg += r.kgTotal;
+    sumCo2 += r.kgTotal * CO2_FACTOR;
+    if (r.amount !== null) sumAmt += r.amount;
+    if (r.paintAmount !== null) sumPaint += r.paintAmount;
+
+    var memoStr = r.memo ? _esc(r.memo) : '—';
+    if (r.kuiku) {
+      memoStr += ' <span style="font-size:inherit;font-weight:600;color:#555555;margin-left:6px">' + _esc(r.kuiku) + '</span>';
+    }
+
+    return '<tr>' +
+      '<td style="text-align:center">' + (i + 1) + '</td>' +
+      '<td>' + memoStr + '</td>' +
+      '<td>' + _esc(r.kind) + '</td>' +
+      '<td>' + _esc(r.spec) + '</td>' +
+      '<td style="text-align:right">' + r.len.toLocaleString() + '</td>' +
+      '<td style="text-align:right">' + r.qty + '</td>' +
+      '<td style="text-align:right;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
+      (_wOpts.co2 ? '<td style="text-align:right" class="co2">' + (r.kgTotal * CO2_FACTOR).toFixed(1) + ' kg-CO₂</td>' : '') +
+      (r.amount !== null ? '<td style="text-align:right">' + _wFmt(r.amount, 0) + '<br><small>@' + r.price + '円/kg</small></td>' : '<td style="text-align:center;color:#ccc">—</td>') +
+      (r.paintAmount !== null ? '<td style="text-align:right">' + _wFmt(r.paintAmount, 0) + '<br><small>@' + r.paintPrice + '円/m²</small></td>' : '<td style="text-align:center;color:#ccc">—</td>') +
+      '</tr>';
+  }).join('');
+
+  var printStyle =
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:"Noto Sans JP",sans-serif;font-size:10px;padding:12mm 10mm;color:#111}' +
+    '@page{size:A4 portrait;margin:0}' +
+    '@media print{body{padding:12mm 10mm}}' +
+    'h2{font-size:12px;font-weight:700;letter-spacing:.04em;margin-bottom:2mm;color:#1a1a2e}' +
+    '.meta{font-size:9px;color:#666;margin-bottom:4mm;display:flex;gap:12px;flex-wrap:wrap}' +
+    'table{border-collapse:collapse;width:100%;table-layout:fixed}' +
+    'th,td{border:1px solid #d0d0d8;padding:4px 6px;word-break:break-all}' +
+    'th{background:#f4f4fa;font-size:9px;font-weight:700;color:#5a5a78;text-align:center}' +
+    'td{font-size:10px;vertical-align:middle}' +
+    'tfoot td{font-weight:700;background:#f0f0fa;font-size:11px}' +
+    'tr{page-break-inside:avoid}' +
+    'small{color:#aaa;font-size:8px}' +
+    '.co2{color:#2d6a2d}' +
+    '.footer{margin-top:4mm;font-size:8px;color:#aaa;text-align:right}';
+
+  var dateStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  var heading = '<h2>重量リスト</h2><div class="meta"><span>印刷日: ' + dateStr + '</span>' +
+    '<span>合計重量: ' + _wFmtKg(sumKg) + ' kg</span>' +
+    (sumAmt > 0 ? '<span>概算金額: ' + _wFmt(sumAmt, 0) + ' 円</span>' : '') +
+    '</div>';
+  var footer = '<div class="footer">※ 重量は JIS kg/m × 長さ。CO₂は2.1 kg-CO₂/kg（鉄骨概算）。</div>';
+
+  var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>重量リスト</title>' +
+    '<style>' + printStyle + '</style></head><body>' +
+    heading +
+    '<table><thead><tr>' +
+    '<th>#</th><th>部材名</th><th>種類</th><th>規格</th>' +
+    '<th>長さ(mm)</th><th>本数</th><th>合計重量(kg)</th>' +
+    (_wOpts.co2 ? '<th>CO₂排出(kg-CO₂)</th>' : '') +
+    '<th>概算金額(円)</th><th>塗装金額(円)</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody>' +
+    '<tfoot><tr>' +
+    '<td colspan="6" style="text-align:right">合　計</td>' +
+    '<td style="text-align:right">' + _wFmtKg(sumKg) + ' kg</td>' +
+    (_wOpts.co2 ? '<td style="text-align:right" class="co2">' + sumCo2.toFixed(1) + ' kg-CO₂</td>' : '') +
+    '<td style="text-align:right">' + (sumAmt > 0 ? _wFmt(sumAmt, 0) + ' 円' : '—') + '</td>' +
+    '<td style="text-align:right">' + (sumPaint > 0 ? _wFmt(sumPaint, 0) + ' 円' : '—') + '</td>' +
+    '</tr></tfoot></table>' +
+    footer +
+    '</body></html>';
 
   var w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }

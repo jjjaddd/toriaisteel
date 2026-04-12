@@ -547,6 +547,7 @@ footer{border-top:1px solid #ebebf0;padding:12px 28px;display:flex;justify-conte
     border:1px solid #999 !important;background:#fff !important;
     break-inside:avoid;margin:0 !important;overflow:hidden
   }
+  .cc.print-target + .cc.print-target { margin-top: 6mm !important; }
   .cc-hd{display:flex;flex-direction:row;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e8e8ed;background:#f8f8fb;flex-wrap:nowrap}
   .cc-stats{display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex-shrink:0}
   .cs .cl{font-size:10px !important}.cs .cv{font-size:11px !important}
@@ -563,13 +564,14 @@ footer{border-top:1px solid #ebebf0;padding:12px 28px;display:flex;justify-conte
   /* 切断図 */
   .cut-diagram{background:#f8f8f8 !important;border-top:1px solid #ddd !important;width:100% !important;overflow:hidden !important;padding:8px 10px !important}
   .bar-vis{width:100% !important}
+  .bar-vis{overflow:hidden !important}
   .bar-track{background:#fff !important;border-color:#999 !important;width:100% !important;height:24px !important;border-radius:0 !important}
   .bar-loss{background:#fff !important;border-left:1px solid #aaa !important}
   .bar-piece{filter:none !important;opacity:1;background:#f0f0f0 !important;border-right:1px solid #aaa !important}
   .cut-diagram-title{color:#000 !important}
   .cut-diagram-title::after{background:#999 !important}
   .bar-vis-label{color:#000 !important}
-  .bar-piece-inner{color:#000 !important;font-size:10px !important}
+  .bar-piece-inner{color:#000 !important;font-size:8px !important;overflow:hidden}
   .bar-scale-text,.bar-vis-label{color:#444 !important;font-size:7px !important}
   .bar-scale-line{background:#999 !important}
   .bar-scale{height:12px !important}
@@ -595,6 +597,7 @@ footer{border-top:1px solid #ebebf0;padding:12px 28px;display:flex;justify-conte
   .print-job-header table td{padding:3px 8px;border:1px solid #ccc;font-family:monospace}
   .print-job-header .job-title{font-size:13px;font-weight:700;margin-bottom:6px;letter-spacing:.04em;color:#000}
   .print-job-header .job-meta{font-size:9px;color:#555;margin-bottom:6px;display:flex;gap:16px}
+  .rem-strip { flex-wrap: wrap !important; gap: 4px !important; }
 }
 /* ── Stitchスタイル追加 ── */
 .h-stats{border-radius:var(--r);overflow:hidden;margin:0 24px}
