@@ -4645,7 +4645,7 @@ function getRemnants() {
     body.innerHTML = cart.map(function(item) {
       var d = item.data || {};
       var typeLabel = d.isWeight
-        ? '重量計算リスト'
+        ? '⚖ 重量計算リスト'
         : (d.isYield ? '歩留まり最大' : '取り合いパターン');
       var subLabel = d.isWeight
         ? (jisRoundKg(d.sumKg || 0).toLocaleString() + ' kg　' +
@@ -5191,4 +5191,3 @@ function initCustomSelect(id, opts) {
     doInit();
   }
 })();
-

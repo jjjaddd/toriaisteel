@@ -8,6 +8,7 @@ var _wUndoStack = [];
 var _wRedoStack = [];
 var _wOpts      = { price: false, name: false, kuiku: false, rev: false, paint: false, m2: false };
 var _wEditIdx   = -1;
+var _wCartAdded = false;
 
 // コマンドパレット
 var _wCmdAll = [];
@@ -327,6 +328,7 @@ function wPreview() {
 
 // ── 行追加・編集 ───────────────────────────────────────────────
 function wAddRow() {
+  _wCartAdded = false;
   var kindEl = document.getElementById('wKind');
   var specEl = document.getElementById('wSpec');
   var kgmEl  = document.getElementById('wKgm');
@@ -450,6 +452,7 @@ function wCancelEdit() {
 }
 
 function wDeleteRow(idx) {
+  _wCartAdded = false;
   wPushUndo();
   _wRows.splice(idx, 1);
   wRenderRows();
@@ -458,6 +461,7 @@ function wDeleteRow(idx) {
 function wClearAll() {
   if (_wRows.length === 0) return;
   if (!confirm('リストをすべてクリアしますか？')) return;
+  _wCartAdded = false;
   wPushUndo();
   _wRows = [];
   wRenderRows();
@@ -476,6 +480,13 @@ function wRenderRows() {
   var thAmt       = document.getElementById('wThAmt');
   var thPaint     = document.getElementById('wThPaint');
   if (!empty || !tableWrap || !tbody || !tfoot) return;
+
+  // 行が変わったときにボタンをリセット
+  if (cartBtn && !_wCartAdded) {
+    cartBtn.textContent = '＋ カートへ';
+    cartBtn.classList.remove('added');
+    cartBtn.disabled = false;
+  }
 
   if (_wRows.length === 0) {
     empty.style.display = 'flex';
@@ -632,6 +643,44 @@ function wPrint() {
 
   var w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
+}
+
+function wAddToCart() {
+  if (_wRows.length === 0) { alert('リストが空です。'); return; }
+  var btn = document.getElementById('wCartBtn');
+  var sumKg = 0, sumAmt = 0, sumM2 = 0, anyPrice = false;
+  _wRows.forEach(function(r) {
+    sumKg += r.kgTotal;
+    sumM2 += (r.m2Total || 0);
+    if (r.amount !== null) { sumAmt += r.amount; anyPrice = true; }
+  });
+
+  var specs = [];
+  _wRows.forEach(function(r) {
+    if (specs.indexOf(r.spec) === -1) specs.push(r.spec);
+  });
+  var title = specs.slice(0, 2).join(' / ') + (specs.length > 2 ? ' 他' : '') +
+              '（' + _wRows.length + '行）';
+
+  var data = {
+    isWeight: true,
+    title: title,
+    job: typeof getJobInfo === 'function' ? getJobInfo() : {},
+    rows: _wRows.slice(),
+    sumKg: sumKg,
+    sumM2: sumM2,
+    sumAmt: sumAmt,
+    anyPrice: anyPrice
+  };
+
+  if (typeof addToCart === 'function') addToCart('weight_' + Date.now(), data);
+  if (typeof updateCartBadge === 'function') updateCartBadge();
+  _wCartAdded = true;
+  if (btn) {
+    btn.textContent = '✓ 追加済み';
+    btn.classList.add('added');
+    btn.disabled = true;
+  }
 }
 
 // ── コマンドパレット ──────────────────────────────────────────
