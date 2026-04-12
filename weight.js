@@ -698,13 +698,15 @@ function wRecallFromHistory(rows, opts, job) {
   Object.keys(defaultOpts).forEach(function(key) {
     if (_wOpts[key] !== !!opts[key]) wToggleOpt(key);
   });
+  if (job && job.client) {
+    _wJobClient = job.client;
+    try { localStorage.setItem('wJobClient', _wJobClient); } catch (e) {}
+  }
   if (job && job.name) {
     _wJobName = job.name;
     try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
-    wJobBannerInit();
   }
   _wCartAdded = false;
-  wJobBannerInit();
   wRenderRows();
 }
 
