@@ -3419,17 +3419,107 @@ function renderHistory() {
   }
 }
 
-function recallWeightHistory(id) {
+var _weightHistPreviewId = null;
+
+function showWeightHistPreview(id) {
   var hist = getCutHistory();
   var entry = hist.filter(function(h) { return h.id === id; })[0];
   if (!entry || entry.type !== 'weight' || !entry.weight) return;
-  if (!confirm('重量タブにデータを復元しますか？\n現在のリストは置き換えられます。')) return;
+
+  _weightHistPreviewId = id;
+  var modal = document.getElementById('weightHistPreviewModal');
+  var body  = document.getElementById('weightHistPreviewBody');
+  var meta  = document.getElementById('weightHistPreviewMeta');
+  if (!modal || !body) return;
+
+  var w = entry.weight;
+  var rows = w.rows || [];
+  var anyPrice = rows.some(function(r) { return r.amount !== null && r.amount !== undefined; });
+  var anyPaint = rows.some(function(r) { return r.paintAmount !== null && r.paintAmount !== undefined; });
+  var anyKuiku = rows.some(function(r) { return !!r.kuiku; });
+  var anyMemo  = rows.some(function(r) { return !!r.memo; });
+
+  // メタ情報
+  var metaParts = [entry.dateLabel || ''];
+  if (entry.client) metaParts.push(entry.client);
+  if (entry.name)   metaParts.push(entry.name);
+  if (meta) meta.textContent = metaParts.filter(Boolean).join('　');
+
+  var sumKg = 0, sumAmt = 0, sumPaint = 0;
+  var rowsHtml = rows.map(function(r, i) {
+    sumKg += (r.kgTotal || 0);
+    if (r.amount  != null) sumAmt   += r.amount;
+    if (r.paintAmount != null) sumPaint += r.paintAmount;
+    var cells = '<td style="text-align:center;color:#888">' + (i + 1) + '</td>';
+    if (anyMemo)  cells += '<td>' + (r.memo  ? _escHtml(r.memo)  : '<span style="color:#ccc">—</span>') + '</td>';
+    cells += '<td>' + _escHtml(r.kind || '') + '</td>';
+    cells += '<td>' + _escHtml(r.spec || '') + '</td>';
+    cells += '<td style="text-align:right">' + (r.len || 0).toLocaleString() + '</td>';
+    cells += '<td style="text-align:right">' + (r.qty || 0) + '</td>';
+    cells += '<td style="text-align:right;font-weight:700">' + (Math.round((r.kgTotal || 0) * 10) / 10).toLocaleString() + ' kg</td>';
+    if (anyKuiku) cells += '<td>' + (r.kuiku ? _escHtml(r.kuiku) : '<span style="color:#ccc">—</span>') + '</td>';
+    if (anyPrice) cells += '<td style="text-align:right">' + (r.amount != null ? Math.round(r.amount).toLocaleString() + ' 円' : '<span style="color:#ccc">—</span>') + '</td>';
+    if (anyPaint) cells += '<td style="text-align:right">' + (r.paintAmount != null ? Math.round(r.paintAmount).toLocaleString() + ' 円' : '<span style="color:#ccc">—</span>') + '</td>';
+    return '<tr style="border-bottom:1px solid #f0f0f5">' + cells + '</tr>';
+  }).join('');
+
+  var thStyle = 'padding:6px 10px;font-size:10px;font-weight:700;color:#5a5a78;border-bottom:2px solid #e8e8ed;white-space:nowrap;background:#fafafe;';
+  var thR = thStyle + 'text-align:right;';
+  var ths = '<th style="' + thStyle + '">#</th>';
+  if (anyMemo)  ths += '<th style="' + thStyle + '">部材名</th>';
+  ths += '<th style="' + thStyle + '">種類</th>';
+  ths += '<th style="' + thStyle + '">規格</th>';
+  ths += '<th style="' + thR + '">長さ(mm)</th>';
+  ths += '<th style="' + thR + '">本数</th>';
+  ths += '<th style="' + thR + '">合計重量</th>';
+  if (anyKuiku) ths += '<th style="' + thStyle + '">工区</th>';
+  if (anyPrice) ths += '<th style="' + thR + '">概算金額</th>';
+  if (anyPaint) ths += '<th style="' + thR + '">塗装金額</th>';
+
+  var kgStr  = (Math.round(sumKg * 10) / 10).toLocaleString() + ' kg';
+  var colSpan = 5 + (anyMemo?1:0) + (anyKuiku?1:0) + (anyPrice?1:0) + (anyPaint?1:0);
+  var footCols = '<td colspan="' + (colSpan - 1 - (anyPrice?1:0) - (anyPaint?1:0)) + '" style="text-align:right;font-weight:700;padding:8px 10px;background:#f8f8fc">合　計</td>';
+  footCols += '<td style="text-align:right;font-weight:800;color:#1a1a2e;padding:8px 10px;background:#f8f8fc">' + kgStr + '</td>';
+  if (anyPrice) footCols += '<td style="text-align:right;font-weight:700;padding:8px 10px;background:#f8f8fc">' + (sumAmt > 0 ? Math.round(sumAmt).toLocaleString() + ' 円' : '—') + '</td>';
+  if (anyPaint) footCols += '<td style="text-align:right;font-weight:700;padding:8px 10px;background:#f8f8fc">' + (sumPaint > 0 ? Math.round(sumPaint).toLocaleString() + ' 円' : '—') + '</td>';
+
+  body.innerHTML =
+    '<table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px">' +
+      '<thead><tr>' + ths + '</tr></thead>' +
+      '<tbody>' + rowsHtml + '</tbody>' +
+      '<tfoot><tr>' + footCols + '</tr></tfoot>' +
+    '</table>';
+
+  modal.style.display = 'flex';
+}
+
+function closeWeightHistPreview() {
+  var modal = document.getElementById('weightHistPreviewModal');
+  if (modal) modal.style.display = 'none';
+  _weightHistPreviewId = null;
+}
+
+function recallWeightFromPreview() {
+  var id = _weightHistPreviewId;
+  if (!id) return;
+  closeWeightHistPreview();
+  var hist = getCutHistory();
+  var entry = hist.filter(function(h) { return h.id === id; })[0];
+  if (!entry || !entry.weight) return;
   if (typeof goPage === 'function') goPage('w');
   setTimeout(function() {
     if (typeof wRecallFromHistory === 'function') {
       wRecallFromHistory(entry.weight.rows, entry.weight.opts, entry);
     }
   }, 150);
+}
+
+function _escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function recallWeightHistory(id) {
+  showWeightHistPreview(id);
 }
 
 function clearHistSearch() {

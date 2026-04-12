@@ -1622,7 +1622,7 @@ renderInventoryPage = function() {
         var amtStr  = w.sumAmt != null ? '概算 ' + Math.round(w.sumAmt).toLocaleString() + ' 円' : '';
         var rowCount = (w.rows || []).length;
         var clientLabel = h.client || '';
-        return '<div class="hi-card hi-card--weight" onclick="recallWeightHistory(' + h.id + ')">' +
+        return '<div class="hi-card hi-card--weight" onclick="showWeightHistPreview(' + h.id + ')">' +
           '<div class="hi-card-top">' +
             '<div style="display:flex;align-items:center;gap:6px">' +
               '<span class="hi-tag hi-tag-weight">⚖ 重量</span>' +
