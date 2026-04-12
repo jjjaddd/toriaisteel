@@ -3445,46 +3445,51 @@ function showWeightHistPreview(id) {
   if (entry.name)   metaParts.push(entry.name);
   if (meta) meta.textContent = metaParts.filter(Boolean).join('　');
 
+  var TD  = 'padding:9px 12px;font-size:12px;color:#1a1a2e;border-bottom:1px solid #f0f0f0;';
+  var TDR = TD + 'text-align:right;';
+  var TDG = TD + 'color:#888;text-align:center;';
+
   var sumKg = 0, sumAmt = 0, sumPaint = 0;
   var rowsHtml = rows.map(function(r, i) {
     sumKg += (r.kgTotal || 0);
-    if (r.amount  != null) sumAmt   += r.amount;
+    if (r.amount     != null) sumAmt   += r.amount;
     if (r.paintAmount != null) sumPaint += r.paintAmount;
-    var cells = '<td style="text-align:center;color:#888">' + (i + 1) + '</td>';
-    if (anyMemo)  cells += '<td>' + (r.memo  ? _escHtml(r.memo)  : '<span style="color:#ccc">—</span>') + '</td>';
-    cells += '<td>' + _escHtml(r.kind || '') + '</td>';
-    cells += '<td>' + _escHtml(r.spec || '') + '</td>';
-    cells += '<td style="text-align:right">' + (r.len || 0).toLocaleString() + '</td>';
-    cells += '<td style="text-align:right">' + (r.qty || 0) + '</td>';
-    cells += '<td style="text-align:right;font-weight:700">' + (Math.round((r.kgTotal || 0) * 10) / 10).toLocaleString() + ' kg</td>';
-    if (anyKuiku) cells += '<td>' + (r.kuiku ? _escHtml(r.kuiku) : '<span style="color:#ccc">—</span>') + '</td>';
-    if (anyPrice) cells += '<td style="text-align:right">' + (r.amount != null ? Math.round(r.amount).toLocaleString() + ' 円' : '<span style="color:#ccc">—</span>') + '</td>';
-    if (anyPaint) cells += '<td style="text-align:right">' + (r.paintAmount != null ? Math.round(r.paintAmount).toLocaleString() + ' 円' : '<span style="color:#ccc">—</span>') + '</td>';
-    return '<tr style="border-bottom:1px solid #f0f0f5">' + cells + '</tr>';
+    var cells = '<td style="' + TDG + '">' + (i + 1) + '</td>';
+    if (anyMemo)  cells += '<td style="' + TD + '">' + (r.memo ? _escHtml(r.memo) : '<span style="color:#ccc">—</span>') + '</td>';
+    cells += '<td style="' + TD + '">' + _escHtml(r.kind || '') + '</td>';
+    cells += '<td style="' + TD + '">' + _escHtml(r.spec || '') + '</td>';
+    cells += '<td style="' + TDR + '">' + (r.len || 0).toLocaleString() + '</td>';
+    cells += '<td style="' + TDR + '">' + (r.qty || 0) + '</td>';
+    cells += '<td style="' + TDR + 'font-weight:700;">' + (Math.round((r.kgTotal || 0) * 10) / 10).toLocaleString() + ' kg</td>';
+    if (anyKuiku) cells += '<td style="' + TD + '">' + (r.kuiku ? _escHtml(r.kuiku) : '<span style="color:#ccc">—</span>') + '</td>';
+    if (anyPrice) cells += '<td style="' + TDR + '">' + (r.amount != null ? Math.round(r.amount).toLocaleString() + ' 円' : '<span style="color:#ccc">—</span>') + '</td>';
+    if (anyPaint) cells += '<td style="' + TDR + '">' + (r.paintAmount != null ? Math.round(r.paintAmount).toLocaleString() + ' 円' : '<span style="color:#ccc">—</span>') + '</td>';
+    return '<tr>' + cells + '</tr>';
   }).join('');
 
-  var thStyle = 'padding:6px 10px;font-size:10px;font-weight:700;color:#5a5a78;border-bottom:2px solid #e8e8ed;white-space:nowrap;background:#fafafe;';
-  var thR = thStyle + 'text-align:right;';
-  var ths = '<th style="' + thStyle + '">#</th>';
-  if (anyMemo)  ths += '<th style="' + thStyle + '">部材名</th>';
-  ths += '<th style="' + thStyle + '">種類</th>';
-  ths += '<th style="' + thStyle + '">規格</th>';
-  ths += '<th style="' + thR + '">長さ(mm)</th>';
-  ths += '<th style="' + thR + '">本数</th>';
-  ths += '<th style="' + thR + '">合計重量</th>';
-  if (anyKuiku) ths += '<th style="' + thStyle + '">工区</th>';
-  if (anyPrice) ths += '<th style="' + thR + '">概算金額</th>';
-  if (anyPaint) ths += '<th style="' + thR + '">塗装金額</th>';
+  var TH  = 'padding:8px 12px;font-size:10px;font-weight:600;color:#999;border-bottom:1px solid #e8e8e8;text-align:left;white-space:nowrap;';
+  var THR = TH + 'text-align:right;';
+  var ths = '<th style="' + TH + '">#</th>';
+  if (anyMemo)  ths += '<th style="' + TH  + '">部材名</th>';
+  ths += '<th style="' + TH  + '">種類</th>';
+  ths += '<th style="' + TH  + '">規格</th>';
+  ths += '<th style="' + THR + '">長さ (mm)</th>';
+  ths += '<th style="' + THR + '">本数</th>';
+  ths += '<th style="' + THR + '">合計重量</th>';
+  if (anyKuiku) ths += '<th style="' + TH  + '">工区</th>';
+  if (anyPrice) ths += '<th style="' + THR + '">概算金額</th>';
+  if (anyPaint) ths += '<th style="' + THR + '">塗装金額</th>';
 
-  var kgStr  = (Math.round(sumKg * 10) / 10).toLocaleString() + ' kg';
+  var kgStr   = (Math.round(sumKg * 10) / 10).toLocaleString() + ' kg';
   var colSpan = 5 + (anyMemo?1:0) + (anyKuiku?1:0) + (anyPrice?1:0) + (anyPaint?1:0);
-  var footCols = '<td colspan="' + (colSpan - 1 - (anyPrice?1:0) - (anyPaint?1:0)) + '" style="text-align:right;font-weight:700;padding:8px 10px;background:#f8f8fc">合　計</td>';
-  footCols += '<td style="text-align:right;font-weight:800;color:#1a1a2e;padding:8px 10px;background:#f8f8fc">' + kgStr + '</td>';
-  if (anyPrice) footCols += '<td style="text-align:right;font-weight:700;padding:8px 10px;background:#f8f8fc">' + (sumAmt > 0 ? Math.round(sumAmt).toLocaleString() + ' 円' : '—') + '</td>';
-  if (anyPaint) footCols += '<td style="text-align:right;font-weight:700;padding:8px 10px;background:#f8f8fc">' + (sumPaint > 0 ? Math.round(sumPaint).toLocaleString() + ' 円' : '—') + '</td>';
+  var FT  = 'padding:10px 12px;font-size:12px;border-top:2px solid #e8e8e8;';
+  var footCols = '<td colspan="' + (colSpan - 1 - (anyPrice?1:0) - (anyPaint?1:0)) + '" style="' + FT + 'text-align:right;color:#888;font-weight:600;">合　計</td>';
+  footCols += '<td style="' + FT + 'text-align:right;font-weight:800;color:#1a1a2e;">' + kgStr + '</td>';
+  if (anyPrice) footCols += '<td style="' + FT + 'text-align:right;font-weight:700;color:#1a1a2e;">' + (sumAmt > 0 ? Math.round(sumAmt).toLocaleString() + ' 円' : '—') + '</td>';
+  if (anyPaint) footCols += '<td style="' + FT + 'text-align:right;font-weight:700;color:#1a1a2e;">' + (sumPaint > 0 ? Math.round(sumPaint).toLocaleString() + ' 円' : '—') + '</td>';
 
   body.innerHTML =
-    '<table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px">' +
+    '<table style="width:100%;border-collapse:collapse;">' +
       '<thead><tr>' + ths + '</tr></thead>' +
       '<tbody>' + rowsHtml + '</tbody>' +
       '<tfoot><tr>' + footCols + '</tr></tfoot>' +

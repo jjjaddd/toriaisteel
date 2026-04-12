@@ -810,19 +810,19 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 </div>
 
 <!-- 重量履歴プレビューモーダル -->
-<div id="weightHistPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;overflow:auto;padding:16px 12px;box-sizing:border-box" onclick="if(event.target===this)closeWeightHistPreview()">
-  <div style="max-width:860px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #e8e8ed;background:#f8f8fb;position:sticky;top:0;z-index:1">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:13px;font-weight:700;color:#059669">⚖ 重量計算プレビュー</span>
-        <span id="weightHistPreviewMeta" style="font-size:11px;color:#888"></span>
+<div id="weightHistPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;align-items:flex-start;justify-content:center;padding:24px 16px;box-sizing:border-box" onclick="if(event.target===this)closeWeightHistPreview()">
+  <div style="width:100%;max-width:680px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #ebebeb;background:#fff">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e">重量計算プレビュー</div>
+        <div id="weightHistPreviewMeta" style="font-size:11px;color:#aaa;margin-top:2px"></div>
       </div>
       <div style="display:flex;gap:8px">
-        <button onclick="recallWeightFromPreview()" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">↩ 重量タブに復元</button>
-        <button onclick="closeWeightHistPreview()" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit">× 閉じる</button>
+        <button onclick="recallWeightFromPreview()" style="background:#1a1a2e;color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">重量タブで開く →</button>
+        <button onclick="closeWeightHistPreview()" style="background:none;border:1px solid #ddd;color:#888;border-radius:7px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit">閉じる</button>
       </div>
     </div>
-    <div id="weightHistPreviewBody" style="padding:16px 20px;overflow-x:auto"></div>
+    <div id="weightHistPreviewBody" style="padding:20px;overflow-x:auto"></div>
   </div>
 </div>
 
