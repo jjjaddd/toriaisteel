@@ -3515,14 +3515,14 @@ function printWeightHistPreview() {
   var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>重量計算プレビュー</title>' +
     '<style>' +
     '*{box-sizing:border-box}' +
-    'body{font-family:sans-serif;font-size:11px;padding:16px;color:#000}' +
-    'h2{font-size:13px;margin:0 0 6px;color:#1a1a2e}' +
-    '.meta{font-size:10px;color:#888;margin-bottom:12px}' +
+    '@page{size:A4 landscape;margin:10mm 12mm}' +
+    'body{font-family:sans-serif;font-size:11px;padding:14px;color:#000}' +
+    'h2{font-size:13px;margin:0 0 4px;color:#1a1a2e}' +
+    '.meta{font-size:10px;color:#888;margin-bottom:10px;border-bottom:1px solid #ccc;padding-bottom:6px}' +
     'table{border-collapse:collapse;width:100%}' +
-    'th{font-size:10px;font-weight:600;color:#555;border-bottom:1.5px solid #ccc;padding:5px 8px;text-align:left;white-space:nowrap}' +
-    'th.r,td.r{text-align:right}' +
-    'td{border-bottom:1px solid #eee;padding:5px 8px;font-size:11px}' +
-    'tfoot td{font-weight:700;border-top:1.5px solid #ccc;border-bottom:none;padding:6px 8px}' +
+    'th{font-size:10px;font-weight:700;color:#444;border-bottom:2px solid #000;padding:5px 8px;text-align:left;white-space:nowrap;background:#f4f4f4}' +
+    'td{border-bottom:1px solid #ddd;padding:5px 8px;font-size:11px}' +
+    'tfoot td{font-weight:700;border-top:2px solid #000;border-bottom:none;padding:6px 8px;background:#f8f8f8}' +
     '@media print{body{padding:0}}' +
     '</style></head><body>' +
     '<h2>重量計算プレビュー</h2>' +
