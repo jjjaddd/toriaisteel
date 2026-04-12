@@ -3487,7 +3487,7 @@ function showWeightHistPreview(id) {
   var kgStr   = (Math.round(sumKg * 10) / 10).toLocaleString() + ' kg';
   var colSpan = 5 + (anyMemo?1:0) + (anyKuiku?1:0) + (anyPrice?1:0) + (anyPaint?1:0);
   var FT  = 'padding:10px 12px;font-size:12px;border-top:2px solid #e8e8e8;';
-  var footCols = '<td colspan="' + (colSpan - 1 - (anyPrice?1:0) - (anyPaint?1:0)) + '" style="' + FT + 'text-align:right;color:#888;font-weight:600;">合　計</td>';
+  var footCols = '<td colspan="' + (colSpan - (anyPrice?1:0) - (anyPaint?1:0)) + '" style="' + FT + 'text-align:right;color:#888;font-weight:600;">合　計</td>';
   footCols += '<td style="' + FT + 'text-align:right;font-weight:800;color:#1a1a2e;">' + kgStr + '</td>';
   if (anyPrice) footCols += '<td style="' + FT + 'text-align:right;font-weight:700;color:#1a1a2e;">' + (sumAmt > 0 ? Math.round(sumAmt).toLocaleString() + ' 円' : '—') + '</td>';
   if (anyPaint) footCols += '<td style="' + FT + 'text-align:right;font-weight:700;color:#1a1a2e;">' + (sumPaint > 0 ? Math.round(sumPaint).toLocaleString() + ' 円' : '—') + '</td>';
