@@ -69,11 +69,11 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         </button>
       </div>
       <div class="hm-section">
-        <button class="hm-row hm-row--wip" type="button" onclick="headerMenuPlaceholder('データ書き出し')">
-          <span class="hm-txt">データ書き出し<span class="wip-badge">準備中</span></span>
+        <button class="hm-row" type="button" onclick="exportAllData(); closeHeaderMenu()">
+          <span class="hm-txt">データ書き出し（JSON）</span>
         </button>
-        <button class="hm-row hm-row--wip" type="button" onclick="headerMenuPlaceholder('データ読み込み')">
-          <span class="hm-txt">データ読み込み<span class="wip-badge">準備中</span></span>
+        <button class="hm-row" type="button" onclick="importAllData(); closeHeaderMenu()">
+          <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
         <div class="hm-row hm-row--wip">
           <span class="hm-txt">バージョン<span class="wip-badge">準備中</span></span>
@@ -401,12 +401,18 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         <!-- Sort + count -->
         <div class="hi-sort-row">
           <span class="hi-count" id="hiCountLabel"></span>
-          <select id="hsSort" class="hi-sort" onchange="renderHistory()">
-            <option value="date_desc">新しい順</option>
-            <option value="date_asc">古い順</option>
-            <option value="deadline_asc">納期が近い順</option>
-            <option value="spec_asc">規格順</option>
-          </select>
+          <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+            <button id="hiViewFlat" class="hi-view-btn hi-view-btn--on"
+                    onclick="hiSetView('flat')" title="日付順">≡ 日付順</button>
+            <button id="hiViewGroup" class="hi-view-btn"
+                    onclick="hiSetView('group')" title="案件別">⊞ 案件別</button>
+            <select id="hsSort" class="hi-sort" onchange="renderHistory()">
+              <option value="date_desc">新しい順</option>
+              <option value="date_asc">古い順</option>
+              <option value="deadline_asc">納期が近い順</option>
+              <option value="spec_asc">規格順</option>
+            </select>
+          </div>
         </div>
 
         <!-- List -->

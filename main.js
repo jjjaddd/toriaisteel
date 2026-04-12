@@ -506,6 +506,7 @@ var _hiChipActive = 0;
 var _chipDateFrom = '';   // renderHistory が直接参照
 var _chipDateTo   = '';
 var _histTypeFilter = 'all'; // 'all' | 'cut' | 'weight'
+var _histView = 'flat'; // 'flat' | 'group'
 
 function hiChip(n) {
   _hiChipActive = (_hiChipActive === n) ? 0 : n;
@@ -544,6 +545,16 @@ function hiTypeFilter(type) {
     type === 'cut' ? 'hTypeCut' : type === 'weight' ? 'hTypeWeight' : 'hTypeAll'
   );
   if (active) active.classList.add('on');
+  historyPage = 1;
+  renderHistory();
+}
+
+function hiSetView(view) {
+  _histView = view;
+  var flatBtn = document.getElementById('hiViewFlat');
+  var groupBtn = document.getElementById('hiViewGroup');
+  if (flatBtn) flatBtn.classList.toggle('hi-view-btn--on', view === 'flat');
+  if (groupBtn) groupBtn.classList.toggle('hi-view-btn--on', view === 'group');
   historyPage = 1;
   renderHistory();
 }
@@ -1460,6 +1471,48 @@ function buildHistSpecDropdown() {
 function renderInventory() { renderInventoryPage(); }
 
 // ── 履歴ページ描画 ──
+function _renderHistRow(h) {
+  var isWeight = h.type === 'weight';
+  if (isWeight) {
+    var w = h.weight || {};
+    var kgStr = w.sumKg ? (Math.round(w.sumKg * 10) / 10).toLocaleString() + ' kg' : '—';
+    var amtStr = w.sumAmt != null ? '概算 ' + Math.round(w.sumAmt).toLocaleString() + ' 円' : '';
+    var rowCount = (w.rows || []).length;
+    return '<div class="hist-row hist-row--weight" onclick="recallWeightHistory(' + h.id + ')">' +
+      '<div class="hist-row-main">' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+          '<span class="hist-type-badge hist-type-badge--weight">⚖ 重量</span>' +
+          '<span class="hist-client">' + (h.client || '') + '</span>' +
+          '<span class="hist-name">' + (h.name || '') + '</span>' +
+        '</div>' +
+        '<div class="hist-meta">' +
+          '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
+          '<span class="hist-rem">' + rowCount + '行</span>' +
+          '<span class="hist-rem" style="font-weight:700;color:#1a1a2e">' + kgStr + '</span>' +
+          (amtStr ? '<span class="hist-rem">' + amtStr + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+    '</div>';
+  }
+  var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
+  return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
+    '<div class="hist-row-main">' +
+      '<div style="display:flex;align-items:center;gap:6px">' +
+        '<span class="hist-type-badge hist-type-badge--cut">✂ 取り合い</span>' +
+        '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
+        '<span class="hist-name">' + (h.name || '') + '</span>' +
+      '</div>' +
+      '<div class="hist-meta">' +
+        '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
+        '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
+        '<span class="hist-rem">端材: ' + remCount + '本</span>' +
+      '</div>' +
+    '</div>' +
+    '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+  '</div>';
+}
+
 function renderHistory() {
   var cont = document.getElementById('histList');
   var empty= document.getElementById('histEmpty');
@@ -3306,65 +3359,77 @@ function renderHistory() {
   if (countLabel) countLabel.textContent = hist.length + '件';
   var pageData = paginateItems(hist, historyPage, HISTORY_PAGE_SIZE);
   historyPage = pageData.page;
-  var groups = {};
-  pageData.items.forEach(function(item) {
-    var key = item.spec || '規格未設定';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-  cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
-    return '<div class="hist-card">' +
-      '<div class="hist-card-header">' +
-        '<span class="inv-spec-label">' + spec + '</span>' +
-        '<span class="inv-count-badge">' + groups[spec].length + '件</span>' +
-      '</div>' +
-      groups[spec].map(function(h) {
-        var isWeight = h.type === 'weight';
 
-        if (isWeight) {
-          var w = h.weight || {};
-          var kgStr = w.sumKg ? (Math.round(w.sumKg * 10) / 10).toLocaleString() + ' kg' : '—';
-          var amtStr = w.sumAmt != null ? '概算 ' + Math.round(w.sumAmt).toLocaleString() + ' 円' : '';
-          var rowCount = (w.rows || []).length;
-          return '<div class="hist-row hist-row--weight" onclick="recallWeightHistory(' + h.id + ')">' +
-            '<div class="hist-row-main">' +
-              '<div style="display:flex;align-items:center;gap:6px">' +
-                '<span class="hist-type-badge hist-type-badge--weight">⚖ 重量</span>' +
-                '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
-                '<span class="hist-name">' + (h.name || '') + '</span>' +
-              '</div>' +
-              '<div class="hist-meta">' +
-                '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
-                '<span class="hist-rem">' + rowCount + '行</span>' +
-                '<span class="hist-rem" style="font-weight:700;color:#1a1a2e">' + kgStr + '</span>' +
-                (amtStr ? '<span class="hist-rem">' + amtStr + '</span>' : '') +
-              '</div>' +
-            '</div>' +
-            '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
-          '</div>';
-        }
+  if (_histView === 'group') {
+    var pager = document.getElementById('histPagination');
+    if (pager) pager.innerHTML = '';
 
-        var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
-        return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
-          '<div class="hist-row-main">' +
-            '<div style="display:flex;align-items:center;gap:6px">' +
-              '<span class="hist-type-badge hist-type-badge--cut">✂ 取り合い</span>' +
-              '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
-              '<span class="hist-name">' + (h.name || '') + '</span>' +
-            '</div>' +
-            '<div class="hist-meta">' +
-              '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
-              '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
-              '<span class="hist-rem">メモ: ' + (h.worker || '-') + '</span>' +
-              '<span class="hist-rem">端材: ' + remCount + '本</span>' +
+    var jobMap = {};
+    hist.forEach(function(h) {
+      var key = ((h.client || '') + '___' + (h.name || '')).trim();
+      if (key === '___') key = '未設定___未設定';
+      if (!jobMap[key]) {
+        jobMap[key] = {
+          client: h.client || '',
+          name: h.name || '',
+          items: [],
+          sumKg: 0,
+          cutCount: 0,
+          weightCount: 0
+        };
+      }
+      jobMap[key].items.push(h);
+      if (h.type === 'weight' && h.weight) jobMap[key].sumKg += (h.weight.sumKg || 0);
+      if (h.type === 'weight') jobMap[key].weightCount++;
+      else jobMap[key].cutCount++;
+    });
+
+    var jobKeys = Object.keys(jobMap).sort(function(a, b) {
+      return parseDateValue(jobMap[b].items[0].date) - parseDateValue(jobMap[a].items[0].date);
+    });
+
+    cont.innerHTML = jobKeys.map(function(key) {
+      var g = jobMap[key];
+      var label = (g.client && g.name) ? g.client + '　' + g.name
+        : (g.client || g.name || '案件未設定');
+      var kgStr = g.sumKg > 0 ? (Math.round(g.sumKg * 10) / 10).toLocaleString() + ' kg' : '';
+      return '<div class="hist-job-group">' +
+        '<div class="hist-job-hd" onclick="this.parentElement.classList.toggle(\'open\')">' +
+          '<div style="flex:1;min-width:0">' +
+            '<div class="hist-job-title">' + label + '</div>' +
+            '<div class="hist-job-meta">' +
+              (g.cutCount ? '<span>✂ 取り合い ' + g.cutCount + '件</span>' : '') +
+              (g.weightCount ? '<span>⚖ 重量計算 ' + g.weightCount + '件</span>' : '') +
+              (kgStr ? '<span style="font-weight:700;color:#1a1a2e">計 ' + kgStr + '</span>' : '') +
             '</div>' +
           '</div>' +
-          '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
-        '</div>';
-      }).join('') +
-    '</div>';
-  }).join('');
-  renderPager('histPagination', historyPage, pageData.totalPages, 'setHistoryPage');
+          '<span class="hist-job-arrow">›</span>' +
+        '</div>' +
+        '<div class="hist-job-body">' +
+          g.items.map(function(h) {
+            return _renderHistRow(h);
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    var groups = {};
+    pageData.items.forEach(function(item) {
+      var key = item.spec || '規格未設定';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+    cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
+      return '<div class="hist-card">' +
+        '<div class="hist-card-header">' +
+          '<span class="inv-spec-label">' + spec + '</span>' +
+          '<span class="inv-count-badge">' + groups[spec].length + '件</span>' +
+        '</div>' +
+        groups[spec].map(function(h) { return _renderHistRow(h); }).join('') +
+      '</div>';
+    }).join('');
+    renderPager('histPagination', historyPage, pageData.totalPages, 'setHistoryPage');
+  }
 }
 
 function recallWeightHistory(id) {
@@ -3401,8 +3466,8 @@ function clearHistSearch() {
     var el = document.getElementById(id);
     if (el) { el.classList.toggle('on', id === 'hTypeAll'); }
   });
-  historyPage = 1;
-  renderHistory();
+  _histView = 'flat';
+  hiSetView('flat');
 }
 
 function autoSyncResultRemnants(resultData) {
