@@ -34,9 +34,9 @@
   --cy: #0891b2;
   --am: #d97706;
 
-  /* Radius */
-  --r:    8px;
-  --r-sm: 6px;
+  /* Radius — 8〜12px 統一 */
+  --r:    10px;
+  --r-sm: 8px;
   --r-lg: 12px;
 }
 
@@ -2065,3 +2065,52 @@ html[data-theme="dark"] .inv-add-modal-box { box-shadow: 0 4px 24px rgba(0,0,0,.
 }
 html[data-theme="dark"] .paste-exec { border-color: var(--line) !important; color: var(--ink2) !important; }
 html[data-theme="dark"] .paste-exec.added { border-color: var(--gn) !important; color: var(--gn) !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   § 36  RADIUS & PADDING 統一
+   border-radius 8〜12px、padding ゆったりめに統一
+   ══════════════════════════════════════════════════════════════ */
+
+/* 入力欄 padding +2px */
+input[type=number], input[type=text], input[type=date], select, textarea {
+  padding: 8px 11px !important;
+  border-radius: var(--r-sm) !important;
+}
+/* 数量小窓 (stk-mx) — 幅固定なので padding は浅め */
+.stk-mx { border-radius: var(--r-sm) !important; padding: 3px 5px !important; }
+
+/* カードヘッダ / パターンエリア padding +2px */
+.cc-hd  { padding: 12px 16px !important; }
+.cc-pat { padding: 14px 18px !important; }
+
+/* 小ボタン (sm-btn, paste-cancel) */
+.sm-btn      { padding: 5px 11px !important; border-radius: var(--r-sm) !important; }
+.paste-cancel{ border-radius: var(--r-sm) !important; padding: 6px 12px !important; }
+
+/* Run (計算) ボタン */
+.run { border-radius: var(--r) !important; padding: 14px !important; }
+
+/* 履歴 / 在庫カード */
+.hi-card, .inv-card-new {
+  border-radius: var(--r) !important;
+  padding: 12px 16px !important;
+}
+
+/* ピースバッジ .px — 4px → var(--r-sm) */
+.px { border-radius: var(--r-sm) !important; padding: 3px 8px !important; }
+
+/* カスタム select トリガー */
+.cs-trigger { border-radius: var(--r-sm) !important; }
+.cs-dropdown { border-radius: var(--r) !important; }
+
+/* ヒストリーフィルターボタン */
+.hi-filter-btn { border-radius: var(--r-sm) !important; padding: 7px 14px !important; }
+
+/* Inventory 追加ボタン */
+.inv-add-open-btn { border-radius: var(--r-sm) !important; }
+
+/* Detail-settings セクション内ボタン */
+.ds-add-btn { border-radius: var(--r-sm) !important; }
+
+/* パターンカード */
+.pc { border-radius: var(--r-sm) !important; }
