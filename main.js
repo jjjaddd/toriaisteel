@@ -1469,6 +1469,7 @@ function buildHistSpecDropdown() {
 
 // alias
 function renderInventory() { renderInventoryPage(); }
+function renderInventoryPage() { legacyRenderInventoryPage_v2(); }
 
 // ── 履歴ページ描画 ──
 function _renderHistRow(h) {
@@ -5164,456 +5165,47 @@ function cartCopyPreview(mode) {
 
 function cartCopyCutResult() {
   var cart = getCart().filter(function(x) { return !x.data.isWeight; });
-  if (!cart.length) return;
-
+  if (!cart.length) { alert('取り合いがカートにありません。'); return; }
   var rows = [];
   cart.forEach(function(item) {
-    var d = item.data;
-    var spec = d.spec || '';
-    var kind = d.kind || '';
-    var sumMap = d.sumMap || {};
-    Object.keys(sumMap).sort(function(a, b) { return b - a; }).forEach(function(len) {
-      rows.push([kind, spec, len, sumMap[len]]);
+    var d = item.data || {};
+    var sumMap = {};
+    var bars = Array.isArray(d.bars) && d.bars.length ? d.bars : parseBarsFromDiagHtml(d.diagHtml || '', 0, d.endLoss || 150);
+    bars.forEach(function(bar) {
+      var pat = Array.isArray(bar.pat) ? bar.pat : [];
+      pat.forEach(function(len) { if (len) sumMap[len] = (sumMap[len] || 0) + 1; });
+    });
+    Object.keys(sumMap).map(Number).sort(function(a, b) { return b - a; }).forEach(function(len) {
+      rows.push([d.spec || '', len, sumMap[len]]);
     });
   });
-
-  var header = ['種類', '規格', '長さ(mm)', '本数'];
+  var header = ['規格', '長さ(mm)', '本数'];
   var tsv = [header].concat(rows).map(function(r) { return r.join('\t'); }).join('\r\n');
   var previewHtml = buildCopyPreviewTable(header, rows);
-
-  _copyPendingTsv = tsv;
   document.getElementById('copyPreviewTitle').textContent = '📋 計算結果（切断リスト）';
+  _copyPendingTsv = tsv;
   document.getElementById('copyPreviewTable').innerHTML = previewHtml;
   document.getElementById('copyPreviewModal').style.display = 'flex';
 }
 
 function cartCopyCutStock() {
   var cart = getCart().filter(function(x) { return !x.data.isWeight; });
-  if (!cart.length) return;
-
+  if (!cart.length) { alert('取り合いがカートにありません。'); return; }
   var rows = [];
   cart.forEach(function(item) {
-    var d = item.data;
-    var spec = d.spec || '';
-    var kind = d.kind || '';
-    var bars = d.bars || [];
+    var d = item.data || {};
+    var bars = Array.isArray(d.bars) && d.bars.length ? d.bars : parseBarsFromDiagHtml(d.diagHtml || '', 0, d.endLoss || 150);
     var slCount = {};
-    bars.forEach(function(b) {
-      var sl = b.sl || 0;
-      if (sl > 0) slCount[sl] = (slCount[sl] || 0) + 1;
-    });
+    bars.forEach(function(bar) { var sl = bar.sl || 0; if (sl) slCount[sl] = (slCount[sl] || 0) + 1; });
     Object.keys(slCount).map(Number).sort(function(a, b) { return b - a; }).forEach(function(sl) {
-      rows.push([kind, spec, sl, slCount[sl]]);
+      rows.push([d.spec || '', sl, slCount[sl]]);
     });
   });
-
-  var header = ['種類', '規格', '母材長さ(mm)', '必要本数'];
+  var header = ['規格', '定尺(mm)', '使用本数'];
   var tsv = [header].concat(rows).map(function(r) { return r.join('\t'); }).join('\r\n');
   var previewHtml = buildCopyPreviewTable(header, rows);
-
-  _copyPendingTsv = tsv;
   document.getElementById('copyPreviewTitle').textContent = '📋 使用予定の母材';
+  _copyPendingTsv = tsv;
   document.getElementById('copyPreviewTable').innerHTML = previewHtml;
   document.getElementById('copyPreviewModal').style.display = 'flex';
 }
-
-function buildCopyPreviewTable(headers, rows) {
-  var th = headers.map(function(h) {
-    return '<th style="padding:5px 10px;background:var(--bg2);text-align:left;white-space:nowrap;font-size:10px">' + h + '</th>';
-  }).join('');
-  var tbody = rows.map(function(r) {
-    var tds = r.map(function(c) {
-      return '<td style="padding:4px 10px;border-top:1px solid var(--line);white-space:nowrap">' + c + '</td>';
-    }).join('');
-    return '<tr>' + tds + '</tr>';
-  }).join('');
-  return '<table style="border-collapse:collapse;width:100%"><thead><tr>' + th + '</tr></thead><tbody>' + tbody + '</tbody></table>';
-}
-
-function executeCopy() {
-  if (!_copyPendingTsv) return;
-  navigator.clipboard.writeText(_copyPendingTsv).then(function() {
-    var btn = document.getElementById('copyExecBtn');
-    if (btn) { btn.textContent = '✓ コピーしました'; btn.disabled = true; }
-    setTimeout(closeCopyPreview, 900);
-  }).catch(function() {
-    var ta = document.createElement('textarea');
-    ta.value = _copyPendingTsv;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    var btn = document.getElementById('copyExecBtn');
-    if (btn) { btn.textContent = '✓ コピーしました'; btn.disabled = true; }
-    setTimeout(closeCopyPreview, 900);
-  });
-}
-
-function closeCopyPreview() {
-  _copyPendingTsv = '';
-  var m = document.getElementById('copyPreviewModal');
-  if (m) m.style.display = 'none';
-  var btn = document.getElementById('copyExecBtn');
-  if (btn) { btn.textContent = '📋 コピー実行'; btn.disabled = false; }
-}
-
-function showHistPreview(id) {
-  var hist = getCutHistory();
-  var h = hist.find(function(x){ return x.id===id; });
-  if (!h) return;
-  if (h.type === 'weight') {
-    recallWeightHistory(id);
-    return;
-  }
-  var modal = document.getElementById('histPreviewModal');
-  var body  = document.getElementById('histPreviewBody');
-  if (!modal || !body) return;
-  var r = h.result || {};
-  var job = {client:h.client||'', name:h.name||'', deadline:h.deadline||'', worker:h.worker||''};
-  var spec = h.spec || '';
-  var endLoss = r.endLoss || 150;
-  var printedId = h.printedCardId || '';
-  var bars = [];
-  if (printedId.indexOf('card_pat') === 0 && r.patA && r.patA.bars && r.patA.bars.length) {
-    bars = r.patA.bars.slice();
-  } else if (r.allDP && r.allDP[0]) {
-    bars = (r.allDP[0].bA || []).concat(r.allDP[0].bB || []).map(function(b) {
-      return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || r.allDP[0].slA || 0 };
-    });
-  } else if (r.patA && r.patA.bars && r.patA.bars.length) {
-    bars = r.patA.bars.slice();
-  }
-  if (!bars.length) {
-    body.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center">データがありません</div>';
-    modal.style.display = 'flex';
-    return;
-  }
-  var slGroups = {};
-  bars.forEach(function(b) {
-    var sl2 = b.sl || 0;
-    if (!slGroups[sl2]) slGroups[sl2] = [];
-    slGroups[sl2].push(b);
-  });
-  var orderedSls = sortStockLengthsForDisplay(Object.keys(slGroups).map(Number));
-  var motherSummary = orderedSls.map(function(s){ return s.toLocaleString()+'mm x '+slGroups[s].length; }).join(' + ');
-  var sumMap = {};
-  bars.forEach(function(b) { (b.pat||[]).forEach(function(len){ sumMap[len]=(sumMap[len]||0)+1; }); });
-  var remTags = (h.remnants||[]).filter(function(r2){ return r2.len>=500; }).map(function(r2){ return r2.len.toLocaleString()+'mm'+(r2.qty>1?' x '+r2.qty:''); });
-  var barHtml = '';
-  orderedSls.forEach(function(sl2) {
-    barHtml += buildPrintBarHtml(slGroups[sl2], sl2, endLoss);
-  });
-  body.innerHTML = buildPrintPages(job, [{
-    idx: 1,
-    spec: spec,
-    motherSummary: motherSummary,
-    sumMap: sumMap,
-    remTags: remTags,
-    barHtml: barHtml
-  }]);
-  modal.style.display = 'flex';
-}
-
-var INVENTORY_REMNANT_SELECTED_KEY = 'toriai_inventory_remnant_selected_v1';
-
-function getSelectedInventoryRemnants() {
-  try {
-    var parsed = JSON.parse(localStorage.getItem(INVENTORY_REMNANT_SELECTED_KEY) || '{}');
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch (e) {
-    return {};
-  }
-}
-
-function saveSelectedInventoryRemnants(data) {
-  localStorage.setItem(INVENTORY_REMNANT_SELECTED_KEY, JSON.stringify(data || {}));
-}
-
-function addFromInventory() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var items = getInventoryForCurrentSpec();
-  var chosen = items.find(function(item) { return String(item.ids || []) === sel.value; });
-  if (!chosen) return;
-  var selected = getSelectedInventoryRemnants();
-  var key = String(chosen.ids || []);
-  selected[key] = { qty: 1 };
-  saveSelectedInventoryRemnants(selected);
-  sel.value = '';
-  syncInventoryToRemnants();
-  updateInventoryUseButton(true);
-}
-
-function removeRemnant(i) {
-  var row = document.getElementById('remRow' + i);
-  if (!row || row.dataset.source !== 'inventory') {
-    if (row) row.remove();
-    return;
-  }
-  var selected = getSelectedInventoryRemnants();
-  delete selected[row.dataset.inventoryKey];
-  saveSelectedInventoryRemnants(selected);
-  syncInventoryToRemnants();
-}
-
-function saveRemnants() {
-  var selected = getSelectedInventoryRemnants();
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var qtyEl = row.querySelector('.rem-qty');
-    var maxQty = Math.max(1, parseInt(row.dataset.maxQty || '1', 10));
-    selected[row.dataset.inventoryKey] = {
-      qty: Math.max(1, Math.min(maxQty, parseInt(qtyEl && qtyEl.value, 10) || 1))
-    };
-  });
-  saveSelectedInventoryRemnants(selected);
-}
-
-function createInventoryRemnantRow(item, selectedQty) {
-  var list = document.getElementById('remnantList');
-  if (!list) return null;
-  var i = remnantCount++;
-  var row = document.createElement('div');
-  var usage = Math.max(1, Math.min(item.qty || 1, selectedQty || 1));
-  var options = '';
-  for (var q = 1; q <= (item.qty || 1); q++) {
-    options += '<option value="' + q + '"' + (q === usage ? ' selected' : '') + '>' + q + '本</option>';
-  }
-  row.className = 'rem-row';
-  row.id = 'remRow' + i;
-  row.dataset.source = 'inventory';
-  row.dataset.inventoryKey = String(item.ids || []);
-  row.dataset.inventoryIds = JSON.stringify(item.ids || []);
-  row.dataset.maxQty = String(item.qty || 1);
-  row.innerHTML =
-    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫 ' + (item.qty || 1) + '本</span></div>' +
-    '<input type="number" class="rem-qty" id="remQty' + i + '" min="1" max="' + (item.qty || 1) + '" value="' + usage + '" oninput="saveRemnants()">' +
-    '<div class="rem-meta">今回使う本数 / ' + escapeHtml(item.company || item.label || '在庫から選択') + '</div>' +
-    '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
-  list.appendChild(row);
-  return row;
-}
-
-function syncInventoryToRemnants() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  var selected = getSelectedInventoryRemnants();
-  list.innerHTML = '';
-  remnantCount = 0;
-  Object.keys(selected).forEach(function(key) {
-    var item = grouped.find(function(group) { return String(group.ids || []) === key; });
-    if (item) {
-      createInventoryRemnantRow(item, selected[key].qty || 1);
-    }
-  });
-  if (!list.children.length) {
-    list.innerHTML = '<div class="rem-row rem-row-empty"><div class="rem-meta">在庫から選択した残材がここに表示されます</div></div>';
-  }
-}
-
-function getRemnants() {
-  var result = [];
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var title = row.querySelector('.rem-label-title');
-    var qtyEl = row.querySelector('.rem-qty');
-    var len = parseInt((title && title.textContent || '').replace(/[^\d]/g, ''), 10);
-    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
-    if (!len || !qty) return;
-    for (var k = 0; k < qty; k++) result.push(len);
-  });
-  return result;
-}
-
-function normalizeInterfaceChrome() {
-  document.title = 'TORIAI';
-  var head = document.querySelector('.remnant-head');
-  if (head) {
-    var addBtn = head.querySelector('.rem-add-btn');
-    if (addBtn) addBtn.remove();
-  }
-
-  var labelMap = [
-    ['#histModal div[style*="font-size:14px;font-weight:700"]', '入力履歴'],
-    ['#cartModal .cart-modal-hd span[style*="font-size:15px"]', '印刷カート'],
-    ['#histPreviewModal div[style*="font-size:14px;font-weight:700;color:#1a1a2e"]', '作業指示書プレビュー']
-  ];
-  labelMap.forEach(function(entry) {
-    var el = document.querySelector(entry[0]);
-    if (el) el.textContent = entry[1];
-  });
-
-  var remHead = document.querySelector('.remnant-head span');
-  if (remHead) remHead.textContent = '計算に使う残材';
-  var invBtn = document.getElementById('invUseBtn');
-  if (invBtn) invBtn.textContent = '追加';
-  var invSelect = document.getElementById('invSelect');
-  if (invSelect && invSelect.options.length) {
-    invSelect.options[0].textContent = '在庫から使いたい残材を選択';
-  }
-
-  ['#cartModal button[onclick="cartPrintCutting()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
-    var el = document.querySelector(sel);
-    if (el) {
-      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : 'まとめて印刷';
-      if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
-    }
-  });
-  ['#cartModal button[onclick="closeCartModal()"]', '#histPreviewModal button[onclick*="histPreviewModal"]', '#histModal button[onclick*="histModal"]'].forEach(function(sel) {
-    var el = document.querySelector(sel);
-    if (el) el.textContent = '閉じる';
-  });
-  var clearBtn = document.querySelector('#cartModal button[onclick="cartClearAll()"]');
-  if (clearBtn) {
-    clearBtn.textContent = '全クリア';
-    clearBtn.classList.add('cart-danger-btn');
-  }
-  var cartCloseBtn = document.querySelector('#cartModal button[onclick="closeCartModal()"]');
-  if (cartCloseBtn) cartCloseBtn.classList.add('cart-danger-btn');
-  var previewModal = document.getElementById('histPreviewModal');
-  if (previewModal && !previewModal.dataset.outsideCloseBound) {
-    previewModal.dataset.outsideCloseBound = '1';
-    previewModal.addEventListener('click', function(e) {
-      if (e.target === previewModal) previewModal.style.display = 'none';
-    });
-  }
-}
-
-// ── Universal Custom <select> ──────────────────────────────
-/**
- * Replace a native <select> with a fully-styleable custom dropdown.
- * The native element is hidden but kept in the DOM so all existing
- * JS (onchange, value reads, etc.) continues to work unchanged.
- *
- * opts: {
- *   cls      : extra CSS class on the wrapper (e.g. 'cs-sort', 'cs-inv')
- *   dataTab  : boolean — adds cs-wrap--data for blue hover variant
- *   flex1    : boolean — wrapper gets flex:1 (for flex children)
- *   block    : boolean — wrapper displays as block (full width)
- * }
- */
-function initCustomSelect(id, opts) {
-  opts = opts || {};
-  var native = document.getElementById(id);
-  if (!native || native._csInit) return;
-  native._csInit = true;
-
-  // ── Build wrapper ──────────────────────────────────────
-  var wrapClass = 'cs-wrap';
-  if (opts.cls)     wrapClass += ' ' + opts.cls;
-  if (opts.dataTab) wrapClass += ' cs-wrap--data';
-  if (opts.flex1)   wrapClass += ' cs-flex1';
-  if (opts.block)   wrapClass += ' cs-block';
-
-  var wrap     = document.createElement('div');
-  var trigger  = document.createElement('button');
-  var lbl      = document.createElement('span');
-  var arrow    = document.createElement('span');
-  var dropdown = document.createElement('div');
-
-  wrap.className     = wrapClass;
-  if (opts.wrapStyle) wrap.style.cssText = opts.wrapStyle;
-  trigger.type       = 'button';
-  trigger.className  = 'cs-trigger';
-  lbl.className      = 'cs-label';
-  arrow.className    = 'cs-arrow';
-  arrow.textContent  = '▾';
-  dropdown.className = 'cs-dropdown';
-
-  trigger.appendChild(lbl);
-  trigger.appendChild(arrow);
-  wrap.appendChild(trigger);
-  wrap.appendChild(dropdown);
-
-  // Insert wrapper before native, then hide native
-  native.parentNode.insertBefore(wrap, native);
-  native.style.display = 'none';
-  // Move native inside wrap so it stays logically grouped
-  wrap.appendChild(native);
-
-  // ── Sync custom UI ← native options ───────────────────
-  function sync() {
-    var selVal = native.value;
-    var selText = null;
-    dropdown.innerHTML = '';
-    Array.from(native.options).forEach(function(opt) {
-      var div = document.createElement('div');
-      div.className = 'cs-option' + (opt.value === selVal ? ' cs-option--selected' : '');
-      div.dataset.value = opt.value;
-      div.textContent = opt.text;
-      div.addEventListener('mousedown', function(e) {
-        e.preventDefault(); // prevent blur-before-click race
-        if (native.value !== opt.value) {
-          native.value = opt.value;
-          native.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        close();
-      });
-      dropdown.appendChild(div);
-      if (opt.value === selVal) selText = opt.text;
-    });
-    lbl.textContent = selText !== null ? selText
-      : (native.options[0] ? native.options[0].text : '');
-  }
-
-  // ── Open / Close ───────────────────────────────────────
-  function open() {
-    document.querySelectorAll('.cs-wrap.cs-open').forEach(function(w) {
-      if (w !== wrap) w.classList.remove('cs-open');
-    });
-    wrap.classList.add('cs-open');
-    var sel = dropdown.querySelector('.cs-option--selected');
-    if (sel) sel.scrollIntoView({ block: 'nearest' });
-  }
-  function close() { wrap.classList.remove('cs-open'); }
-  function toggle() { wrap.classList.contains('cs-open') ? close() : open(); }
-
-  trigger.addEventListener('click', function(e) {
-    e.stopPropagation();
-    toggle();
-  });
-  document.addEventListener('mousedown', function(e) {
-    if (!wrap.contains(e.target)) close();
-  });
-  // Keyboard: Enter/Space toggle, Escape close, arrows navigate
-  trigger.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-    if (e.key === 'Escape') close();
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (!wrap.classList.contains('cs-open')) { open(); return; }
-      var items = dropdown.querySelectorAll('.cs-option');
-      var cur = Array.from(items).findIndex(function(o) { return o.classList.contains('cs-option--selected'); });
-      var next = e.key === 'ArrowDown' ? Math.min(cur + 1, items.length - 1) : Math.max(cur - 1, 0);
-      if (items[next]) items[next].dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-    }
-  });
-
-  // ── Watch native for external option / value changes ──
-  new MutationObserver(sync).observe(native, {
-    childList: true, subtree: true,
-    attributes: true, attributeFilter: ['value', 'selected']
-  });
-  native.addEventListener('change', sync);
-
-  sync();
-}
-
-// ── Initialize all custom selects ─────────────────────────
-(function() {
-  function doInit() {
-    initCustomSelect('hsSort',         { cls: 'cs-sort' });
-    initCustomSelect('invSort',        { cls: 'cs-sort' });
-    initCustomSelect('invSelect',      { cls: 'cs-inv', flex1: true });
-    initCustomSelect('dataKindSelect', {
-      block: true, dataTab: true,
-      wrapStyle: 'margin:10px 0 14px;max-width:280px'
-    });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', doInit, { once: true });
-  } else {
-    doInit();
-  }
-})();

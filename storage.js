@@ -1125,7 +1125,7 @@ function extractRemnants(resultData, cardId) {
   return buildCardSelectionPayload(resultData, cardId).remnants;
 }
 
-var LS_WORK_HIST = 'so_cut_hist_v2'; // 切断履歴と同じキーに混在
+var LS_WORK_HIST = 'so_cut_hist_v2';
 
 function saveWeightHistory(rows, opts, job) {
   if (!rows || !rows.length) return;
@@ -1136,13 +1136,13 @@ function saveWeightHistory(rows, opts, job) {
   });
   var entry = {
     id: Date.now(),
-    type: 'weight',                              // ← 種別フラグ
+    type: 'weight',
     date: new Date().toISOString(),
     dateLabel: new Date().toLocaleDateString('ja-JP'),
     client: (job && job.client) || '',
     name:   (job && job.name)   || '',
-    deadline: (job && job.deadline) || '',
-    worker:   (job && job.worker)   || '',
+    deadline: '',
+    worker:   '',
     spec: rows.map(function(r){ return r.spec; })
               .filter(function(v,i,a){ return a.indexOf(v)===i; })
               .slice(0,3).join(' / '),
@@ -1171,20 +1171,11 @@ function saveWeightHistory(rows, opts, job) {
 }
 
 function exportAllData() {
-  var keys = [
-    'so_cut_hist_v2',
-    'so_inv_v2',
-    'so_settings',
-    'wSavedCalcs',
-    'wJobName'
-  ];
+  var keys = ['so_cut_hist_v2', 'so_inv_v2', 'so_settings', 'wSavedCalcs', 'wJobName', 'wJobClient'];
   var data = { _version: 2, _exported: new Date().toISOString() };
   keys.forEach(function(k) {
     var v = localStorage.getItem(k);
-    if (v) {
-      try { data[k] = JSON.parse(v); }
-      catch (e) { data[k] = v; }
-    }
+    if (v) { try { data[k] = JSON.parse(v); } catch(e) { data[k] = v; } }
   });
   var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   var url = URL.createObjectURL(blob);
@@ -1207,7 +1198,7 @@ function importAllData() {
     reader.onload = function(ev) {
       try {
         var data = JSON.parse(ev.target.result);
-        var keys = ['so_cut_hist_v2', 'so_inv_v2', 'so_settings', 'wSavedCalcs', 'wJobName'];
+        var keys = ['so_cut_hist_v2', 'so_inv_v2', 'so_settings', 'wSavedCalcs', 'wJobName', 'wJobClient'];
         keys.forEach(function(k) {
           if (data[k] !== undefined) {
             localStorage.setItem(k, JSON.stringify(data[k]));

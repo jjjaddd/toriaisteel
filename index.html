@@ -325,7 +325,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <!-- 履歴・在庫統合ページ -->
 <div id="hip" class="pg show">
   <div class="hi-tabs">
-    <div class="hi-tab hi-tab-active" id="hiTabH" onclick="hiSwitch(&#39;h&#39;)">切断履歴</div>
+    <div class="hi-tab hi-tab-active" id="hiTabH" onclick="hiSwitch(&#39;h&#39;)">作業履歴</div>
     <div class="hi-tab" id="hiTabI" onclick="hiSwitch(&#39;i&#39;)">残材在庫</div>
   </div>
   <div id="hiPanelH" class="hi-panel">
@@ -584,6 +584,17 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <div id="wpp" class="pg">
   <div class="layout">
     <aside class="sb">
+      <section style="margin-bottom:12px">
+        <div class="shd" style="margin-bottom:6px">作業情報</div>
+        <div class="field">
+          <label>顧客名</label>
+          <input type="text" id="wJobClient" placeholder="例：株式会社〇〇" maxlength="60" oninput="wSaveJobInfo()" autocomplete="off">
+        </div>
+        <div class="field" style="margin-top:6px">
+          <label>工事名</label>
+          <input type="text" id="wJobNameInput" placeholder="例：〇〇ビル新築工事" maxlength="60" oninput="wSaveJobInfo()" autocomplete="off">
+        </div>
+      </section>
       <section>
         <div class="shd" style="margin-bottom:4px">鋼材種類・規格</div>
         <!-- 鋼材検索UI：🔍ボタン + 入力欄 -->
@@ -705,22 +716,6 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
       </p>
     </aside>
     <main class="mn" id="wMain">
-      <!-- 工事名バナー -->
-      <div id="wJobBanner"
-           style="display:flex;align-items:center;gap:8px;padding:7px 14px;
-                  background:#f8f8fc;border-bottom:1px solid #ebebf0;
-                  font-size:12px;cursor:pointer;user-select:none"
-           onclick="wJobBannerEdit()"
-           title="クリックして工事名を入力">
-        <span style="font-size:10px;font-weight:700;letter-spacing:.08em;
-                     color:#9999b8;text-transform:uppercase;white-space:nowrap">工事名</span>
-        <span id="wJobNameDisp"
-              style="flex:1;color:#5a5a78;font-weight:600;min-width:0;
-                     overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-          未設定
-        </span>
-        <span style="font-size:10px;color:#c0c0d0">✎</span>
-      </div>
       <div id="wEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#c0c0d0;gap:12px;min-height:300px">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2 2"/></svg>
         <p style="font-size:13px">左の入力欄で設定して「リストに追加」を押してください</p>
@@ -815,98 +810,4 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <div id="histPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;overflow:auto;padding:16px 12px;box-sizing:border-box">
   <div style="max-width:1100px;min-width:700px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
     <!-- モーダルヘッダー -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #e8e8ed;background:#f8f8fb;position:sticky;top:0;z-index:1">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:14px;font-weight:700;color:#1a1a2e">作業指示書プレビュー</span>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="printHistoryPreview()" style="background:#6d28d9;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">印刷する</button>
-        <button onclick="document.getElementById('histPreviewModal').style.display='none'" style="background:none;border:1px solid #e0e0ea;color:#5a5a78;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit">× 閉じる</button>
-      </div>
-    </div>
-    <!-- プレビュー本体 -->
-    <div id="histPreviewBody" style="padding:16px 20px;font-family:sans-serif;font-size:11px;color:#000;line-height:1.4;overflow-x:auto"></div>
-  </div>
-</div>
-
-
-
-  <script src="storage.js"></script>
-  <script src="calc.js"></script>
-  <script src="main.js"></script>
-  <script src="final-overrides.js"></script>
-  <script src="weight.js"></script>
-  <script src="data.js"></script>
-
-<!-- カートモーダル -->
-<!-- カートモーダル -->
-<div id="cartModal" onclick="if(event.target===this)closeCartModal()">
-  <div class="cart-modal-inner">
-
-    <!-- ヘッダー -->
-    <div class="cart-modal-hd">
-      <div class="cart-modal-hd-left">
-        <span class="cart-modal-title">🗂 出力トレイ</span>
-        <span id="cartModalCount" class="cart-modal-count"></span>
-      </div>
-      <div class="cart-modal-hd-right">
-        <button class="cart-danger-btn" onclick="cartClearAll()">全クリア</button>
-        <button class="cart-close-btn" onclick="closeCartModal()">閉じる</button>
-      </div>
-    </div>
-
-    <div class="cart-modal-body">
-
-      <!-- 取り合いセクション -->
-      <div class="cart-section" id="cartSectionCut">
-        <div class="cart-section-title">✂ 取り合い</div>
-        <div id="cartCutList"></div>
-        <div class="cart-section-actions">
-          <button class="cart-action-btn cart-action-primary" id="cartCutPrintBtn"
-                  onclick="cartPrintCutting()">切断指示書を印刷</button>
-        </div>
-        <div class="cart-copy-row">
-          <span class="cart-copy-label">コピー:</span>
-          <button class="cart-copy-btn" id="cartCopyCutResultBtn"
-                  onclick="cartCopyCutResult()">計算結果</button>
-          <button class="cart-copy-btn" id="cartCopyCutStockBtn"
-                  onclick="cartCopyCutStock()">使用予定の母材</button>
-        </div>
-      </div>
-
-      <!-- 重量セクション -->
-      <div class="cart-section" id="cartSectionWeight">
-        <div class="cart-section-title">⚖ 重量計算</div>
-        <div id="cartWeightList"></div>
-        <div class="cart-section-actions">
-          <button class="cart-action-btn cart-action-primary" id="cartWeightPrintBtn"
-                  onclick="cartPrintWeight()">🖨 重量計算書を印刷</button>
-          <button class="cart-action-btn" id="cartWeightCsvBtn"
-                  onclick="cartExportWeightCsv()">CSV出力</button>
-        </div>
-        <div class="cart-copy-row">
-          <span class="cart-copy-label">コピー:</span>
-          <button class="cart-copy-btn" id="cartCopyAllBtn"
-                  onclick="cartCopyPreview('all')">すべてをコピー</button>
-          <button class="cart-copy-btn" id="cartCopyPartsBtn"
-                  onclick="cartCopyPreview('parts-simple')">部材のみ</button>
-        </div>
-      </div>
-
-    </div><!-- /.cart-modal-body -->
-
-    <!-- コピープレビューモーダル -->
-    <div id="copyPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;align-items:center;justify-content:center">
-      <div style="background:#fff;border-radius:12px;padding:20px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)">
-        <div style="font-size:13px;font-weight:700;margin-bottom:12px" id="copyPreviewTitle">📋 プレビュー</div>
-        <div id="copyPreviewTable" style="overflow-x:auto;font-size:11px;margin-bottom:16px"></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button onclick="closeCopyPreview()" class="sm-btn">キャンセル</button>
-          <button id="copyExecBtn" onclick="executeCopy()" class="run" style="padding:8px 20px">📋 コピー実行</button>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /.cart-modal-inner -->
-</div><!-- /#cartModal -->
-</body></html>
+    <di

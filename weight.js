@@ -17,6 +17,10 @@ var _wJobName = (function() {
   try { return localStorage.getItem('wJobName') || ''; }
   catch (e) { return ''; }
 })();
+var _wJobClient = (function() {
+  try { return localStorage.getItem('wJobClient') || ''; }
+  catch (e) { return ''; }
+})();
 
 // コマンドパレット
 var _wCmdAll = [];
@@ -116,7 +120,11 @@ function wInit() {
     if (el) el.focus();
   }, 80);
 
-  wJobBannerInit();
+  // 作業情報入力欄に保存値を反映
+  var wci = document.getElementById('wJobClient');
+  if (wci) wci.value = _wJobClient;
+  var wni = document.getElementById('wJobNameInput');
+  if (wni) wni.value = _wJobName;
 }
 
 // ── Enter フロー ──────────────────────────────────────────────
@@ -631,7 +639,8 @@ function wSaveCalc() {
     savedAt: new Date().toISOString(),
     rows: JSON.parse(JSON.stringify(_wRows)),
     opts: JSON.parse(JSON.stringify(_wOpts)),
-    jobName: _wJobName
+    jobName: _wJobName,
+    jobClient: _wJobClient
   };
   _wSavedCalcs.unshift(rec);
   if (_wSavedCalcs.length > 20) _wSavedCalcs.pop();
@@ -640,28 +649,23 @@ function wSaveCalc() {
   alert('「' + name + '」を保存しました。');
 }
 
-// ── 工事名バナー ──────────────────────────
-function wJobBannerInit() {
-  var disp = document.getElementById('wJobNameDisp');
-  if (disp) {
-    disp.textContent = _wJobName || '未設定';
-    disp.style.color = _wJobName ? '#1a1a2e' : '#9999b8';
-    disp.style.fontStyle = _wJobName ? 'normal' : 'italic';
-  }
-}
-
-function wJobBannerEdit() {
-  var val = prompt('工事名を入力してください（空白でクリア）', _wJobName || '');
-  if (val === null) return;
-  _wJobName = val.trim();
-  try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
-  wJobBannerInit();
+// ── 作業情報（重量タブ独立） ──────────────────────────
+function wSaveJobInfo() {
+  var clientEl = document.getElementById('wJobClient');
+  var nameEl   = document.getElementById('wJobNameInput');
+  _wJobClient = clientEl ? clientEl.value : _wJobClient;
+  _wJobName   = nameEl   ? nameEl.value   : _wJobName;
+  try {
+    localStorage.setItem('wJobClient', _wJobClient);
+    localStorage.setItem('wJobName',   _wJobName);
+  } catch (e) {}
 }
 
 function wGetJobForHistory() {
-  var base = (typeof getJobInfo === 'function') ? getJobInfo() : {};
-  if (_wJobName) base.name = _wJobName;
-  return base;
+  return {
+    client: _wJobClient || '',
+    name:   _wJobName   || ''
+  };
 }
 
 function wLoadCalc(id) {
@@ -670,12 +674,19 @@ function wLoadCalc(id) {
   if (!confirm('「' + rec.name + '」を読み込みます。現在のリストは置き換えられます。')) return;
   _wRows = JSON.parse(JSON.stringify(rec.rows));
   _wJobName = (rec.jobName || '').trim();
-  try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
+  _wJobClient = (rec.jobClient || '').trim();
+  try {
+    localStorage.setItem('wJobName',   _wJobName);
+    localStorage.setItem('wJobClient', _wJobClient);
+  } catch (e) {}
   Object.keys(rec.opts || {}).forEach(function(key) {
     if (_wOpts[key] !== rec.opts[key]) wToggleOpt(key);
   });
   _wCartAdded = false;
-  wJobBannerInit();
+  var wci = document.getElementById('wJobClient');
+  if (wci) wci.value = _wJobClient;
+  var wni = document.getElementById('wJobNameInput');
+  if (wni) wni.value = _wJobName;
   wRenderRows();
 }
 
@@ -898,12 +909,10 @@ function wPrint() {
     sumCo2 += r.kgTotal * CO2_FACTOR;
     if (r.amount !== null) sumAmt += r.amount;
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
-
     var memoStr = r.memo ? _esc(r.memo) : '—';
     if (r.kuiku) {
-      memoStr += ' <span style="font-size:inherit;font-weight:600;color:#555555;margin-left:6px">' + _esc(r.kuiku) + '</span>';
+      memoStr += '　<span style="font-size:inherit;font-weight:600;color:#555555;margin-left:6px">工区: ' + _esc(r.kuiku) + '</span>';
     }
-
     return '<tr>' +
       '<td style="text-align:center">' + (i + 1) + '</td>' +
       '<td>' + memoStr + '</td>' +
@@ -918,246 +927,39 @@ function wPrint() {
       '</tr>';
   }).join('');
 
-  var printStyle =
-    '*{box-sizing:border-box;margin:0;padding:0}' +
-    'body{font-family:"Noto Sans JP",sans-serif;font-size:10px;padding:12mm 10mm;color:#111}' +
-    '@page{size:A4 portrait;margin:0}' +
-    '@media print{body{padding:12mm 10mm}}' +
-    'h2{font-size:12px;font-weight:700;letter-spacing:.04em;margin-bottom:2mm;color:#1a1a2e}' +
-    '.meta{font-size:9px;color:#666;margin-bottom:4mm;display:flex;gap:12px;flex-wrap:wrap}' +
-    'table{border-collapse:collapse;width:100%;table-layout:fixed}' +
-    'th,td{border:1px solid #d0d0d8;padding:4px 6px;word-break:break-all}' +
-    'th{background:#f4f4fa;font-size:9px;font-weight:700;color:#5a5a78;text-align:center}' +
-    'td{font-size:10px;vertical-align:middle}' +
-    'tfoot td{font-weight:700;background:#f0f0fa;font-size:11px}' +
-    'tr{page-break-inside:avoid}' +
-    'small{color:#aaa;font-size:8px}' +
-    '.co2{color:#2d6a2d}' +
-    '.footer{margin-top:4mm;font-size:8px;color:#aaa;text-align:right}';
-
-  var dateStr = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' });
-  var heading = '<h2>重量リスト</h2><div class="meta"><span>印刷日: ' + dateStr + '</span>' +
-    '<span>合計重量: ' + _wFmtKg(sumKg) + ' kg</span>' +
-    (sumAmt > 0 ? '<span>概算金額: ' + _wFmt(sumAmt, 0) + ' 円</span>' : '') +
-    '</div>';
-  var footer = '<div class="footer">※ 重量は JIS kg/m × 長さ。CO₂は2.1 kg-CO₂/kg（鉄骨概算）。</div>';
+  var jobHeader = '';
+  if (_wJobClient || _wJobName) {
+    jobHeader = '<p style="margin:0 0 6px;font-size:11px;color:#555">' +
+      (_wJobClient ? '顧客名: ' + _esc(_wJobClient) + '　' : '') +
+      (_wJobName   ? '工事名: ' + _esc(_wJobName)   : '') +
+      '</p>';
+  }
 
   var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>重量リスト</title>' +
-    '<style>' + printStyle + '</style></head><body>' +
-    heading +
+    '<style>*{box-sizing:border-box}body{font-family:sans-serif;font-size:11px;padding:16px}' +
+    'h2{font-size:13px;margin-bottom:4px}' +
+    'table{border-collapse:collapse;width:100%}' +
+    'th,td{border:1px solid #ddd;padding:5px 8px}' +
+    'th{background:#f4f4fa;font-size:10px;font-weight:600}' +
+    'tfoot td{font-weight:700;background:#f8f8fc}' +
+    'small{color:#aaa}' +
+    '@media print{body{padding:0}}' +
+    '</style></head><body>' +
+    '<h2>重量リスト</h2>' + jobHeader +
     '<table><thead><tr>' +
     '<th>#</th><th>部材名</th><th>種類</th><th>規格</th>' +
     '<th>長さ(mm)</th><th>本数</th><th>合計重量(kg)</th>' +
-    (_wOpts.co2 ? '<th>CO₂排出(kg-CO₂)</th>' : '') +
+    (_wOpts.co2 ? '<th>CO₂(kg-CO₂)</th>' : '') +
     '<th>概算金額(円)</th><th>塗装金額(円)</th>' +
     '</tr></thead><tbody>' + rows + '</tbody>' +
     '<tfoot><tr>' +
     '<td colspan="6" style="text-align:right">合　計</td>' +
     '<td style="text-align:right">' + _wFmtKg(sumKg) + ' kg</td>' +
-    (_wOpts.co2 ? '<td style="text-align:right" class="co2">' + sumCo2.toFixed(1) + ' kg-CO₂</td>' : '') +
+    (_wOpts.co2 ? '<td style="text-align:right">' + sumCo2.toFixed(1) + ' kg-CO₂</td>' : '') +
     '<td style="text-align:right">' + (sumAmt > 0 ? _wFmt(sumAmt, 0) + ' 円' : '—') + '</td>' +
     '<td style="text-align:right">' + (sumPaint > 0 ? _wFmt(sumPaint, 0) + ' 円' : '—') + '</td>' +
-    '</tr></tfoot></table>' +
-    footer +
-    '</body></html>';
+    '</tr></tfoot></table></body></html>';
 
   var w = window.open('', '_blank');
   if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
-}
-
-function wCmdBuildAll() {
-  _wCmdAll = [];
-  if (typeof STEEL !== 'object' || !STEEL) return;
-  Object.keys(STEEL).forEach(function(kind) {
-    (STEEL[kind] || []).forEach(function(row) {
-      _wCmdAll.push({ kind: kind, spec: row[0], kgm: row[1], label: kind + ' ' + row[0] });
-    });
-  });
-}
-
-function wCmdActivate(el) {
-  if (!el) return;
-  el.focus();
-  if (typeof el.select === 'function') el.select();
-  if (el.value && el.value.trim()) {
-    wCmdFilter();
-  } else {
-    wCmdOpenBrowse();
-  }
-}
-
-function wCmdOpenBrowse() {
-  var dd = document.getElementById('wCmdDropdown');
-  if (!dd) return;
-  var html = '';
-  Object.keys(STEEL).forEach(function(kind) {
-    html += '<div class="cmd-cat" style="cursor:pointer;color:#1a1a2e;font-size:11px" ' +
-            'onmousedown="event.preventDefault();wCmdShowKind(\'' + kind + '\')">' +
-            kind + ' <span style="color:#bbb;font-size:10px">▶</span></div>';
-  });
-  dd.innerHTML = html;
-  dd.style.display = 'block';
-  _wCmdIdx = -1;
-  document.addEventListener('click', wCmdOutside);
-}
-
-function wCmdShowKind(kind) {
-  var dd   = document.getElementById('wCmdDropdown');
-  var list = STEEL[kind] || [];
-  if (!dd) return;
-  var html = '<div class="cmd-cat" style="cursor:pointer;color:#aaa;display:flex;align-items:center;gap:4px" ' +
-             'onmousedown="event.preventDefault();wCmdOpenBrowse()">◀ 戻る　<strong style="color:#5a5a78">' + kind + '</strong></div>';
-  list.forEach(function(row) {
-    var it = { kind: kind, spec: row[0], kgm: row[1] };
-    html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
-            '<span>' + row[0] + '</span>' +
-            '<span style="color:#aaa;font-size:10px">' + row[1] + ' kg/m</span>' +
-            '</div>';
-  });
-  dd.innerHTML = html;
-  dd.style.display = 'block';
-  _wCmdIdx = -1;
-}
-
-// 鋼材プレフィックスマップ（長い順に配置して先にマッチ）
-var W_PREFIX_MAP = [
-  { prefix: 'fb', kinds: ['平鋼'] },
-  { prefix: 'rb', kinds: ['丸鋼'] },
-  { prefix: 'h',  kinds: ['H形鋼'] },
-  { prefix: 'l',  kinds: ['等辺山形鋼', '不等辺山形鋼'] },
-  { prefix: 'u',  kinds: ['溝形鋼'] },
-  { prefix: 'i',  kinds: ['I形鋼'] },
-  { prefix: 'f',  kinds: ['平鋼'] },
-  { prefix: 'r',  kinds: ['丸鋼'] },
-  { prefix: 'p',  kinds: ['角パイプ', 'スモール角パイプ'] },
-  { prefix: '[',  kinds: ['軽量溝形鋼'] },
-  { prefix: 'c',  kinds: ['C形鋼'] }
-];
-
-function wCmdFilter() {
-  var input = document.getElementById('wCmdInput');
-  var dd    = document.getElementById('wCmdDropdown');
-  if (!input || !dd) return;
-  var q = input.value.trim().toLowerCase();
-  if (!q) { dd.style.display = 'none'; return; }
-
-  // プレフィックスで種類を絞り込む
-  var kindFilter = null;
-  for (var pi = 0; pi < W_PREFIX_MAP.length; pi++) {
-    var pm = W_PREFIX_MAP[pi];
-    if (q.indexOf(pm.prefix) === 0) {
-      kindFilter = pm.kinds;
-      break;
-    }
-  }
-
-  var filtered;
-  if (kindFilter) {
-    filtered = _wCmdAll.filter(function(it) {
-      if (kindFilter.indexOf(it.kind) < 0) return false;
-      return it.spec.toLowerCase().indexOf(q) >= 0 ||
-             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
-    });
-  } else {
-    filtered = _wCmdAll.filter(function(it) {
-      return it.label.toLowerCase().indexOf(q) >= 0 ||
-             it.spec.toLowerCase().indexOf(q)  >= 0 ||
-             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
-    });
-  }
-
-  if (filtered.length === 0) {
-    dd.innerHTML = '<div style="padding:12px;font-size:12px;color:#aaa;text-align:center">見つかりません</div>';
-    dd.style.display = 'block';
-    _wCmdIdx = -1;
-    document.addEventListener('click', wCmdOutside);
-    return;
-  }
-
-  var grouped = {};
-  filtered.forEach(function(it) {
-    if (!grouped[it.kind]) grouped[it.kind] = [];
-    grouped[it.kind].push(it);
-  });
-
-  var html = '';
-  Object.keys(grouped).forEach(function(kind) {
-    html += '<div class="cmd-cat">' + kind + '</div>';
-    grouped[kind].forEach(function(it) {
-      html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
-              '<span>' + it.spec + '</span>' +
-              '<span style="color:#aaa;font-size:10px">' + it.kgm + ' kg/m</span>' +
-              '</div>';
-    });
-  });
-
-  dd.innerHTML = html;
-  dd.style.display = 'block';
-  _wCmdIdx = -1;
-  document.addEventListener('click', wCmdOutside);
-}
-
-function wCmdSelect(it) {
-  var kindEl  = document.getElementById('wKind');
-  var specEl  = document.getElementById('wSpec');
-  var kgmEl   = document.getElementById('wKgm');
-  var kgmDisp = document.getElementById('wCmdKgm');
-  var kgmValEl = document.getElementById('wKgmVal');
-  var input   = document.getElementById('wCmdInput');
-  var dd      = document.getElementById('wCmdDropdown');
-  if (kindEl) kindEl.value = it.kind;
-  wOnKind();
-  if (specEl) specEl.value = it.spec;
-  if (kgmEl) kgmEl.value = String(it.kgm);
-  if (kgmValEl) kgmValEl.textContent = it.kgm + ' kg/m';
-  if (input)   input.value          = it.kind + '　' + it.spec;
-  if (kgmDisp) kgmDisp.textContent = it.kgm + ' kg/m';
-  if (dd)      dd.style.display     = 'none';
-  _wCmdIdx = -1;
-  document.removeEventListener('click', wCmdOutside);
-  // 選択後は長さ欄へ自動フォーカス
-  setTimeout(function() {
-    var lenEl = document.getElementById('wLen');
-    if (lenEl) { lenEl.focus(); lenEl.select(); }
-  }, 0);
-  wPreview();
-}
-
-function wCmdOutside(e) {
-  var wrap = document.getElementById('wCmdWrap');
-  if (wrap && !wrap.contains(e.target)) {
-    var dd = document.getElementById('wCmdDropdown');
-    if (dd) dd.style.display = 'none';
-    document.removeEventListener('click', wCmdOutside);
-  }
-}
-
-function wCmdKey(e) {
-  var dd = document.getElementById('wCmdDropdown');
-  if (!dd || dd.style.display === 'none') return;
-  var items = dd.querySelectorAll('.cmd-item');
-  if (!items.length) return;
-
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    _wCmdIdx = Math.min(_wCmdIdx + 1, items.length - 1);
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    _wCmdIdx = Math.max(_wCmdIdx - 1, 0);
-  } else if (e.key === 'Enter') {
-    e.preventDefault();
-    var target = _wCmdIdx >= 0 ? items[_wCmdIdx] : (items.length === 1 ? items[0] : null);
-    if (target) { target.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); }
-    return;
-  } else if (e.key === 'Escape') {
-    dd.style.display = 'none';
-    _wCmdIdx = -1;
-    return;
-  } else { return; }
-
-  items.forEach(function(el) { el.classList.remove('cmd-focus'); });
-  if (_wCmdIdx >= 0) {
-    items[_wCmdIdx].classList.add('cmd-focus');
-    items[_wCmdIdx].scrollIntoView({ block: 'nearest' });
-  }
 }
