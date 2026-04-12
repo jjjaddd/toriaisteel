@@ -2030,9 +2030,9 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           '</div>' +
 '<div class="cc-btns"><button class="cc-btn-add" id="add_' + remOnlyCardId + '" onclick="cartAdd(\'' + remOnlyCardId + '\',this)">＋ 追加</button></div>' +
         '</div>' +
-        '<div class="rem-section" style="padding:6px 12px;background:#f8f8fc;border-top:1px solid #ebebf0">' +
-          '<div style="font-size:10px;color:#5a5a78;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">端材リスト</div>' +
-          '<div style="display:flex;flex-wrap:wrap;gap:2px">' + remEndHtml + '</div>' +
+        '<div class="rem-section rem-strip">' +
+          '<div class="rem-strip-label">端材リスト</div>' +
+          '<div class="rem-strip-pills">' + remEndHtml + '</div>' +
         '</div>' +
         '<button class="diag-toggle" onclick="toggleDiag(\'' + remOnlyDiagId + '\',this)">✂ 切断図を表示 ▼</button>' +
         '<div id="' + remOnlyDiagId + '" style="display:none">' + remOnlyDiag + '</div>' +
@@ -2266,9 +2266,9 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
 '<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + cardId2 + '" onclick="cartAdd(\'' + cardId2 + '\',this)">＋ 追加</button>' + '</div>' +
         '</div>' +
         '<div class="cc-pat"><div class="pgrid">' + patDetailHtml + '</div></div>' +
-        '<div style="padding:6px 14px;background:#f8f8fb;border-top:1px solid #e8e8ed">' +
-          '<div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">端材リスト</div>' +
-          '<div style="display:flex;flex-wrap:wrap;gap:2px">' + remHtml + '</div>' +
+        '<div class="rem-section rem-strip">' +
+          '<div class="rem-strip-label">端材リスト</div>' +
+          '<div class="rem-strip-pills">' + remHtml + '</div>' +
         '</div>' +
         (diagHtml ? '<button class="diag-toggle" onclick="toggleDiag(\'' + diagId + '\',this)">✂ 切断図を表示 ▼</button><div id="' + diagId + '" style="display:none">' + diagHtml + '</div>' : '') +
       '</div>';

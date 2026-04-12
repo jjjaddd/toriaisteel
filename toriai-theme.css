@@ -1475,6 +1475,68 @@ html[data-theme="dark"] .ds-toggle-row { border-color: var(--line) !important; }
 html[data-theme="dark"] .ds-toggle-row:hover { background: var(--hp) !important; }
 html[data-theme="dark"] .ds-toggle-label span { color: var(--ink) !important; }
 
+/* 詳細設定: セクション見出し・フィールド・トグルエリア */
+html[data-theme="dark"] .ds-title {
+  color: var(--ink) !important;
+  border-bottom-color: var(--line) !important;
+}
+html[data-theme="dark"] .ds-field label { color: var(--ink2) !important; }
+html[data-theme="dark"] .ds-field input[type="number"],
+html[data-theme="dark"] .ds-field input[type="text"],
+html[data-theme="dark"] .ds-field input[type="date"],
+html[data-theme="dark"] .ds-field textarea {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .ds-field input:hover,
+html[data-theme="dark"] .ds-field textarea:hover,
+html[data-theme="dark"] .ds-field input:focus,
+html[data-theme="dark"] .ds-field textarea:focus {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] .ds-toggle-area {
+  background: var(--bg3) !important;
+}
+html[data-theme="dark"] .ds-sec-head:hover {
+  background: var(--hp) !important;
+}
+html[data-theme="dark"] .ds-add-btn {
+  border-color: var(--line) !important;
+  color: var(--ink3) !important;
+}
+html[data-theme="dark"] .ds-add-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .ds-tog-track { background: var(--bg2) !important; border: 1px solid var(--line) !important; }
+
+/* 端材リスト帯 (rem-strip) */
+.rem-strip {
+  padding: 6px 14px !important;
+  background: var(--bg2) !important;
+  border-top: 1px solid var(--line) !important;
+}
+.rem-strip-label {
+  font-size: 10px;
+  color: var(--ink3);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.rem-strip-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+html[data-theme="dark"] .rem-strip {
+  background: var(--bg3) !important;
+  border-top-color: var(--line) !important;
+}
+
 /* ── 25. WIP badges ─────────────────────────────────────────── */
 .wip-badge { background: rgba(234,88,12,.08) !important; border: 1px solid rgba(234,88,12,.25) !important; color: #c2410c !important; }
 html[data-theme="dark"] .wip-badge { background: rgba(234,88,12,.12) !important; border-color: rgba(234,88,12,.3) !important; color: #fb923c !important; }
