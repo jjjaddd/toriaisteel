@@ -116,7 +116,6 @@ function wInit() {
     if (el) el.focus();
   }, 80);
 
-  renderWSavedList();
   wJobBannerInit();
 }
 
