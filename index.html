@@ -402,10 +402,6 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         <div class="hi-sort-row">
           <span class="hi-count" id="hiCountLabel"></span>
           <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
-            <button id="hiViewFlat" class="hi-view-btn hi-view-btn--on"
-                    onclick="hiSetView('flat')" title="日付順">≡ 日付順</button>
-            <button id="hiViewGroup" class="hi-view-btn"
-                    onclick="hiSetView('group')" title="案件別">⊞ 案件別</button>
             <select id="hsSort" class="hi-sort" onchange="renderHistory()">
               <option value="date_desc">新しい順</option>
               <option value="date_asc">古い順</option>
@@ -584,17 +580,6 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <div id="wpp" class="pg">
   <div class="layout">
     <aside class="sb">
-      <section style="margin-bottom:12px">
-        <div class="shd" style="margin-bottom:6px">作業情報</div>
-        <div class="field">
-          <label>顧客名</label>
-          <input type="text" id="wJobClient" placeholder="例：株式会社〇〇" maxlength="60" oninput="wSaveJobInfo()" autocomplete="off">
-        </div>
-        <div class="field" style="margin-top:6px">
-          <label>工事名</label>
-          <input type="text" id="wJobNameInput" placeholder="例：〇〇ビル新築工事" maxlength="60" oninput="wSaveJobInfo()" autocomplete="off">
-        </div>
-      </section>
       <section>
         <div class="shd" style="margin-bottom:4px">鋼材種類・規格</div>
         <!-- 鋼材検索UI：🔍ボタン + 入力欄 -->
