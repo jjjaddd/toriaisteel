@@ -687,6 +687,14 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         style="width:100%;margin-top:6px;padding:8px;background:none;border:1px solid #1a1a2e;color:#1a1a2e;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">
         🖨 印刷
       </button>
+      <button onclick="wSaveCalc()" class="sm-btn"
+        style="width:100%;margin-top:6px;padding:7px">
+        💾 計算を保存
+      </button>
+      <div style="margin-top:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.06em;margin-bottom:4px">保存済み</div>
+        <div id="wSavedList"></div>
+      </div>
       <p style="font-size:10px;color:#aaaabc;margin-top:6px">
         ※ 重量は JIS kg/m × 長さ。塗装面積は断面周長 × 長さ（概算値）。
       </p>
@@ -847,10 +855,40 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
                   onclick="cartPrintWeight()" disabled>🖨 重量計算書を印刷</button>
           <button class="cart-action-btn" id="cartWeightCsvBtn"
                   onclick="cartExportWeightCsv()" disabled>CSV出力</button>
-          <button class="cart-action-btn" disabled>見積書PDF（準備中）</button>
+        </div>
+        <div class="cart-section-actions" style="margin-top:4px">
+          <span style="font-size:10px;color:var(--ink3);align-self:center">📋 コピー：</span>
+          <button class="cart-copy-btn" id="cartCopyPartsBtn"
+                  onclick="cartCopyPreview('parts')" disabled>部材リスト</button>
+          <button class="cart-copy-btn" id="cartCopyAmtBtn"
+                  onclick="cartCopyPreview('amount')" disabled>金額サマリー</button>
+          <button class="cart-copy-btn" id="cartCopyTotalBtn"
+                  onclick="cartCopyPreview('total')" disabled>合計のみ</button>
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<div id="copyPreviewModal" onclick="if(event.target===this)closeCopyPreview()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;
+            align-items:center;justify-content:center">
+  <div style="background:var(--bg);border-radius:12px;padding:20px 24px;max-width:700px;
+              width:92%;max-height:80vh;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;font-size:14px" id="copyPreviewTitle">コピー内容の確認</span>
+      <button onclick="closeCopyPreview()" class="cart-close-btn">閉じる</button>
+    </div>
+    <p style="font-size:11px;color:var(--ink3)">
+      ExcelやWordに貼り付けると、タブ区切りで自動的にセルに分かれます。
+    </p>
+    <div id="copyPreviewTable"
+         style="overflow:auto;max-height:320px;border:1px solid var(--line);border-radius:8px;font-size:11px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeCopyPreview()" class="sm-btn">キャンセル</button>
+      <button onclick="executeCopy()" class="cart-action-btn cart-action-primary"
+              id="copyExecBtn">📋 コピー実行</button>
     </div>
   </div>
 </div>

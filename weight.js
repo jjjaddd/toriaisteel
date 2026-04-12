@@ -9,6 +9,10 @@ var _wRedoStack = [];
 var _wOpts      = { price: false, name: false, kuiku: false, rev: false, paint: false, m2: false };
 var _wEditIdx   = -1;
 var _wCartAdded = false;
+var _wSavedCalcs = (function() {
+  try { return JSON.parse(localStorage.getItem('wSavedCalcs') || '[]'); }
+  catch (e) { return []; }
+})();
 
 // コマンドパレット
 var _wCmdAll = [];
@@ -107,6 +111,8 @@ function wInit() {
     var el = document.getElementById('wCmdInput');
     if (el) el.focus();
   }, 80);
+
+  renderWSavedList();
 }
 
 // ── Enter フロー ──────────────────────────────────────────────
@@ -592,6 +598,69 @@ function wRenderRows() {
 }
 
 // ── 印刷 ──────────────────────────────────────────────────────
+function wSaveCalc() {
+  if (_wRows.length === 0) { alert('リストが空です。'); return; }
+  var defaultName = (function() {
+    var specs = [];
+    _wRows.forEach(function(r) { if (specs.indexOf(r.spec) < 0) specs.push(r.spec); });
+    var d = new Date();
+    return specs.slice(0, 2).join('/') + ' ' + (d.getMonth() + 1) + '/' + d.getDate();
+  })();
+  var name = prompt('保存名を入力してください', defaultName);
+  if (!name) return;
+  var rec = {
+    id: 'wc_' + Date.now(),
+    name: name,
+    savedAt: new Date().toISOString(),
+    rows: JSON.parse(JSON.stringify(_wRows)),
+    opts: JSON.parse(JSON.stringify(_wOpts))
+  };
+  _wSavedCalcs.unshift(rec);
+  if (_wSavedCalcs.length > 20) _wSavedCalcs.pop();
+  try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  renderWSavedList();
+  alert('「' + name + '」を保存しました。');
+}
+
+function wLoadCalc(id) {
+  var rec = _wSavedCalcs.find(function(r) { return r.id === id; });
+  if (!rec) return;
+  if (!confirm('「' + rec.name + '」を読み込みます。現在のリストは置き換えられます。')) return;
+  _wRows = JSON.parse(JSON.stringify(rec.rows));
+  Object.keys(rec.opts || {}).forEach(function(key) {
+    if (_wOpts[key] !== rec.opts[key]) wToggleOpt(key);
+  });
+  _wCartAdded = false;
+  wRenderRows();
+}
+
+function wDeleteSavedCalc(id) {
+  _wSavedCalcs = _wSavedCalcs.filter(function(r) { return r.id !== id; });
+  try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  renderWSavedList();
+}
+
+function renderWSavedList() {
+  var cont = document.getElementById('wSavedList');
+  if (!cont) return;
+  if (_wSavedCalcs.length === 0) {
+    cont.innerHTML = '<div style="font-size:11px;color:var(--ink3);padding:4px 0">保存済みなし</div>';
+    return;
+  }
+  cont.innerHTML = _wSavedCalcs.map(function(rec) {
+    var d = new Date(rec.savedAt);
+    var dateStr = (d.getMonth() + 1) + '/' + d.getDate() + ' ' +
+                  ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    return '<div class="w-saved-item">' +
+      '<div class="w-saved-info" onclick="wLoadCalc(\'' + rec.id + '\')" title="クリックで読み込み">' +
+        '<div class="w-saved-name">' + _esc(rec.name) + '</div>' +
+        '<div class="w-saved-date">' + dateStr + '　' + rec.rows.length + '行</div>' +
+      '</div>' +
+      '<button class="w-saved-del" onclick="wDeleteSavedCalc(\'' + rec.id + '\')" title="削除">✕</button>' +
+    '</div>';
+  }).join('');
+}
+
 function wPrint() {
   if (_wRows.length === 0) { alert('リストが空です。'); return; }
 

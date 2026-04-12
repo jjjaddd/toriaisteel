@@ -4696,6 +4696,10 @@ function getRemnants() {
       }
       if (weightPrintBtn) weightPrintBtn.disabled = weightItems.length === 0;
       if (weightCsvBtn) weightCsvBtn.disabled = weightItems.length === 0;
+      ['cartCopyPartsBtn', 'cartCopyAmtBtn', 'cartCopyTotalBtn'].forEach(function(id) {
+        var b = document.getElementById(id);
+        if (b) b.disabled = weightItems.length === 0;
+      });
     }
 
     updateCartBadge();
@@ -4929,6 +4933,109 @@ function cartExportWeightCsv() {
   a.download = '重量計算リスト.csv';
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ── コピー プレビュー ──────────────────────────────────────────
+var _copyPendingTsv = '';
+
+function cartCopyPreview(mode) {
+  var cart = getCart().filter(function(x) { return x.data.isWeight; });
+  if (!cart.length) return;
+
+  var rows = [];
+  cart.forEach(function(item) { rows = rows.concat(item.data.rows || []); });
+
+  var tsv = '';
+  var previewHtml = '';
+
+  if (mode === 'parts') {
+    var header = ['#', '部材名', '工区', '種類', '規格', '長さ(mm)', '本数', '合計重量(kg)'];
+    var hasAmt = rows.some(function(r) { return r.amount !== null; });
+    if (hasAmt) header.push('概算金額(円)');
+    var dataRows = rows.map(function(r, i) {
+      var row = [i + 1, r.memo || '—', r.kuiku || '', r.kind, r.spec, r.len, r.qty, r.kgTotal.toFixed(2)];
+      if (hasAmt) row.push(r.amount !== null ? Math.round(r.amount) : '');
+      return row;
+    });
+    tsv = [header].concat(dataRows).map(function(r) { return r.join('\t'); }).join('\r\n');
+    previewHtml = buildCopyPreviewTable(header, dataRows);
+    document.getElementById('copyPreviewTitle').textContent = '📋 部材リスト';
+  } else if (mode === 'amount') {
+    var map = {};
+    rows.forEach(function(r) {
+      var key = r.kind + ' ' + r.spec;
+      if (!map[key]) map[key] = { kind: r.kind, spec: r.spec, qty: 0, kg: 0, amt: 0, hasAmt: false };
+      map[key].qty += r.qty;
+      map[key].kg += r.kgTotal;
+      if (r.amount !== null) { map[key].amt += r.amount; map[key].hasAmt = true; }
+    });
+    var header2 = ['種類', '規格', '本数', '合計重量(kg)', '概算金額(円)'];
+    var dataRows2 = Object.values(map).map(function(v) {
+      return [v.kind, v.spec, v.qty, v.kg.toFixed(2), v.hasAmt ? Math.round(v.amt) : '—'];
+    });
+    tsv = [header2].concat(dataRows2).map(function(r) { return r.join('\t'); }).join('\r\n');
+    previewHtml = buildCopyPreviewTable(header2, dataRows2);
+    document.getElementById('copyPreviewTitle').textContent = '📋 金額サマリー（規格別）';
+  } else if (mode === 'total') {
+    var sumKg = 0;
+    var sumAmt = 0;
+    var hasAmt2 = false;
+    rows.forEach(function(r) {
+      sumKg += r.kgTotal;
+      if (r.amount !== null) { sumAmt += r.amount; hasAmt2 = true; }
+    });
+    var header3 = ['合計重量(kg)', '概算金額(円)'];
+    var dataRows3 = [[sumKg.toFixed(2), hasAmt2 ? Math.round(sumAmt) : '—']];
+    tsv = [header3].concat(dataRows3).map(function(r) { return r.join('\t'); }).join('\r\n');
+    previewHtml = buildCopyPreviewTable(header3, dataRows3);
+    document.getElementById('copyPreviewTitle').textContent = '📋 合計のみ';
+  }
+
+  _copyPendingTsv = tsv;
+  document.getElementById('copyPreviewTable').innerHTML = previewHtml;
+  document.getElementById('copyPreviewModal').style.display = 'flex';
+}
+
+function buildCopyPreviewTable(headers, rows) {
+  var th = headers.map(function(h) {
+    return '<th style="padding:5px 10px;background:var(--bg2);text-align:left;white-space:nowrap;font-size:10px">' + h + '</th>';
+  }).join('');
+  var tbody = rows.map(function(r) {
+    var tds = r.map(function(c) {
+      return '<td style="padding:4px 10px;border-top:1px solid var(--line);white-space:nowrap">' + c + '</td>';
+    }).join('');
+    return '<tr>' + tds + '</tr>';
+  }).join('');
+  return '<table style="border-collapse:collapse;width:100%"><thead><tr>' + th + '</tr></thead><tbody>' + tbody + '</tbody></table>';
+}
+
+function executeCopy() {
+  if (!_copyPendingTsv) return;
+  navigator.clipboard.writeText(_copyPendingTsv).then(function() {
+    var btn = document.getElementById('copyExecBtn');
+    if (btn) { btn.textContent = '✓ コピーしました'; btn.disabled = true; }
+    setTimeout(closeCopyPreview, 900);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = _copyPendingTsv;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    var btn = document.getElementById('copyExecBtn');
+    if (btn) { btn.textContent = '✓ コピーしました'; btn.disabled = true; }
+    setTimeout(closeCopyPreview, 900);
+  });
+}
+
+function closeCopyPreview() {
+  _copyPendingTsv = '';
+  var m = document.getElementById('copyPreviewModal');
+  if (m) m.style.display = 'none';
+  var btn = document.getElementById('copyExecBtn');
+  if (btn) { btn.textContent = '📋 コピー実行'; btn.disabled = false; }
 }
 
 function showHistPreview(id) {
