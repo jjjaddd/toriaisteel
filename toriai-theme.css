@@ -1745,3 +1745,135 @@ html[data-theme="dark"] .cart-close-btn:hover,
 html[data-theme="dark"] .cart-close-btn.cart-danger-btn:hover {
   background: var(--bg2) !important;
 }
+
+/* ── 33. Dark mode補完: データ・重量・計算タブ ───────────────── */
+
+/* データタブ: メインカード */
+html[data-theme="dark"] .dp-left,
+html[data-theme="dark"] .dp-right {
+  background: var(--bg2) !important;
+  box-shadow: 0 2px 20px rgba(0,0,0,.4) !important;
+}
+
+/* 断面図背景 */
+html[data-theme="dark"] .dp-diagram-bg {
+  background: var(--bg3) !important;
+}
+
+/* 鋼材種別バッジ (H/C/L/FB/PB/ST) */
+html[data-theme="dark"] .dp-type-badge,
+html[data-theme="dark"] .dp-type-h,
+html[data-theme="dark"] .dp-type-c,
+html[data-theme="dark"] .dp-type-l,
+html[data-theme="dark"] .dp-type-fb,
+html[data-theme="dark"] .dp-type-pb,
+html[data-theme="dark"] .dp-type-st,
+html[data-theme="dark"] .dp-type-rp,
+html[data-theme="dark"] .dp-type-sq,
+html[data-theme="dark"] .dp-type-bl {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+
+/* JISバッジ */
+html[data-theme="dark"] .dp-jis-badge {
+  background: var(--bg3) !important;
+  color: var(--ink3) !important;
+  border-color: var(--line) !important;
+}
+
+/* 名称・サブテキスト */
+html[data-theme="dark"] .dp-spec-name { color: var(--ink) !important; }
+html[data-theme="dark"] .dp-spec-sub  { color: var(--ink3) !important; }
+html[data-theme="dark"] .dp-section-title { color: var(--ink3) !important; }
+
+/* 断面寸法・断面性能セル */
+html[data-theme="dark"] .dp-cell {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] .dp-cell span { color: var(--ink3) !important; }
+html[data-theme="dark"] .dp-cell strong { color: var(--ink) !important; }
+
+/* ハイライトセル (橙色: r1/r2) */
+html[data-theme="dark"] .dp-cell.dp-r {
+  background: rgba(251,191,36,.08) !important;
+  border-color: rgba(251,191,36,.25) !important;
+}
+html[data-theme="dark"] .dp-cell.dp-r span  { color: #fbbf24 !important; }
+html[data-theme="dark"] .dp-cell.dp-r strong { color: #fde68a !important; }
+
+/* 単位質量バー (青いバー) */
+html[data-theme="dark"] .dp-unit-mass-wrap,
+html[data-theme="dark"] [class*="unit-mass"] {
+  background: rgba(14,165,233,.1) !important;
+  border-color: rgba(14,165,233,.2) !important;
+}
+html[data-theme="dark"] .dp-unit-val,
+html[data-theme="dark"] .dp-unit-mass {
+  color: #7dd3fc !important;
+}
+
+/* 断面図内SVGの白塗り → 暗い青-グレーに */
+html[data-theme="dark"] .dp-diagram-bg svg [fill="#fff"],
+html[data-theme="dark"] .dp-diagram-bg svg [fill="white"],
+html[data-theme="dark"] .dp-diagram-bg svg [fill="#ffffff"] {
+  fill: var(--bg3) !important;
+}
+
+/* ── 重量タブ: テーブル行 ──────────────────────────── */
+html[data-theme="dark"] #wTable {
+  background: var(--bg) !important;
+}
+html[data-theme="dark"] #wTable tbody tr {
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+html[data-theme="dark"] #wTable tbody tr:nth-child(even) {
+  background: var(--bg2) !important;
+}
+html[data-theme="dark"] #wTable tbody tr:hover {
+  background: var(--hp) !important;
+}
+html[data-theme="dark"] #wTable td {
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] #wTable tfoot tr {
+  background: var(--bg3) !important;
+}
+html[data-theme="dark"] #wTable tfoot td {
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* ── 計算タブ: 残りの白い要素 ────────────────────── */
+/* tot (合計欄) */
+html[data-theme="dark"] .tot {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+}
+/* pt-row (部材行) */
+html[data-theme="dark"] .pt-row {
+  color: var(--ink) !important;
+  border-bottom-color: var(--line) !important;
+}
+html[data-theme="dark"] .pt-row:nth-child(even) {
+  background: var(--bg3) !important;
+}
+/* 全体フォールバック: 白い背景の残り要素を var(--bg2) に統一 */
+html[data-theme="dark"] .cc *[style*="background:#fff"],
+html[data-theme="dark"] .cc *[style*="background: #fff"],
+html[data-theme="dark"] .cc *[style*="background-color:#fff"],
+html[data-theme="dark"] .cc *[style*="background-color: #fff"] {
+  background: var(--bg2) !important;
+}
+html[data-theme="dark"] .cc *[style*="color:#1a1a2e"],
+html[data-theme="dark"] .cc *[style*="color: #1a1a2e"] {
+  color: var(--ink) !important;
+}
+
+/* スクロールバー (ダーク) */
+html[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg2) !important; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--ink3) !important; }
