@@ -3414,21 +3414,7 @@ function renderHistory() {
       '</div>';
     }).join('');
   } else {
-    var groups = {};
-    pageData.items.forEach(function(item) {
-      var key = item.spec || '規格未設定';
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(item);
-    });
-    cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
-      return '<div class="hist-card">' +
-        '<div class="hist-card-header">' +
-          '<span class="inv-spec-label">' + spec + '</span>' +
-          '<span class="inv-count-badge">' + groups[spec].length + '件</span>' +
-        '</div>' +
-        groups[spec].map(function(h) { return _renderHistRow(h); }).join('') +
-      '</div>';
-    }).join('');
+    cont.innerHTML = pageData.items.map(function(h) { return _renderHistRow(h); }).join('');
     renderPager('histPagination', historyPage, pageData.totalPages, 'setHistoryPage');
   }
 }
