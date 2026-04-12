@@ -1152,12 +1152,12 @@ function renderCardRemnantSection(card, rems) {
   }
   if (!section) {
     section = document.createElement('div');
-    section.className = 'rem-section';
-    section.style.cssText = 'padding:6px 14px;background:#f8f8fb;border-top:1px solid #e8e8ed';
+    section.className = 'rem-section rem-strip';
     if (pat && pat.parentNode === card) pat.insertAdjacentElement('afterend', section);
     else card.appendChild(section);
   }
-  section.classList.add('rem-section');
+  section.classList.add('rem-section', 'rem-strip');
+  section.style.background = '';  /* clear any old inline bg */
   var dup = section.nextElementSibling;
   while (dup && !(dup.classList && dup.classList.contains('diag-toggle'))) {
     var next = dup.nextElementSibling;
@@ -1167,7 +1167,7 @@ function renderCardRemnantSection(card, rems) {
     dup = next;
   }
   section.innerHTML =
-    '<div style="font-size:10px;color:#8888a8;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px">端材リスト</div>' +
+    '<div class="rem-strip-label">端材リスト</div>' +
     (rems.length ? buildRemHtmlFromRemnants(rems) : '<div class="rem-list"><span class="rem-pill rem-pill-empty">なし</span></div>');
 }
 
