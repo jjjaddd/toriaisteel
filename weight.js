@@ -759,6 +759,13 @@ function wAddToCart() {
   };
 
   if (typeof addToCart === 'function') addToCart('weight_' + Date.now(), data);
+  if (typeof saveWeightHistory === 'function' && typeof getJobInfo === 'function') {
+    saveWeightHistory(
+      JSON.parse(JSON.stringify(_wRows)),
+      JSON.parse(JSON.stringify(_wOpts)),
+      getJobInfo()
+    );
+  }
   if (typeof updateCartBadge === 'function') updateCartBadge();
   _wCartAdded = true;
   if (btn) {
@@ -826,6 +833,13 @@ function wPrint() {
 
 function wPrint() {
   if (_wRows.length === 0) { alert('リストが空です。'); return; }
+  if (typeof saveWeightHistory === 'function' && typeof getJobInfo === 'function') {
+    saveWeightHistory(
+      JSON.parse(JSON.stringify(_wRows)),
+      JSON.parse(JSON.stringify(_wOpts)),
+      getJobInfo()
+    );
+  }
 
   var CO2_FACTOR = 2.1;
   var sumKg = 0, sumAmt = 0, sumPaint = 0, sumCo2 = 0;
