@@ -2410,7 +2410,7 @@ function updatePrintHeader() {
   var spec = (document.getElementById('spec')||{}).value || '';
   hdr.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
-      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">TORIAI 作業指示書</div>' +
+      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">作業指示書</div>' +
       '<div style="font-size:10px;color:#666">印刷日: ' + new Date().toLocaleDateString("ja-JP") + '</div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px">' +
@@ -3056,7 +3056,7 @@ function buildPrintPages(job, sections) {
     // フッター
     html += '<div class="print-footer">';
     html += '<span>全 ' + sections.length + ' 鋼材　' + (isLast ? '以上' : '/ ' + pageNum + '枚目') + '</span>';
-    html += '<span>TORIAI β</span>';
+    html += '<span></span>';
     html += '</div>';
 
     if (!isLast) html += '<div style="page-break-after:always"></div>';
@@ -3647,7 +3647,7 @@ function buildPrintHeaderFull(job, pageInfo) {
   var h = '';
   h += '<div class="ph-full">';
   h += '<div>';
-  h += '<div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.06em;margin-bottom:4px">TORIAI 作業指示書</div>';
+  h += '<div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.06em;margin-bottom:4px">作業指示書</div>';
   h += '<div style="display:flex;gap:18px;align-items:baseline">';
   h += '<div><span style="font-size:9px;color:#666">顧客：</span><span style="font-size:12px;font-weight:700">' + (job.client || '—') + '</span></div>';
   h += '<div><span style="font-size:9px;color:#666">現場名：</span><span style="font-size:12px;font-weight:700">' + (job.name || '—') + '</span></div>';
@@ -3662,7 +3662,7 @@ function buildPrintHeaderFull(job, pageInfo) {
 function buildPrintHeaderMini(job, pageInfo) {
   var h = '';
   h += '<div class="ph-mini">';
-  h += '<div><span style="font-size:9px;font-weight:700;letter-spacing:.04em">TORIAI 作業指示書</span>';
+  h += '<div><span style="font-size:9px;font-weight:700;letter-spacing:.04em">作業指示書</span>';
   h += '<span style="font-size:9px;color:#555;margin-left:12px">顧客：' + (job.client || '—') + ' / 現場名：' + (job.name || '—') + '</span></div>';
   h += '<div style="text-align:right"><div style="font-size:9px;color:#888">' + pageInfo + '</div>';
   if (job.deadline) h += '<div style="font-size:9px"><span style="color:#666">納期：</span><strong>' + job.deadline + '</strong></div>';
@@ -3708,7 +3708,7 @@ function updatePrintHeader() {
   var spec = (document.getElementById('spec') || {}).value || '';
   hdr.innerHTML =
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
-      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">TORIAI 作業指示書</div>' +
+      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">作業指示書</div>' +
       '<div style="font-size:10px;color:#666">印刷日: ' + new Date().toLocaleDateString('ja-JP') + '</div>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px">' +
