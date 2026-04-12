@@ -843,8 +843,14 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         <div id="cartCutList"></div>
         <div class="cart-section-actions">
           <button class="cart-action-btn cart-action-primary" id="cartCutPrintBtn"
-                  onclick="cartPrintCutting()" disabled>🖨 切断指示書を印刷</button>
-          <button class="cart-action-btn" disabled>発注明細作成（準備中）</button>
+                  onclick="cartPrintCutting()">切断指示書を印刷</button>
+        </div>
+        <div class="cart-copy-row">
+          <span class="cart-copy-label">コピー:</span>
+          <button class="cart-copy-btn" id="cartCopyCutResultBtn"
+                  onclick="cartCopyCutResult()">計算結果</button>
+          <button class="cart-copy-btn" id="cartCopyCutStockBtn"
+                  onclick="cartCopyCutStock()">使用予定の母材</button>
         </div>
       </div>
 
@@ -854,77 +860,33 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         <div id="cartWeightList"></div>
         <div class="cart-section-actions">
           <button class="cart-action-btn cart-action-primary" id="cartWeightPrintBtn"
-                  onclick="cartPrintWeight()" disabled>🖨 重量計算書を印刷</button>
+                  onclick="cartPrintWeight()">🖨 重量計算書を印刷</button>
           <button class="cart-action-btn" id="cartWeightCsvBtn"
-                  onclick="cartExportWeightCsv()" disabled>CSV出力</button>
+                  onclick="cartExportWeightCsv()">CSV出力</button>
         </div>
-        <div class="cart-section-actions" style="margin-top:4px">
-          <span style="font-size:10px;color:var(--ink3);align-self:center">📋 コピー：</span>
+        <div class="cart-copy-row">
+          <span class="cart-copy-label">コピー:</span>
+          <button class="cart-copy-btn" id="cartCopyAllBtn"
+                  onclick="cartCopyPreview('all')">すべてをコピー</button>
           <button class="cart-copy-btn" id="cartCopyPartsBtn"
-                  onclick="cartCopyPreview('parts')" disabled>部材リスト</button>
-          <button class="cart-copy-btn" id="cartCopyAmtBtn"
-                  onclick="cartCopyPreview('amount')" disabled>金額サマリー</button>
-          <button class="cart-copy-btn" id="cartCopyTotalBtn"
-                  onclick="cartCopyPreview('total')" disabled>合計のみ</button>
+                  onclick="cartCopyPreview('parts-simple')">部材のみ</button>
         </div>
       </div>
 
-    </div>
-  </div>
-</div>
+    </div><!-- /.cart-modal-body -->
 
-<div id="copyPreviewModal" onclick="if(event.target===this)closeCopyPreview()"
-     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;
-            align-items:center;justify-content:center">
-  <div style="background:var(--bg);border-radius:12px;padding:20px 24px;max-width:700px;
-              width:92%;max-height:80vh;display:flex;flex-direction:column;gap:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;font-size:14px" id="copyPreviewTitle">コピー内容の確認</span>
-      <button onclick="closeCopyPreview()" class="cart-close-btn">閉じる</button>
-    </div>
-    <p style="font-size:11px;color:var(--ink3)">
-      ExcelやWordに貼り付けると、タブ区切りで自動的にセルに分かれます。
-    </p>
-    <div id="copyPreviewTable"
-         style="overflow:auto;max-height:320px;border:1px solid var(--line);border-radius:8px;font-size:11px"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button onclick="closeCopyPreview()" class="sm-btn">キャンセル</button>
-      <button onclick="executeCopy()" class="cart-action-btn cart-action-primary"
-              id="copyExecBtn">📋 コピー実行</button>
-    </div>
-  </div>
-</div>
-
-<!-- legacy cart modal kept hidden -->
-<div id="cartModalLegacy" onclick="if(event.target===this)closeCartModal()" style="display:none" aria-hidden="true">
-  <div class="cart-modal-inner">
-    <div class="cart-modal-hd">
-      <div class="cart-modal-hd-left">
-        <span class="cart-modal-title">🛒 印刷カート</span>
-        <span id="cartModalCountOld" class="cart-modal-count"></span>
-      </div>
-      <div class="cart-modal-hd-right">
-        <button class="cart-danger-btn" onclick="cartClearAll()">全クリア</button>
-        <button class="cart-close-btn" onclick="closeCartModal()">閉じる</button>
-      </div>
-    </div>
-    <div class="cart-modal-body">
-      <!-- 保存リスト -->
-      <div class="cart-section" id="cartItemsSection">
-        <div class="cart-section-title">保存された取り合い</div>
-        <div id="cartItemsListOld"></div>
-      </div>
-      <!-- 出力アクション -->
-      <div class="cart-section" id="cartActions">
-        <div class="cart-section-title">出力</div>
-        <div class="cart-actions-grid">
-          <button class="cart-action-btn cart-action-primary" onclick="cartPrintCutting()">🖨 印刷</button>
-          <button class="cart-action-btn" disabled>CSV出力</button>
-          <button class="cart-action-btn" disabled>見積書PDF</button>
-          <button class="cart-action-btn" disabled>発注明細作成</button>
+    <!-- コピープレビューモーダル -->
+    <div id="copyPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1100;align-items:center;justify-content:center">
+      <div style="background:#fff;border-radius:12px;padding:20px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px" id="copyPreviewTitle">📋 プレビュー</div>
+        <div id="copyPreviewTable" style="overflow-x:auto;font-size:11px;margin-bottom:16px"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button onclick="closeCopyPreview()" class="sm-btn">キャンセル</button>
+          <button id="copyExecBtn" onclick="executeCopy()" class="run" style="padding:8px 20px">📋 コピー実行</button>
         </div>
       </div>
     </div>
-  </div>
-</div>
+
+  </div><!-- /.cart-modal-inner -->
+</div><!-- /#cartModal -->
 </body></html>

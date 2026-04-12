@@ -4696,11 +4696,16 @@ function getRemnants() {
       }
       if (weightPrintBtn) weightPrintBtn.disabled = weightItems.length === 0;
       if (weightCsvBtn) weightCsvBtn.disabled = weightItems.length === 0;
-      ['cartCopyPartsBtn', 'cartCopyAmtBtn', 'cartCopyTotalBtn'].forEach(function(id) {
+      ['cartCopyAllBtn', 'cartCopyPartsBtn'].forEach(function(id) {
         var b = document.getElementById(id);
         if (b) b.disabled = weightItems.length === 0;
       });
     }
+
+    ['cartCopyCutResultBtn', 'cartCopyCutStockBtn'].forEach(function(id) {
+      var b = document.getElementById(id);
+      if (b) b.disabled = cutItems.length === 0;
+    });
 
     updateCartBadge();
   };
@@ -4948,7 +4953,34 @@ function cartCopyPreview(mode) {
   var tsv = '';
   var previewHtml = '';
 
-  if (mode === 'parts') {
+  if (mode === 'all') {
+    var header = ['#', '部材名', '工区', '種類', '規格', '長さ(mm)', '本数', '1本重量(kg)', '合計重量(kg)'];
+    var hasAmt = rows.some(function(r) { return r.amount !== null; });
+    var hasM2 = rows.some(function(r) { return r.m2Total != null; });
+    var hasPaint = rows.some(function(r) { return r.paintAmount !== null; });
+    if (hasM2) header.push('塗装面積(m²)');
+    if (hasAmt) header.push('概算金額(円)');
+    if (hasPaint) header.push('塗装金額(円)');
+    var dataRows = rows.map(function(r, i) {
+      var row = [i + 1, r.memo || '—', r.kuiku || '', r.kind, r.spec, r.len, r.qty,
+                 (r.kg1 || (r.kgTotal / r.qty)).toFixed(3), r.kgTotal.toFixed(2)];
+      if (hasM2) row.push(r.m2Total != null ? r.m2Total.toFixed(2) : '—');
+      if (hasAmt) row.push(r.amount !== null ? Math.round(r.amount) : '');
+      if (hasPaint) row.push(r.paintAmount !== null ? Math.round(r.paintAmount) : '');
+      return row;
+    });
+    tsv = [header].concat(dataRows).map(function(r) { return r.join('\t'); }).join('\r\n');
+    previewHtml = buildCopyPreviewTable(header, dataRows);
+    document.getElementById('copyPreviewTitle').textContent = '📋 すべてをコピー';
+  } else if (mode === 'parts-simple') {
+    var headerSimple = ['種類', '規格', '長さ(mm)', '本数', '合計重量(kg)'];
+    var dataRowsSimple = rows.map(function(r) {
+      return [r.kind, r.spec, r.len, r.qty, r.kgTotal.toFixed(2)];
+    });
+    tsv = [headerSimple].concat(dataRowsSimple).map(function(r) { return r.join('\t'); }).join('\r\n');
+    previewHtml = buildCopyPreviewTable(headerSimple, dataRowsSimple);
+    document.getElementById('copyPreviewTitle').textContent = '📋 部材のみ（種類・規格・長さ・本数・重量）';
+  } else if (mode === 'parts') {
     var header = ['#', '部材名', '工区', '種類', '規格', '長さ(mm)', '本数', '合計重量(kg)'];
     var hasAmt = rows.some(function(r) { return r.amount !== null; });
     if (hasAmt) header.push('概算金額(円)');
@@ -4992,6 +5024,61 @@ function cartCopyPreview(mode) {
   }
 
   _copyPendingTsv = tsv;
+  document.getElementById('copyPreviewTable').innerHTML = previewHtml;
+  document.getElementById('copyPreviewModal').style.display = 'flex';
+}
+
+function cartCopyCutResult() {
+  var cart = getCart().filter(function(x) { return !x.data.isWeight; });
+  if (!cart.length) return;
+
+  var rows = [];
+  cart.forEach(function(item) {
+    var d = item.data;
+    var spec = d.spec || '';
+    var kind = d.kind || '';
+    var sumMap = d.sumMap || {};
+    Object.keys(sumMap).sort(function(a, b) { return b - a; }).forEach(function(len) {
+      rows.push([kind, spec, len, sumMap[len]]);
+    });
+  });
+
+  var header = ['種類', '規格', '長さ(mm)', '本数'];
+  var tsv = [header].concat(rows).map(function(r) { return r.join('\t'); }).join('\r\n');
+  var previewHtml = buildCopyPreviewTable(header, rows);
+
+  _copyPendingTsv = tsv;
+  document.getElementById('copyPreviewTitle').textContent = '📋 計算結果（切断リスト）';
+  document.getElementById('copyPreviewTable').innerHTML = previewHtml;
+  document.getElementById('copyPreviewModal').style.display = 'flex';
+}
+
+function cartCopyCutStock() {
+  var cart = getCart().filter(function(x) { return !x.data.isWeight; });
+  if (!cart.length) return;
+
+  var rows = [];
+  cart.forEach(function(item) {
+    var d = item.data;
+    var spec = d.spec || '';
+    var kind = d.kind || '';
+    var bars = d.bars || [];
+    var slCount = {};
+    bars.forEach(function(b) {
+      var sl = b.sl || 0;
+      if (sl > 0) slCount[sl] = (slCount[sl] || 0) + 1;
+    });
+    Object.keys(slCount).map(Number).sort(function(a, b) { return b - a; }).forEach(function(sl) {
+      rows.push([kind, spec, sl, slCount[sl]]);
+    });
+  });
+
+  var header = ['種類', '規格', '母材長さ(mm)', '必要本数'];
+  var tsv = [header].concat(rows).map(function(r) { return r.join('\t'); }).join('\r\n');
+  var previewHtml = buildCopyPreviewTable(header, rows);
+
+  _copyPendingTsv = tsv;
+  document.getElementById('copyPreviewTitle').textContent = '📋 使用予定の母材';
   document.getElementById('copyPreviewTable').innerHTML = previewHtml;
   document.getElementById('copyPreviewModal').style.display = 'flex';
 }

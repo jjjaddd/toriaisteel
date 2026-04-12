@@ -1733,6 +1733,21 @@ html[data-theme="dark"] body {
   opacity: .4 !important;
   cursor: default !important;
 }
+.cart-copy-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  padding: 6px 0 2px !important;
+}
+.cart-copy-label {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: var(--ink3) !important;
+  letter-spacing: .04em !important;
+  white-space: nowrap !important;
+  margin-right: 2px !important;
+}
 .w-saved-item {
   display: flex !important;
   align-items: center !important;
