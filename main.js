@@ -534,6 +534,10 @@ function goPage(p) {
     var na = document.getElementById('na');
     if (cp) cp.classList.add('show');
     if (na) na.classList.add('active');
+    setTimeout(function() {
+      var ci = document.getElementById('cmdInput');
+      if (ci) { ci.focus(); ci.select(); }
+    }, 50);
   } else if (p === 'w') {
     var wpp = document.getElementById('wpp');
     var nw = document.getElementById('nw');
@@ -773,6 +777,10 @@ function cmdShowKind(kind) {
     var row = document.createElement('div');
     row.className = 'cmd-item';
     row.innerHTML = '<span>' + it.spec + '</span><span class="cmd-sub">' + it.kgm + ' kg/m</span>';
+    row.onmouseover = function() {
+      dd.querySelectorAll('.cmd-item').forEach(function(el) { el.classList.remove('cmd-focus'); });
+      this.classList.add('cmd-focus');
+    };
     row.onmousedown = function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -869,6 +877,10 @@ function cmdFilter() {
     row.className = 'cmd-item';
     row.dataset.idx = idx;
     row.innerHTML = '<span>' + it.spec + '</span><span class="cmd-sub">' + it.kgm + ' kg/m</span>';
+    row.onmouseover = function() {
+      dd.querySelectorAll('.cmd-item').forEach(function(el) { el.classList.remove('cmd-focus'); });
+      this.classList.add('cmd-focus');
+    };
     row.onmousedown = function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -1059,6 +1071,12 @@ function toggleSection(bodyId, btnId, color) {
   var opening = body.style.display === 'none';
   body.style.display = opening ? 'block' : 'none';
   btn.textContent = opening ? '－' : '＋';
+  if (opening && bodyId === 'settingBody') {
+    setTimeout(function() {
+      var blade = document.getElementById('blade');
+      if (blade) { blade.focus(); blade.select(); }
+    }, 50);
+  }
 }
 
 function sbSwitch(n) {

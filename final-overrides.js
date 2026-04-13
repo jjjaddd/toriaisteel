@@ -1419,7 +1419,7 @@ renderInventoryPage = function() {
           '<div class="contact-grid">' +
             '<div class="contact-field">' +
               '<label for="contactType">種別</label>' +
-              '<select id="contactType">' +
+              '<select id="contactType" onkeydown="if(event.key===\'Enter\'){event.preventDefault();var s=document.getElementById(\'contactSender\');if(s){s.focus();s.select();}}">' +
                 '<option value="ご意見">ご意見</option>' +
                 '<option value="不具合報告">不具合報告</option>' +
                 '<option value="改善要望">改善要望</option>' +
@@ -1427,8 +1427,8 @@ renderInventoryPage = function() {
               '</select>' +
             '</div>' +
             '<div class="contact-field">' +
-              '<label for="contactSender">お名前</label>' +
-              '<input type="text" id="contactSender" placeholder="お名前">' +
+              '<label for="contactSender">ペンネーム</label>' +
+              '<input type="text" id="contactSender" placeholder="ペンネーム" onkeydown="if(event.key===\'Enter\'){event.preventDefault();var r=document.getElementById(\'contactReply\');if(r){r.focus();r.select();}}">' +
             '</div>' +
             '<div class="contact-field contact-field-wide">' +
               '<label for="contactReply">返信先メール</label>' +

@@ -146,15 +146,17 @@ function wSetupEnter() {
   var lenEl = document.getElementById('wLen');
   var qtyEl = document.getElementById('wQty');
 
-  // Shift+Enter で検索欄へ戻るヘルパー
+  // Shift+Enter: 計算結果をリストに追加してから検索欄へ戻る
   function shiftEnterToCmd(e) {
     if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
+      // まず行を追加（計算結果をリストに表示）
+      if (typeof wAddRow === 'function') wAddRow();
+      // 鋼材規格検索欄へフォーカス
       var cmdInput = document.getElementById('wCmdInput');
       if (cmdInput) {
         cmdInput.focus();
-        // onfocus → wCmdActivate → wCmdFilter() のDOM更新後に全選択
-        setTimeout(function() { cmdInput.select(); }, 0);
+        setTimeout(function() { cmdInput.select(); }, 50);
       }
     }
   }
@@ -958,6 +960,12 @@ function wCmdBuildAll() {
   });
 }
 
+function wCmdHover(el) {
+  var dd = document.getElementById('wCmdDropdown');
+  if (dd) dd.querySelectorAll('.cmd-item').forEach(function(e) { e.classList.remove('cmd-focus'); });
+  if (el) el.classList.add('cmd-focus');
+}
+
 function wCmdActivate(el) {
   if (!el) return;
   el.focus();
@@ -992,7 +1000,7 @@ function wCmdShowKind(kind) {
              'onmousedown="event.preventDefault();wCmdOpenBrowse()">◀ 戻る　<strong style="color:#5a5a78">' + kind + '</strong></div>';
   list.forEach(function(row) {
     var it = { kind: kind, spec: row[0], kgm: row[1] };
-    html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
+    html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmouseover="wCmdHover(this)" onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
             '<span>' + row[0] + '</span>' +
             '<span style="color:#aaa;font-size:10px">' + row[1] + ' kg/m</span>' +
             '</div>';
@@ -1057,7 +1065,7 @@ function wCmdFilter() {
   Object.keys(grouped).forEach(function(kind) {
     html += '<div class="cmd-cat">' + kind + '</div>';
     grouped[kind].forEach(function(it) {
-      html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
+      html += '<div class="cmd-item" data-item=' + _escAttr(JSON.stringify(it)) + ' onmouseover="wCmdHover(this)" onmousedown="event.preventDefault();wCmdSelect(JSON.parse(this.getAttribute(\'data-item\')))">' +
               '<span>' + it.spec + '</span>' +
               '<span style="color:#aaa;font-size:10px">' + it.kgm + ' kg/m</span>' +
               '</div>';
