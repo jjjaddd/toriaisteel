@@ -1143,62 +1143,6 @@ function buildInvFilterSpec() {
 }
 
 // ── 在庫ページ描画（フィルタ付き） ──
-function legacyRenderInventoryPage_v1() {
-  var cont = document.getElementById('invListCont');
-  var empty = document.getElementById('invEmptyMsg');
-  if (!cont) return;
-
-  var kindF = ((document.getElementById('invFilterKind')||{}).value||'');
-  var specF = ((document.getElementById('invFilterSpec')||{}).value||'');
-
-  var inv = getInventory();
-  if (kindF) inv = inv.filter(function(x){ return x.kind===kindF; });
-  if (specF) inv = inv.filter(function(x){ return x.spec===specF; });
-
-  if (!inv.length) {
-    cont.innerHTML = '';
-    if (empty) empty.style.display = 'block';
-    return;
-  }
-  if (empty) empty.style.display = 'none';
-
-  // 同じ長さ・規格・会社をまとめて数量表示
-  var groups = {};
-  inv.forEach(function(x){
-    var specKey = x.spec||x.kind||'不明';
-    if (!groups[specKey]) groups[specKey] = [];
-    groups[specKey].push(x);
-  });
-
-  // 各規格グループ内で同じ長さ・会社をまとめる
-  cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
-    var items = groups[spec];
-    // 長い順に並べる
-    items.sort(function(a,b){ return b.len - a.len; });
-
-    var rows = items.map(function(x) {
-      return '<div class="inv-row">'+
-        '<span class="inv-len">'+x.len.toLocaleString()+'<span class="inv-len-unit">mm</span></span>'+
-        '<span class="inv-qty">×1</span>'+
-        '<span class="inv-note">'+(x.company||x.note ? (x.company||'')+(x.note?' '+x.note:'') : '—')+'</span>'+
-        '<span class="inv-date">'+(x.addedDate||'')+'</span>'+
-        '<button onclick="event.stopPropagation();deleteInventoryItem('+x.id+')" class="inv-del-btn">✕</button>'+
-      '</div>';
-    }).join('');
-
-    return '<div class="inv-card">'+
-      '<div class="inv-card-header">'+
-        '<span class="inv-spec-label">'+spec+'</span>'+
-        '<span class="inv-count-badge">'+items.length+'本</span>'+
-        '<div style="flex:1"></div>'+
-        '<span style="font-size:10px;color:#aaa">長さ</span>'+
-        '<span style="font-size:10px;color:#aaa;margin-left:80px">会社名・メモ</span>'+
-        '<span style="font-size:10px;color:#aaa;margin-left:auto">登録日</span>'+
-      '</div>'+
-      rows+
-    '</div>';
-  }).join('');
-}
 
 // ============================================================
 // 在庫管理UI
@@ -4310,63 +4254,6 @@ function closeCopyPreview() {
   if (m) m.style.display = 'none';
   var btn = document.getElementById('copyExecBtn');
   if (btn) { btn.textContent = '📋 コピー実行'; btn.disabled = false; }
-}
-
-function showHistPreview(id) {
-  var hist = getCutHistory();
-  var h = hist.find(function(x){ return x.id===id; });
-  if (!h) return;
-  if (h.type === 'weight') {
-    recallWeightHistory(id);
-    return;
-  }
-  var modal = document.getElementById('histPreviewModal');
-  var body  = document.getElementById('histPreviewBody');
-  if (!modal || !body) return;
-  var r = h.result || {};
-  var job = {client:h.client||'', name:h.name||'', deadline:h.deadline||'', worker:h.worker||''};
-  var spec = h.spec || '';
-  var endLoss = r.endLoss || 150;
-  var printedId = h.printedCardId || '';
-  var bars = [];
-  if (printedId.indexOf('card_pat') === 0 && r.patA && r.patA.bars && r.patA.bars.length) {
-    bars = r.patA.bars.slice();
-  } else if (r.allDP && r.allDP[0]) {
-    bars = (r.allDP[0].bA || []).concat(r.allDP[0].bB || []).map(function(b) {
-      return { pat: (b.pat || []).slice(), loss: b.loss || 0, sl: b.sl || r.allDP[0].slA || 0 };
-    });
-  } else if (r.patA && r.patA.bars && r.patA.bars.length) {
-    bars = r.patA.bars.slice();
-  }
-  if (!bars.length) {
-    body.innerHTML = '<div style="padding:20px;color:#aaa;text-align:center">データがありません</div>';
-    modal.style.display = 'flex';
-    return;
-  }
-  var slGroups = {};
-  bars.forEach(function(b) {
-    var sl2 = b.sl || 0;
-    if (!slGroups[sl2]) slGroups[sl2] = [];
-    slGroups[sl2].push(b);
-  });
-  var orderedSls = sortStockLengthsForDisplay(Object.keys(slGroups).map(Number));
-  var motherSummary = orderedSls.map(function(s){ return s.toLocaleString()+'mm x '+slGroups[s].length; }).join(' + ');
-  var sumMap = {};
-  bars.forEach(function(b) { (b.pat||[]).forEach(function(len){ sumMap[len]=(sumMap[len]||0)+1; }); });
-  var remTags = (h.remnants||[]).filter(function(r2){ return r2.len>=500; }).map(function(r2){ return r2.len.toLocaleString()+'mm'+(r2.qty>1?' x '+r2.qty:''); });
-  var barHtml = '';
-  orderedSls.forEach(function(sl2) {
-    barHtml += buildPrintBarHtml(slGroups[sl2], sl2, endLoss);
-  });
-  body.innerHTML = buildPrintPages(job, [{
-    idx: 1,
-    spec: spec,
-    motherSummary: motherSummary,
-    sumMap: sumMap,
-    remTags: remTags,
-    barHtml: barHtml
-  }]);
-  modal.style.display = 'flex';
 }
 
 var INVENTORY_REMNANT_SELECTED_KEY = 'toriai_inventory_remnant_selected_v1';
