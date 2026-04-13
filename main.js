@@ -969,23 +969,6 @@ function onSpec() {
   buildInventoryDropdown();
 }
 
-function updateInventoryUseButton(forceReady) {
-  var btn = document.getElementById('invUseBtn');
-  var sel = document.getElementById('invSelect');
-  if (!btn) return;
-  if (forceReady) {
-    btn.textContent = '✓追加済み';
-    btn.style.background = '#f0f0f0';
-    btn.style.color = '#555555';
-    btn.disabled = true;
-    return;
-  }
-  btn.textContent = '＋ 計算に使う';
-  btn.style.background = 'transparent';
-  btn.style.color = '#111111';
-  btn.disabled = !(sel && sel.value);
-}
-
 function togStk(i) {
   var checked = document.getElementById('sc' + i).checked;
   document.getElementById('sr' + i).classList.toggle('off', !checked);
@@ -1120,21 +1103,6 @@ function addRemnant() {
     '<input type="number" id="remQty' + i + '" placeholder="1" min="1" value="1" style="width:44px" onchange="saveRemnants()">' +
     '<button class="rem-del" onclick="removeRemnant(' + i + ');saveRemnants()">✕</button>';
   list.appendChild(d);
-}
-
-function getRemnants() {
-  var result = [];
-  for (var i = 0; i < remnantCount; i++) {
-    var lEl = document.getElementById('remLen' + i);
-    var qEl = document.getElementById('remQty' + i);
-    if (!lEl) continue;
-    var l = parseInt(lEl.value);
-    var q = parseInt(qEl.value) || 1;
-    if (l > 0) {
-      for (var k = 0; k < q; k++) result.push(l);
-    }
-  }
-  return result;
 }
 
 // ── 在庫と手持ち残材を完全同期 ──
@@ -3397,30 +3365,6 @@ function createManualRemnantRow(seed) {
   return row;
 }
 
-function createInventoryRemnantRow(item, selectedQty) {
-  var list = document.getElementById('remnantList');
-  if (!list) return null;
-  var i = remnantCount++;
-  var row = document.createElement('div');
-  var usage = Math.max(0, Math.min(item.qty || 0, selectedQty || 0));
-  var options = '<option value="0">使わない</option>';
-  for (var q = 1; q <= (item.qty || 0); q++) {
-    options += '<option value="' + q + '"' + (q === usage ? ' selected' : '') + '>' + q + '本</option>';
-  }
-  row.className = 'rem-row';
-  row.id = 'remRow' + i;
-  row.dataset.source = 'inventory';
-  row.dataset.inventoryKey = String(item.ids || []);
-  row.dataset.inventoryIds = JSON.stringify(item.ids || []);
-  row.innerHTML =
-    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫から選択</span></div>' +
-    '<select class="rem-qty" id="remQty' + i + '" onchange="saveRemnants()">' + options + '</select>' +
-    '<div class="rem-meta">' + escapeHtml((item.company || item.label || '在庫材') + (item.note ? ' / ' + item.note : '')) + '</div>' +
-    '<button type="button" class="rem-del" onclick="removeGroupedInventory(' + i + ')">×</button>';
-  list.appendChild(row);
-  return row;
-}
-
 function addRemnant(seed) {
   var row = createManualRemnantRow(seed);
   if (row) {
@@ -4666,49 +4610,6 @@ function getSelectedInventoryRemnants() {
   }
 }
 
-function saveSelectedInventoryRemnants(data) {
-  localStorage.setItem(INVENTORY_REMNANT_SELECTED_KEY, JSON.stringify(data || {}));
-}
-
-function addFromInventory() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var items = getInventoryForCurrentSpec();
-  var chosen = items.find(function(item) { return String(item.ids || []) === sel.value; });
-  if (!chosen) return;
-  var selected = getSelectedInventoryRemnants();
-  var key = String(chosen.ids || []);
-  selected[key] = { qty: 1 };
-  saveSelectedInventoryRemnants(selected);
-  sel.value = '';
-  syncInventoryToRemnants();
-  updateInventoryUseButton(true);
-}
-
-function removeRemnant(i) {
-  var row = document.getElementById('remRow' + i);
-  if (!row || row.dataset.source !== 'inventory') {
-    if (row) row.remove();
-    return;
-  }
-  var selected = getSelectedInventoryRemnants();
-  delete selected[row.dataset.inventoryKey];
-  saveSelectedInventoryRemnants(selected);
-  syncInventoryToRemnants();
-}
-
-function saveRemnants() {
-  var selected = getSelectedInventoryRemnants();
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var qtyEl = row.querySelector('.rem-qty');
-    var maxQty = Math.max(1, parseInt(row.dataset.maxQty || '1', 10));
-    selected[row.dataset.inventoryKey] = {
-      qty: Math.max(1, Math.min(maxQty, parseInt(qtyEl && qtyEl.value, 10) || 1))
-    };
-  });
-  saveSelectedInventoryRemnants(selected);
-}
-
 function createInventoryRemnantRow(item, selectedQty) {
   var list = document.getElementById('remnantList');
   if (!list) return null;
@@ -4732,24 +4633,6 @@ function createInventoryRemnantRow(item, selectedQty) {
     '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
   list.appendChild(row);
   return row;
-}
-
-function syncInventoryToRemnants() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  var selected = getSelectedInventoryRemnants();
-  list.innerHTML = '';
-  remnantCount = 0;
-  Object.keys(selected).forEach(function(key) {
-    var item = grouped.find(function(group) { return String(group.ids || []) === key; });
-    if (item) {
-      createInventoryRemnantRow(item, selected[key].qty || 1);
-    }
-  });
-  if (!list.children.length) {
-    list.innerHTML = '<div class="rem-row rem-row-empty"><div class="rem-meta">在庫から選択した残材がここに表示されます</div></div>';
-  }
 }
 
 function getRemnants() {
