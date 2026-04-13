@@ -3129,10 +3129,33 @@ function formatPatternSummary(pattern) {
 }
 
 function buildDisplaySegments(pattern) {
-  return (pattern || []).map(function(len) {
-    var n = parseInt(len, 10) || 0;
-    return { len: n, count: 1, total: n, label: n.toLocaleString() + 'mm' };
-  }).filter(function(s) { return s.len > 0; });
+  var segments = [];
+  (pattern || []).forEach(function(len) {
+    var n = parseInt(len, 10);
+    if (!n) return;
+    var last = segments[segments.length - 1];
+    if (last && last.len === n) {
+      last.count++;
+      last.total += n;
+    } else {
+      segments.push({ len: n, count: 1, total: n });
+    }
+  });
+  return segments.reduce(function(list, segment) {
+    if (segment.count >= 5) {
+      list.push({
+        len: segment.len,
+        count: segment.count,
+        total: segment.total,
+        label: segment.len.toLocaleString() + 'mm × ' + segment.count + '本'
+      });
+    } else {
+      for (var i = 0; i < segment.count; i++) {
+        list.push({ len: segment.len, count: 1, total: segment.len, label: segment.len.toLocaleString() + 'mm' });
+      }
+    }
+    return list;
+  }, []);
 }
 
 function buildCutDiagram(bars, slLen, label) {
