@@ -5082,11 +5082,12 @@ function cartPrintCutting() {
     patDiv.querySelectorAll('.pc-row').forEach(function(row) {
       var mul = parseInt(((row.querySelector('.px') || {}).textContent || '').replace(/[^\d]/g, ''), 10) || 1;
       var text = ((row.querySelector('.pp') || {}).textContent || '');
-      text.split('+').forEach(function(part) {
-        var m = part.match(/([\d,]+)\s*x?\s*(\d+)?/i);
+      // 全角「＋」と半角「+」両方で分割する
+      text.split(/[+＋]/).forEach(function(part) {
+        var m = part.match(/([\d,]+)\s*[×x]\s*(\d+)/i) || part.match(/([\d,]+)/);
         if (!m) return;
         var len = parseInt(m[1].replace(/,/g, ''), 10);
-        var qty = parseInt(m[2] || '1', 10);
+        var qty = m[2] ? parseInt(m[2], 10) : 1;
         if (len) sumMap[len] = (sumMap[len] || 0) + qty * mul;
       });
     });
