@@ -508,6 +508,42 @@ var _chipDateTo   = '';
 var _histTypeFilter = 'all'; // 'all' | 'cut' | 'weight'
 var _histView = 'flat'; // 'flat' | 'group'
 
+// ── appState シム (Phase 1) ─────────────────────────────
+// 既存グローバル変数を appState 経由でも参照できるようにする。
+// 既存コードはそのまま動く。Phase 2 以降で徐々に移行予定。
+var appState = {
+  // 鋼材種別
+  get curKind()         { return curKind; },
+  set curKind(v)        { curKind = v; },
+  // 履歴フィルター
+  get histTypeFilter()  { return _histTypeFilter; },
+  set histTypeFilter(v) { _histTypeFilter = v; },
+  get chipDateFrom()    { return _chipDateFrom; },
+  set chipDateFrom(v)   { _chipDateFrom = v; },
+  get chipDateTo()      { return _chipDateTo; },
+  set chipDateTo(v)     { _chipDateTo = v; },
+  get histView()        { return _histView; },
+  set histView(v)       { _histView = v; },
+  get hiChipActive()    { return _hiChipActive; },
+  set hiChipActive(v)   { _hiChipActive = v; },
+  // ページネーション
+  get historyPage()     { return historyPage; },
+  set historyPage(v)    { historyPage = v; },
+  get inventoryPage()   { return inventoryPage; },
+  set inventoryPage(v)  { inventoryPage = v; },
+  // 計算結果キャッシュ
+  get lastCalcResult()  { return _lastCalcResult; },
+  set lastCalcResult(v) { _lastCalcResult = v; },
+  get lastPatA()        { return _lastPatA; },
+  set lastPatA(v)       { _lastPatA = v; },
+  get lastPatB()        { return _lastPatB; },
+  set lastPatB(v)       { _lastPatB = v; },
+  // Undo/Redo スタック（参照渡し）
+  get undoStack()       { return _undoStack; },
+  get redoStack()       { return _redoStack; },
+};
+// ────────────────────────────────────────────────────────
+
 function hiChip(n) {
   _hiChipActive = (_hiChipActive === n) ? 0 : n;
   [1,2,3,4].forEach(function(i) {

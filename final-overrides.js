@@ -1,4 +1,36 @@
-﻿function getSelectedInventoryRemnants() {
+﻿/**
+ * final-overrides.js
+ * ─────────────────────────────────────────────────────────
+ * このファイルは main.js の【後】に読み込まれ、以下の関数を上書きする。
+ * main.js の同名関数を直接編集しても効果がないため、
+ * 修正はこのファイルを見ること。
+ *
+ * 【直接上書き（再代入）している関数】
+ *   saveSelectedInventoryRemnants  (l.*)
+ *   updateInventoryUseButton       (l.*)
+ *   addFromInventory               (l.*)
+ *   removeRemnant                  (l.*)
+ *   saveRemnants                   (l.*)
+ *   createInventoryRemnantRow      (l.*)
+ *   syncInventoryToRemnants        (l.*)
+ *   getRemnants                    (l.*)
+ *   escapeHtml                     (l.*)
+ *   renderHistory                  (enforceHistoryNewestFirst IIFE)
+ *
+ * 【ラップ（元実装を保存してから拡張）している関数】
+ *   saveCutHistory    → _baseSaveCutHistory でラップ（端材・在庫消費を追加）
+ *   cartAdd           → _baseCartAdd でラップ（印刷ペイロード保存を追加）
+ *   renderCartModal   → _baseRenderCartModal でラップ（残材セクション追加）
+ *   render            → _baseRender でラップ（残材ハイライト追加）
+ *   renderInventoryPage → _baseRenderInventoryPage でラップ
+ *
+ * 【Phase 2 方針】
+ *   上記の上書き・ラップを廃止し、各関数をそれぞれの
+ *   責務ファイル（main.js / storage.js）に正式移植する。
+ * ─────────────────────────────────────────────────────────
+ */
+
+function getSelectedInventoryRemnants() {
   return loadSelectedInventoryRemnantsState();
 }
 
