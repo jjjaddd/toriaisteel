@@ -539,24 +539,36 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
     if (!bars || !bars.length) return '';
     var grouped = {};
     bars.forEach(function(bar) {
-      var key = (bar.pat || []).slice().join(',') + '|' + (bar.loss || 0);
+      var key = (bar.pat || []).slice().sort(function(a,b){return b-a;}).join(',') + '|' + (bar.loss || 0);
       if (!grouped[key]) grouped[key] = { bar: bar, cnt: 0 };
       grouped[key].cnt++;
     });
     var endHalf = (endLoss || 150) / 2;
     var sourceLabel = buildCutSourceLabel(sl);
+    var isRemnant = typeof isStdStockLength === 'function' && !isStdStockLength(sl);
     var html = '';
     Object.keys(grouped).forEach(function(key) {
       var g = grouped[key];
       var bar = g.bar;
+      var patSummary = typeof formatPatternSummary === 'function'
+        ? formatPatternSummary(bar.pat)
+        : (bar.pat || []).join(' + ');
       html += '<div class="bar-block">';
-      html += '<div class="bar-head"><span style="font-weight:700;font-size:10px">' + sourceLabel + '</span><span class="cnt-badge">× ' + g.cnt + 'セット</span></div>';
-      html += '<div class="bar-pat">= ' + (bar.pat || []).join(' + ') + (bar.loss > 0 ? ' / 端材 ' + bar.loss.toLocaleString() + 'mm' : '') + '</div>';
+      html += '<div class="bar-head">'
+        + '<span style="font-weight:700;font-size:10px">' + sourceLabel + '</span>'
+        + '<span class="cnt-badge">× ' + g.cnt + 'セット</span>'
+        + (isRemnant ? '<span class="source-chip">残材より</span>' : '')
+        + '</div>';
+      html += '<div class="bar-pat">= ' + patSummary + (bar.loss > 0 ? ' / 端材 ' + bar.loss.toLocaleString() + 'mm' : '') + '</div>';
       html += '<div class="bar-track">';
       html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-      (bar.pat || []).forEach(function(len, idx) {
-        html += '<div class="b-piece" style="flex:' + len + '">' + len.toLocaleString() + '</div>';
-        if (idx < bar.pat.length - 1) html += '<div class="b-blade"></div>';
+      // buildDisplaySegments で5本以上は「細材×N本」にまとめる（計算結果表示と同じ）
+      var segments = typeof buildDisplaySegments === 'function'
+        ? buildDisplaySegments(bar.pat || [])
+        : (bar.pat || []).map(function(len) { return { total: len, label: len.toLocaleString() + 'mm' }; });
+      segments.forEach(function(seg, idx) {
+        if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
+        html += '<div class="b-piece" style="flex:' + seg.total + '"><span>' + seg.label + '</span></div>';
       });
       if (bar.loss > 0) {
         html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + bar.loss.toLocaleString() + '</div>';

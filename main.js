@@ -4337,6 +4337,42 @@ function cartPrintCutting() {
     });
   });
   openPrintWindow(buildPrintPages(job, sections));
+
+  // 在庫消費: カート内の各カードについて残材在庫を消費
+  (function consumeCartInventory() {
+    var consumePayloads = [];
+    cart.forEach(function(item) {
+      var d = item.data || {};
+      var cardId = d.cardId || '';
+      if (!cardId) return;
+      var payload = typeof buildPrintPayload === 'function'
+        ? buildPrintPayload(cardId, window._lastCalcResult, d)
+        : null;
+      if (!payload) return;
+      var hasSelected = typeof getSelectedInventoryIds === 'function' && getSelectedInventoryIds(payload.meta).length > 0;
+      var hasConsumed = typeof getConsumedInventoryLengths === 'function' && getConsumedInventoryLengths(payload.bars, payload.meta).length > 0;
+      if (hasSelected || hasConsumed) {
+        consumePayloads.push({ cardId: cardId, bars: payload.bars, meta: payload.meta });
+      }
+    });
+    if (!consumePayloads.length) return;
+    var sig = JSON.stringify(consumePayloads.map(function(p) {
+      return typeof buildInventoryConsumeSignature === 'function'
+        ? buildInventoryConsumeSignature(p.cardId, p.bars, p.meta)
+        : p.cardId;
+    }).sort());
+    if (window._lastConsumedInventorySignature === sig) return;
+    window._lastConsumedInventorySignature = sig;
+    consumePayloads.forEach(function(p) {
+      if (typeof getSelectedInventoryIds === 'function' && getSelectedInventoryIds(p.meta).length > 0
+          && typeof consumeSelectedInventoryRemnants === 'function') {
+        consumeSelectedInventoryRemnants(p.meta.selectedInventoryRemnants);
+      } else if (typeof consumeInventoryBars === 'function') {
+        consumeInventoryBars(p.bars, p.meta);
+      }
+    });
+  })();
+
   saveCart(getCart().filter(function(x) { return x.data.isWeight; }));
   updateCartBadge();
   renderCartModal();
