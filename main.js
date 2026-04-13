@@ -2012,7 +2012,7 @@ var PRINT_CSS = [
   '.b-piece:first-of-type{border-left:none}',
   '.b-rem{background:repeating-linear-gradient(-45deg,#224488,#224488 2px,#c0d0ee 2px,#c0d0ee 6px);display:flex;align-items:center;justify-content:center;font-size:9px;color:#002;font-weight:700;border-left:3px solid #224488}',
   '.b-loss{background:repeating-linear-gradient(-45deg,#ccc,#ccc 1px,#fff 1px,#fff 4px);display:flex;align-items:center;justify-content:center;font-size:9px;color:#888;border-left:2px solid #aaa}',
-  '.cnt-badge{background:#000;color:#fff;font-size:11px;font-weight:900;padding:2px 12px;border-radius:12px;letter-spacing:.04em;border:2px solid #000}',
+  '.cnt-badge{background:#fff;color:#555;font-size:11px;font-weight:700;padding:2px 12px;border-radius:12px;letter-spacing:.04em;border:2px solid #555}',
   '.r-tag{font-size:9px;border:1px solid #bbb;padding:1px 5px;border-radius:3px;display:inline-block;margin:1px}',
   '.print-footer{display:flex;justify-content:space-between;font-size:9px;color:#888;margin-top:8px;padding-top:6px;border-top:1px solid #ddd}',
 ].join('\n');
@@ -2024,14 +2024,14 @@ function buildPrintHeaderFull(job, pageInfo) {
   h += '<div>';
   h += '<div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.06em;margin-bottom:4px">作業指示書</div>';
   h += '<div style="display:flex;gap:18px;align-items:baseline">';
-  h += '<div><span style="font-size:9px;color:#666">顧客：</span><span style="font-size:12px;font-weight:700">' + (job.client||'—') + '</span></div>';
-  h += '<div><span style="font-size:9px;color:#666">現場名：</span><span style="font-size:12px;font-weight:700">' + (job.name||'—') + '</span></div>';
-  if (job.worker) h += '<div><span style="font-size:9px;color:#666">メモ：</span><span style="font-size:11px;font-weight:700">' + job.worker + '</span></div>';
+  h += '<div><span style="font-size:10px;color:#666">顧客：</span><span style="font-size:15px;font-weight:700">' + (job.client||'—') + '</span></div>';
+  h += '<div><span style="font-size:10px;color:#666">現場名：</span><span style="font-size:15px;font-weight:700">' + (job.name||'—') + '</span></div>';
+  if (job.worker) h += '<div><span style="font-size:10px;color:#666">メモ：</span><span style="font-size:13px;font-weight:700">' + job.worker + '</span></div>';
   h += '</div>';
   h += '</div>';
   h += '<div style="text-align:right">';
   h += '<div style="font-size:9px;color:#888">' + pageInfo + '</div>';
-  if (job.deadline) h += '<div style="margin-top:3px"><span style="font-size:9px;color:#666">納期：</span><span style="font-size:10px;font-weight:700">' + job.deadline + '</span></div>';
+  if (job.deadline) h += '<div style="margin-top:3px"><span style="font-size:10px;color:#666">納期：</span><span style="font-size:13px;font-weight:700">' + job.deadline + '</span></div>';
   h += '</div>';
   h += '</div>';
   return h;
