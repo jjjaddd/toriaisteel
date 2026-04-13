@@ -260,24 +260,6 @@ function hiSwitch(tab) {
   else { buildInvSidebar(); buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
 }
 
-function hiToggleFilter() {
-  var panel = document.getElementById('hiFilterPanel');
-  var btn = document.getElementById('hiFilterBtn');
-  if (!panel) return;
-  var open = panel.classList.contains('open');
-  panel.classList.toggle('open', !open);
-  if (btn) btn.classList.toggle('active', !open);
-}
-
-function invToggleFilter() {
-  var panel = document.getElementById('invFilterPanel');
-  var btn = document.getElementById('invFilterBtn');
-  if (!panel) return;
-  var open = panel.classList.contains('open');
-  panel.classList.toggle('open', !open);
-  if (btn) btn.classList.toggle('active', !open);
-}
-
 // ── サイドバー：詳細パネル開閉 ──
 function hiToggleDetail() {
   var panel = document.getElementById('hiDetailPanel');
@@ -1108,15 +1090,6 @@ function addRemnant() {
 // ── 在庫と手持ち残材を完全同期 ──
 
 // 在庫と残材から同時削除
-function removeFromInventoryAndRemnant(invId) {
-  var inv = getInventory().filter(function(x){ return x.id !== invId; });
-  saveInventory(inv);
-  syncInventoryToRemnants();
-  updateInvDropdown();
-  if (document.getElementById('ip') && document.getElementById('ip').classList.contains('show')) {
-    renderInventoryPage();
-  }
-}
 
 // ── 在庫ページ：フィルタ用種類セレクト構築 ──
 function buildInvFilterKind() {
@@ -1195,38 +1168,7 @@ function manualAddInventory() {
   if(document.getElementById('invAddNote')) document.getElementById('invAddNote').value='';
 }
 
-function clearAllInventory() {
-  if (!confirm('全ての残材在庫を削除しますか？')) return;
-  var keys = [];
-  for (var i=0; i<localStorage.length; i++) {
-    var k = localStorage.key(i);
-    if (k && k.indexOf(LS_INV_PREFIX)===0) keys.push(k);
-  }
-  keys.forEach(function(k){ localStorage.removeItem(k); });
-  renderInventoryPage();
-}
-
 // 在庫→残材へボタン
-function useInventoryItem(id) {
-  var inv = getInventory();
-  var item = inv.find(function(x){ return x.id===id; });
-  if (!item) return;
-  // 残材リストに追加
-  addRemnant();
-  var i = remnantCount - 1;
-  document.getElementById('remLen'+i).value = item.len;
-  document.getElementById('remQty'+i).value = 1;
-  saveRemnants();
-  // 在庫から削除
-  inv = inv.filter(function(x){ return x.id!==id; });
-  saveInventory(inv);
-  renderInventoryPage();
-  syncInventoryToRemnants();
-  updateInvDropdown();
-  // 残材セクションを展開してスクロール
-  var rb = document.getElementById('remnantBody');
-  if (rb && rb.style.display==='none') toggleSection('remnantBody','remnantToggleBtn','');
-}
 
 // ── 規格選択時に在庫ドロップダウン更新 ──
 function updateInvDropdown() {
@@ -1305,64 +1247,7 @@ function _renderHistRow(h) {
   '</div>';
 }
 
-function _previewCell(label, val) {
-  return '<div><div style="font-size:10px;color:#8888a8;margin-bottom:2px">'+label+'</div>' +
-    '<div style="font-size:12px;font-weight:700;color:#2a2a3e">'+(val||'—')+'</div></div>';
-}
-
 // 保存データから切断図を生成（DOM非依存版）
-function buildCutDiagramFromData(bars, slLen, label, blade, endLoss) {
-  if (!bars || !bars.length) return '';
-  // groupBarsと同じロジックをシンプルに実装
-  var grouped = {};
-  bars.forEach(function(b){
-    var key = b.pat.slice().sort(function(a,c){return c-a;}).join(',');
-    if (!grouped[key]) grouped[key] = {pat:b.pat.slice().sort(function(a,c){return c-a;}), loss:b.loss, cnt:0};
-    grouped[key].cnt++;
-  });
-  var groups = Object.values(grouped).sort(function(a,b){return b.cnt-a.cnt;});
-
-  // 部材カラーマップ
-  var colors = ['p0','p1','p2','p3','p4','p5','p6','p7','p8','p9'];
-  var allLens = [];
-  bars.forEach(function(b){b.pat.forEach(function(p){if(allLens.indexOf(p)<0)allLens.push(p);});});
-  allLens.sort(function(a,b){return b-a;});
-  var cmap = {};
-  allLens.forEach(function(l,i){cmap[l]=colors[i%colors.length];});
-
-  var html = '<div class="cut-diagram"><div class="cut-diagram-title">✂ 切断図 — '+label+'</div>';
-  groups.forEach(function(g){
-    var pieces = g.pat;
-    var endH = endLoss/2;
-    var usedSpace = pieces.reduce(function(s,p,i){return s+p+(i>0?blade:0);},0) + endLoss;
-    html += '<div class="bar-vis">';
-    html += '<div class="bar-vis-label">'+slLen.toLocaleString()+'mm';
-    if (g.cnt>1) html += '<span class="bar-vis-cnt">×'+g.cnt+'</span>';
-    html += '</div>';
-    html += '<div class="bar-track" style="position:relative">';
-    // 端部ロス左
-    var leftPct = (endH/slLen*100).toFixed(2);
-    html += '<div class="bar-loss" style="width:'+leftPct+'%;min-width:2px"></div>';
-    // 部材
-    pieces.forEach(function(p,i){
-      if (i>0) html += '<div class="bar-blade" style="width:'+(blade/slLen*100).toFixed(2)+'%"></div>';
-      var pct = (p/slLen*100).toFixed(2);
-      html += '<div class="bar-piece '+cmap[p]+'" style="width:'+pct+'%">' +
-        '<span class="bar-piece-lbl">'+p.toLocaleString()+'</span></div>';
-    });
-    // 端部ロス右
-    html += '<div class="bar-loss" style="width:'+leftPct+'%;min-width:2px"></div>';
-    // 端材
-    var lossLen = slLen - usedSpace;
-    if (lossLen > 0) {
-      var lossPct = (lossLen/slLen*100).toFixed(2);
-      html += '<div class="bar-rem" style="width:'+lossPct+'%"><span class="bar-piece-lbl">'+lossLen.toLocaleString()+'</span></div>';
-    }
-    html += '</div></div>';
-  });
-  html += '</div>';
-  return html;
-}
 
 function printHistoryPreview() {
   var body = document.getElementById('histPreviewBody');
@@ -1382,52 +1267,6 @@ function clearHistSearch() {
     var el=document.getElementById(id); if(el)el.value='';
   });
   renderHistory();
-}
-
-function showCutDoneModal(allDP, patA, patB, patC) {
-  // 全計算結果から端材リストを収集
-  var endMats = {};
-  function collectEnds(bars) {
-    if (!bars) return;
-    bars.forEach(function(b) {
-      if (b.loss && b.loss > 0) {
-        endMats[b.loss] = (endMats[b.loss]||0) + 1;
-      }
-    });
-  }
-  if (allDP && allDP[0]) collectEnds(allDP[0].bA.concat(allDP[0].bB||[]));
-  if (patA && patA.bars) collectEnds(patA.bars);
-
-  var kind = curKind;
-  var spec = document.getElementById('spec') ? document.getElementById('spec').value : '';
-  var minVL = parseInt(document.getElementById('minRemnantLen') ?
-    document.getElementById('minRemnantLen').value : '500') || 500;
-
-  var items = Object.keys(endMats).map(Number).filter(function(l){return l>=minVL;})
-    .sort(function(a,b){return b-a;});
-
-  var modal = document.getElementById('cutDoneModal');
-  var body  = modal.querySelector('.cutdone-body');
-
-  if (!items.length) {
-    body.innerHTML = '<div style="color:#5a5a78;padding:12px;text-align:center;font-size:12px">登録できる端材がありません<br><span style="font-size:10px;color:#8888a8">(最小有効長さ'+minVL+'mm未満)</span></div>';
-  } else {
-    body.innerHTML =
-      '<div style="font-size:11px;color:#8888a8;margin-bottom:10px">以下の端材を在庫に登録します</div>' +
-      '<div style="font-size:11px;color:#5a5a78;margin-bottom:8px">鋼材: <b style="color:#2a2a3e">' + kind + ' ' + spec + '</b></div>' +
-      items.map(function(l) {
-        var q = endMats[l];
-        return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid #ebebf0">' +
-          '<input type="checkbox" id="cd_'+l+'" checked style="accent-color:var(--br)">' +
-          '<label for="cd_'+l+'" style="font-size:12px;color:#2a2a3e;cursor:pointer;flex:1">' +
-            l.toLocaleString() + 'mm × ' + q + '本</label>' +
-          '</div>';
-      }).join('') +
-      '<input type="text" id="cdLabel" placeholder="ラベル（任意）例：A現場端材" style="width:100%;margin-top:10px;background:#fff;border:1px solid #d4d4dc;color:#2a2a3e;border-radius:6px;padding:6px;font-size:11px;box-sizing:border-box">';
-  }
-
-  modal._kind = kind; modal._spec = spec; modal._items = items; modal._endMats = endMats;
-  modal.style.display = 'flex';
 }
 
 function confirmCutDone() {
@@ -1461,43 +1300,7 @@ function confirmCutDone() {
   buildInventoryDropdown();
 }
 
-function showHistModal() {
-  var hist = getPiecesHistory();
-  var modal = document.getElementById('histModal');
-  if (!hist.length) {
-    modal.querySelector('.hist-body').innerHTML =
-      '<div style="color:#5a5a78;padding:16px;text-align:center">履歴がありません</div>';
-  } else {
-    modal.querySelector('.hist-body').innerHTML = hist.map(function(h, i) {
-      var summary = h.pieces.slice(0,3).map(function(p){return p.l+'×'+p.q;}).join(', ') +
-        (h.pieces.length > 3 ? '...' : '');
-      return '<div class="hist-item" onclick="loadPiecesFromHistory('+i+')">' +
-        '<div style="font-size:12px;font-weight:700;color:#2a2a3e">' + summary + '</div>' +
-        '<div style="font-size:10px;color:#8888a8;margin-top:2px">' + h.date + ' (' + h.pieces.length + '種)</div>' +
-        '</div>';
-    }).join('');
-  }
-  modal.style.display = 'flex';
-}
-
-function registerFromHistory(id) {
-  var hist = getCutHistory();
-  var entry = hist.find(function(h){ return h.id===id; });
-  if (!entry || !entry.result || !entry.result.remnants) return;
-  registerRemnants(entry.result.remnants);
-  if (confirm('端材'+entry.result.remnants.length+'本を在庫に登録しました。在庫ページを開きますか？')) {
-    goPage('i'); renderInventory();
-  }
-}
-
 // ── 端材優先切断（目標端材長さを考慮したストック選択） ──
-function getTargetEndmat() {
-  var lenEl = document.getElementById('targetEndmat');
-  var qtyEl = document.getElementById('targetEndmatQty');
-  var len = parseInt(lenEl ? lenEl.value : 0) || 0;
-  var qty = parseInt(qtyEl ? qtyEl.value : 1) || 1;
-  return { len: len, qty: qty };
-}
 
 function showRegisterRemnantsBtn(resultData) {
   var rems = extractRemnants(resultData);
@@ -2179,14 +1982,6 @@ function cartClearAll() {
 }
 
 /** カート内容をまとめて印刷 */
-function cartPrint() {
-  var cart = getCart();
-  if (!cart.length) {
-    alert('先に「＋ 追加」でカートに追加してください。');
-    return;
-  }
-  openCartModal();
-}
 
 /** カートの内容で作業指示書を印刷 */
 
@@ -2446,12 +2241,6 @@ function enterNext(e, nextId) {
 }
 
 /** 在庫定尺：直接入力・1未満で∞に戻す */
-function stkValChange(i) {
-  var inp = document.getElementById('sm' + i);
-  var v = parseInt(inp.value);
-  if (!v || v < 1) inp.value = '';
-  saveSettings();
-}
 
 /** 在庫定尺：▲ 上限本数を増やす */
 function stkUp(i) {
@@ -2530,18 +2319,6 @@ function getInventoryForCurrentSpec() {
   return Object.values(grouped).sort(function(a, b) {
     return b.len - a.len || parseDateValue(b.date) - parseDateValue(a.date);
   });
-}
-
-function removeGroupedInventory(index) {
-  var row = document.getElementById('remRow' + index);
-  if (!row) return;
-  var ids = [];
-  try { ids = JSON.parse(row.dataset.inventoryIds || '[]'); } catch (e) {}
-  if (!ids.length) return;
-  saveInventory(getInventory().filter(function(item) { return ids.indexOf(item.id) === -1; }));
-  syncInventoryToRemnants();
-  updateInvDropdown();
-  renderInventoryPage();
 }
 
 function renderInventoryPage() {
@@ -3040,24 +2817,6 @@ document.addEventListener('input', function(e) {
 
 var MANUAL_REMNANTS_KEY = 'toriai_manual_remnants_v2';
 var INVENTORY_REMNANT_USAGE_KEY = 'toriai_inventory_remnant_usage_v2';
-
-function getManualRemnantDrafts() {
-  try {
-    var parsed = JSON.parse(localStorage.getItem(MANUAL_REMNANTS_KEY) || '[]');
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function getInventoryRemnantUsage() {
-  try {
-    var parsed = JSON.parse(localStorage.getItem(INVENTORY_REMNANT_USAGE_KEY) || '{}');
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch (e) {
-    return {};
-  }
-}
 
 function createManualRemnantRow(seed) {
   var list = document.getElementById('remnantList');
