@@ -1072,20 +1072,6 @@ function sbSwitch(n) {
   if (tab2) tab2.classList.toggle('active', n === 2);
 }
 
-function addRemnant() {
-  var list = document.getElementById('remnantList');
-  var i = remnantCount++;
-  var d = document.createElement('div');
-  d.className = 'rem-row';
-  d.id = 'remRow' + i;
-  d.innerHTML =
-    '<span class="rem-label">長さ</span>' +
-    '<input type="number" id="remLen' + i + '" placeholder="" min="1" style="flex:1" onchange="saveRemnants()">' +
-    '<span class="rem-label">本数</span>' +
-    '<input type="number" id="remQty' + i + '" placeholder="1" min="1" value="1" style="width:44px" onchange="saveRemnants()">' +
-    '<button class="rem-del" onclick="removeRemnant(' + i + ');saveRemnants()">✕</button>';
-  list.appendChild(d);
-}
 
 // ── 在庫と手持ち残材を完全同期 ──
 
@@ -1262,43 +1248,7 @@ function deleteCutHistory(id) {
   renderHistory();
 }
 
-function clearHistSearch() {
-  ['hsClient','hsName','hsDateFrom','hsDateTo','hsSt','hsKind'].forEach(function(id){
-    var el=document.getElementById(id); if(el)el.value='';
-  });
-  renderHistory();
-}
 
-function confirmCutDone() {
-  var modal = document.getElementById('cutDoneModal');
-  var kind  = modal._kind;
-  var spec  = modal._spec;
-  var items = modal._items || [];
-  var endMats = modal._endMats || {};
-  var label = (document.getElementById('cdLabel') ? document.getElementById('cdLabel').value.trim() : '');
-
-  items.forEach(function(l) {
-    var cb = document.getElementById('cd_'+l);
-    if (cb && cb.checked) {
-      addToInventory(kind, spec, l, endMats[l], label);
-    }
-  });
-
-  // 切断履歴に保存
-  var pieces = [];
-  for (var i=0; i<totalRows; i++) {
-    var lEl=document.getElementById('pl'+i), qEl=document.getElementById('pq'+i);
-    if (lEl && parseInt(lEl.value)>0 && parseInt(qEl.value)>0)
-      pieces.push({l:parseInt(lEl.value), q:parseInt(qEl.value)});
-  }
-  saveCutHistory(kind, spec, pieces, items.map(function(l){return {l:l,q:endMats[l]};}));
-
-  modal.style.display = 'none';
-  alert('在庫に登録しました！「在庫」タブで確認できます。');
-
-  // 在庫ドロップダウンも更新
-  buildInventoryDropdown();
-}
 
 // ── 端材優先切断（目標端材長さを考慮したストック選択） ──
 
@@ -1357,70 +1307,6 @@ function patRows(bars) {
 }
 
 // ★ 切断図（バービジュアライザー）を生成
-function buildCutDiagram(bars, slLen, label) {
-  var grouped = groupBars(bars);
-  if (!grouped.length) return '';
-  // 同一パターン本数の多い順に並べる
-  grouped.sort(function(a, b) { return b.count - a.count; });
-  // 同一パターン本数が多い順に並べ替え
-  grouped.sort(function(a,b){ return b.cnt - a.cnt; });
-
-  // ハッチング用ユニーク長さ順（先に確定）
-  var uniqueLensForHatch = [];
-  bars.forEach(function(b){ b.pat.forEach(function(p){ if (uniqueLensForHatch.indexOf(p)<0) uniqueLensForHatch.push(p); }); });
-  uniqueLensForHatch.sort(function(a,b){return b-a;});
-
-  var html = '<div class="cut-diagram">';
-  html += '<div class="cut-diagram-title">✂ 切断図 — ' + label + '</div>';
-
-  grouped.forEach(function(g) {
-    var total = slLen;
-    var pieces = g.pat.slice();
-    var blade = parseInt(document.getElementById('blade').value) || 3;
-    var endLoss = parseInt(document.getElementById('endloss').value) || 75;
-    var endHalf = endLoss / 2;
-
-    html += '<div class="bar-vis">';
-    html += '<div class="bar-vis-label">';
-    html += slLen.toLocaleString() + 'mm';
-    if (g.cnt > 1) html += ' <span class="bar-count">× ' + g.cnt + '本 同パターン</span>';
-    
-    html += '</div>';
-    html += '<div class="bar-track">';
-
-    var leftPct = (endHalf / total) * 100;
-    if (endHalf > 0) {
-      html += '<div style="width:' + leftPct.toFixed(2) + '%;min-width:2px;height:100%;background:rgba(255,68,68,.12);border-right:1px solid rgba(255,68,68,.3)" title="端部ロス ' + endHalf + 'mm"></div>';
-    }
-    pieces.forEach(function(len, pi) {
-      if (pi > 0) html += '<div class="bar-kerf" title="刃厚 ' + blade + 'mm"></div>';
-      var pct = (len / total) * 100;
-      var colorClass = pieceColorMap[len] || 'p0';
-      var hi = uniqueLensForHatch.indexOf(len);
-      var hc = 'ph' + (hi % 10);
-      html += '<div class="bar-piece ' + colorClass + ' ' + hc + '" style="width:' + pct.toFixed(2) + '%;min-width:4px" title="' + len.toLocaleString() + 'mm">';
-      html += '<div class="bar-piece-inner">' + (pct > 4 ? len.toLocaleString() : '') + '</div>';
-      html += '</div>';
-    });
-    var lossPct = (g.loss / total) * 100;
-    if (g.loss > 0) {
-      html += '<div class="bar-loss" style="width:' + lossPct.toFixed(2) + '%;min-width:2px" title="端材 ' + g.loss + 'mm">';
-      html += '';
-      html += '</div>';
-    }
-    if (endHalf > 0) {
-      html += '<div style="width:' + leftPct.toFixed(2) + '%;min-width:2px;height:100%;background:rgba(255,68,68,.12);border-left:1px solid rgba(255,68,68,.3)" title="端部ロス ' + endHalf + 'mm"></div>';
-    }
-    html += '</div>'; // bar-track
-
-    html += '</div>'; // bar-vis
-  });
-
-  // 凡例削除済み
-
-  html += '</div>'; // cut-diagram
-  return html;
-}
 
 // ============================================================
 // render: 結果エリアをクリアして各セクションを組み立て
@@ -1780,24 +1666,6 @@ function toggleDiag(id, btn) {
   btn.classList.toggle('open', !open);
 }
 
-function updatePrintHeader() {
-  var job = getJobInfo();
-  var hdr = document.getElementById('printJobHeader');
-  if (!hdr) return;
-  var spec = (document.getElementById('spec')||{}).value || '';
-  hdr.innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
-      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">作業指示書</div>' +
-      '<div style="font-size:10px;color:#666">印刷日: ' + new Date().toLocaleDateString("ja-JP") + '</div>' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px">' +
-      '<div><span style="color:#666">顧客名</span><br><strong>' + (job.client||'—') + '</strong></div>' +
-      '<div><span style="color:#666">工事名</span><br><strong>' + (job.name||'—') + '</strong></div>' +
-      '<div><span style="color:#666">納期</span><br><strong>' + (job.deadline||'—') + '</strong></div>' +
-      '<div><span style="color:#666">メモ</span><br><strong>' + (job.worker||'—') + '</strong></div>' +
-    '</div>' +
-    '<div style="margin-top:6px;font-size:11px"><span style="color:#666">鋼材規格</span>&nbsp;<strong>' + spec + '</strong></div>';
-}
 
 function clearParts() {
   pushUndoManual();
@@ -1892,18 +1760,6 @@ document.addEventListener('keydown', function(e) {
 // ══════════════════════════════════════════════════════
 
 /** カートバッジを更新 */
-function updateCartBadge() {
-  var cart = getCart();
-  var badge = document.getElementById('cartBadge');
-  if (!badge) return;
-  var cutN = cart.filter(function(x) { return !x.data.isWeight; }).length;
-  var weightN = cart.filter(function(x) { return x.data.isWeight; }).length;
-  var total = cart.length;
-  badge.textContent = total === 0 ? '0件'
-    : (cutN > 0 && weightN > 0) ? '取' + cutN + ' 重' + weightN
-    : total + '件';
-  badge.classList.toggle('empty', total === 0);
-}
 
 /** カードの情報を収集してカートに追加 */
 
@@ -2018,40 +1874,8 @@ var PRINT_CSS = [
 ].join('\n');
 
 /** フルヘッダーHTML生成 */
-function buildPrintHeaderFull(job, pageInfo) {
-  var h = '';
-  h += '<div class="ph-full">';
-  h += '<div>';
-  h += '<div style="font-size:9px;color:#555;font-weight:700;letter-spacing:.06em;margin-bottom:4px">作業指示書</div>';
-  h += '<div style="display:flex;gap:18px;align-items:baseline">';
-  h += '<div><span style="font-size:10px;color:#666">顧客：</span><span style="font-size:15px;font-weight:700">' + (job.client||'—') + '</span></div>';
-  h += '<div><span style="font-size:10px;color:#666">現場名：</span><span style="font-size:15px;font-weight:700">' + (job.name||'—') + '</span></div>';
-  if (job.worker) h += '<div><span style="font-size:10px;color:#666">メモ：</span><span style="font-size:13px;font-weight:700">' + job.worker + '</span></div>';
-  h += '</div>';
-  h += '</div>';
-  h += '<div style="text-align:right">';
-  h += '<div style="font-size:9px;color:#888">' + pageInfo + '</div>';
-  if (job.deadline) h += '<div style="margin-top:3px"><span style="font-size:10px;color:#666">納期：</span><span style="font-size:13px;font-weight:700">' + job.deadline + '</span></div>';
-  h += '</div>';
-  h += '</div>';
-  return h;
-}
 
 /** ミニヘッダーHTML生成（2枚目以降）*/
-function buildPrintHeaderMini(job, pageInfo) {
-  var h = '';
-  h += '<div class="ph-mini">';
-  h += '<div>';
-  h += '<span style="font-size:9px;font-weight:700;letter-spacing:.04em">作業指示書　つづき</span>';
-  h += '<span style="font-size:9px;color:#555;margin-left:12px">顧客：' + (job.client||'—') + '　現場名：' + (job.name||'—') + '</span>';
-  h += '</div>';
-  h += '<div style="text-align:right">';
-  h += '<div style="font-size:9px;color:#888">' + pageInfo + '</div>';
-  if (job.deadline) h += '<div style="font-size:9px"><span style="color:#666">納期：</span><strong>' + job.deadline + '</strong></div>';
-  h += '</div>';
-  h += '</div>';
-  return h;
-}
 
 /**
  * 切断図バーHTML生成
@@ -2059,73 +1883,6 @@ function buildPrintHeaderMini(job, pageInfo) {
  * @param {number} sl - 定尺長さ
  * @param {number} endLoss - 端部ロス
  */
-function buildPrintBarHtml(bars, sl, endLoss) {
-  if (!bars || !bars.length) return '';
-
-  // 同じパターン・同じlossでグループ化
-  var grouped = {};
-  bars.forEach(function(b) {
-    var key = b.pat.slice().sort(function(a,c){return c-a;}).join(',') + '|' + (b.loss||0);
-    if (!grouped[key]) grouped[key] = {bar:b, cnt:0};
-    grouped[key].cnt++;
-  });
-
-  var endHalf = (endLoss || 150) / 2;
-  var html = '';
-
-  Object.keys(grouped).forEach(function(key) {
-    var g = grouped[key];
-    var b = g.bar;
-    var cnt = g.cnt;
-
-    // パターン文字列
-    var pc = {};
-    b.pat.forEach(function(p){ pc[p]=(pc[p]||0)+1; });
-    var patStr = Object.keys(pc).map(Number).sort(function(a,c){return c-a;})
-      .map(function(l){ return l.toLocaleString()+(pc[l]>1?'×'+pc[l]:''); }).join(' + ');
-
-    var remInfo = b.loss >= 500 ? '　端材：'+b.loss.toLocaleString()+'mm'
-                : b.loss > 0   ? '　ロス：'+b.loss.toLocaleString()+'mm'
-                : '';
-
-    html += '<div class="bar-block">';
-    html += '<div class="bar-head">';
-    html += '<span style="font-weight:700;font-size:10px">' + sl.toLocaleString() + 'mm</span>';
-    html += '<span class="cnt-badge">×' + cnt + ' セット</span>';
-    html += '</div>';
-    html += '<div class="bar-pat">= ' + patStr + remInfo + '</div>';
-    html += '<div class="bar-track">';
-
-    // 端部ロス（左）+ 縦線
-    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-    html += '<div class="b-blade"></div>';
-
-    // 部材
-    var sortedPat = b.pat.slice().sort(function(a,c){return c-a;});
-    sortedPat.forEach(function(len, i) {
-      if (i > 0) html += '<div class="b-blade"></div>';
-      html += '<div class="b-piece" style="flex:' + len + '">' +
-        (len >= 250 ? len.toLocaleString() : '') + '</div>';
-    });
-
-    // 端材 or ロス + 縦線
-    if (b.loss >= 500) {
-      html += '<div class="b-blade"></div>';
-      html += '<div class="b-rem" style="flex:' + b.loss + '">端材 ' + b.loss.toLocaleString() + '</div>';
-    } else if (b.loss > 0) {
-      html += '<div class="b-blade"></div>';
-      html += '<div class="b-loss" style="flex:' + b.loss + '">ロス</div>';
-    }
-
-    // 端部ロス（右）+ 縦線
-    html += '<div class="b-blade"></div>';
-    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-
-    html += '</div></div>';
-  });
-
-  return html;
-}
 
 /**
  * セクションHTML生成（1鋼材分）
@@ -2680,31 +2437,6 @@ function buildCutSourceLabel(slLen) {
   return isStdStockLength(slLen) ? slLen.toLocaleString() + 'mm 定尺' : '残材（L=' + slLen.toLocaleString() + 'mm）より切断';
 }
 
-function buildCutDiagram(bars, slLen, label) {
-  var grouped = groupBars(bars);
-  if (!grouped.length) return '';
-  var html = '<div class="cut-diagram">';
-  html += '<div class="cut-diagram-title">✂ 切断図</div>';
-  grouped.forEach(function(g) {
-    var sourceLabel = buildCutSourceLabel(slLen);
-    var isRemnant = !isStdStockLength(slLen);
-    html += '<div class="bar-vis' + (isRemnant ? ' remnant-source' : '') + '">';
-    html += '<div class="bar-vis-label"><strong>' + sourceLabel + '</strong><span class="bar-count">× ' + g.cnt + 'セット</span>' + (isRemnant ? '<span class="source-chip">◈ 残材使用</span>' : '') + '</div>';
-    html += '<div class="bar-track">';
-    var endHalf = (parseInt((document.getElementById('endloss') || {}).value, 10) || 150) / 2;
-    if (endHalf > 0) html += '<div class="bar-loss" style="width:' + ((endHalf / slLen) * 100).toFixed(2) + '%"></div>';
-    g.pat.forEach(function(len, idx) {
-      if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
-      html += '<div class="bar-piece p' + (idx % 10) + '" style="width:' + ((len / slLen) * 100).toFixed(2) + '%;min-width:4px" title="' + len.toLocaleString() + 'mm">' +
-        '<div class="bar-piece-inner">' + len.toLocaleString() + '</div></div>';
-    });
-    if (g.loss > 0) html += '<div class="' + (g.loss >= 500 ? 'bar-rem' : 'bar-loss') + '" style="width:' + ((g.loss / slLen) * 100).toFixed(2) + '%"><span class="bar-piece-lbl">' + g.loss.toLocaleString() + '</span></div>';
-    if (endHalf > 0) html += '<div class="bar-loss" style="width:' + ((endHalf / slLen) * 100).toFixed(2) + '%"></div>';
-    html += '</div></div>';
-  });
-  html += '</div>';
-  return html;
-}
 
 function buildPrintHeaderFull(job, pageInfo) {
   var h = '';
@@ -2733,36 +2465,6 @@ function buildPrintHeaderMini(job, pageInfo) {
   return h;
 }
 
-function buildPrintBarHtml(bars, sl, endLoss) {
-  if (!bars || !bars.length) return '';
-  var grouped = {};
-  bars.forEach(function(bar) {
-    var key = bar.pat.slice().join(',') + '|' + (bar.loss || 0);
-    if (!grouped[key]) grouped[key] = { bar: bar, cnt: 0 };
-    grouped[key].cnt++;
-  });
-  var endHalf = (endLoss || 150) / 2;
-  var sourceLabel = buildCutSourceLabel(sl);
-  var isRemnant = !isStdStockLength(sl);
-  var html = '';
-  Object.keys(grouped).forEach(function(key) {
-    var g = grouped[key];
-    var bar = g.bar;
-    html += '<div class="bar-block">';
-    html += '<div class="bar-head"><span style="font-weight:700;font-size:10px">' + sourceLabel + '</span><span class="cnt-badge">× ' + g.cnt + 'セット</span></div>';
-    html += '<div class="bar-pat">' + (isRemnant ? '◈ 残材より切断 / ' : '') + '= ' + bar.pat.join(' + ') + (bar.loss > 0 ? ' / 端材 ' + bar.loss.toLocaleString() + 'mm' : '') + '</div>';
-    html += '<div class="bar-track">';
-    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-    bar.pat.forEach(function(len, idx) {
-      html += '<div class="b-piece" style="flex:' + len + '">' + len.toLocaleString() + '</div>';
-      if (idx < bar.pat.length - 1) html += '<div class="b-blade"></div>';
-    });
-    if (bar.loss > 0) html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + bar.loss.toLocaleString() + '</div>';
-    html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-    html += '</div></div>';
-  });
-  return html;
-}
 
 function updatePrintHeader() {
   var job = getJobInfo();
@@ -2846,18 +2548,6 @@ function addRemnant(seed) {
   }
 }
 
-function getRemnants() {
-  var result = [];
-  document.querySelectorAll('#remnantList .rem-row').forEach(function(row) {
-    var lenEl = row.querySelector('.rem-len') || row.querySelector('[id^="remLen"]');
-    var qtyEl = row.querySelector('.rem-qty') || row.querySelector('[id^="remQty"]');
-    var len = parseInt(lenEl && lenEl.value, 10);
-    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
-    if (!len || len < 1 || !qty) return;
-    for (var k = 0; k < qty; k++) result.push(len);
-  });
-  return result;
-}
 
 function updateCartBadge() {
   var cart = getCart();
@@ -2990,104 +2680,12 @@ function buildPrintBarHtml(bars, sl, endLoss) {
   return html;
 }
 
-function normalizeInterfaceChrome() {
-  document.title = 'TORIAI';
-  var head = document.querySelector('.remnant-head');
-  if (head && !head.querySelector('.rem-add-btn')) {
-    var addBtn = document.createElement('button');
-    addBtn.type = 'button';
-    addBtn.className = 'rem-add-btn';
-    addBtn.textContent = '＋';
-    addBtn.onclick = function() { addRemnant(); };
-    head.appendChild(addBtn);
-  }
-
-  var labelMap = [
-    ['#histModal div[style*="font-size:14px;font-weight:700"]', '入力履歴'],
-    ['#cartModal .cart-modal-hd span[style*="font-size:15px"]', '印刷カート'],
-    ['#histPreviewModal div[style*="font-size:14px;font-weight:700;color:#1a1a2e"]', '作業指示書プレビュー']
-  ];
-  labelMap.forEach(function(entry) {
-    var el = document.querySelector(entry[0]);
-    if (el) el.textContent = entry[1];
-  });
-
-  ['#cartModal button[onclick="cartPrintCutting()"]', '#histPreviewModal button[onclick="printHistoryPreview()"]'].forEach(function(sel) {
-    var el = document.querySelector(sel);
-    if (el) {
-      el.textContent = sel.indexOf('#cartModal') === 0 ? '切断指示書を印刷' : '印刷';
-      if (sel.indexOf('#histPreviewModal') === 0) el.classList.add('preview-action-btn');
-    }
-  });
-  ['#cartModal button[onclick="closeCartModal()"]', '#histPreviewModal button[onclick*="histPreviewModal"]', '#histModal button[onclick*="histModal"]'].forEach(function(sel) {
-    var el = document.querySelector(sel);
-    if (el) el.textContent = '閉じる';
-  });
-  var clearBtn = document.querySelector('#cartModal button[onclick="cartClearAll()"]');
-  if (clearBtn) {
-    clearBtn.textContent = '全クリア';
-    clearBtn.classList.add('cart-danger-btn');
-  }
-  var cartCloseBtn = document.querySelector('#cartModal button[onclick="closeCartModal()"]');
-  if (cartCloseBtn) cartCloseBtn.classList.add('cart-danger-btn');
-
-  var previewModal = document.getElementById('histPreviewModal');
-  if (previewModal && !previewModal.dataset.outsideCloseBound) {
-    previewModal.dataset.outsideCloseBound = '1';
-    previewModal.addEventListener('click', function(e) {
-      if (e.target === previewModal) previewModal.style.display = 'none';
-    });
-  }
-}
 
 // Final remnant UI behavior override. This block must stay at EOF so stale
 // duplicated definitions earlier in the file cannot win.
 
-function updateInventoryUseButton() {
-  var btn = document.getElementById('invUseBtn');
-  var sel = document.getElementById('invSelect');
-  if (!btn) return;
-  btn.textContent = '追加';
-  btn.disabled = !(sel && sel.value);
-}
 
-function createInventoryRemnantRow(item, selectedQty) {
-  var list = document.getElementById('remnantList');
-  if (!list) return null;
-  var i = remnantCount++;
-  var usage = Math.max(1, Math.min(item.qty || 1, selectedQty || 1));
-  var row = document.createElement('div');
-  row.className = 'rem-row';
-  row.id = 'remRow' + i;
-  row.dataset.source = 'inventory';
-  row.dataset.inventoryKey = getRemnantInventoryKey(item);
-  row.dataset.maxQty = String(item.qty || 1);
-  row.innerHTML =
-    '<div class="rem-label-group">' +
-      '<span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span>' +
-      '<span class="rem-label-sub">在庫 ' + (item.qty || 1) + '本</span>' +
-    '</div>' +
-    '<label class="rem-qty-group" for="remQty' + i + '">' +
-      '<span class="rem-qty-label">今回使う本数</span>' +
-      '<input type="number" class="rem-qty" id="remQty' + i + '" min="1" max="' + (item.qty || 1) + '" value="' + usage + '" oninput="saveRemnants()">' +
-    '</label>' +
-    '<button type="button" class="rem-del" aria-label="削除" onclick="removeRemnant(' + i + ')">×</button>';
-  list.appendChild(row);
-  return row;
-}
 
-function getRemnants() {
-  var result = [];
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var title = row.querySelector('.rem-label-title');
-    var qtyEl = row.querySelector('.rem-qty');
-    var len = parseInt((title && title.textContent || '').replace(/[^\d]/g, ''), 10);
-    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
-    if (!len || !qty) return;
-    for (var k = 0; k < qty; k++) result.push(len);
-  });
-  return result;
-}
 
 (function finalizeRemnantUiBinding() {
   function bind() {
@@ -3111,121 +2709,13 @@ function getRemnants() {
   }
 })();
 
-function updateInventoryUseButton() {
-  var btn = document.getElementById('invUseBtn');
-  var sel = document.getElementById('invSelect');
-  if (!btn) return;
-  btn.textContent = '追加';
-  btn.disabled = !(sel && sel.value);
-}
 
-function createInventoryRemnantRow(item, selectedQty) {
-  var list = document.getElementById('remnantList');
-  if (!list) return null;
-  var i = remnantCount++;
-  var usage = Math.max(1, Math.min(item.qty || 1, selectedQty || 1));
-  var row = document.createElement('div');
-  row.className = 'rem-row';
-  row.id = 'remRow' + i;
-  row.dataset.source = 'inventory';
-  row.dataset.inventoryKey = getRemnantInventoryKey(item);
-  row.dataset.maxQty = String(item.qty || 1);
-  row.innerHTML =
-    '<div class="rem-label-group">' +
-      '<span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span>' +
-      '<span class="rem-label-sub">在庫 ' + (item.qty || 1) + '本</span>' +
-    '</div>' +
-    '<label class="rem-qty-group" for="remQty' + i + '">' +
-      '<span class="rem-qty-label">今回使う本数</span>' +
-      '<input type="number" class="rem-qty" id="remQty' + i + '" min="1" max="' + (item.qty || 1) + '" value="' + usage + '" oninput="saveRemnants()">' +
-    '</label>' +
-    '<button type="button" class="rem-del" aria-label="削除" onclick="removeRemnant(' + i + ')">×</button>';
-  list.appendChild(row);
-  return row;
-}
 
-function getRemnants() {
-  var result = [];
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var title = row.querySelector('.rem-label-title');
-    var qtyEl = row.querySelector('.rem-qty');
-    var len = parseInt((title && title.textContent || '').replace(/[^\d]/g, ''), 10);
-    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
-    if (!len || !qty) return;
-    for (var k = 0; k < qty; k++) result.push(len);
-  });
-  return result;
-}
 
-(function finalizeRemnantUiBinding() {
-  function bind() {
-    var sel = document.getElementById('invSelect');
-    var btn = document.getElementById('invUseBtn');
-    if (sel && !sel.dataset.finalBound) {
-      sel.dataset.finalBound = '1';
-      sel.addEventListener('change', updateInventoryUseButton);
-    }
-    if (btn && !btn.dataset.finalBound) {
-      btn.dataset.finalBound = '1';
-      btn.addEventListener('click', addFromInventory);
-    }
-    buildInventoryDropdown();
-    syncInventoryToRemnants();
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bind, { once: true });
-  } else {
-    bind();
-  }
-})();
 
-function getRemnantInventoryKey(item) {
-  return (item && item.ids ? item.ids.slice().sort(function(a, b) { return a - b; }).join('_') : '');
-}
 
-function updateInventoryUseButton() {
-  var btn = document.getElementById('invUseBtn');
-  var sel = document.getElementById('invSelect');
-  if (!btn) return;
-  btn.textContent = '追加';
-  btn.style.background = '#fff';
-  btn.style.color = '#16a34a';
-  btn.disabled = !(sel && sel.value);
-}
 
-function createInventoryRemnantRow(item, selectedQty) {
-  var list = document.getElementById('remnantList');
-  if (!list) return null;
-  var i = remnantCount++;
-  var usage = Math.max(1, Math.min(item.qty || 1, selectedQty || 1));
-  var row = document.createElement('div');
-  row.className = 'rem-row';
-  row.id = 'remRow' + i;
-  row.dataset.source = 'inventory';
-  row.dataset.inventoryKey = getRemnantInventoryKey(item);
-  row.dataset.inventoryIds = JSON.stringify(item.ids || []);
-  row.dataset.maxQty = String(item.qty || 1);
-  row.innerHTML =
-    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫 ' + (item.qty || 1) + '本</span></div>' +
-    '<input type="number" class="rem-qty" id="remQty' + i + '" min="1" max="' + (item.qty || 1) + '" value="' + usage + '" oninput="saveRemnants()">' +
-    '<div class="rem-meta">今回使う本数 / ' + escapeHtml(item.company || item.label || '在庫から選択') + '</div>' +
-    '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
-  list.appendChild(row);
-  return row;
-}
 
-function getRemnants() {
-  var result = [];
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var title = row.querySelector('.rem-label-title');
-    var qtyEl = row.querySelector('.rem-qty');
-    var len = parseInt((title && title.textContent || '').replace(/[^\d]/g, ''), 10);
-    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
-    if (!len || !qty) return;
-    for (var k = 0; k < qty; k++) result.push(len);
-  });
-  return result;
-}
 
 (function hardReplaceRemnantUi() {
   function renderRemnantSectionShell() {
@@ -3301,38 +2791,7 @@ function updateInventoryUseButton() {
   btn.disabled = !(sel && sel.value);
 }
 
-function createInventoryRemnantRow(item, selectedQty) {
-  var list = document.getElementById('remnantList');
-  if (!list) return null;
-  var i = remnantCount++;
-  var row = document.createElement('div');
-  var usage = Math.max(1, Math.min(item.qty || 1, selectedQty || 1));
-  row.className = 'rem-row';
-  row.id = 'remRow' + i;
-  row.dataset.source = 'inventory';
-  row.dataset.inventoryKey = getRemnantInventoryKey(item);
-  row.dataset.maxQty = String(item.qty || 1);
-  row.innerHTML =
-    '<div class="rem-label-group"><span class="rem-label-title">' + Number(item.len || 0).toLocaleString() + 'mm</span><span class="rem-label-sub">在庫 ' + (item.qty || 1) + '本</span></div>' +
-    '<input type="number" class="rem-qty" id="remQty' + i + '" min="1" max="' + (item.qty || 1) + '" value="' + usage + '" oninput="saveRemnants()">' +
-    '<div class="rem-meta">今回使う本数 / ' + escapeHtml(item.company || item.label || '在庫から選択') + '</div>' +
-    '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
-  list.appendChild(row);
-  return row;
-}
 
-function getRemnants() {
-  var result = [];
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var qtyEl = row.querySelector('.rem-qty');
-    var title = row.querySelector('.rem-label-title');
-    var len = parseInt((title && title.textContent || '').replace(/[^\d]/g, ''), 10);
-    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
-    if (!len || !qty) return;
-    for (var i = 0; i < qty; i++) result.push(len);
-  });
-  return result;
-}
 
 (function applyFinalRemnantUiOverrides() {
   var remnantState = null;
