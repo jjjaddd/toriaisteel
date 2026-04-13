@@ -14,7 +14,6 @@
  *   createInventoryRemnantRow      (l.*)
  *   syncInventoryToRemnants        (l.*)
  *   getRemnants                    (l.*)
- *   escapeHtml                     (l.*)
  *   renderHistory                  (enforceHistoryNewestFirst IIFE)
  *
  * 【ラップ（元実装を保存してから拡張）している関数】
@@ -202,8 +201,6 @@ function cleanCartChrome() {
   var cartIcon = document.querySelector('#cartModal .cart-modal-hd span[style*="font-size:16px"]');
   if (cartIcon) cartIcon.remove();
 
-  var printBtn = document.querySelector('#cartModal button[onclick="cartDoPrint()"]');
-  if (printBtn) printBtn.textContent = '印刷';
 
   var closeBtn = document.querySelector('#cartModal button[onclick="closeCartModal()"]');
   if (closeBtn) closeBtn.textContent = '閉じる';
@@ -1072,74 +1069,6 @@ autoRegisterAfterPrint = function() {
   }
 };
 
-cartDoPrint = function() {
-  var cartSnapshot = typeof getCart === 'function' ? getCart().slice() : [];
-  if (!cartSnapshot.length) {
-    alert('印刷カートが空です。');
-    return;
-  }
-
-  var allRems = [];
-  var sigParts = [];
-  var consumePayloads = [];
-  var sections = [];
-  var firstJob = null;
-  cartSnapshot.forEach(function(item) {
-    var data = item && item.data ? item.data : {};
-    var cardId = data.cardId || item.cardId;
-    var payload = buildPrintPayload(cardId, window._lastCalcResult, data);
-    var meta = payload.meta || data.resultMeta || {};
-    var job = meta.job || data.job || {};
-    if (!firstJob) firstJob = job;
-    var spec = meta.spec || data.spec || '';
-    var endLoss = parseInt(meta.endLoss, 10) || parseInt(data.endLoss, 10) || 150;
-    sections.push(buildPrintSectionFromPayload(sections.length + 1, spec, payload, endLoss));
-    if (payload.rems.length) {
-      allRems = allRems.concat(payload.rems);
-      sigParts.push(buildRemnantSignature(cardId, payload.rems));
-    }
-    if (getSelectedInventoryIds(payload.meta).length || getConsumedInventoryLengths(payload.bars, payload.meta).length) {
-      consumePayloads.push({ cardId: cardId, bars: payload.bars, meta: payload.meta });
-    }
-  });
-
-  if (sections.length) {
-    openPrintWindow(buildPrintPages(firstJob || {}, sections));
-  }
-
-  if (allRems.length && typeof registerRemnants === 'function') {
-    var signature = JSON.stringify(sigParts.sort());
-    if (window._lastPrintedRemnantSignature !== signature) {
-      window._lastPrintedRemnantSignature = signature;
-      registerRemnants(allRems);
-    }
-  }
-  if (consumePayloads.length && typeof consumeInventoryBars === 'function') {
-    var consumeSignature = JSON.stringify(consumePayloads.map(function(item) {
-      return buildInventoryConsumeSignature(item.cardId, item.bars, item.meta);
-    }).sort());
-    if (window._lastConsumedInventorySignature !== consumeSignature) {
-      window._lastConsumedInventorySignature = consumeSignature;
-      consumePayloads.forEach(function(item) {
-        if (getSelectedInventoryIds(item.meta).length && typeof consumeSelectedInventoryRemnants === 'function') {
-          consumeSelectedInventoryRemnants(item.meta.selectedInventoryRemnants);
-        } else if (typeof consumeInventoryBars === 'function') {
-          consumeInventoryBars(item.bars, item.meta);
-        }
-      });
-    }
-  }
-  if (typeof clearCart === 'function') clearCart();
-  if (typeof updateCartBadge === 'function') updateCartBadge();
-  if (typeof closeCartModal === 'function') closeCartModal();
-  document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
-    btn.textContent = '＋作業指示書に追加';
-    btn.classList.remove('added');
-    btn.disabled = false;
-  });
-  return;
-};
-
 var _baseRenderCartModal = typeof renderCartModal === 'function' ? renderCartModal : null;
 renderCartModal = function() {
   var out = _baseRenderCartModal ? _baseRenderCartModal.apply(this, arguments) : undefined;
@@ -1250,15 +1179,6 @@ render = function() {
   hydrateCardRemnantLists();
   return out;
 };
-
-function escapeHtml(value) {
-  return String(value == null ? '' : value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
 
 function deleteInventoryGroup(groupKey) {
   var ids = String(groupKey || '').split(',').map(function(id) {
