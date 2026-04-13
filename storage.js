@@ -271,67 +271,6 @@ function getZoneInfo() {
  * @param {Object} resultData - _lastCalcResult
  * @param {string} [cardId] - 印刷したカードID
  */
-function legacySaveCutHistory(resultData, cardId) {
-  var job = getJobInfo();
-  var zones = getZoneInfo();
-  var hist = getCutHistory();
-  var resultMeta = buildResultMeta(resultData);
-  var selectedBars = getSelectedBarsFromResultData(resultData, cardId);
-  var entry = {
-    id: Date.now(),
-    date: new Date().toISOString(),
-    dateLabel: new Date().toLocaleDateString('ja-JP'),
-    client: job.client,
-    name: job.name,
-    deadline: job.deadline,
-    worker: job.worker,
-    spec: job.spec,
-    kind: job.kind,
-    zones: zones,
-    result: {
-      allDP: resultData.allDP ? resultData.allDP.slice(0,5).map(function(d){
-        return {desc:d.desc,lossRate:d.lossRate,lossKg:d.lossKg,barKg:d.barKg,
-          slA:d.slA,slB:d.slB,type:d.type,chg:d.chg,
-          bA:d.bA?d.bA.map(function(b){return{pat:b.pat,loss:b.loss};}):[] ,
-          bB:d.bB?d.bB.map(function(b){return{pat:b.pat,loss:b.loss};}):[]};
-      }) : [],
-      patA: resultData.patA ? {
-        label:resultData.patA.label, sl:resultData.patA.sl,
-        bars:resultData.patA.bars?resultData.patA.bars.map(function(b){return{pat:b.pat,loss:b.loss,sl:b.sl};}):[]
-      } : null,
-      patB: resultData.patB ? {
-        label: resultData.patB.label,
-        plan90: resultData.patB.plan90 ? {
-          label: resultData.patB.plan90.label,
-          sl: resultData.patB.plan90.sl,
-          bars: resultData.patB.plan90.bars ? resultData.patB.plan90.bars.map(function(b){return{pat:b.pat,loss:b.loss,sl:b.sl};}) : []
-        } : null,
-        plan80: resultData.patB.plan80 ? {
-          label: resultData.patB.plan80.label,
-          sl: resultData.patB.plan80.sl,
-          bars: resultData.patB.plan80.bars ? resultData.patB.plan80.bars.map(function(b){return{pat:b.pat,loss:b.loss,sl:b.sl};}) : []
-        } : null
-      } : null,
-      meta: resultMeta,
-      selectedBars: selectedBars,
-      remnants: buildRemnantsFromBars(selectedBars, resultMeta),
-      blade: parseInt((document.getElementById('blade')||{}).value)||3,
-      endLoss: parseInt((document.getElementById('endloss')||{}).value)||150
-    }
-  };
-  hist.unshift(entry);
-  // 無制限保存（容量超過時は古い半分を削除）
-  var saved = false;
-  while (!saved && hist.length > 0) {
-    try {
-      localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist));
-      saved = true;
-    } catch(e) {
-      hist = hist.slice(0, Math.floor(hist.length * 0.7));  // 古い30%を削除して再試行
-    }
-  }
-  return entry;
-}
 
 function getCutHistory() {
   try { var r=localStorage.getItem(LS_CUT_HIST); return r?JSON.parse(r):[]; } catch(e){return [];}

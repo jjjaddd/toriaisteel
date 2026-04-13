@@ -1261,7 +1261,6 @@ function buildHistSpecDropdown() {
 
 // alias
 function renderInventory() { renderInventoryPage(); }
-function renderInventoryPage() { legacyRenderInventoryPage_v2(); }
 
 // ── 履歴ページ描画 ──
 function _renderHistRow(h) {
@@ -2545,7 +2544,7 @@ function removeGroupedInventory(index) {
   renderInventoryPage();
 }
 
-function legacyRenderInventoryPage_v2() {
+function renderInventoryPage() {
   var cont = document.getElementById('invListCont');
   var empty = document.getElementById('invEmptyMsg');
   if (!cont) return;
