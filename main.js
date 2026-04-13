@@ -2059,6 +2059,15 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
         if (!slGroupsY[sl]) slGroupsY[sl] = [];
         slGroupsY[sl].push(b);
       });
+      // 残材バーをyPatHtmlに含める（切断リスト集計でpc-rowに出るようにするため）
+      if (remnantBars && remnantBars.length) {
+        remnantBars.forEach(function(rb) {
+          var sl = rb.sl;
+          if (!sl) return;
+          if (!slGroupsY[sl]) slGroupsY[sl] = [];
+          slGroupsY[sl].push(rb);
+        });
+      }
       var sortedSlsY = Object.keys(slGroupsY).map(Number).sort(function(a,b){return b-a;});
       var yPatHtml = '';
       sortedSlsY.forEach(function(sl, si){
@@ -4381,7 +4390,7 @@ function cartPrintCutting() {
     var cardId = btn.id.replace('add_', '');
     var stillInCart = getCart().some(function(x) { return x.data.cardId === cardId; });
     if (!stillInCart) {
-      btn.textContent = '＋ 作業指示書に追加';
+      btn.textContent = '＋ 追加';
       btn.classList.remove('added');
       btn.disabled = false;
     }
