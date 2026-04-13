@@ -982,9 +982,9 @@ function wCmdOpenBrowse() {
   if (!dd) return;
   var html = '';
   Object.keys(STEEL).forEach(function(kind) {
-    html += '<div class="cmd-cat" style="cursor:pointer;color:#1a1a2e;font-size:11px" ' +
+    html += '<div class="cmd-item cmd-cat-link" onmouseover="wCmdHover(this)" ' +
             'onmousedown="event.preventDefault();wCmdShowKind(\'' + kind + '\')">' +
-            kind + ' <span style="color:#bbb;font-size:10px">▶</span></div>';
+            '<span>' + kind + '</span><span class="cmd-sub">▶</span></div>';
   });
   dd.innerHTML = html;
   dd.style.display = 'block';

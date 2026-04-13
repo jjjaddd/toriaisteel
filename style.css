@@ -1795,7 +1795,14 @@ input:focus,select:focus,textarea:focus{
   box-sizing:border-box;
   outline:none;
   font-family:inherit;
+  transition:border-color .15s, box-shadow .15s;
 }
+.contact-field input:hover,
+.contact-field select:hover,
+.contact-field textarea:hover{border-color:#a89cd8}
+.contact-field input:focus,
+.contact-field select:focus,
+.contact-field textarea:focus{border-color:#7c5ccc;box-shadow:0 0 0 3px rgba(124,92,204,.12)}
 .contact-field textarea{
   min-height:180px;
   resize:vertical;

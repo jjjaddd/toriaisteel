@@ -733,11 +733,12 @@ function cmdOpenBrowse() {
   dd.innerHTML = '';
   Object.keys(STEEL).forEach(function(kind) {
     var row = document.createElement('div');
-    row.className = 'cmd-cat';
-    row.style.cursor = 'pointer';
-    row.style.color = '#1a1a2e';
-    row.style.fontSize = '11px';
-    row.innerHTML = kind + ' <span style="color:#bbb;font-size:10px">▶</span>';
+    row.className = 'cmd-item cmd-cat-link';
+    row.innerHTML = '<span>' + kind + '</span><span class="cmd-sub">▶</span>';
+    row.onmouseover = function() {
+      dd.querySelectorAll('.cmd-item').forEach(function(el) { el.classList.remove('cmd-focus'); });
+      this.classList.add('cmd-focus');
+    };
     row.onmousedown = function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -1077,6 +1078,12 @@ function toggleSection(bodyId, btnId, color) {
       if (blade) { blade.focus(); blade.select(); }
     }, 50);
   }
+  if (opening && bodyId === 'jobBody') {
+    setTimeout(function() {
+      var jc = document.getElementById('jobClient');
+      if (jc) { jc.focus(); jc.select(); }
+    }, 50);
+  }
 }
 
 function sbSwitch(n) {
@@ -1265,7 +1272,6 @@ function deleteCutHistory(id) {
   try { localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist)); } catch(e){}
   renderHistory();
 }
-
 
 
 // ── 端材優先切断（目標端材長さを考慮したストック選択） ──
@@ -2484,25 +2490,6 @@ function buildPrintHeaderMini(job, pageInfo) {
 }
 
 
-function updatePrintHeader() {
-  var job = getJobInfo();
-  var hdr = document.getElementById('printJobHeader');
-  if (!hdr) return;
-  var spec = (document.getElementById('spec') || {}).value || '';
-  hdr.innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
-      '<div style="font-size:18px;font-weight:900;letter-spacing:.08em">作業指示書</div>' +
-      '<div style="font-size:10px;color:#666">印刷日: ' + new Date().toLocaleDateString('ja-JP') + '</div>' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;font-size:11px">' +
-      '<div><span style="color:#666">顧客名</span><br><strong>' + (job.client || '—') + '</strong></div>' +
-      '<div><span style="color:#666">工事名</span><br><strong>' + (job.name || '—') + '</strong></div>' +
-      '<div><span style="color:#666">納期</span><br><strong>' + (job.deadline || '—') + '</strong></div>' +
-      '<div><span style="color:#666">メモ</span><br><strong>' + (job.worker || '—') + '</strong></div>' +
-    '</div>' +
-    '<div style="margin-top:6px;font-size:11px"><span style="color:#666">鋼材規格</span>&nbsp;<strong>' + spec + '</strong></div>';
-}
-
 document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   init();
@@ -2703,8 +2690,6 @@ function buildPrintBarHtml(bars, sl, endLoss) {
 // duplicated definitions earlier in the file cannot win.
 
 
-
-
 (function finalizeRemnantUiBinding() {
   function bind() {
     var sel = document.getElementById('invSelect');
@@ -2726,13 +2711,6 @@ function buildPrintBarHtml(bars, sl, endLoss) {
     bind();
   }
 })();
-
-
-
-
-
-
-
 
 
 (function hardReplaceRemnantUi() {
@@ -2808,7 +2786,6 @@ function updateInventoryUseButton() {
   btn.style.color = '#16a34a';
   btn.disabled = !(sel && sel.value);
 }
-
 
 
 (function applyFinalRemnantUiOverrides() {
