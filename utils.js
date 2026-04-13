@@ -5,19 +5,22 @@
  * main.js に同名関数が残っているが、将来的にそちらを削除する予定。
  *
  * 【含まれる関数】
- *   jisRound, jisRoundKg       — JIS丸め
+ *   jisRound, jisRoundKg       — JIS丸め（JIS Z 8401:2019 規則A 準拠）
  *   _escHtml, escapeHtml       — HTMLエスケープ（名前統一）
  *   parseDateValue, toLocalYMD, normDateStr — 日付ユーティリティ
  *   paginateItems              — ページネーション
  *   lc                         — 長さクラス判定
  *   mk                         — DOM要素生成ヘルパー
  *
- * 【Phase 2 で行うこと】
- *   main.js の同名関数を削除し、このファイルを唯一の実装にする。
+ * 【備考】
+ *   main.js の同名関数は Phase 3 で削除済み。このファイルが唯一の実装。
  * ─────────────────────────────────────────────────────────
  */
 
-// ── JIS丸め ─────────────────────────────────────────────
+// ── JIS丸め（JIS Z 8401:2019 規則A 準拠）────────────────
+// 端数がちょうど0.5のとき偶数丸め（規則A）を適用。
+// それ以外は最も近い整数倍に丸める（通常の四捨五入と同じ）。
+// 浮動小数点誤差対策として1e-10のtoleranceを使用。
 function jisRound(value, decimals) {
   var factor = Math.pow(10, decimals);
   var shifted = value * factor;
