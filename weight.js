@@ -372,7 +372,7 @@ function wAddRow() {
   var memo       = (_wOpts.name  && memoEl)       ? (memoEl.value   || '')            : '';
   var paintPrice = (_wOpts.paint && paintPriceEl) ? (parseFloat(paintPriceEl.value)  || 0) : 0;
 
-  var kg1  = kgm * len / 1000;
+  var kg1  = jisRound(kgm * len / 1000, 1);  // JIS: 1本ずつ小数第1位で丸めてから合計
   var kg   = kg1 * qty;
   var ppm  = wGetPaintPerM(kind, spec);
   var m2_1 = ppm * len / 1000;
