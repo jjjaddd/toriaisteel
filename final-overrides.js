@@ -565,7 +565,7 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
         : (bar.pat || []).map(function(len) { return { total: len, label: len.toLocaleString() + 'mm' }; });
       segments.forEach(function(seg, idx) {
         if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
-        html += '<div class="b-piece" style="flex:' + seg.total + '"><span>' + seg.label + '</span></div>';
+        html += '<div class="b-piece" style="flex:' + seg.total + '">' + (seg.total >= 250 ? '<span>' + seg.label + '</span>' : '') + '</div>';
       });
       if (bar.loss > 0) {
         html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + bar.loss.toLocaleString() + '</div>';

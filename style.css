@@ -298,6 +298,7 @@ input[type=checkbox]{width:13px;height:13px;accent-color:#d8ccff;cursor:pointer;
 .bar-piece-inner{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 3px;pointer-events:none}
 .bar-kerf{width:2px;height:100%;background:#f4f4f6;flex-shrink:0}
 .bar-loss{height:100%;background:rgba(255,68,68,.1);border-left:1px solid rgba(255,68,68,.4);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--gn);font-family:monospace}
+.bar-rem{height:100%;background:rgba(34,68,136,.12);border-left:3px solid #224488;display:flex;align-items:center;justify-content:center;font-size:10px;color:#224488;font-family:monospace;font-weight:700}
 .bar-scale{display:none}
 
 

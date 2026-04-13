@@ -2007,10 +2007,10 @@ var PRINT_CSS = [
   '.bar-pat{font-size:10px;font-weight:700;color:#222;margin-bottom:3px}',
   '.bar-track{display:flex;height:30px;border:1.5px solid #555;border-radius:3px;overflow:hidden;background:#fff}',
   '.b-blade{width:1.5px;background:#555;flex-shrink:0}',
-  '.b-end{flex-shrink:0;background:repeating-linear-gradient(-45deg,#aaa,#aaa 1.5px,#fff 1.5px,#fff 5px)}',
+  '.b-end{flex-shrink:0;background:#d8d8d8}',
   '.b-piece{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;overflow:hidden;background:#d8d8d8;border-left:1px solid #555}',
   '.b-piece:first-of-type{border-left:none}',
-  '.b-rem{background:repeating-linear-gradient(-45deg,#888,#888 1.5px,#ddd 1.5px,#ddd 5px);display:flex;align-items:center;justify-content:center;font-size:9px;color:#000;font-weight:700;border-left:2px solid #555}',
+  '.b-rem{background:repeating-linear-gradient(-45deg,#224488,#224488 2px,#c0d0ee 2px,#c0d0ee 6px);display:flex;align-items:center;justify-content:center;font-size:9px;color:#002;font-weight:700;border-left:3px solid #224488}',
   '.b-loss{background:repeating-linear-gradient(-45deg,#ccc,#ccc 1px,#fff 1px,#fff 4px);display:flex;align-items:center;justify-content:center;font-size:9px;color:#888;border-left:2px solid #aaa}',
   '.cnt-badge{background:#000;color:#fff;font-size:11px;font-weight:900;padding:2px 12px;border-radius:12px;letter-spacing:.04em;border:2px solid #000}',
   '.r-tag{font-size:9px;border:1px solid #bbb;padding:1px 5px;border-radius:3px;display:inline-block;margin:1px}',
@@ -2105,7 +2105,7 @@ function buildPrintBarHtml(bars, sl, endLoss) {
     sortedPat.forEach(function(len, i) {
       if (i > 0) html += '<div class="b-blade"></div>';
       html += '<div class="b-piece" style="flex:' + len + '">' +
-        (len >= 400 ? len.toLocaleString() : '') + '</div>';
+        (len >= 250 ? len.toLocaleString() : '') + '</div>';
     });
 
     // 端材 or ロス + 縦線
