@@ -9,22 +9,6 @@
 var ROWS         = 10;   // 部材リスト初期行数
 var curKind      = 'H形鋼';
 
-function jisRound(value, decimals) {
-  var factor = Math.pow(10, decimals);
-  var shifted = value * factor;
-  var floor = Math.floor(shifted);
-  var diff = shifted - floor;
-  if (Math.abs(diff - 0.5) < 1e-10) {
-    return (floor % 2 === 0 ? floor : floor + 1) / factor;
-  }
-  return Math.round(shifted) / factor;
-}
-
-function jisRoundKg(kg) {
-  if (kg <= 0) return 0;
-  return jisRound(kg, 0);
-}
-
 // ── 行選択（Ctrl+A / Delete） ────────────────────────────
 var _selectedRows = [];   // 選択中の行インデックス
 
@@ -223,52 +207,13 @@ var INVENTORY_PAGE_SIZE = 12;
 var historyPage = 1;
 var inventoryPage = 1;
 
-function parseDateValue(value) {
-  if (!value) return 0;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date(value + 'T00:00:00').getTime();
-  var parsed = new Date(value).getTime();
-  return isNaN(parsed) ? 0 : parsed;
-}
-
 /** ISO タイムスタンプまたは Date を LOCAL の YYYY-MM-DD に変換 */
-function toLocalYMD(d) {
-  if (!d) return '';
-  if (typeof d === 'string') d = new Date(d);
-  if (isNaN(d.getTime())) return '';
-  var mo = d.getMonth() + 1;
-  var dy = d.getDate();
-  return d.getFullYear() + '-' + (mo < 10 ? '0' + mo : mo) + '-' + (dy < 10 ? '0' + dy : dy);
-}
 
 /**
  * 任意の日付値を "YYYY-MM-DD" 文字列に正規化（文字列比較用）
  * "2026/4/12" → "2026-04-12"
  * "2026-04-12T06:30:00Z" → "2026-04-12"
  */
-function normDateStr(value) {
-  if (!value) return '';
-  // Already YYYY-MM-DD[T...]
-  if (/^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);
-  // YYYY/M/D or YYYY/MM/DD  (toLocaleDateString 'ja-JP' 形式)
-  var m = /^(\d{4})\/(\d{1,2})\/(\d{1,2})/.exec(value);
-  if (m) {
-    var mo = Number(m[2]) < 10 ? '0' + m[2] : '' + m[2];
-    var dy = Number(m[3]) < 10 ? '0' + m[3] : '' + m[3];
-    return m[1] + '-' + mo + '-' + dy;
-  }
-  // fallback: parse as Date then convert local
-  return toLocalYMD(new Date(value));
-}
-
-function paginateItems(items, page, size) {
-  var totalPages = Math.max(1, Math.ceil(items.length / size));
-  var safePage = Math.min(Math.max(page, 1), totalPages);
-  return {
-    page: safePage,
-    totalPages: totalPages,
-    items: items.slice((safePage - 1) * size, safePage * size)
-  };
-}
 
 function renderPager(targetId, page, totalPages, onChangeName) {
   var el = document.getElementById(targetId);
@@ -1856,7 +1801,6 @@ function doRegisterRemnants() {
 // ============================================================
 // 描画
 // ============================================================
-function lc(v) { return v < 200 ? 'll' : v < 800 ? 'lm' : 'lh'; }
 
 function patRows(bars) {
   return groupBars(bars).map(function(g) {
@@ -1874,12 +1818,6 @@ function patRows(bars) {
       '' +
       '</div>';
   }).join('');
-}
-
-function mk(tag, cls) {
-  var el = document.createElement(tag);
-  if (cls) el.className = cls;
-  return el;
 }
 
 // ★ 切断図（バービジュアライザー）を生成
@@ -3219,10 +3157,6 @@ function recallWeightFromPreview() {
   if (typeof goPage === 'function') goPage('w');
 }
 
-function _escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
 function recallWeightHistory(id) {
   showWeightHistPreview(id);
 }
@@ -3425,15 +3359,6 @@ document.addEventListener('input', function(e) {
 
 var MANUAL_REMNANTS_KEY = 'toriai_manual_remnants_v2';
 var INVENTORY_REMNANT_USAGE_KEY = 'toriai_inventory_remnant_usage_v2';
-
-function escapeHtml(value) {
-  return String(value == null ? '' : value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
 
 function getManualRemnantDrafts() {
   try {
