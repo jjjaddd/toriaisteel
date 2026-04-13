@@ -293,7 +293,6 @@ function setInventoryPage(page) {
   renderInventoryPage();
 }
 
-
 // ============================================================
 // ページ切り替え
 // ============================================================
@@ -1025,29 +1024,6 @@ function onSpec() {
   buildInventoryDropdown();
 }
 
-function legacyBuildInventoryDropdown_v1() {
-  var cont = document.getElementById('invDropCont');
-  if (!cont) return;
-  var items = getInventoryForCurrentSpec();
-  if (!items.length) { cont.style.display = 'none'; updateInventoryUseButton(); return; }
-  // 在庫あり → バッジ＋ドロップダウン表示
-  cont.style.display = 'block';
-  var badge = document.getElementById('invBadge');
-  var total = items.reduce(function(s,it){return s+it.qty;},0);
-  if (badge) badge.textContent = '在庫 ' + total + '本';
-  var sel = document.getElementById('invSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">── 在庫から残材に追加 ──</option>';
-  items.forEach(function(it) {
-    var o = document.createElement('option');
-    o.value = it.len + ':' + it.qty + ':' + (it.label||'');
-    var d = it.label ? ' ['+it.label+']' : '';
-    o.textContent = it.len.toLocaleString() + 'mm × ' + it.qty + '本' + d + '  (' + it.date + ')';
-    sel.appendChild(o);
-  });
-  updateInventoryUseButton();
-}
-
 function updateInventoryUseButton(forceReady) {
   var btn = document.getElementById('invUseBtn');
   var sel = document.getElementById('invSelect');
@@ -1063,36 +1039,6 @@ function updateInventoryUseButton(forceReady) {
   btn.style.background = 'transparent';
   btn.style.color = '#111111';
   btn.disabled = !(sel && sel.value);
-}
-
-function legacyAddFromInventory_v1() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var parts = sel.value.split(':');
-  var len = parseInt(parts[0]);
-  var qty = parseInt(parts[1]);
-  if (!len || !qty) return;
-  addRemnant();
-  var i = remnantCount - 1;
-  document.getElementById('remLen'+i).value = len;
-  document.getElementById('remQty'+i).value = qty;
-  saveRemnants();
-  sel.value = '';
-  // ボタンを「追加済み」に変化
-  var btn = document.getElementById('invUseBtn');
-  if (btn) {
-    btn.textContent = '✓ 追加済み';
-    btn.style.background = '#f0f0f0';
-    btn.style.color = '#555555';
-    btn.disabled = true;
-    // 2秒後に戻す
-    setTimeout(function() {
-      btn.textContent = '＋ 計算に使う';
-      btn.style.background = 'transparent';
-      btn.style.color = '#111111';
-      btn.disabled = false;
-    }, 2000);
-  }
 }
 
 function togStk(i) {
@@ -1231,11 +1177,6 @@ function addRemnant() {
   list.appendChild(d);
 }
 
-function legacyRemoveRemnant_v1(i) {
-  var el = document.getElementById('remRow' + i);
-  if (el) el.remove();
-}
-
 function getRemnants() {
   var result = [];
   for (var i = 0; i < remnantCount; i++) {
@@ -1252,48 +1193,6 @@ function getRemnants() {
 }
 
 // ── 在庫と手持ち残材を完全同期 ──
-function legacySyncInventoryToRemnants_v1() {
-  var inv = getInventory();
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-
-  list.innerHTML = '';
-  remnantCount = 0;
-
-  if (!inv.length) {
-    addRemnant();
-    return;
-  }
-
-  inv.forEach(function(item) {
-    var i = remnantCount++;
-    var d = document.createElement('div');
-    d.className = 'rem-row';
-    d.id = 'remRow' + i;
-    // 使用本数の最大は登録本数（デフォルト1）
-    var maxQty = item.qty || 1;
-    d.innerHTML =
-      '<span class="rem-label">長さ</span>' +
-      '<input type="number" id="remLen' + i + '" value="' + item.len + '" min="1" style="flex:1" readonly ' +
-        'onchange="saveRemnants()">' +
-      '<span class="rem-label">使用</span>' +
-      '<select id="remQty' + i + '" style="width:52px;font-size:11px;padding:3px 4px;border:1px solid #d4d4dc;border-radius:6px;background:#fff;color:#1a1a2e" onchange="saveRemnants()">' +
-        (function(){
-          var opts = '<option value="0">0本</option>';
-          for(var q=1;q<=maxQty;q++) opts += '<option value="'+q+'"'+(q===1?' selected':'')+'>'+q+'本</option>';
-          return opts;
-        })() +
-      '</select>' +
-      '<span style="font-size:10px;color:#8888a8;white-space:nowrap">/ ' + maxQty + '本</span>' +
-      '<button class="rem-del" onclick="removeFromInventoryAndRemnant(' + item.id + ')">✕</button>';
-    list.appendChild(d);
-  });
-
-  var rb = document.getElementById('remnantBody');
-  if (rb && rb.style.display === 'none' && inv.length > 0) {
-    toggleSection('remnantBody', 'remnantToggleBtn', '');
-  }
-}
 
 // 在庫と残材から同時削除
 function removeFromInventoryAndRemnant(invId) {
@@ -2040,7 +1939,6 @@ function buildCutDiagram(bars, slLen, label) {
     }
     html += '</div>'; // bar-track
 
-
     html += '</div>'; // bar-vis
   });
 
@@ -2214,7 +2112,6 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
     rp.appendChild(yieldSec);
   }
 
-
   // ── 3パターン取り合い ──
   var patterns = [patA, patB].filter(Boolean); // patCは廃止
   if (patterns.length) {
@@ -2378,7 +2275,6 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
         (diagHtml ? '<button class="diag-toggle" onclick="toggleDiag(\'' + diagId + '\',this)">✂ 切断図を表示 ▼</button><div id="' + diagId + '" style="display:none">' + diagHtml + '</div>' : '') +
       '</div>';
     }
-
 
     var patGrid = displayPats.map(buildPatCard).join('');
 
@@ -2579,70 +2475,6 @@ function updateCartBadge() {
 }
 
 /** カードの情報を収集してカートに追加 */
-function legacyCartAdd(cardId, btn) {
-  var card = document.getElementById(cardId);
-  if (!card) return;
-
-  // ジョブ情報
-  var job = getJobInfo ? getJobInfo() : {};
-  var spec = (document.getElementById('spec')||{}).value || '';
-  var kind = curKind || '';
-
-  // カードタイプ判定
-  var isYield = cardId.indexOf('card_yield') === 0;
-  var isPat   = cardId.indexOf('card_pat')   === 0;
-
-  // カードの統計テキストを収集
-  var statsEl = card.querySelector('.cc-stats');
-  var statsHtml = statsEl ? statsEl.outerHTML : '';
-
-  // カードのパターン詳細
-  var patEl = card.querySelector('.cc-pat');
-  var patHtml = patEl ? patEl.outerHTML : '';
-
-  // タイトル
-  var descEl = card.querySelector('.cc-desc');
-  var title = descEl ? descEl.textContent.trim() : cardId;
-
-  // 切断図（展開して取得）
-  var diagHtml = '';
-  var diagEls = card.querySelectorAll('[id^="diag_"]');
-  diagEls.forEach(function(d) {
-    diagHtml += d.innerHTML;
-  });
-
-  // 端材リスト
-  var remEl = card.querySelector('[class*="rem-section"]') ||
-              card.querySelector('.rem-list');
-  var remHtml = remEl ? remEl.outerHTML : '';
-
-  var data = {
-    cardId: cardId,
-    title:  title,
-    isYield: isYield,
-    isPat:   isPat,
-    job:     job,
-    spec:    spec,
-    kind:    kind,
-    statsHtml: statsHtml,
-    patHtml:   patHtml,
-    diagHtml:  diagHtml,
-    remHtml:   remHtml,
-  };
-
-  addToCart(cardId, data);
-  updateCartBadge();
-
-  // ボタンを ✓ に変化
-  btn.textContent = '✓ 追加済み';
-  btn.classList.add('added');
-  btn.disabled = true;
-
-  // 切断履歴に保存
-  if (_lastCalcResult) {
-    saveCutHistory(_lastCalcResult, cardId);
-  }
-}
 
 /** カートモーダルを開く */
 function openCartModal() {
@@ -2729,144 +2561,6 @@ function cartPrint() {
 }
 
 /** カートの内容で作業指示書を印刷 */
-function legacyCartDoPrint() {
-  var cart = getCart();
-  if (!cart.length) { alert('カートが空です。'); return; }
-
-  var job = cart[0].data.job || {};
-  var sections = [];
-
-  cart.forEach(function(item, ci) {
-    var d = item.data;
-
-    // patHtml から切断リスト（sumMap）・母材サマリーを生成
-    var patDiv = document.createElement('div');
-    patDiv.innerHTML = d.patHtml || '';
-    var pcDivs = patDiv.querySelectorAll('.pc');
-
-    var motherParts = [];
-    pcDivs.forEach(function(pc) {
-      var hd = pc.querySelector('.pc-hd span');
-      if (hd) motherParts.push(hd.textContent.trim());
-    });
-
-    var sumMap = {};
-    pcDivs.forEach(function(pc) {
-      pc.querySelectorAll('.pc-row').forEach(function(row) {
-        var cnt = row.querySelector('.px');
-        var pp  = row.querySelector('.pp');
-        if (!cnt || !pp) return;
-        var barCount = parseInt(cnt.textContent.replace(/[^0-9]/g,'')) || 1;
-        pp.textContent.split('＋').forEach(function(part) {
-          var mx = part.trim().match(/([\d,]+)\s*(?:[×x]\s*(\d+))?/);
-          if (!mx) return;
-          var lenKey = parseInt(mx[1].replace(/,/g,''));
-          var perBar = mx[2] ? parseInt(mx[2]) : 1;
-          if (lenKey > 0) sumMap[lenKey] = (sumMap[lenKey]||0) + perBar * barCount;
-        });
-      });
-    });
-
-    // 端材タグ
-    var remTags = [];
-    if (d.remHtml) {
-      var rd = document.createElement('div');
-      rd.innerHTML = d.remHtml;
-      rd.querySelectorAll('span').forEach(function(s) {
-        var t = s.textContent.trim();
-        if (t && t !== 'なし' && !t.includes('mm未満')) remTags.push(t);
-      });
-    }
-
-    // diagHtml から bars 配列を復元して buildPrintBarHtml に渡す
-    var barHtml = '';
-    var endLossVal = 150;
-    if (d.diagHtml) {
-      var dd = document.createElement('div');
-      dd.innerHTML = d.diagHtml;
-      var bvs = dd.querySelectorAll('.bar-vis');
-      if (bvs.length) {
-        // 定尺ごとにグループ化してbars配列を復元
-        var slGroups = {};
-        bvs.forEach(function(bv) {
-          var lbl = bv.querySelector('.bar-vis-label');
-          var lblText = lbl ? lbl.textContent.trim() : '';
-          var slm = lblText.match(/([\d,]+)\s*mm/);
-          var sl2 = slm ? parseInt(slm[1].replace(/,/g,'')) : 0;
-          if (!sl2) return;
-          if (!slGroups[sl2]) slGroups[sl2] = [];
-
-          // bar-pieceからpat復元
-          var track = bv.querySelector('.bar-track');
-          if (!track) return;
-          var pieces = [];
-          track.querySelectorAll('.bar-piece').forEach(function(p) {
-            var inner = p.querySelector('.bar-piece-inner');
-            var txt = (inner ? inner.textContent : p.textContent).trim().replace(/,/g,'');
-            var n = parseInt(txt);
-            if (n > 0) pieces.push(n);
-          });
-          if (!pieces.length) return;
-
-          // loss復元
-          var loss = 0;
-          var remEl = track.querySelector('.bar-rem');
-          var lossEl = track.querySelector('.bar-loss');
-          if (remEl) {
-            var rm = (remEl.getAttribute('style')||'').match(/flex:\s*(\d+)/);
-            loss = rm ? parseInt(rm[1]) : 0;
-          } else if (lossEl) {
-            var lm = (lossEl.getAttribute('style')||'').match(/flex:\s*(\d+)/);
-            loss = lm ? parseInt(lm[1]) : 0;
-          }
-
-          // end-lossからendLoss推定
-          var endEls = track.querySelectorAll('.bar-end-loss,.bar-loss-end');
-          if (!endEls.length) {
-            // 最初のbar-visのend部分からendHalfを推定
-            var allEls = Array.from(track.children);
-            if (allEls.length >= 2) {
-              var firstFlex = (allEls[0].getAttribute('style')||'').match(/flex:\s*(\d+)/);
-              if (firstFlex && parseInt(firstFlex[1]) < 200) {
-                endLossVal = parseInt(firstFlex[1]) * 2;
-              }
-            }
-          }
-
-          slGroups[sl2].push({pat: pieces, loss: loss, sl: sl2});
-        });
-
-        // 定尺ごとにbuildPrintBarHtmlを呼ぶ
-        Object.keys(slGroups).map(Number).sort(function(a,b){return b-a;}).forEach(function(sl2) {
-          barHtml += buildPrintBarHtml(slGroups[sl2], sl2, endLossVal);
-        });
-      }
-    }
-
-    sections.push({
-      idx: ci + 1,
-      spec: d.spec || '',
-      motherSummary: motherParts.join(' + '),
-      sumMap: sumMap,
-      remTags: remTags,
-      barHtml: barHtml,
-    });
-  });
-
-  var html = buildPrintPages(job, sections);
-  openPrintWindow(html);
-
-  clearCart();
-  updateCartBadge();
-  closeCartModal();
-  document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
-    btn.textContent = '＋ 追加';
-    btn.classList.remove('added');
-    btn.disabled = false;
-  });
-}
-
-
 
 // ── 共通印刷ヘルパー（cartDoPrint / showHistPreview 共用）──────────────
 
@@ -3113,7 +2807,6 @@ function openPrintWindow(html) {
   setTimeout(function(){ win.print(); win.close(); }, 700);
 }
 
-
 // ── 初期化 ──────────────────────────────────────────────
 
 /** 汎用Enterキー：次のinputへフォーカス移動 */
@@ -3123,7 +2816,6 @@ function enterNext(e, nextId) {
   var next = nextId ? document.getElementById(nextId) : null;
   if (next) { next.focus(); next.select(); }
 }
-
 
 /** 在庫定尺：直接入力・1未満で∞に戻す */
 function stkValChange(i) {
@@ -3212,53 +2904,6 @@ function getInventoryForCurrentSpec() {
   });
 }
 
-function legacyAddFromInventory_v2() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var parts = sel.value.split(':');
-  var len = parseInt(parts[0], 10);
-  var qty = parseInt(parts[1], 10);
-  if (!len || !qty) return;
-  addRemnant();
-  var i = remnantCount - 1;
-  var lenEl = document.getElementById('remLen' + i);
-  var qtyEl = document.getElementById('remQty' + i);
-  if (lenEl) lenEl.value = len;
-  if (qtyEl) qtyEl.value = qty;
-  saveRemnants();
-  sel.value = '';
-  updateInventoryUseButton(true);
-}
-
-function legacySyncInventoryToRemnants_v2() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  list.innerHTML = '';
-  remnantCount = 0;
-  if (!grouped.length) {
-    addRemnant();
-    return;
-  }
-  grouped.forEach(function(item) {
-    var i = remnantCount++;
-    var d = document.createElement('div');
-    d.className = 'rem-row';
-    d.id = 'remRow' + i;
-    var options = '<option value="0">0本</option>';
-    for (var q = 1; q <= item.qty; q++) options += '<option value="' + q + '"' + (q === item.qty ? ' selected' : '') + '>' + q + '本</option>';
-    d.innerHTML =
-      '<span class="rem-label">長さ</span>' +
-      '<input type="number" id="remLen' + i + '" value="' + item.len + '" min="1" style="flex:1" readonly onchange="saveRemnants()">' +
-      '<span class="rem-label">使用</span>' +
-      '<select id="remQty' + i + '" style="width:62px;font-size:11px;padding:3px 4px;border:1px solid #d4d4dc;border-radius:6px;background:#fff;color:#1a1a2e" onchange="saveRemnants()">' + options + '</select>' +
-      '<span style="font-size:10px;color:#8888a8;white-space:nowrap">/ ' + item.qty + '本</span>' +
-      '<button class="rem-del" onclick="removeGroupedInventory(' + i + ')">×</button>';
-    d.dataset.inventoryIds = JSON.stringify(item.ids);
-    list.appendChild(d);
-  });
-}
-
 function removeGroupedInventory(index) {
   var row = document.getElementById('remRow' + index);
   if (!row) return;
@@ -3269,25 +2914,6 @@ function removeGroupedInventory(index) {
   syncInventoryToRemnants();
   updateInvDropdown();
   renderInventoryPage();
-}
-
-function legacyBuildInventoryDropdown_v2() {
-  var cont = document.getElementById('invDropCont');
-  if (!cont) return;
-  var items = getInventoryForCurrentSpec();
-  cont.style.display = items.length ? 'block' : 'none';
-  var badge = document.getElementById('invBadge');
-  if (badge) badge.textContent = '在庫 ' + items.reduce(function(sum, item) { return sum + item.qty; }, 0) + '本';
-  var sel = document.getElementById('invSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">在庫から残材を追加</option>';
-  items.forEach(function(item) {
-    var option = document.createElement('option');
-    option.value = item.len + ':' + item.qty + ':' + (item.label || '');
-    option.textContent = item.len.toLocaleString() + 'mm × ' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
-    sel.appendChild(option);
-  });
-  updateInventoryUseButton();
 }
 
 function legacyRenderInventoryPage_v2() {
@@ -3818,30 +3444,6 @@ function getInventoryRemnantUsage() {
   }
 }
 
-function legacySaveRemnants_v1() {
-  var manual = [];
-  var usage = {};
-  document.querySelectorAll('#remnantList .rem-row').forEach(function(row) {
-    var lenEl = row.querySelector('.rem-len');
-    var qtyEl = row.querySelector('.rem-qty');
-    var memoEl = row.querySelector('.rem-memo');
-    var len = parseInt(lenEl && lenEl.value, 10);
-    var qty = Math.max(0, parseInt(qtyEl && qtyEl.value, 10) || 0);
-    if (row.dataset.source === 'inventory') {
-      if (row.dataset.inventoryKey) usage[row.dataset.inventoryKey] = qty;
-      return;
-    }
-    if (!len || len < 1) return;
-    manual.push({
-      len: len,
-      qty: Math.max(1, qty || 1),
-      memo: memoEl ? memoEl.value || '' : ''
-    });
-  });
-  localStorage.setItem(MANUAL_REMNANTS_KEY, JSON.stringify(manual));
-  localStorage.setItem(INVENTORY_REMNANT_USAGE_KEY, JSON.stringify(usage));
-}
-
 function createManualRemnantRow(seed) {
   var list = document.getElementById('remnantList');
   if (!list) return null;
@@ -3894,15 +3496,6 @@ function addRemnant(seed) {
   }
 }
 
-function legacyRemoveRemnant_v2(i) {
-  var row = document.getElementById('remRow' + i);
-  if (row) row.remove();
-  if (!document.querySelector('#remnantList .rem-row[data-source="manual"]')) {
-    createManualRemnantRow();
-  }
-  saveRemnants();
-}
-
 function getRemnants() {
   var result = [];
   document.querySelectorAll('#remnantList .rem-row').forEach(function(row) {
@@ -3914,57 +3507,6 @@ function getRemnants() {
     for (var k = 0; k < qty; k++) result.push(len);
   });
   return result;
-}
-
-function legacyAddFromInventory_v3() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var parts = sel.value.split(':');
-  var len = parseInt(parts[0], 10);
-  var qty = parseInt(parts[1], 10) || 1;
-  var note = parts.slice(2).join(':');
-  addRemnant({ len: len, qty: qty, memo: note });
-  sel.value = '';
-  updateInventoryUseButton(true);
-}
-
-function legacySyncInventoryToRemnants_v3() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  var manual = getManualRemnantDrafts();
-  var usage = getInventoryRemnantUsage();
-  list.innerHTML = '';
-  remnantCount = 0;
-
-  grouped.forEach(function(item) {
-    createInventoryRemnantRow(item, usage[String(item.ids || [])] || 0);
-  });
-  if (!manual.length) {
-    createManualRemnantRow();
-  } else {
-    manual.forEach(function(item) { createManualRemnantRow(item); });
-  }
-  saveRemnants();
-}
-
-function legacyBuildInventoryDropdown_v3() {
-  var cont = document.getElementById('invDropCont');
-  if (!cont) return;
-  var items = getInventoryForCurrentSpec();
-  cont.style.display = items.length ? 'block' : 'none';
-  var badge = document.getElementById('invBadge');
-  if (badge) badge.textContent = '在庫 ' + items.reduce(function(sum, item) { return sum + item.qty; }, 0) + '本';
-  var sel = document.getElementById('invSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">在庫から追加する残材を選択</option>';
-  items.forEach(function(item) {
-    var option = document.createElement('option');
-    option.value = String(item.ids || []);
-    option.textContent = item.len.toLocaleString() + 'mm / 在庫' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
-    sel.appendChild(option);
-  });
-  updateInventoryUseButton();
 }
 
 function updateCartBadge() {
@@ -4165,14 +3707,6 @@ function normalizeInterfaceChrome() {
 
 // Final remnant UI behavior override. This block must stay at EOF so stale
 // duplicated definitions earlier in the file cannot win.
-function legacyGetSelectedInventoryRemnants_v1() {
-  return loadSelectedInventoryRemnantsState();
-}
-
-function legacySaveSelectedInventoryRemnants_v1(data) {
-  _selectedInventoryRemnantsState = data && typeof data === 'object' ? data : {};
-  persistSelectedInventoryRemnantsState();
-}
 
 function updateInventoryUseButton() {
   var btn = document.getElementById('invUseBtn');
@@ -4180,67 +3714,6 @@ function updateInventoryUseButton() {
   if (!btn) return;
   btn.textContent = '追加';
   btn.disabled = !(sel && sel.value);
-}
-
-function legacyBuildInventoryDropdown_v4() {
-  var cont = document.getElementById('invDropCont');
-  var sel = document.getElementById('invSelect');
-  var badge = document.getElementById('invBadge');
-  var items = getInventoryForCurrentSpec();
-  if (cont) cont.style.display = items.length ? 'block' : 'none';
-  if (badge) {
-    badge.textContent = '在庫 ' + items.reduce(function(sum, item) {
-      return sum + (item.qty || 0);
-    }, 0) + '本';
-  }
-  if (!sel) return;
-  sel.innerHTML = '<option value="">在庫から追加する残材を選択</option>';
-  items.forEach(function(item) {
-    var option = document.createElement('option');
-    option.value = getRemnantInventoryKey(item);
-    option.textContent = Number(item.len || 0).toLocaleString() + 'mm / 在庫' + (item.qty || 0) + '本';
-    sel.appendChild(option);
-  });
-  updateInventoryUseButton();
-}
-
-function legacyAddFromInventory_v4() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var items = getInventoryForCurrentSpec();
-  var chosen = items.find(function(item) {
-    return getRemnantInventoryKey(item) === sel.value;
-  });
-  if (!chosen) return;
-  var state = getSelectedInventoryRemnants();
-  var key = getRemnantInventoryKey(chosen);
-  if (!state[key]) state[key] = { qty: 1 };
-  saveSelectedInventoryRemnants(state);
-  sel.value = '';
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
-}
-
-function legacyRemoveRemnant_v3(i) {
-  var row = document.getElementById('remRow' + i);
-  if (!row) return;
-  var state = getSelectedInventoryRemnants();
-  delete state[row.dataset.inventoryKey];
-  saveSelectedInventoryRemnants(state);
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
-}
-
-function legacySaveRemnants_v2() {
-  var state = {};
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var qtyEl = row.querySelector('.rem-qty');
-    var maxQty = Math.max(1, parseInt(row.dataset.maxQty || '1', 10));
-    state[row.dataset.inventoryKey] = {
-      qty: Math.max(1, Math.min(maxQty, parseInt(qtyEl && qtyEl.value, 10) || 1))
-    };
-  });
-  saveSelectedInventoryRemnants(state);
 }
 
 function createInventoryRemnantRow(item, selectedQty) {
@@ -4266,24 +3739,6 @@ function createInventoryRemnantRow(item, selectedQty) {
     '<button type="button" class="rem-del" aria-label="削除" onclick="removeRemnant(' + i + ')">×</button>';
   list.appendChild(row);
   return row;
-}
-
-function legacySyncInventoryToRemnants_v4() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  var state = getSelectedInventoryRemnants();
-  list.innerHTML = '';
-  remnantCount = 0;
-  Object.keys(state).forEach(function(key) {
-    var item = grouped.find(function(group) {
-      return getRemnantInventoryKey(group) === key;
-    });
-    if (item) createInventoryRemnantRow(item, state[key].qty || 1);
-  });
-  if (!list.children.length) {
-    list.innerHTML = '<div class="rem-row rem-row-empty"><div class="rem-meta">在庫から選択した残材がここに表示されます</div></div>';
-  }
 }
 
 function getRemnants() {
@@ -4321,82 +3776,12 @@ function getRemnants() {
   }
 })();
 
-function legacyGetSelectedInventoryRemnants_v2() {
-  return loadSelectedInventoryRemnantsState();
-}
-
-function legacySaveSelectedInventoryRemnants_v2(data) {
-  _selectedInventoryRemnantsState = data && typeof data === 'object' ? data : {};
-  persistSelectedInventoryRemnantsState();
-}
-
 function updateInventoryUseButton() {
   var btn = document.getElementById('invUseBtn');
   var sel = document.getElementById('invSelect');
   if (!btn) return;
   btn.textContent = '追加';
   btn.disabled = !(sel && sel.value);
-}
-
-function legacyBuildInventoryDropdown_v5() {
-  var cont = document.getElementById('invDropCont');
-  var sel = document.getElementById('invSelect');
-  var badge = document.getElementById('invBadge');
-  var items = getInventoryForCurrentSpec();
-  if (cont) cont.style.display = items.length ? 'block' : 'none';
-  if (badge) {
-    badge.textContent = '在庫 ' + items.reduce(function(sum, item) {
-      return sum + (item.qty || 0);
-    }, 0) + '本';
-  }
-  if (!sel) return;
-  sel.innerHTML = '<option value="">在庫から追加する残材を選択</option>';
-  items.forEach(function(item) {
-    var option = document.createElement('option');
-    option.value = getRemnantInventoryKey(item);
-    option.textContent = Number(item.len || 0).toLocaleString() + 'mm / 在庫' + (item.qty || 0) + '本';
-    sel.appendChild(option);
-  });
-  updateInventoryUseButton();
-}
-
-function legacyAddFromInventory_v5() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var items = getInventoryForCurrentSpec();
-  var chosen = items.find(function(item) {
-    return getRemnantInventoryKey(item) === sel.value;
-  });
-  if (!chosen) return;
-  var state = getSelectedInventoryRemnants();
-  var key = getRemnantInventoryKey(chosen);
-  if (!state[key]) state[key] = { qty: 1 };
-  saveSelectedInventoryRemnants(state);
-  sel.value = '';
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
-}
-
-function legacyRemoveRemnant_v4(i) {
-  var row = document.getElementById('remRow' + i);
-  if (!row) return;
-  var state = getSelectedInventoryRemnants();
-  delete state[row.dataset.inventoryKey];
-  saveSelectedInventoryRemnants(state);
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
-}
-
-function legacySaveRemnants_v3() {
-  var state = {};
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var qtyEl = row.querySelector('.rem-qty');
-    var maxQty = Math.max(1, parseInt(row.dataset.maxQty || '1', 10));
-    state[row.dataset.inventoryKey] = {
-      qty: Math.max(1, Math.min(maxQty, parseInt(qtyEl && qtyEl.value, 10) || 1))
-    };
-  });
-  saveSelectedInventoryRemnants(state);
 }
 
 function createInventoryRemnantRow(item, selectedQty) {
@@ -4422,24 +3807,6 @@ function createInventoryRemnantRow(item, selectedQty) {
     '<button type="button" class="rem-del" aria-label="削除" onclick="removeRemnant(' + i + ')">×</button>';
   list.appendChild(row);
   return row;
-}
-
-function legacySyncInventoryToRemnants_v5() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  var state = getSelectedInventoryRemnants();
-  list.innerHTML = '';
-  remnantCount = 0;
-  Object.keys(state).forEach(function(key) {
-    var item = grouped.find(function(group) {
-      return getRemnantInventoryKey(group) === key;
-    });
-    if (item) createInventoryRemnantRow(item, state[key].qty || 1);
-  });
-  if (!list.children.length) {
-    list.innerHTML = '<div class="rem-row rem-row-empty"><div class="rem-meta">在庫から選択した残材がここに表示されます</div></div>';
-  }
 }
 
 function getRemnants() {
@@ -4491,39 +3858,6 @@ function updateInventoryUseButton() {
   btn.disabled = !(sel && sel.value);
 }
 
-function legacyBuildInventoryDropdown_v6() {
-  var cont = document.getElementById('invDropCont');
-  if (!cont) return;
-  var items = getInventoryForCurrentSpec();
-  cont.style.display = items.length ? 'block' : 'none';
-  var badge = document.getElementById('invBadge');
-  if (badge) badge.textContent = '在庫 ' + items.reduce(function(sum, item) { return sum + item.qty; }, 0) + '本';
-  var sel = document.getElementById('invSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">在庫から使いたい残材を選択</option>';
-  items.forEach(function(item) {
-    var option = document.createElement('option');
-    option.value = getRemnantInventoryKey(item);
-    option.textContent = item.len.toLocaleString() + 'mm / 在庫' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
-    sel.appendChild(option);
-  });
-  updateInventoryUseButton();
-}
-
-function legacyAddFromInventory_v6() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var items = getInventoryForCurrentSpec();
-  var chosen = items.find(function(item) { return getRemnantInventoryKey(item) === sel.value; });
-  if (!chosen) return;
-  var selected = getSelectedInventoryRemnants();
-  selected[getRemnantInventoryKey(chosen)] = { qty: 1 };
-  saveSelectedInventoryRemnants(selected);
-  sel.value = '';
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
-}
-
 function createInventoryRemnantRow(item, selectedQty) {
   var list = document.getElementById('remnantList');
   if (!list) return null;
@@ -4543,44 +3877,6 @@ function createInventoryRemnantRow(item, selectedQty) {
     '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
   list.appendChild(row);
   return row;
-}
-
-function legacySaveRemnants_v4() {
-  var selected = {};
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var qtyEl = row.querySelector('.rem-qty');
-    var maxQty = Math.max(1, parseInt(row.dataset.maxQty || '1', 10));
-    selected[row.dataset.inventoryKey] = {
-      qty: Math.max(1, Math.min(maxQty, parseInt(qtyEl && qtyEl.value, 10) || 1))
-    };
-  });
-  saveSelectedInventoryRemnants(selected);
-}
-
-function legacyRemoveRemnant_v5(i) {
-  var row = document.getElementById('remRow' + i);
-  if (!row) return;
-  var selected = getSelectedInventoryRemnants();
-  delete selected[row.dataset.inventoryKey];
-  saveSelectedInventoryRemnants(selected);
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
-}
-
-function legacySyncInventoryToRemnants_v6() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  var selected = getSelectedInventoryRemnants();
-  list.innerHTML = '';
-  remnantCount = 0;
-  Object.keys(selected).forEach(function(key) {
-    var item = grouped.find(function(group) { return getRemnantInventoryKey(group) === key; });
-    if (item) createInventoryRemnantRow(item, selected[key].qty || 1);
-  });
-  if (!list.children.length) {
-    list.innerHTML = '<div class="rem-row rem-row-empty"><div class="rem-meta">在庫から追加した残材がここに表示されます</div></div>';
-  }
 }
 
 function getRemnants() {
@@ -4670,41 +3966,6 @@ function updateInventoryUseButton() {
   btn.disabled = !(sel && sel.value);
 }
 
-function legacyBuildInventoryDropdown_v7() {
-  var cont = document.getElementById('invDropCont');
-  if (!cont) return;
-  var items = getInventoryForCurrentSpec();
-  cont.style.display = items.length ? 'block' : 'none';
-  var badge = document.getElementById('invBadge');
-  if (badge) badge.textContent = '在庫 ' + items.reduce(function(sum, item) { return sum + item.qty; }, 0) + '本';
-  var sel = document.getElementById('invSelect');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">在庫から使いたい残材を選択</option>';
-  items.forEach(function(item) {
-    var option = document.createElement('option');
-    option.value = getRemnantInventoryKey(item);
-    option.textContent = item.len.toLocaleString() + 'mm / 在庫' + item.qty + '本' + (item.company ? ' [' + item.company + ']' : '');
-    sel.appendChild(option);
-  });
-  updateInventoryUseButton();
-}
-
-function legacyAddFromInventory_v7() {
-  var sel = document.getElementById('invSelect');
-  if (!sel || !sel.value) return;
-  var items = getInventoryForCurrentSpec();
-  var chosen = items.find(function(item) { return getRemnantInventoryKey(item) === sel.value; });
-  if (!chosen) return;
-  var key = getRemnantInventoryKey(chosen);
-  var state = loadSelectedInventoryRemnantsState();
-  state[key] = { qty: 1 };
-  _selectedInventoryRemnantsState = state;
-  persistSelectedInventoryRemnantsState();
-  sel.value = '';
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
-}
-
 function createInventoryRemnantRow(item, selectedQty) {
   var list = document.getElementById('remnantList');
   if (!list) return null;
@@ -4723,46 +3984,6 @@ function createInventoryRemnantRow(item, selectedQty) {
     '<button type="button" class="rem-del" onclick="removeRemnant(' + i + ')">×</button>';
   list.appendChild(row);
   return row;
-}
-
-function legacySyncInventoryToRemnants_v7() {
-  var list = document.getElementById('remnantList');
-  if (!list) return;
-  var grouped = getInventoryForCurrentSpec();
-  var state = loadSelectedInventoryRemnantsState();
-  list.innerHTML = '';
-  remnantCount = 0;
-  Object.keys(state).forEach(function(key) {
-    var item = grouped.find(function(group) { return getRemnantInventoryKey(group) === key; });
-    if (item) createInventoryRemnantRow(item, state[key].qty || 1);
-  });
-  if (!list.children.length) {
-    list.innerHTML = '<div class="rem-row rem-row-empty"><div class="rem-meta">在庫から追加した残材がここに表示されます</div></div>';
-  }
-}
-
-function legacySaveRemnants_v5() {
-  var next = {};
-  document.querySelectorAll('#remnantList .rem-row[data-source="inventory"]').forEach(function(row) {
-    var qtyEl = row.querySelector('.rem-qty');
-    var maxQty = Math.max(1, parseInt(row.dataset.maxQty || '1', 10));
-    next[row.dataset.inventoryKey] = {
-      qty: Math.max(1, Math.min(maxQty, parseInt(qtyEl && qtyEl.value, 10) || 1))
-    };
-  });
-  _selectedInventoryRemnantsState = next;
-  persistSelectedInventoryRemnantsState();
-}
-
-function legacyRemoveRemnant_v6(i) {
-  var row = document.getElementById('remRow' + i);
-  if (!row) return;
-  var state = loadSelectedInventoryRemnantsState();
-  delete state[row.dataset.inventoryKey];
-  _selectedInventoryRemnantsState = state;
-  persistSelectedInventoryRemnantsState();
-  syncInventoryToRemnants();
-  updateInventoryUseButton();
 }
 
 function getRemnants() {
