@@ -76,8 +76,11 @@ function normDateStr(value) {
 
 // ── ページネーション ────────────────────────────────────
 function paginateItems(items, page, size) {
-  var start = (page - 1) * size;
-  return items.slice(start, start + size);
+  var total = items.length;
+  var totalPages = Math.max(1, Math.ceil(total / size));
+  var p = Math.min(Math.max(1, page || 1), totalPages);
+  var start = (p - 1) * size;
+  return { items: items.slice(start, start + size), page: p, totalPages: totalPages, total: total };
 }
 
 // ── 長さクラス判定（切断図の色分けに使用） ──────────────
