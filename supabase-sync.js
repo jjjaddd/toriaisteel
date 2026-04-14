@@ -20,7 +20,7 @@ function getDeviceId() {
 
 // ── Supabase が使えるか確認 ──────────────────────────────────
 function sbReady() {
-  return typeof window !== 'undefined' && window.supabase && typeof window.supabase.from === 'function';
+  return typeof supabaseClient !== 'undefined' && supabaseClient && typeof supabaseClient.from === 'function';
 }
 
 // ── テーブル→localStorageキー マッピング ──────────────────────
@@ -36,7 +36,7 @@ var SB_TABLE_MAP = {
 function sbUpsert(table, data) {
   if (!sbReady()) return;
   var deviceId = getDeviceId();
-  window.supabase
+  supabaseClient
     .from(table)
     .upsert({ device_id: deviceId, data: data, updated_at: new Date().toISOString() },
             { onConflict: 'device_id' })
@@ -49,7 +49,7 @@ function sbUpsert(table, data) {
 function sbLoad(table) {
   if (!sbReady()) return Promise.resolve(null);
   var deviceId = getDeviceId();
-  return window.supabase
+  return supabaseClient
     .from(table)
     .select('data, updated_at')
     .eq('device_id', deviceId)
