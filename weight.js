@@ -9,6 +9,7 @@ var _wRedoStack = [];
 var _wOpts      = { price: false, name: false, rev: false, paint: false, m2: false, co2: false };
 var _wEditIdx   = -1;
 var _wCartAdded = false;
+var _wSelected  = [];  // 一括編集用選択インデックス
 var _wSavedCalcs = (function() {
   try { return JSON.parse(localStorage.getItem('wSavedCalcs') || '[]'); }
   catch (e) { return []; }
@@ -471,6 +472,138 @@ function wDeleteRow(idx) {
   wRenderRows();
 }
 
+// ── 行選択・一括編集 ───────────────────────────────────────────
+function wToggleSelect(e, i) {
+  if (e) e.stopPropagation();
+  var idx = _wSelected.indexOf(i);
+  if (idx === -1) _wSelected.push(i);
+  else _wSelected.splice(idx, 1);
+  wRenderRows();
+  wUpdateBulkBar();
+}
+
+function wEditOrBulk(e, i) {
+  e.stopPropagation();
+  if (e.shiftKey || _wSelected.length > 0) {
+    wToggleSelect(null, i);
+  } else {
+    wEditRow(i);
+  }
+}
+
+function wUpdateBulkBar() {
+  var bar = document.getElementById('wBulkBar');
+  if (!bar) return;
+  if (_wSelected.length >= 2) {
+    bar.style.display = 'flex';
+    var lbl = bar.querySelector('.w-bulk-lbl');
+    if (lbl) lbl.textContent = _wSelected.length + '行を選択中';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+function wBulkEdit() {
+  if (_wSelected.length < 2) return;
+  var modal = document.getElementById('wBulkModal');
+  if (modal) { modal.style.display = 'flex'; return; }
+  var m = document.createElement('div');
+  m.id = 'wBulkModal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;display:flex;align-items:center;justify-content:center';
+  m.innerHTML =
+    '<div style="background:#fff;border-radius:14px;padding:24px;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.18)">' +
+      '<div style="font-size:14px;font-weight:700;margin-bottom:16px">一括編集 — ' + _wSelected.length + '行</div>' +
+      '<div style="margin-bottom:12px">' +
+        '<label style="font-size:12px;color:#555;display:block;margin-bottom:4px">単価 (円/kg)</label>' +
+        '<input id="wBulkPrice" type="number" placeholder="空欄=変更なし" min="0" style="width:100%;padding:8px 10px;border:1px solid #d4d4dc;border-radius:8px;font-size:13px;box-sizing:border-box">' +
+      '</div>' +
+      '<div style="margin-bottom:20px">' +
+        '<label style="font-size:12px;color:#555;display:block;margin-bottom:4px">塗装単価 (円/m²)</label>' +
+        '<input id="wBulkPaint" type="number" placeholder="空欄=変更なし" min="0" style="width:100%;padding:8px 10px;border:1px solid #d4d4dc;border-radius:8px;font-size:13px;box-sizing:border-box">' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+        '<button onclick="document.getElementById(\'wBulkModal\').style.display=\'none\'" style="padding:8px 16px;border:1px solid #d4d4dc;background:#fff;border-radius:8px;cursor:pointer;font-family:inherit">キャンセル</button>' +
+        '<button onclick="wApplyBulk()" style="padding:8px 16px;background:#7c5ccc;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">適用</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(m);
+}
+
+function wApplyBulk() {
+  var price = parseFloat((document.getElementById('wBulkPrice') || {}).value);
+  var paint = parseFloat((document.getElementById('wBulkPaint') || {}).value);
+  wPushUndo();
+  _wSelected.forEach(function(i) {
+    if (!_wRows[i]) return;
+    if (!isNaN(price) && price >= 0) {
+      _wRows[i].price  = price;
+      _wRows[i].amount = price > 0 ? _wRows[i].kgTotal * price : null;
+    }
+    if (!isNaN(paint) && paint >= 0) {
+      _wRows[i].paintPrice  = paint;
+      _wRows[i].paintAmount = paint > 0 ? _wRows[i].m2Total * paint : null;
+    }
+  });
+  _wSelected = [];
+  var m = document.getElementById('wBulkModal');
+  if (m) m.style.display = 'none';
+  wRenderRows();
+  wUpdateBulkBar();
+}
+
+// ── 殴り書きノート ───────────────────────────────────────────────
+var _wNotes = (function() {
+  try { return JSON.parse(localStorage.getItem('toriai_wnotes') || '{}'); } catch(e) { return {}; }
+})();
+
+function wNoteSave(spec) {
+  try { localStorage.setItem('toriai_wnotes', JSON.stringify(_wNotes)); } catch(e) {}
+}
+
+function wNoteOpen(e, i) {
+  e.stopPropagation();
+  var r = _wRows[i];
+  if (!r) return;
+  var key = r.spec;
+  var existing = document.getElementById('wNoteModal');
+  if (existing) existing.remove();
+  var m = document.createElement('div');
+  m.id = 'wNoteModal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;display:flex;align-items:center;justify-content:center';
+  var notes = _wNotes[key] || [];
+  var chatHtml = notes.length
+    ? notes.map(function(n) {
+        return '<div style="background:#f8f8fc;border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px">' +
+          '<div style="color:#aaa;font-size:10px;margin-bottom:2px">' + n.ts + '</div>' +
+          '<div>' + _esc(n.text) + '</div></div>';
+      }).join('')
+    : '<div style="color:#ccc;font-size:12px;text-align:center;padding:16px">まだメモなし</div>';
+  m.innerHTML =
+    '<div style="background:#fff;border-radius:14px;padding:20px;width:320px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18)">' +
+      '<div style="font-size:13px;font-weight:700;margin-bottom:10px">✍️ ' + r.spec + ' メモ</div>' +
+      '<div style="flex:1;overflow-y:auto;margin-bottom:10px;max-height:240px">' + chatHtml + '</div>' +
+      '<textarea id="wNoteInput" placeholder="殴り書きOK..." style="width:100%;height:64px;padding:8px;border:1px solid #d4d4dc;border-radius:8px;font-size:13px;resize:none;box-sizing:border-box;font-family:inherit"></textarea>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">' +
+        '<button onclick="document.getElementById(\'wNoteModal\').remove()" style="padding:6px 14px;border:1px solid #d4d4dc;background:#fff;border-radius:8px;cursor:pointer;font-family:inherit">閉じる</button>' +
+        '<button onclick="wNotePost(\'' + key.replace(/'/g, "\\'") + '\')" style="padding:6px 14px;background:#7c5ccc;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">送信</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(m);
+}
+
+function wNotePost(key) {
+  var input = document.getElementById('wNoteInput');
+  if (!input || !input.value.trim()) return;
+  if (!_wNotes[key]) _wNotes[key] = [];
+  _wNotes[key].push({
+    ts: new Date().toLocaleString('ja-JP'),
+    text: input.value.trim()
+  });
+  wNoteSave(key);
+  var m = document.getElementById('wNoteModal');
+  if (m) m.remove();
+}
+
 function wClearAll() {
   if (_wRows.length === 0) return;
   if (!confirm('リストをすべてクリアしますか？')) return;
@@ -554,9 +687,13 @@ function wRenderRows() {
       : '<td style="' + _tdR + paintDisp + 'color:#ccc">—</td>';
     var rowBg = (_wEditIdx === i) ? 'background:#fffde7;' : (i % 2 === 1 ? 'background:#fafafa;' : '');
 
+    var isSelected = _wSelected.indexOf(i) !== -1;
+    var selBg = isSelected ? 'background:#eff6ff !important;' : '';
     return (
-      '<tr style="border-bottom:1px solid #f0f0f6;' + rowBg + '">' +
-      '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' + (i + 1) + '</td>' +
+      '<tr style="border-bottom:1px solid #f0f0f6;' + rowBg + selBg + '" onclick="wToggleSelect(event,' + i + ')">' +
+      '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' +
+        '<input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onclick="wToggleSelect(event,' + i + ')" style="cursor:pointer"> ' + (i + 1) +
+      '</td>' +
       '<td style="padding:7px 10px;font-size:11px;color:#5a5a78;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
         (_wOpts.name ? '' : 'display:none') + '" title="' + memoTitle + '">' +
         _esc(r.memo || '—') +
@@ -572,8 +709,12 @@ function wRenderRows() {
       amtCell +
       paintAmtCell +
       '<td style="padding:4px 2px;text-align:center">' +
-        '<button onclick="wEditRow(' + i + ')" ' +
-          'class="w-edit-btn" title="編集">✎</button>' +
+        '<button onclick="wEditOrBulk(event,' + i + ')" ' +
+          'class="w-edit-btn" title="編集（Shift+クリックで一括選択）">✎</button>' +
+      '</td>' +
+      '<td style="padding:4px 2px;text-align:center">' +
+        '<button onclick="wNoteOpen(event,' + i + ')" ' +
+          'class="w-edit-btn" title="メモ" style="background:none;border:none;font-size:13px;cursor:pointer">✍️</button>' +
       '</td>' +
       '<td style="padding:4px 2px;text-align:center">' +
         '<button onclick="wDeleteRow(' + i + ')" ' +
@@ -1097,6 +1238,7 @@ function wCmdSelect(it) {
   if (dd)       dd.style.display    = 'none';
   _wCmdIdx = -1;
   document.removeEventListener('click', wCmdOutside);
+  if (typeof showRemnantAlert === 'function') showRemnantAlert(it.kind, it.spec);
   setTimeout(function() {
     var lenEl = document.getElementById('wLen');
     if (lenEl) { lenEl.focus(); lenEl.select(); }

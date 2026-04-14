@@ -914,10 +914,33 @@ function cmdSelect(it) {
   if (cmdDropdown) cmdDropdown.style.display = 'none';
   document.removeEventListener('mousedown', cmdOutside);
   onSpec();
+  showRemnantAlert(it.kind, it.spec);
   setTimeout(function() {
     var pl0 = document.getElementById('pl0');
     if (pl0) { pl0.focus(); pl0.select(); }
   }, 50);
+}
+
+function showRemnantAlert(kind, spec) {
+  var existing = document.getElementById('remAlertToast');
+  if (existing) existing.remove();
+  if (typeof getInventory !== 'function') return;
+  var inv = getInventory().filter(function(item) {
+    return item.kind === kind && item.spec === spec && (item.qty || 0) > 0;
+  });
+  if (!inv.length) return;
+  var totalQty = inv.reduce(function(s, i) { return s + (i.qty || 1); }, 0);
+  var toast = document.createElement('div');
+  toast.id = 'remAlertToast';
+  toast.style.cssText = 'position:fixed;bottom:72px;right:16px;z-index:9999;background:#fff;border:2px solid #f59e0b;border-radius:12px;padding:12px 16px;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:13px;font-weight:700;color:#92400e;display:flex;align-items:center;gap:10px;max-width:260px;animation:fadeInUp .2s ease';
+  toast.innerHTML =
+    '<span style="font-size:18px">⚠️</span>' +
+    '<div><div>残材あり（' + totalQty + '本）</div>' +
+    '<div style="font-size:11px;font-weight:400;color:#b45309;margin-top:2px">' + kind + '　' + spec + '</div></div>' +
+    '<button onclick="sbSwitch(1);document.getElementById(\'remAlertToast\').remove()" style="margin-left:auto;background:#f59e0b;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">使う</button>' +
+    '<button onclick="this.closest(\'#remAlertToast\').remove()" style="background:none;border:none;font-size:14px;cursor:pointer;color:#aaa;padding:0 2px">✕</button>';
+  document.body.appendChild(toast);
+  setTimeout(function() { if (document.getElementById('remAlertToast')) document.getElementById('remAlertToast').remove(); }, 6000);
 }
 
 // コマンドパレット：キーボード操作（↑↓Enter）
@@ -2493,12 +2516,16 @@ function buildPrintHeaderMini(job, pageInfo) {
 document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   init();
+  // カスタム鋼材ロード
+  if (typeof loadCustomMaterials === 'function') loadCustomMaterials();
+  if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
   // Supabase → localStorage 起動時同期
   if (typeof sbInitSync === 'function') {
     sbInitSync().then(function() {
-      // 同期完了後にUIを再描画
       if (typeof renderHistory === 'function') renderHistory();
       if (typeof renderInventoryPage === 'function') renderInventoryPage();
+      if (typeof loadCustomMaterials === 'function') loadCustomMaterials();
+      if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
     });
   }
 
