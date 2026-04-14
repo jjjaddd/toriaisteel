@@ -637,6 +637,7 @@ function wSaveCalc() {
   _wSavedCalcs.unshift(rec);
   if (_wSavedCalcs.length > 20) _wSavedCalcs.pop();
   try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  if (typeof sbUpsert === 'function') sbUpsert('weight_calcs', _wSavedCalcs);
   renderWSavedList();
   alert('「' + name + '」を保存しました。');
 }
@@ -705,6 +706,7 @@ function wRecallFromHistory(rows, opts, job) {
 function wDeleteSavedCalc(id) {
   _wSavedCalcs = _wSavedCalcs.filter(function(r) { return r.id !== id; });
   try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  if (typeof sbUpsert === 'function') sbUpsert('weight_calcs', _wSavedCalcs);
   renderWSavedList();
 }
 

@@ -2493,6 +2493,14 @@ function buildPrintHeaderMini(job, pageInfo) {
 document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   init();
+  // Supabase → localStorage 起動時同期
+  if (typeof sbInitSync === 'function') {
+    sbInitSync().then(function() {
+      // 同期完了後にUIを再描画
+      if (typeof renderHistory === 'function') renderHistory();
+      if (typeof renderInventoryPage === 'function') renderInventoryPage();
+    });
+  }
 
   // 履歴・在庫タブ内のinput/selectでEnterキーを押したら次の要素へ
   document.addEventListener('keydown', function(e) {

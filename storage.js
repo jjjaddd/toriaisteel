@@ -169,6 +169,7 @@ function saveRemnants() {
       if (l > 0) list.push({l:l, q:q});
     }
     localStorage.setItem(LS_REMNANTS, JSON.stringify(list));
+    if (typeof sbUpsert === 'function') sbUpsert('remnants', list);
   } catch(e) {}
 }
 
@@ -391,7 +392,10 @@ function getInventory() {
 }
 
 function saveInventory(inv) {
-  try { localStorage.setItem(LS_INVENTORY, JSON.stringify(inv)); } catch(e){}
+  try {
+    localStorage.setItem(LS_INVENTORY, JSON.stringify(inv));
+    if (typeof sbUpsert === 'function') sbUpsert('inventory', inv);
+  } catch(e) {}
 }
 
 // 残材を在庫に登録（計算後ボタン）
@@ -704,6 +708,7 @@ function saveCutHistory(resultData, cardId) {
       hist = hist.slice(0, Math.floor(hist.length * 0.7));
     }
   }
+  if (saved && typeof sbUpsert === 'function') sbUpsert('cut_history', hist);
   return entry;
 }
 
@@ -749,6 +754,7 @@ function saveWeightHistory(rows, opts, job) {
   while (!saved && hist.length > 0) {
     try {
       localStorage.setItem(LS_WORK_HIST, JSON.stringify(hist));
+      if (typeof sbUpsert === 'function') sbUpsert('weight_history', hist);
       saved = true;
     } catch(e) {
       hist = hist.slice(0, Math.floor(hist.length * 0.7));
