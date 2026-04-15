@@ -1656,11 +1656,11 @@ function dataInit() {
 function dtCustomOpen() {
   if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
   var m = document.getElementById('dtCustomModal');
-  if (m) m.classList.add('open');
+  if (m) m.style.display = 'flex';
 }
 function dtCustomClose() {
   var m = document.getElementById('dtCustomModal');
-  if (m) m.classList.remove('open');
+  if (m) m.style.display = 'none';
 }
 
 /* 鋼種タブ描画 */
