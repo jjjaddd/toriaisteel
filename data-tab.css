@@ -500,3 +500,6 @@
   color: #111 !important;
   text-align: left !important;
 }
+
+/* 計算式の折り返し防止 */
+.dt-extra-row strong { white-space: nowrap !important; }
