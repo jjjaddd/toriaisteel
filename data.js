@@ -1601,11 +1601,34 @@ function buildSelectorBar() {
   sizeLbl.textContent = 'サイズ';
   sizeLbl.style.cssText = S_LBL;
 
+  // サイズ行: [specPicker(flex:1)] gap [+ボタン(独立)]
+  var sizeRow = document.createElement('div');
+  sizeRow.style.cssText = 'display:flex;align-items:stretch;gap:8px;height:42px';
+
   var specPicker = document.createElement('div');
   specPicker.id = 'dataSpecPicker';
+  specPicker.style.cssText = 'flex:1;min-width:0';
+
+  var addBtn = document.createElement('button');
+  addBtn.type = 'button';
+  addBtn.title = 'カスタム鋼材を追加';
+  addBtn.textContent = '+';
+  addBtn.style.cssText = [
+    'width:42px', 'height:42px', 'flex-shrink:0',
+    'background:#333', 'color:#fff',
+    'border:none', 'border-radius:8px',
+    'font-size:22px', 'font-weight:300',
+    'cursor:pointer', 'font-family:inherit',
+    'display:flex', 'align-items:center', 'justify-content:center',
+    'box-sizing:border-box'
+  ].join(';');
+  addBtn.onclick = function() { if (typeof dtCustomOpen === 'function') dtCustomOpen(); };
+
+  sizeRow.appendChild(specPicker);
+  sizeRow.appendChild(addBtn);
 
   sizeCol.appendChild(sizeLbl);
-  sizeCol.appendChild(specPicker);
+  sizeCol.appendChild(sizeRow);
 
   bar.appendChild(kindCol);
   bar.appendChild(sizeCol);
@@ -1658,13 +1681,9 @@ function renderDataSpecPicker() {
     wrap:  'position:relative;width:100%',
     row:   'display:flex;height:42px;align-items:stretch',
     input: 'flex:1;min-width:0;height:42px;box-sizing:border-box;padding:0 14px;' +
-           'border:1.5px solid #ccc;border-right:none;border-radius:8px 0 0 8px;' +
+           'border:1.5px solid #ccc;border-radius:8px;' +
            'font-size:13px;font-weight:600;font-family:inherit;' +
            'background:#fafafa;color:#111;outline:none',
-    btn:   'width:42px;height:42px;box-sizing:border-box;flex-shrink:0;' +
-           'background:#333;color:#fff;border:none;border-radius:0 8px 8px 0;' +
-           'font-size:22px;font-weight:300;cursor:pointer;' +
-           'display:flex;align-items:center;justify-content:center;font-family:inherit',
     dd:    'display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;' +
            'background:#fff;border:1.5px solid #ccc;border-radius:8px;' +
            'box-shadow:0 6px 20px rgba(0,0,0,.12);max-height:280px;overflow-y:auto;z-index:500'
@@ -1673,7 +1692,6 @@ function renderDataSpecPicker() {
     '<div style="' + IS.wrap + '">' +
       '<div style="' + IS.row + '">' +
         '<input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索" style="' + IS.input + '">' +
-        '<button type="button" onclick="dtCustomOpen()" title="カスタム鋼材を追加" style="' + IS.btn + '">+</button>' +
       '</div>' +
       '<div id="dataSpecDropdown" class="data-spec-dropdown" style="' + IS.dd + '"></div>' +
     '</div>';
@@ -2024,8 +2042,7 @@ function renderDataSpec() {
           : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
 
     extraEl.innerHTML =
-      '<div class="dt-sec" style="margin-top:16px">単位重量 / 塗装</div>' +
-      '<div class="dt-extra-row"><span>計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
+      '<div class="dt-extra-row" style="margin-top:14px"><span>単位重量の計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
       (S !== null ? '<div class="dt-extra-row"><span>塗装面積（参考）</span><strong>' + S + ' m²/m</strong></div>' : '');
   }
 
