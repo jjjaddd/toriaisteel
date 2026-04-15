@@ -2090,7 +2090,8 @@ function getKindSTD(kind) {
 }
 function saveKindSTD(kind, lengths) {
   try { localStorage.setItem('dp_std_' + kind, JSON.stringify(lengths)); } catch(e) {}
-  // onSpec()を再実行して計算側にも反映
+  // 在庫定尺リスト再構築 → 取り合い計算に即反映
+  if (typeof rebuildStkList === 'function') rebuildStkList();
   if (typeof onSpec === 'function') onSpec();
 }
 function renderDataStdChips(kind) {

@@ -577,31 +577,7 @@ function goPage(p) {
 // ============================================================
 function init() {
   // 在庫定尺
-  var sl = document.getElementById('stkList');
-  if(sl) sl.innerHTML='';
-  if(sl) STD.forEach(function(len, i) {
-    var d = document.createElement('div');
-    d.className = 'stk-row';
-    d.id = 'sr' + i;
-    d.style.cursor = 'pointer';
-    d.innerHTML =
-      '<input type="checkbox" id="sc' + i + '" checked onchange="togStk(' + i + ');saveSettings()">' +
-      '<span class="stk-nm">' + len.toLocaleString() + '</span>' +
-      '<div style="display:flex;align-items:center;gap:2px">' +
-        '<button onclick="stkDown(' + i + ')" style="width:18px;height:18px;border:1px solid #d4d4dc;background:#fff;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">▼</button>' +
-        '<span id="sm_lbl' + i + '" onclick="stkEdit(' + i + ')" style="min-width:22px;text-align:center;font-size:11px;font-weight:600;color:#1a1a2e;cursor:pointer" title="クリックで直接入力">∞</span>' +
-        '<input type="number" class="stk-mx" id="sm' + i + '" placeholder="∞" min="1" onchange="stkInputChange(' + i + ')" style="display:none;width:36px">' +
-        '<button onclick="stkUp(' + i + ')" style="width:18px;height:18px;border:1px solid #d4d4dc;background:#fff;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">▲</button>' +
-      '</div>';
-    d.addEventListener('click', function(e) {
-      if (e.target.tagName === 'INPUT' && e.target.type === 'number') return;
-      if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') return;
-      if (e.target.tagName === 'BUTTON') return;
-      if (e.target.tagName === 'SPAN' && e.target.id && e.target.id.indexOf('sm_lbl') === 0) return;
-      document.getElementById('sc' + i).click();
-    });
-    sl.appendChild(d);
-  });
+  rebuildStkList();
 
   // 部材リスト（重複防止のためクリアしてから生成）
   var ptl = document.getElementById('ptList');
@@ -1010,6 +986,58 @@ function onSpec() {
       if (!cb.checked && row && !row.classList.contains('off')) cb.checked = true;
     }
     togStk(i);
+  });
+}
+
+// 在庫定尺リストを再構築（カスタム定尺追加/削除時にも呼ばれる）
+function rebuildStkList() {
+  // 全鋼種のユーザー設定定尺を STD にマージ（ユニーク＆ソート）
+  if (typeof getKindSTD === 'function' && typeof SECTION_DATA !== 'undefined') {
+    var allLens = STD.slice();
+    Object.keys(SECTION_DATA).forEach(function(kind) {
+      getKindSTD(kind).forEach(function(len) {
+        if (allLens.indexOf(len) === -1) allLens.push(len);
+      });
+    });
+    allLens.sort(function(a, b) { return a - b; });
+    // STD を更新
+    STD.length = 0;
+    allLens.forEach(function(l) { STD.push(l); });
+  }
+
+  var sl = document.getElementById('stkList');
+  if (!sl) return;
+  // 現在のチェック状態を保存
+  var prevState = {};
+  STD.forEach(function(len, i) {
+    var cb = document.getElementById('sc' + i);
+    if (cb) prevState[len] = cb.checked;
+  });
+  sl.innerHTML = '';
+
+  STD.forEach(function(len, i) {
+    var d = document.createElement('div');
+    d.className = 'stk-row';
+    d.id = 'sr' + i;
+    d.style.cursor = 'pointer';
+    var wasChecked = prevState.hasOwnProperty(len) ? prevState[len] : true;
+    d.innerHTML =
+      '<input type="checkbox" id="sc' + i + '"' + (wasChecked ? ' checked' : '') + ' onchange="togStk(' + i + ');saveSettings()">' +
+      '<span class="stk-nm">' + len.toLocaleString() + '</span>' +
+      '<div style="display:flex;align-items:center;gap:2px">' +
+        '<button onclick="stkDown(' + i + ')" style="width:18px;height:18px;border:1px solid #d4d4dc;background:#fff;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">▼</button>' +
+        '<span id="sm_lbl' + i + '" onclick="stkEdit(' + i + ')" style="min-width:22px;text-align:center;font-size:11px;font-weight:600;color:#1a1a2e;cursor:pointer" title="クリックで直接入力">∞</span>' +
+        '<input type="number" class="stk-mx" id="sm' + i + '" placeholder="∞" min="1" onchange="stkInputChange(' + i + ')" style="display:none;width:36px">' +
+        '<button onclick="stkUp(' + i + ')" style="width:18px;height:18px;border:1px solid #d4d4dc;background:#fff;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">▲</button>' +
+      '</div>';
+    d.addEventListener('click', function(e) {
+      if (e.target.tagName === 'INPUT' && e.target.type === 'number') return;
+      if (e.target.tagName === 'INPUT' && e.target.type === 'checkbox') return;
+      if (e.target.tagName === 'BUTTON') return;
+      if (e.target.tagName === 'SPAN' && e.target.id && e.target.id.indexOf('sm_lbl') === 0) return;
+      document.getElementById('sc' + i).click();
+    });
+    sl.appendChild(d);
   });
 }
 
