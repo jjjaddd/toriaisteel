@@ -1952,8 +1952,8 @@ function renderDataSpec() {
 
     extraEl.innerHTML =
       '<div class="dt-sec" style="margin-top:16px">単位重量 / 塗装</div>' +
-      '<div class="dt-extra-row"><span>計算式</span><span class="dt-meta-val">' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</span></div>' +
-      (S !== null ? '<div class="dt-extra-row"><span>塗装面積（参考）</span><span class="dt-meta-val">' + S + ' m²/m</span></div>' : '');
+      '<div class="dt-extra-row"><span>計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
+      (S !== null ? '<div class="dt-extra-row"><span>塗装面積（参考）</span><strong>' + S + ' m²/m</strong></div>' : '');
   }
 
   const input = document.getElementById('dataSpecInput');

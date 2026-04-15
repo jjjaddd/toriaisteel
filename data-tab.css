@@ -437,3 +437,25 @@
   font-size: 12px !important;
   color: #aaa !important;
 }
+
+/* ━━━ 追加修正 ━━━ */
+
+/* 定尺の上の線を削除 */
+#dtStdArea { border-top: none !important; }
+#dtStdArea .dt-sec { border-top: none !important; }
+
+/* 図の高さを左コンテンツに合わせる */
+#dtMain { align-items: stretch; }
+#dtFigCol {
+  align-self: stretch;
+  min-height: 0;
+  justify-content: flex-start;
+  padding-top: 24px;
+}
+
+/* dt-extra-row 内の strong は小さめに */
+.dt-extra-row strong {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #111 !important;
+}
