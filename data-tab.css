@@ -27,8 +27,8 @@
 
 /* ── ヘッダー (規格名 + 重量 + 塗装) ─────── */
 #dtHeader {
-  padding-bottom: 16px;
-  margin-bottom: 20px;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
 }
 .dt-kind-label {
   font-size: 11px;

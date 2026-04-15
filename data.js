@@ -2041,9 +2041,21 @@ function renderDataSpec() {
           ? calcHPaintAreaPerMeter(spec)
           : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
 
+    var rowStyle = 'display:grid;grid-template-columns:150px 1fr;align-items:baseline;' +
+                   'padding:9px 0;border-bottom:1px solid #eee;font-size:13px;color:#555';
+    var lblStyle = 'font-size:13px;color:#555';
+    var valStyle = 'font-size:13px;font-weight:700;color:#111;white-space:nowrap';
     extraEl.innerHTML =
-      '<div class="dt-extra-row" style="margin-top:14px"><span>単位重量の計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
-      (S !== null ? '<div class="dt-extra-row"><span>塗装面積（参考）</span><strong>' + S + ' m²/m</strong></div>' : '');
+      '<div style="' + rowStyle + ';margin-top:12px">' +
+        '<span style="' + lblStyle + '">単位重量の計算式</span>' +
+        '<span style="' + valStyle + '">' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</span>' +
+      '</div>' +
+      (S !== null
+        ? '<div style="' + rowStyle + '">' +
+            '<span style="' + lblStyle + '">塗装面積（参考）</span>' +
+            '<span style="' + valStyle + '">' + S + ' m²/m</span>' +
+          '</div>'
+        : '');
   }
 
   const input = document.getElementById('dataSpecInput');
