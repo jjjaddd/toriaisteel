@@ -397,17 +397,40 @@ function wAddRow() {
     paintAmount: paintPrice > 0 ? m2 * paintPrice : null
   };
 
-  if (_wEditIdx >= 0) {
-    // 編集モード：既存行を上書き
+  if (_wEditIdx >= 0 && _wSelected.length >= 2) {
+    // 複数選択中：全選択行に長さ・本数・単価を一括適用
+    _wSelected.forEach(function(idx) {
+      var r = _wRows[idx];
+      if (!r) return;
+      var myKg1 = jisRound(r.kgm * len / 1000, 1);
+      var myKg  = myKg1 * qty;
+      var myPpm = wGetPaintPerM(r.kind, r.spec);
+      var myM2  = myPpm * len / 1000 * qty;
+      _wRows[idx] = Object.assign({}, r, {
+        len: len, qty: qty,
+        kg1: myKg1, kgTotal: myKg,
+        m2_1: myPpm * len / 1000, m2Total: myM2,
+        price: price,
+        amount: price > 0 ? myKg * price : null,
+        paintPrice: paintPrice,
+        paintAmount: paintPrice > 0 ? myM2 * paintPrice : null,
+        memo: memo || r.memo
+      });
+    });
+    _wSelected = [];
+    _wEditIdx = -1;
+    _wLastClickIdx = -1;
+  } else if (_wEditIdx >= 0) {
+    // 単行編集モード：既存行を上書き
     _wRows[_wEditIdx] = rowData;
     _wEditIdx = -1;
-    var addBtn = document.getElementById('wAddBtn');
-    if (addBtn) addBtn.innerHTML = '＋ リストに追加';
-    var cancelBtn = document.getElementById('wCancelBtn');
-    if (cancelBtn) cancelBtn.style.display = 'none';
   } else {
     _wRows.push(rowData);
   }
+  var addBtn = document.getElementById('wAddBtn');
+  if (addBtn) addBtn.innerHTML = '＋ リストに追加';
+  var cancelBtn = document.getElementById('wCancelBtn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
 
   wRenderRows();
   setTimeout(function() { lenEl.focus(); lenEl.select(); }, 0);
@@ -517,14 +540,13 @@ function wEditOrBulk(e, i) {
 }
 
 function wUpdateBulkBar() {
-  var bar = document.getElementById('wBulkBar');
-  if (!bar) return;
-  if (_wSelected.length >= 2) {
-    bar.style.display = 'flex';
-    var lbl = bar.querySelector('.w-bulk-lbl');
-    if (lbl) lbl.textContent = _wSelected.length + '行を選択中';
-  } else {
-    bar.style.display = 'none';
+  // 下部バー非使用。選択状態はテーブルの黄色ハイライトで表示
+  var lbl = document.getElementById('wSelCount');
+  if (lbl) {
+    lbl.textContent = _wSelected.length >= 2 ? _wSelected.length + '行選択中 — 更新で一括適用' : '';
+    lbl.style.color = '#b45309';
+    lbl.style.fontWeight = '700';
+    lbl.style.fontSize = '11px';
   }
 }
 
@@ -713,13 +735,10 @@ function wRenderRows() {
     var rowBg = (_wEditIdx === i) ? 'background:#fffde7;' : (i % 2 === 1 ? 'background:#fafafa;' : '');
 
     var isSelected = _wSelected.indexOf(i) !== -1;
-    var selBg = isSelected ? 'background:#eff6ff;outline:2px solid #7c5ccc;outline-offset:-1px;' : '';
-    var cursorStyle = 'cursor:pointer;';
+    var selBg = isSelected ? 'background:#fef9c3;' : '';
     return (
-      '<tr style="border-bottom:1px solid #f0f0f6;' + rowBg + selBg + cursorStyle + '" onclick="wRowClick(event,' + i + ')" title="クリックで編集 / Shift+クリックで範囲選択">' +
-      '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' +
-        '<input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onclick="wToggleSelect(event,' + i + ')" style="cursor:pointer;margin-right:4px">' + (i + 1) +
-      '</td>' +
+      '<tr style="border-bottom:1px solid #f0f0f6;' + rowBg + selBg + 'cursor:pointer;" onclick="wRowClick(event,' + i + ')" title="クリックで編集 / Shift+クリックで範囲選択">' +
+      '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' + (i + 1) + '</td>' +
       '<td style="padding:7px 10px;font-size:11px;color:#5a5a78;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
         (_wOpts.name ? '' : 'display:none') + '" title="' + memoTitle + '">' +
         _esc(r.memo || '—') +
