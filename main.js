@@ -960,7 +960,8 @@ function onSpec() {
   }
   updKg();
   buildInventoryDropdown();
-  // データタブの定尺設定を取り合い計算チェックボックスに反映
+  // 鋼種が変わったら在庫定尺リストをその鋼種の定尺で再構築
+  rebuildStkList();
   STD.forEach(function(len, i) {
     var cb  = document.getElementById('sc' + i);
     var row = document.getElementById('sr' + i);
@@ -989,40 +990,42 @@ function onSpec() {
   });
 }
 
-// 在庫定尺リストを再構築（カスタム定尺追加/削除時にも呼ばれる）
+// 在庫定尺リストを再構築
+// ★ 現在選択中の鋼種の定尺だけ表示（データタブが主）
 function rebuildStkList() {
-  // 全鋼種のユーザー設定定尺を STD にマージ（ユニーク＆ソート）
-  if (typeof getKindSTD === 'function' && typeof SECTION_DATA !== 'undefined') {
-    var allLens = STD.slice();
-    Object.keys(SECTION_DATA).forEach(function(kind) {
-      getKindSTD(kind).forEach(function(len) {
-        if (allLens.indexOf(len) === -1) allLens.push(len);
-      });
-    });
-    allLens.sort(function(a, b) { return a - b; });
-    // STD を更新
-    STD.length = 0;
-    allLens.forEach(function(l) { STD.push(l); });
-  }
-
   var sl = document.getElementById('stkList');
   if (!sl) return;
-  // 現在のチェック状態を保存
-  var prevState = {};
+
+  // 今の鋼種のユーザー定尺を取得
+  var activeLens;
+  if (typeof getKindSTD === 'function') {
+    activeLens = getKindSTD(typeof curKind !== 'undefined' ? curKind : '');
+  } else {
+    activeLens = STD.slice();
+  }
+  activeLens = activeLens.slice().sort(function(a, b) { return a - b; });
+
+  // 現在のチェック状態を長さ→bool で保存
+  var prevChecked = {};
   STD.forEach(function(len, i) {
     var cb = document.getElementById('sc' + i);
-    if (cb) prevState[len] = cb.checked;
+    if (cb) prevChecked[len] = cb.checked;
   });
-  sl.innerHTML = '';
 
+  // STD をこの鋼種の定尺に差し替え
+  STD.length = 0;
+  activeLens.forEach(function(l) { STD.push(l); });
+
+  sl.innerHTML = '';
   STD.forEach(function(len, i) {
     var d = document.createElement('div');
     d.className = 'stk-row';
     d.id = 'sr' + i;
     d.style.cursor = 'pointer';
-    var wasChecked = prevState.hasOwnProperty(len) ? prevState[len] : true;
+    var wasChecked = prevChecked.hasOwnProperty(len) ? prevChecked[len] : true;
     d.innerHTML =
-      '<input type="checkbox" id="sc' + i + '"' + (wasChecked ? ' checked' : '') + ' onchange="togStk(' + i + ');saveSettings()">' +
+      '<input type="checkbox" id="sc' + i + '"' + (wasChecked ? ' checked' : '') +
+        ' onchange="togStk(' + i + ');saveSettings()">' +
       '<span class="stk-nm">' + len.toLocaleString() + '</span>' +
       '<div style="display:flex;align-items:center;gap:2px">' +
         '<button onclick="stkDown(' + i + ')" style="width:18px;height:18px;border:1px solid #d4d4dc;background:#fff;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">▼</button>' +
