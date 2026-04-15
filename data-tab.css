@@ -1,16 +1,13 @@
 /* ============================================================
-   data-tab.css — データタブ専用スタイル (clean v4)
-   すべて #dpp スコープで管理。重複なし・!important 最小限
+   data-tab.css — データタブ専用スタイル (final clean)
+
+   方針: input/select はインラインスタイルで管理（data.js側）
+         ここはレイアウト・コンポーネントのみ。!important禁止。
    ============================================================ */
 
-/* ── ページ表示制御 ─────────────────────── */
+/* ── ページ ─────────────────────────────── */
 #dpp { display: none; }
-#dpp.show {
-  display: block;
-  height: calc(100vh - 54px);
-  overflow-y: auto;
-  box-sizing: border-box;
-}
+#dpp.show { display: block; }
 
 #dtPage {
   max-width: 1000px;
@@ -20,19 +17,15 @@
 }
 
 /* ── セレクターバー ─────────────────────── */
-#dpp #dtSelectors {
+#dtSelectors {
   display: flex;
   gap: 12px;
   align-items: flex-end;
   margin-bottom: 20px;
 }
-#dpp .dt-sel {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-#dpp .dt-sel-wide { flex: 1; min-width: 0; }
-#dpp .dt-sel-lbl {
+.dt-sel { display: flex; flex-direction: column; gap: 5px; }
+.dt-sel-wide { flex: 1; min-width: 0; }
+.dt-sel-lbl {
   font-size: 10px;
   font-weight: 700;
   color: #888;
@@ -40,136 +33,13 @@
   text-transform: uppercase;
 }
 
-/* 鋼種 select */
-#dpp .dt-select {
-  height: 42px;
-  padding: 0 32px 0 12px;
-  border: 1.5px solid #ccc;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: inherit;
-  background: #fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23666' d='M5 6L0 0h10z'/%3E%3C/svg%3E") no-repeat right 10px center;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  outline: none;
-  min-width: 120px;
-  box-sizing: border-box;
-}
-#dpp .dt-select:hover { border-color: #888; }
-
-/* ── サイズ picker (既存CSS完全上書き) ───── */
-#dpp .data-spec-picker {
-  position: relative !important;
-  width: 100% !important;
-  display: block !important;
-  overflow: visible !important;
-  max-width: none !important;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  box-shadow: none !important;
-}
-#dpp .data-spec-input-wrap {
-  display: flex !important;
-  align-items: stretch !important;
-  height: 42px !important;
-  gap: 0 !important;
-  border: none !important;
-  background: none !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
-}
-#dpp #dataSpecInput {
-  flex: 1 !important;
-  min-width: 0 !important;
-  height: 42px !important;
-  padding: 0 14px !important;
-  border: 1.5px solid #ccc !important;
-  border-right: none !important;
-  border-radius: 8px 0 0 8px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  font-family: inherit !important;
-  background: #fafafa !important;
-  color: #111 !important;
-  box-sizing: border-box !important;
-  outline: none !important;
-  box-shadow: none !important;
-  line-height: 42px !important;
-}
-#dpp #dataSpecInput:focus { border-color: #555 !important; }
-
-/* + ボタン */
-#dpp .dt-add-btn {
-  height: 42px !important;
-  width: 42px !important;
-  background: #333 !important;
-  color: #fff !important;
-  border: 1.5px solid #333 !important;
-  border-radius: 0 8px 8px 0 !important;
-  font-size: 22px !important;
-  font-weight: 300 !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-  box-sizing: border-box !important;
-  font-family: inherit !important;
-  transition: background .12s !important;
-}
-#dpp .dt-add-btn:hover { background: #555 !important; border-color: #555 !important; }
-
-/* ドロップダウン */
-#dpp .data-spec-dropdown {
-  display: none !important;
-  position: absolute !important;
-  top: calc(100% + 4px) !important;
-  left: 0 !important;
-  right: 0 !important;
-  background: #fff !important;
-  border: 1.5px solid #ccc !important;
-  border-radius: 8px !important;
-  box-shadow: 0 6px 20px rgba(0,0,0,.12) !important;
-  max-height: 280px !important;
-  overflow-y: auto !important;
-  z-index: 500 !important;
-  padding: 0 !important;
-}
-#dpp .data-spec-dropdown.open { display: block !important; }
-#dpp .data-spec-option {
-  padding: 9px 14px !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  border-bottom: 1px solid #f0f0f0 !important;
-  background: #fff !important;
-  color: #111 !important;
-  display: block !important;
-}
-#dpp .data-spec-option:last-child { border-bottom: none !important; }
-#dpp .data-spec-option:hover,
-#dpp .data-spec-option.active,
-#dpp .data-spec-option:focus {
-  background: #f4f4f4 !important;
-  outline: none !important;
-}
-#dpp .data-spec-empty {
-  padding: 12px 14px !important;
-  font-size: 12px !important;
-  color: #aaa !important;
-}
-
 /* ── ヘッダー ──────────────────────────── */
-#dpp #dtHeader {
+#dtHeader {
   padding-bottom: 14px;
   border-bottom: 2px solid #111;
   margin-bottom: 16px;
 }
-#dpp .dt-kind-label {
+.dt-kind-label {
   font-size: 11px;
   font-weight: 700;
   color: #888;
@@ -178,7 +48,7 @@
   margin-bottom: 6px;
   display: block;
 }
-#dpp .dt-spec-name {
+.dt-spec-name {
   font-size: 26px;
   font-weight: 800;
   color: #111;
@@ -187,7 +57,7 @@
   margin-bottom: 8px;
   display: block;
 }
-#dpp .dt-meta {
+.dt-meta {
   display: flex;
   gap: 18px;
   align-items: baseline;
@@ -195,11 +65,11 @@
   font-size: 13px;
   color: #666;
 }
-#dpp .dt-meta-val { font-size: 17px; font-weight: 800; color: #111; }
-#dpp .dt-meta-div { width: 1px; height: 14px; background: #ccc; flex-shrink: 0; }
+.dt-meta-val { font-size: 17px; font-weight: 800; color: #111; }
+.dt-meta-div { width: 1px; height: 14px; background: #ccc; flex-shrink: 0; }
 
 /* ── セクション見出し ───────────────────── */
-#dpp .dt-sec {
+.dt-sec {
   font-size: 10px;
   font-weight: 700;
   color: #555;
@@ -211,15 +81,11 @@
   display: block;
 }
 
-/* ── 定尺 ───────────────────────────────── */
-#dpp #dtStdArea { margin-bottom: 18px; }
-#dpp #dtStdChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  align-items: center;
-}
-#dpp .dt-chip {
+/* ── 定尺（線なし） ─────────────────────── */
+#dtStdArea { margin-bottom: 18px; }
+#dtStdArea .dt-sec { border-bottom: none; padding-bottom: 0; margin-bottom: 8px; }
+#dtStdChips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.dt-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -231,7 +97,7 @@
   font-weight: 600;
   color: #333;
 }
-#dpp .dt-chip-x {
+.dt-chip-x {
   background: none;
   border: none;
   font-size: 10px;
@@ -241,9 +107,9 @@
   font-weight: 700;
   line-height: 1;
 }
-#dpp .dt-chip-x:hover { color: #c00; }
-#dpp .dt-chip-add { display: inline-flex; align-items: center; gap: 5px; }
-#dpp .dt-chip-add input {
+.dt-chip-x:hover { color: #c00; }
+.dt-chip-add { display: inline-flex; align-items: center; gap: 5px; }
+.dt-chip-add input {
   width: 68px;
   padding: 4px 7px;
   border: 1.5px solid #ccc;
@@ -253,8 +119,8 @@
   outline: none;
   box-sizing: border-box;
 }
-#dpp .dt-chip-add input:focus { border-color: #555; }
-#dpp .dt-chip-add button {
+.dt-chip-add input:focus { border-color: #555; }
+.dt-chip-add button {
   padding: 5px 10px;
   background: #333;
   color: #fff;
@@ -267,13 +133,9 @@
 }
 
 /* ── メイン 2カラム ─────────────────────── */
-#dpp #dtMain {
-  display: flex;
-  gap: 24px;
-  align-items: stretch;
-}
-#dpp #dtInfoCol { flex: 1; min-width: 0; }
-#dpp #dtFigCol {
+#dtMain { display: flex; gap: 24px; align-items: stretch; }
+#dtInfoCol { flex: 1; min-width: 0; }
+#dtFigCol {
   width: 380px;
   flex-shrink: 0;
   position: sticky;
@@ -288,14 +150,14 @@
   justify-content: center;
   min-height: 240px;
 }
-#dpp #dtFigCol svg { max-width: 100%; height: auto; display: block; }
+#dtFigCol svg { max-width: 100%; height: auto; display: block; }
 @media (max-width: 820px) {
-  #dpp #dtMain { flex-direction: column-reverse; }
-  #dpp #dtFigCol { width: 100%; position: static; align-self: auto; }
+  #dtMain { flex-direction: column-reverse; }
+  #dtFigCol { width: 100%; position: static; align-self: auto; }
 }
 
 /* ── 断面寸法グリッド ───────────────────── */
-#dpp .dt-dim-grid {
+.dt-dim-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border: 1.5px solid #ccc;
@@ -303,20 +165,20 @@
   overflow: hidden;
   margin-bottom: 12px;
 }
-#dpp .dt-dim-cell {
+.dt-dim-cell {
   background: #fff;
   padding: 10px 12px;
   text-align: center;
   border-right: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
 }
-#dpp .dt-dim-cell:nth-child(3n) { border-right: none; }
-#dpp .dt-dim-cell:nth-last-child(-n+3) { border-bottom: none; }
-#dpp .dt-dim-lbl { font-size: 10px; font-weight: 600; color: #888; margin-bottom: 4px; display: block; }
-#dpp .dt-dim-val { font-size: 14px; font-weight: 700; color: #111; display: block; }
+.dt-dim-cell:nth-child(3n) { border-right: none; }
+.dt-dim-cell:nth-last-child(-n+3) { border-bottom: none; }
+.dt-dim-lbl { font-size: 10px; font-weight: 600; color: #888; margin-bottom: 4px; display: block; }
+.dt-dim-val { font-size: 14px; font-weight: 700; color: #111; display: block; }
 
 /* ── 断面性能トグル ─────────────────────── */
-#dpp #dataPerfToggle {
+#dataPerfToggle {
   width: 100%;
   padding: 8px 12px;
   background: #f4f4f4;
@@ -332,11 +194,11 @@
   margin-bottom: 6px;
   box-sizing: border-box;
 }
-#dpp #dataPerfToggle:hover { background: #ebebeb; }
+#dataPerfToggle:hover { background: #ebebeb; }
 
 /* ── 単位重量・塗装 ─────────────────────── */
-#dpp #dataExtraInfo { margin-top: 12px; }
-#dpp .dt-extra-row {
+#dataExtraInfo { margin-top: 12px; }
+.dt-extra-row {
   display: grid;
   grid-template-columns: 120px 1fr;
   align-items: baseline;
@@ -345,8 +207,8 @@
   font-size: 12px;
   color: #666;
 }
-#dpp .dt-extra-row:last-child { border-bottom: none; }
-#dpp .dt-extra-row strong {
+.dt-extra-row:last-child { border-bottom: none; }
+.dt-extra-row strong {
   font-size: 13px;
   font-weight: 700;
   color: #111;
@@ -354,12 +216,8 @@
 }
 
 /* ── メモ ──────────────────────────────── */
-#dpp #dataNoteArea {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 2px solid #111;
-}
-#dpp .dt-note-lbl {
+#dataNoteArea { margin-top: 18px; padding-top: 14px; border-top: 2px solid #111; }
+.dt-note-lbl {
   font-size: 10px;
   font-weight: 700;
   color: #555;
@@ -368,7 +226,7 @@
   margin-bottom: 8px;
   display: block;
 }
-#dpp .dt-note-list {
+.dt-note-list {
   background: #f8f8f8;
   border-radius: 6px;
   padding: 10px 12px;
@@ -379,17 +237,11 @@
   font-size: 12px;
   color: #888;
 }
-#dpp .dt-note-item {
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  padding: 6px 10px;
-  margin-bottom: 5px;
-}
-#dpp .dt-note-ts { font-size: 10px; color: #aaa; margin-bottom: 2px; }
-#dpp .dt-note-text { font-size: 12px; color: #333; }
-#dpp .dt-note-form { display: flex; gap: 6px; }
-#dpp .dt-note-form textarea {
+.dt-note-item { background: #fff; border: 1px solid #eee; border-radius: 4px; padding: 6px 10px; margin-bottom: 5px; }
+.dt-note-ts { font-size: 10px; color: #aaa; margin-bottom: 2px; }
+.dt-note-text { font-size: 12px; color: #333; }
+.dt-note-form { display: flex; gap: 6px; }
+.dt-note-form textarea {
   flex: 1;
   padding: 7px;
   border: 1.5px solid #ccc;
@@ -401,8 +253,8 @@
   outline: none;
   box-sizing: border-box;
 }
-#dpp .dt-note-form textarea:focus { border-color: #555; }
-#dpp .dt-note-form button {
+.dt-note-form textarea:focus { border-color: #555; }
+.dt-note-form button {
   background: #333;
   color: #fff;
   border: none;
@@ -417,30 +269,3 @@
 /* ── カスタム鋼材モーダル ──────────────── */
 #dtCustomModal { display: none; }
 #dtCustomModal.open { display: flex; }
-
-/* ── style.css グローバル select を #dpp 内で上書き ──────── */
-#dpp .dt-select {
-  width: auto !important;
-  height: 42px !important;
-  padding: 0 32px 0 12px !important;
-  background: #fafafa !important;
-  border: 1.5px solid #ccc !important;
-  border-radius: 8px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  box-sizing: border-box !important;
-}
-#dpp .dt-select:hover,
-#dpp .dt-select:focus {
-  background: #fafafa !important;
-  border-color: #888 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-
-/* 定尺の dt-sec は下線なし（他のセクション見出しとは別扱い） */
-#dpp #dtStdArea .dt-sec {
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
-  margin-bottom: 8px !important;
-}

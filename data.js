@@ -1555,6 +1555,19 @@ function normalizeDataSpecText(value) {
 
 function dataInit() {
   renderDataKindTabs();
+  // 鋼種selectにインラインスタイル直書き（グローバルCSSを回避）
+  var sel = document.getElementById('dataKindSelect');
+  if (sel) {
+    sel.style.cssText = [
+      'height:42px', 'min-width:120px', 'box-sizing:border-box',
+      'padding:0 32px 0 12px', 'border:1.5px solid #ccc', 'border-radius:8px',
+      'font-size:13px', 'font-weight:600', 'font-family:inherit',
+      'background:#fafafa', 'color:#111', 'cursor:pointer',
+      'appearance:none', '-webkit-appearance:none', 'outline:none',
+      'background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'%3E%3Cpath fill=\'%23666\' d=\'M5 6L0 0h10z\'/%3E%3C/svg%3E")',
+      'background-repeat:no-repeat', 'background-position:right 10px center'
+    ].join(';');
+  }
   renderDataSpecPicker();
   renderDataSpec();
   if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
@@ -1595,15 +1608,29 @@ function renderDataSpecPicker() {
   const kindData = SECTION_DATA[_dataKind];
   if (!wrap || !kindData) return;
 
-  wrap.innerHTML = `
-    <div class="data-spec-picker">
-      <div class="data-spec-input-wrap">
-        <input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索">
-        <button type="button" class="dt-add-btn" onclick="dtCustomOpen()" title="カスタム鋼材を追加">+</button>
-      </div>
-      <div id="dataSpecDropdown" class="data-spec-dropdown"></div>
-    </div>
-  `;
+  var IS = {
+    wrap:  'position:relative;width:100%',
+    row:   'display:flex;height:42px;align-items:stretch',
+    input: 'flex:1;min-width:0;height:42px;box-sizing:border-box;padding:0 14px;' +
+           'border:1.5px solid #ccc;border-right:none;border-radius:8px 0 0 8px;' +
+           'font-size:13px;font-weight:600;font-family:inherit;' +
+           'background:#fafafa;color:#111;outline:none',
+    btn:   'width:42px;height:42px;box-sizing:border-box;flex-shrink:0;' +
+           'background:#333;color:#fff;border:none;border-radius:0 8px 8px 0;' +
+           'font-size:22px;font-weight:300;cursor:pointer;' +
+           'display:flex;align-items:center;justify-content:center;font-family:inherit',
+    dd:    'display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;' +
+           'background:#fff;border:1.5px solid #ccc;border-radius:8px;' +
+           'box-shadow:0 6px 20px rgba(0,0,0,.12);max-height:280px;overflow-y:auto;z-index:500'
+  };
+  wrap.innerHTML =
+    '<div style="' + IS.wrap + '">' +
+      '<div style="' + IS.row + '">' +
+        '<input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索" style="' + IS.input + '">' +
+        '<button type="button" onclick="dtCustomOpen()" title="カスタム鋼材を追加" style="' + IS.btn + '">+</button>' +
+      '</div>' +
+      '<div id="dataSpecDropdown" class="data-spec-dropdown" style="' + IS.dd + '"></div>' +
+    '</div>';
 
   const input = document.getElementById('dataSpecInput');
   const spec = kindData.specs[_dataSpecIdx];
@@ -1655,7 +1682,7 @@ function toggleDataSpecDropdown(forceOpen) {
   const dd = document.getElementById('dataSpecDropdown');
   if (!dd) return;
   _dataSpecDropdownOpen = typeof forceOpen === 'boolean' ? forceOpen : !_dataSpecDropdownOpen;
-  dd.classList.toggle('open', _dataSpecDropdownOpen);
+  dd.style.display = _dataSpecDropdownOpen ? 'block' : 'none';
 }
 
 function renderDataSpecDropdownList(specs) {
@@ -1721,7 +1748,7 @@ function filterDataSpecOptions(keyword) {
 function closeDataSpecDropdown() {
   const dd = document.getElementById('dataSpecDropdown');
   _dataSpecDropdownOpen = false;
-  if (dd) dd.classList.remove('open');
+  if (dd) dd.style.display = 'none';
 }
 
 document.addEventListener('click', function(e) {
