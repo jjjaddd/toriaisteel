@@ -1715,7 +1715,7 @@ function renderDataSpecPicker() {
     input.onmouseover = function() { this.style.backgroundColor = 'rgba(109,40,217,.06)'; };
     input.onmouseout  = function() { if (document.activeElement !== this) this.style.backgroundColor = '#fafafa'; };
     input.onfocus = function() { this.style.backgroundColor = '#fff'; };
-    input.onmousedown = function(e) {
+    input.onclick = function(e) {
       e.stopPropagation();
       renderDataSpecDropdownList(getSortedSpecsForKind(_dataKind));
       toggleDataSpecDropdown(true);
