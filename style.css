@@ -3647,3 +3647,71 @@ html[data-theme="dark"] .contact-pen-l
 
 /* カスタム鋼材 */
 .dp2-custom-section{margin-top:40px;border-top:1.5px solid #111;padding-top:16px}
+
+/* ━━━ dp2 補正・強制適用 ━━━ */
+#dpp .dp2-page { max-width:1000px; margin:0 auto; padding:24px 20px 48px; }
+
+/* ヘッダー強制 */
+#dpp #dataSpecInfo { padding-bottom:18px; border-bottom:1.5px solid #111; margin-bottom:18px; }
+#dpp .dp2-hd-kind { font-size:11px; font-weight:700; color:#888; letter-spacing:.1em; display:block; margin-bottom:6px; }
+#dpp .dp2-hd-name { font-size:26px; font-weight:800; letter-spacing:-.02em; color:#111; display:block; line-height:1.1; margin-bottom:8px; }
+#dpp .dp2-hd-meta { display:flex; gap:16px; align-items:baseline; font-size:13px; color:#666; }
+#dpp .dp2-hd-meta strong { font-size:17px; font-weight:800; color:#111; }
+
+/* 定尺エリア */
+#dpp #dataStdArea { margin-bottom:20px; }
+#dpp .dp2-sec-lbl { font-size:10px !important; font-weight:700 !important; color:#666 !important; letter-spacing:.08em; text-transform:uppercase; border-bottom:1.5px solid #111 !important; padding-bottom:4px; margin-bottom:10px; display:block; }
+#dpp .dp2-std-chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+#dpp .dp2-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 9px; background:#f4f4f4; border:1px solid #ccc; border-radius:4px; font-size:12px; font-weight:600; color:#333; }
+#dpp .dp2-chip-x { background:none; border:none; font-size:9px; color:#999; cursor:pointer; padding:0; line-height:1; margin-left:2px; }
+#dpp .dp2-chip-x:hover { color:#c00; }
+#dpp .dp2-chip-add { display:inline-flex; align-items:center; gap:5px; }
+#dpp .dp2-chip-add input { width:70px; padding:4px 7px; border:1px solid #ccc; border-radius:4px; font-size:12px; font-family:inherit; }
+#dpp .dp2-chip-add button { padding:4px 10px; background:#333; color:#fff; border:none; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+/* ボディ 2カラム */
+#dpp .dp2-body { display:grid; grid-template-columns:1fr 440px; gap:28px; align-items:start; }
+@media (max-width:860px) { #dpp .dp2-body { grid-template-columns:1fr; } }
+
+/* 断面寸法グリッド */
+#dpp .dp2-dim-grid { display:grid !important; grid-template-columns:repeat(3,1fr) !important; gap:0; border:1.5px solid #ccc; border-radius:8px; overflow:hidden; margin-bottom:14px; }
+#dpp .dp2-dim-cell { background:#fff; padding:10px 12px; text-align:center; border-right:1px solid #e8e8e8; border-bottom:1px solid #e8e8e8; }
+#dpp .dp2-dim-cell:nth-child(3n) { border-right:none; }
+#dpp .dp2-dim-cell:nth-last-child(-n+3) { border-bottom:none; }
+#dpp .dp2-lbl { font-size:10px; font-weight:600; color:#888; margin-bottom:4px; display:block; }
+#dpp .dp2-val { font-size:15px; font-weight:700; color:#111; display:block; }
+
+/* 断面性能トグル */
+#dpp .dp2-toggle-btn { display:block !important; width:100%; padding:9px 12px; background:#f4f4f4; border:1.5px solid #ccc; border-radius:6px; font-size:11px; font-weight:700; color:#444; text-align:left; cursor:pointer; font-family:inherit; letter-spacing:.04em; margin-bottom:4px; }
+#dpp #dataPerfWrap .dp2-dim-grid { margin-top:8px; }
+
+/* extra rows */
+#dpp #dataExtraInfo { margin-top:14px; }
+#dpp .dp2-extra-row { display:flex !important; justify-content:space-between; align-items:baseline; padding:9px 0; border-bottom:1px solid #eee; font-size:12px; color:#666; }
+#dpp .dp2-extra-row:last-child { border-bottom:none; }
+#dpp .dp2-extra-row strong { font-weight:700; color:#111; font-size:13px; }
+
+/* メモ */
+#dpp #dataNoteArea { display:block; margin-top:20px; border-top:1.5px solid #111; padding-top:16px; }
+#dpp .dp2-note-lbl { font-size:10px; font-weight:700; color:#666; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; display:block; }
+#dpp .dp2-note-list { background:#f8f8f8; border-radius:6px; padding:10px; min-height:44px; margin-bottom:8px; max-height:150px; overflow-y:auto; }
+#dpp .dp2-note-item { background:#fff; border:1px solid #eee; border-radius:4px; padding:7px 10px; margin-bottom:5px; }
+#dpp .dp2-note-ts { font-size:10px; color:#aaa; margin-bottom:2px; }
+#dpp .dp2-note-text { font-size:12px; color:#333; }
+#dpp .dp2-note-form { display:flex; gap:6px; }
+#dpp .dp2-note-form textarea { flex:1; padding:8px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; resize:none; font-family:inherit; height:52px; outline:none; }
+#dpp .dp2-note-form textarea:focus { border-color:#555; }
+#dpp .dp2-note-form button { background:#333; color:#fff; border:none; border-radius:6px; padding:0 16px; font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; }
+
+/* 断面図コラム */
+#dpp .dp2-fig-col { position:sticky; top:80px; border:1.5px solid #ccc; border-radius:10px; padding:20px; display:flex; align-items:center; justify-content:center; background:#fff; min-height:260px; }
+#dpp #dataSVGWrap svg { max-width:100%; height:auto; display:block; }
+
+/* カスタム鋼材 */
+#dpp .dp2-custom-section { margin-top:36px; padding-top:16px; border-top:1.5px solid #111; }
+
+/* セレクターバー */
+#dpp .dp2-sel-bar { display:flex; gap:12px; align-items:flex-end; margin-bottom:24px; flex-wrap:wrap; }
+#dpp .dp2-sel-item { display:flex; flex-direction:column; gap:5px; }
+#dpp .dp2-sel-grow { flex:1; min-width:180px; }
+#dpp .dp2-sel-label { font-size:10px; font-weight:700; color:#888; letter-spacing:.08em; text-transform:uppercase; }
