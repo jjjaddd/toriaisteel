@@ -365,3 +365,15 @@
   background: #f3efff !important;
   color: #111 !important;
 }
+
+/* 鋼種・サイズ・mm枠: ホバーを薄青(#faf5ff)→薄紫(#f3efff)に変更 */
+#dpp input:hover,
+#dpp select:hover {
+  background: #f3efff !important;
+}
+#dpp input:focus,
+#dpp select:focus {
+  background: #fff !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
