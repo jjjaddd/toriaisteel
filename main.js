@@ -984,27 +984,33 @@ function onSpec() {
   }
   updKg();
   buildInventoryDropdown();
-  // H形鋼等の定尺制限: 5500を自動でOFF/ON
-  if (typeof STEEL_STD_EXCLUDE !== 'undefined') {
-    var exclude = STEEL_STD_EXCLUDE[curKind] || [];
-    STD.forEach(function(len, i) {
-      var cb = document.getElementById('sc' + i);
-      var row = document.getElementById('sr' + i);
-      if (!cb) return;
-      var shouldExclude = exclude.indexOf(len) !== -1;
-      if (shouldExclude) {
-        cb.checked = false;
-        cb.disabled = true;
-        if (row) { row.style.opacity = '0.35'; row.title = curKind + 'では' + len + 'mmは取り扱いなし'; }
-      } else {
-        cb.disabled = false;
-        if (row) { row.style.opacity = ''; row.title = ''; }
-        // 無効化されていたチェックを復元（他の鋼種に切り替え時）
-        if (!cb.checked && !row.classList.contains('off')) cb.checked = true;
-      }
-      togStk(i);
-    });
-  }
+  // データタブの定尺設定を取り合い計算チェックボックスに反映
+  STD.forEach(function(len, i) {
+    var cb  = document.getElementById('sc' + i);
+    var row = document.getElementById('sr' + i);
+    if (!cb) return;
+
+    // getKindSTD がある → ユーザー設定を優先、なければ STEEL_STD_EXCLUDE を使用
+    var allowed;
+    if (typeof getKindSTD === 'function') {
+      var userLengths = getKindSTD(curKind);
+      allowed = userLengths.indexOf(len) !== -1;
+    } else {
+      var excl = (typeof STEEL_STD_EXCLUDE !== 'undefined') ? (STEEL_STD_EXCLUDE[curKind] || []) : [];
+      allowed = excl.indexOf(len) === -1;
+    }
+
+    if (!allowed) {
+      cb.checked  = false;
+      cb.disabled = true;
+      if (row) { row.style.opacity = '0.35'; row.title = curKind + 'では' + (len / 1000) + 'm は設定なし'; }
+    } else {
+      cb.disabled = false;
+      if (row) { row.style.opacity = ''; row.title = ''; }
+      if (!cb.checked && row && !row.classList.contains('off')) cb.checked = true;
+    }
+    togStk(i);
+  });
 }
 
 function togStk(i) {
