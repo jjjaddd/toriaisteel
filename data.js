@@ -1599,6 +1599,7 @@ function renderDataSpecPicker() {
     <div class="data-spec-picker">
       <div class="data-spec-input-wrap">
         <input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索">
+        <button type="button" class="dt-add-btn" onclick="dtCustomOpen()" title="カスタム鋼材を追加">+</button>
       </div>
       <div id="dataSpecDropdown" class="data-spec-dropdown"></div>
     </div>

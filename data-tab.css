@@ -336,3 +336,104 @@
 #dtCustomModal.open {
   display: flex !important;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   既存 .data-spec-* CSS を #dpp スコープで完全上書き
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ラッパー */
+#dpp .data-spec-picker {
+  position: relative !important;
+  width: 100% !important;
+  display: block !important;
+  overflow: visible !important;
+  max-width: none !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 入力行: input + + ボタン */
+#dpp .data-spec-input-wrap {
+  display: flex !important;
+  align-items: stretch !important;
+  height: 42px !important;
+  gap: 0 !important;
+  border: none !important;
+  background: none !important;
+  padding: 0 !important;
+}
+
+/* input 本体 */
+#dpp #dataSpecInput {
+  flex: 1 !important;
+  min-width: 0 !important;
+  height: 42px !important;
+  padding: 0 14px !important;
+  border: 1.5px solid #ccc !important;
+  border-right: none !important;
+  border-radius: 8px 0 0 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  background: #fafafa !important;
+  color: #111 !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+#dpp #dataSpecInput:focus {
+  border-color: #555 !important;
+}
+
+/* + ボタン (dt-add-btn を .data-spec-input-wrap 内に入れた版) */
+#dpp .data-spec-input-wrap .dt-add-btn {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 0 8px 8px 0 !important;
+  border: 1.5px solid #333 !important;
+  flex-shrink: 0 !important;
+}
+
+/* ドロップダウン */
+#dpp .data-spec-dropdown {
+  display: none !important;
+  position: absolute !important;
+  top: calc(100% + 4px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: #fff !important;
+  border: 1.5px solid #ccc !important;
+  border-radius: 8px !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,.12) !important;
+  max-height: 280px !important;
+  overflow-y: auto !important;
+  z-index: 500 !important;
+  padding: 0 !important;
+}
+#dpp .data-spec-dropdown.open {
+  display: block !important;
+}
+#dpp .data-spec-option {
+  padding: 9px 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  background: #fff !important;
+  color: #111 !important;
+  display: block !important;
+}
+#dpp .data-spec-option:hover,
+#dpp .data-spec-option.active,
+#dpp .data-spec-option:focus {
+  background: #f4f4f4 !important;
+  outline: none !important;
+}
+#dpp .data-spec-option:last-child { border-bottom: none !important; }
+#dpp .data-spec-empty {
+  padding: 12px 14px !important;
+  font-size: 12px !important;
+  color: #aaa !important;
+}
