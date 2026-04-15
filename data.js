@@ -1221,8 +1221,8 @@ function drawRectPipeSVG(H, B, t, viewW, viewH) {
   const x = (viewW - w) / 2;
   const y = (viewH - h) / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
-    <rect x="${x + th}" y="${y + th}" width="${Math.max(0, w - th * 2)}" height="${Math.max(0, h - th * 2)}" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
+    <rect x="${x + th}" y="${y + th}" width="${Math.max(0, w - th * 2)}" height="${Math.max(0, h - th * 2)}" fill="#fff" stroke="#222222" stroke-width="1.5"/>
   </svg>`;
 }
 
@@ -1255,7 +1255,7 @@ function drawCChannelSVG(H, B, L, t, viewW, viewH) {
     `Z`
   ].join(' ');
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round"/>
+    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="2" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -1284,31 +1284,31 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
   ].join(' ');
 
   const lx=fl-20, by=lfb+18;
-  const rHigh=`<path d="M ${wr+rr} ${ufb} A ${rr} ${rr} 0 0 0 ${wr} ${ufb+rr}" fill="none" stroke="#f59e0b" stroke-width="${Math.max(1.5,rr*0.3)}"/>`;
+  const rHigh=`<path d="M ${wr+rr} ${ufb} A ${rr} ${rr} 0 0 0 ${wr} ${ufb+rr}" fill="none" stroke="#888888" stroke-width="${Math.max(1.5,rr*0.3)}"/>`;
   const rLx=wr+rr+14, rLy=ufb+rr/2;
-  const rLine=`<circle cx="${wr+rr}" cy="${ufb+rr}" r="2" fill="#f59e0b"/>
-    <line x1="${wr+rr}" y1="${ufb+rr}" x2="${rLx-2}" y2="${rLy}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${rLx+1}" y="${rLy}" font-size="9" font-weight="700" fill="#b45309" dominant-baseline="middle">r=${r}</text>`;
-  const dimH=`<line x1="${lx}" y1="${uft}" x2="${lx}" y2="${lfb}" stroke="#475569" stroke-width="1"/>
-    <line x1="${lx-4}" y1="${uft}" x2="${lx+4}" y2="${uft}" stroke="#475569" stroke-width="1"/>
-    <line x1="${lx-4}" y1="${lfb}" x2="${lx+4}" y2="${lfb}" stroke="#475569" stroke-width="1"/>
-    <text x="${lx-5}" y="${cy}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,${lx-5},${cy})">H=${H}</text>`;
-  const dimB=`<line x1="${fl}" y1="${by}" x2="${fr}" y2="${by}" stroke="#475569" stroke-width="1"/>
-    <line x1="${fl}" y1="${by-4}" x2="${fl}" y2="${by+4}" stroke="#475569" stroke-width="1"/>
-    <line x1="${fr}" y1="${by-4}" x2="${fr}" y2="${by+4}" stroke="#475569" stroke-width="1"/>
-    <text x="${cx}" y="${by+10}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">B=${B}</text>`;
-  const dimT1=`<line x1="${wl}" y1="${cy}" x2="${wr}" y2="${cy}" stroke="#475569" stroke-width="1"/>
-    <line x1="${wl}" y1="${cy-4}" x2="${wl}" y2="${cy+4}" stroke="#475569" stroke-width="1"/>
-    <line x1="${wr}" y1="${cy-4}" x2="${wr}" y2="${cy+4}" stroke="#475569" stroke-width="1"/>
-    <text x="${wr+5}" y="${cy}" font-size="8" fill="#475569" dominant-baseline="middle">t1=${t1}</text>`;
+  const rLine=`<circle cx="${wr+rr}" cy="${ufb+rr}" r="2" fill="#888888"/>
+    <line x1="${wr+rr}" y1="${ufb+rr}" x2="${rLx-2}" y2="${rLy}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="${rLx+1}" y="${rLy}" font-size="9" font-weight="700" fill="#555555" dominant-baseline="middle">r=${r}</text>`;
+  const dimH=`<line x1="${lx}" y1="${uft}" x2="${lx}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
+    <line x1="${lx-4}" y1="${uft}" x2="${lx+4}" y2="${uft}" stroke="#555555" stroke-width="1"/>
+    <line x1="${lx-4}" y1="${lfb}" x2="${lx+4}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
+    <text x="${lx-5}" y="${cy}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,${lx-5},${cy})">H=${H}</text>`;
+  const dimB=`<line x1="${fl}" y1="${by}" x2="${fr}" y2="${by}" stroke="#555555" stroke-width="1"/>
+    <line x1="${fl}" y1="${by-4}" x2="${fl}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
+    <line x1="${fr}" y1="${by-4}" x2="${fr}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
+    <text x="${cx}" y="${by+10}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
+  const dimT1=`<line x1="${wl}" y1="${cy}" x2="${wr}" y2="${cy}" stroke="#555555" stroke-width="1"/>
+    <line x1="${wl}" y1="${cy-4}" x2="${wl}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
+    <line x1="${wr}" y1="${cy-4}" x2="${wr}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
+    <text x="${wr+5}" y="${cy}" font-size="8" fill="#555555" dominant-baseline="middle">t1=${t1}</text>`;
   const tx2=fr+16;
-  const dimT2=`<line x1="${tx2}" y1="${uft}" x2="${tx2}" y2="${ufb}" stroke="#475569" stroke-width="1"/>
-    <line x1="${tx2-3}" y1="${uft}" x2="${tx2+3}" y2="${uft}" stroke="#475569" stroke-width="1"/>
-    <line x1="${tx2-3}" y1="${ufb}" x2="${tx2+3}" y2="${ufb}" stroke="#475569" stroke-width="1"/>
-    <text x="${tx2+4}" y="${(uft+ufb)/2}" font-size="8" fill="#475569" dominant-baseline="middle">t2=${t2}</text>`;
+  const dimT2=`<line x1="${tx2}" y1="${uft}" x2="${tx2}" y2="${ufb}" stroke="#555555" stroke-width="1"/>
+    <line x1="${tx2-3}" y1="${uft}" x2="${tx2+3}" y2="${uft}" stroke="#555555" stroke-width="1"/>
+    <line x1="${tx2-3}" y1="${ufb}" x2="${tx2+3}" y2="${ufb}" stroke="#555555" stroke-width="1"/>
+    <text x="${tx2+4}" y="${(uft+ufb)/2}" font-size="8" fill="#555555" dominant-baseline="middle">t2=${t2}</text>`;
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="round"/>
     ${rHigh}${rLine}${dimH}${dimB}${dimT1}${dimT2}
   </svg>`;
 }
@@ -1348,43 +1348,43 @@ function drawLAngleSVG(spec, viewW, viewH) {
   ].join(' ');
 
   const ax = ox - 14, myY = (oyt + oyb) / 2;
-  const dimA = `<line x1="${ax}" y1="${oyt}" x2="${ax}" y2="${oyb}" stroke="#475569" stroke-width="1"/>
-    <line x1="${ax-4}" y1="${oyt}" x2="${ax+4}" y2="${oyt}" stroke="#475569" stroke-width="1"/>
-    <line x1="${ax-4}" y1="${oyb}" x2="${ax+4}" y2="${oyb}" stroke="#475569" stroke-width="1"/>
-    <text x="${ax-5}" y="${myY}" font-size="9" font-weight="700" fill="#1d4ed8"
+  const dimA = `<line x1="${ax}" y1="${oyt}" x2="${ax}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
+    <line x1="${ax-4}" y1="${oyt}" x2="${ax+4}" y2="${oyt}" stroke="#555555" stroke-width="1"/>
+    <line x1="${ax-4}" y1="${oyb}" x2="${ax+4}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
+    <text x="${ax-5}" y="${myY}" font-size="9" font-weight="700" fill="#222222"
       text-anchor="middle" dominant-baseline="middle"
       transform="rotate(-90,${ax-5},${myY})">A=${A}</text>`;
   const by = oyb + 14;
-  const dimB = `<line x1="${ox}" y1="${by}" x2="${ox+Bp}" y2="${by}" stroke="#475569" stroke-width="1"/>
-    <line x1="${ox}" y1="${by-4}" x2="${ox}" y2="${by+4}" stroke="#475569" stroke-width="1"/>
-    <line x1="${ox+Bp}" y1="${by-4}" x2="${ox+Bp}" y2="${by+4}" stroke="#475569" stroke-width="1"/>
-    <text x="${ox+Bp/2}" y="${by+10}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">B=${B}</text>`;
+  const dimB = `<line x1="${ox}" y1="${by}" x2="${ox+Bp}" y2="${by}" stroke="#555555" stroke-width="1"/>
+    <line x1="${ox}" y1="${by-4}" x2="${ox}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
+    <line x1="${ox+Bp}" y1="${by-4}" x2="${ox+Bp}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
+    <text x="${ox+Bp/2}" y="${by+10}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
   const tx = ox + Bp + 6;
-  const dimT = `<line x1="${tx}" y1="${oyb-tFlangeP}" x2="${tx}" y2="${oyb}" stroke="#475569" stroke-width="1"/>
-    <line x1="${tx-3}" y1="${oyb-tFlangeP}" x2="${tx+3}" y2="${oyb-tFlangeP}" stroke="#475569" stroke-width="1"/>
-    <line x1="${tx-3}" y1="${oyb}" x2="${tx+3}" y2="${oyb}" stroke="#475569" stroke-width="1"/>
-    <text x="${tx+4}" y="${oyb-tFlangeP/2}" font-size="8" fill="#475569" dominant-baseline="middle">${spec.t1 ? `t2=${tFlange}` : `t=${tFlange}`}</text>`;
+  const dimT = `<line x1="${tx}" y1="${oyb-tFlangeP}" x2="${tx}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
+    <line x1="${tx-3}" y1="${oyb-tFlangeP}" x2="${tx+3}" y2="${oyb-tFlangeP}" stroke="#555555" stroke-width="1"/>
+    <line x1="${tx-3}" y1="${oyb}" x2="${tx+3}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
+    <text x="${tx+4}" y="${oyb-tFlangeP/2}" font-size="8" fill="#555555" dominant-baseline="middle">${spec.t1 ? `t2=${tFlange}` : `t=${tFlange}`}</text>`;
 
   const r1sw = Math.max(1.5, r1p * 0.3);
   const r1High = `<path d="M ${ox+tWebP} ${oyb-tFlangeP-r1p} A ${r1p} ${r1p} 0 0 0 ${ox+tWebP+r1p} ${oyb-tFlangeP}"
-    fill="none" stroke="#f59e0b" stroke-width="${r1sw}"/>`;
+    fill="none" stroke="#888888" stroke-width="${r1sw}"/>`;
   const r1dx = ox + tWebP + r1p, r1dy = oyb - tFlangeP - r1p;
   const r1lx = r1dx + 14, r1ly = r1dy - 10;
-  const r1Anno = `<circle cx="${r1dx}" cy="${r1dy}" r="2" fill="#f59e0b"/>
-    <line x1="${r1dx}" y1="${r1dy}" x2="${r1lx-2}" y2="${r1ly}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${r1lx+1}" y="${r1ly}" font-size="9" font-weight="700" fill="#b45309" dominant-baseline="middle">r1=${r1}</text>`;
+  const r1Anno = `<circle cx="${r1dx}" cy="${r1dy}" r="2" fill="#888888"/>
+    <line x1="${r1dx}" y1="${r1dy}" x2="${r1lx-2}" y2="${r1ly}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="${r1lx+1}" y="${r1ly}" font-size="9" font-weight="700" fill="#555555" dominant-baseline="middle">r1=${r1}</text>`;
 
   const r2sw = Math.max(1.5, r2p * 0.4);
   const r2High = `<path d="M ${ox+tWebP-r2p} ${oyt} A ${r2p} ${r2p} 0 0 1 ${ox+tWebP} ${oyt+r2p}"
-    fill="none" stroke="#f59e0b" stroke-width="${r2sw}"/>`;
+    fill="none" stroke="#888888" stroke-width="${r2sw}"/>`;
   const r2dx = ox + tWebP, r2dy = oyt;
   const r2lx = r2dx + r2p + 14, r2ly = r2dy - 2;
-  const r2Anno = `<circle cx="${r2dx}" cy="${r2dy}" r="2" fill="#f59e0b"/>
-    <line x1="${r2dx}" y1="${r2dy}" x2="${r2lx-2}" y2="${r2ly}" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${r2lx+1}" y="${r2ly}" font-size="9" font-weight="700" fill="#b45309" dominant-baseline="middle">r2=${r2}</text>`;
+  const r2Anno = `<circle cx="${r2dx}" cy="${r2dy}" r="2" fill="#888888"/>
+    <line x1="${r2dx}" y1="${r2dy}" x2="${r2lx-2}" y2="${r2ly}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="${r2lx+1}" y="${r2ly}" font-size="9" font-weight="700" fill="#555555" dominant-baseline="middle">r2=${r2}</text>`;
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5" stroke-linejoin="miter"/>
+    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="miter"/>
     ${r1High}${r2High}${r1Anno}${r2Anno}${dimA}${dimB}${dimT}
   </svg>`;
 }
@@ -1405,7 +1405,7 @@ function drawFlatBarSVG(t, B, viewW, viewH) {
   return `
     <svg width="${viewW}" height="${viewH}">
       <rect x="${x}" y="${y}" width="${width}" height="${height}"
-        fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+        fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
     </svg>
   `;
 }
@@ -1445,7 +1445,7 @@ function drawChannelSVG(H, B, t1, t2, r1, viewW, viewH) {
   ].join(' ');
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -1460,11 +1460,11 @@ function drawRoundBarSVG(D, viewW, viewH) {
   const cx = viewW / 2;
   const cy = viewH / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
-    <line x1="${cx - radius}" y1="${cy + radius + 18}" x2="${cx + radius}" y2="${cy + radius + 18}" stroke="#475569" stroke-width="1"/>
-    <line x1="${cx - radius}" y1="${cy + radius + 14}" x2="${cx - radius}" y2="${cy + radius + 22}" stroke="#475569" stroke-width="1"/>
-    <line x1="${cx + radius}" y1="${cy + radius + 14}" x2="${cx + radius}" y2="${cy + radius + 22}" stroke="#475569" stroke-width="1"/>
-    <text x="${cx}" y="${cy + radius + 32}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">D=${D}</text>
+    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
+    <line x1="${cx - radius}" y1="${cy + radius + 18}" x2="${cx + radius}" y2="${cy + radius + 18}" stroke="#555555" stroke-width="1"/>
+    <line x1="${cx - radius}" y1="${cy + radius + 14}" x2="${cx - radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
+    <line x1="${cx + radius}" y1="${cy + radius + 14}" x2="${cx + radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
+    <text x="${cx}" y="${cy + radius + 32}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
   </svg>`;
 }
 
@@ -1476,12 +1476,12 @@ function drawPipeSVG(D, d, viewW, viewH) {
   const cx = viewW / 2;
   const cy = viewH / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <circle cx="${cx}" cy="${cy}" r="${outerRadius}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
-    <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
-    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 18}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 18}" stroke="#475569" stroke-width="1"/>
-    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx - outerRadius}" y2="${cy + outerRadius + 22}" stroke="#475569" stroke-width="1"/>
-    <line x1="${cx + outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 22}" stroke="#475569" stroke-width="1"/>
-    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">D=${D}</text>
+    <circle cx="${cx}" cy="${cy}" r="${outerRadius}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
+    <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#fff" stroke="#222222" stroke-width="1.5"/>
+    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 18}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 18}" stroke="#555555" stroke-width="1"/>
+    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx - outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
+    <line x1="${cx + outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
+    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
   </svg>`;
 }
 
@@ -1492,11 +1492,11 @@ function drawSquareBarSVG(a, viewW, viewH) {
   const x = (viewW - size) / 2;
   const y = (viewH - size) / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <rect x="${x}" y="${y}" width="${size}" height="${size}" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
-    <line x1="${x}" y1="${y + size + 18}" x2="${x + size}" y2="${y + size + 18}" stroke="#475569" stroke-width="1"/>
-    <line x1="${x}" y1="${y + size + 14}" x2="${x}" y2="${y + size + 22}" stroke="#475569" stroke-width="1"/>
-    <line x1="${x + size}" y1="${y + size + 14}" x2="${x + size}" y2="${y + size + 22}" stroke="#475569" stroke-width="1"/>
-    <text x="${viewW / 2}" y="${y + size + 32}" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">a=${a}</text>
+    <rect x="${x}" y="${y}" width="${size}" height="${size}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
+    <line x1="${x}" y1="${y + size + 18}" x2="${x + size}" y2="${y + size + 18}" stroke="#555555" stroke-width="1"/>
+    <line x1="${x}" y1="${y + size + 14}" x2="${x}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
+    <line x1="${x + size}" y1="${y + size + 14}" x2="${x + size}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
+    <text x="${viewW / 2}" y="${y + size + 32}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">a=${a}</text>
   </svg>`;
 }
 
@@ -1960,6 +1960,45 @@ function renderDataSpec() {
   const input = document.getElementById('dataSpecInput');
   if (input) input.value = spec.name;
   filterDataSpecOptions('');
+
+  // 殴り書きメモ表示
+  renderDataNote(spec.name);
+}
+
+function renderDataNote(specName) {
+  var el = document.getElementById('dataNoteArea');
+  if (!el) return;
+  el.style.display = 'block';
+  var key = 'dnote_' + specName;
+  var notes = [];
+  try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+  var chatHtml = notes.length
+    ? notes.map(function(n) {
+        return '<div style="background:#f8f8fc;border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:12px">' +
+          '<div style="color:#aaa;font-size:10px;margin-bottom:2px">' + n.ts + '</div>' +
+          '<div>' + n.text.replace(/</g,'&lt;') + '</div></div>';
+      }).join('')
+    : '<div style="color:#ccc;font-size:12px;padding:8px 0">まだメモなし</div>';
+  el.innerHTML =
+    '<div style="font-size:12px;font-weight:700;margin-bottom:8px;color:#555">✍️ ' + specName + ' メモ</div>' +
+    '<div style="max-height:160px;overflow-y:auto;margin-bottom:8px">' + chatHtml + '</div>' +
+    '<div style="display:flex;gap:6px">' +
+      '<textarea id="dataNoteInput" placeholder="殴り書きOK..." rows="2" ' +
+        'style="flex:1;padding:7px;border:1px solid #d4d4dc;border-radius:8px;font-size:12px;resize:none;font-family:inherit;box-sizing:border-box"></textarea>' +
+      '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')" ' +
+        'style="background:#7c5ccc;color:#fff;border:none;border-radius:8px;padding:0 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">送信</button>' +
+    '</div>';
+}
+
+function dataNotePost(specName) {
+  var input = document.getElementById('dataNoteInput');
+  if (!input || !input.value.trim()) return;
+  var key = 'dnote_' + specName;
+  var notes = [];
+  try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+  notes.push({ ts: new Date().toLocaleString('ja-JP'), text: input.value.trim() });
+  try { localStorage.setItem(key, JSON.stringify(notes)); } catch(e) {}
+  renderDataNote(specName);
 }
 
 /* スペック選択 */

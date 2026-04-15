@@ -9,7 +9,8 @@ var _wRedoStack = [];
 var _wOpts      = { price: false, name: false, rev: false, paint: false, m2: false, co2: false };
 var _wEditIdx   = -1;
 var _wCartAdded = false;
-var _wSelected  = [];  // 一括編集用選択インデックス
+var _wSelected     = [];   // 一括編集用選択インデックス
+var _wLastClickIdx = -1;   // Shift範囲選択用・最後にクリックした行
 var _wSavedCalcs = (function() {
   try { return JSON.parse(localStorage.getItem('wSavedCalcs') || '[]'); }
   catch (e) { return []; }
@@ -276,7 +277,9 @@ function wCalcReverse() {
     return;
   }
   if (len > 0 && revQtyEl) {
-    revQtyEl.textContent = Math.ceil(target / (kgm * len / 1000)).toLocaleString() + ' 本';
+    var qtyNeeded = Math.ceil(target / (kgm * len / 1000));
+    var actualKg  = Math.round(qtyNeeded * kgm * len / 1000 * 10) / 10;
+    revQtyEl.textContent = qtyNeeded.toLocaleString() + ' 本（実重量 ' + actualKg.toLocaleString() + ' kg）';
   }
   if (qty > 0 && revLenEl) {
     revLenEl.textContent = Math.ceil((target / qty) / kgm * 1000).toLocaleString() + ' mm';
@@ -470,6 +473,28 @@ function wDeleteRow(idx) {
   wPushUndo();
   _wRows.splice(idx, 1);
   wRenderRows();
+}
+
+// ── 行クリック（編集 or Shift範囲選択） ──────────────────────────
+function wRowClick(e, i) {
+  // ボタン・チェックボックスのクリックは無視
+  if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+  e.stopPropagation();
+  if (e.shiftKey && _wLastClickIdx !== -1 && _wLastClickIdx !== i) {
+    // Shift+クリック：範囲選択
+    var lo = Math.min(_wLastClickIdx, i), hi = Math.max(_wLastClickIdx, i);
+    _wSelected = [];
+    for (var j = lo; j <= hi; j++) _wSelected.push(j);
+    wRenderRows();
+    wUpdateBulkBar();
+  } else {
+    // 通常クリック：編集モード
+    _wSelected = [];
+    _wLastClickIdx = i;
+    wRenderRows();
+    wUpdateBulkBar();
+    wEditRow(i);
+  }
 }
 
 // ── 行選択・一括編集 ───────────────────────────────────────────
@@ -688,11 +713,12 @@ function wRenderRows() {
     var rowBg = (_wEditIdx === i) ? 'background:#fffde7;' : (i % 2 === 1 ? 'background:#fafafa;' : '');
 
     var isSelected = _wSelected.indexOf(i) !== -1;
-    var selBg = isSelected ? 'background:#eff6ff !important;' : '';
+    var selBg = isSelected ? 'background:#eff6ff;outline:2px solid #7c5ccc;outline-offset:-1px;' : '';
+    var cursorStyle = 'cursor:pointer;';
     return (
-      '<tr style="border-bottom:1px solid #f0f0f6;' + rowBg + selBg + '" onclick="wToggleSelect(event,' + i + ')">' +
+      '<tr style="border-bottom:1px solid #f0f0f6;' + rowBg + selBg + cursorStyle + '" onclick="wRowClick(event,' + i + ')" title="クリックで編集 / Shift+クリックで範囲選択">' +
       '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' +
-        '<input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onclick="wToggleSelect(event,' + i + ')" style="cursor:pointer"> ' + (i + 1) +
+        '<input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onclick="wToggleSelect(event,' + i + ')" style="cursor:pointer;margin-right:4px">' + (i + 1) +
       '</td>' +
       '<td style="padding:7px 10px;font-size:11px;color:#5a5a78;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
         (_wOpts.name ? '' : 'display:none') + '" title="' + memoTitle + '">' +
@@ -708,17 +734,9 @@ function wRenderRows() {
       m2Cell +
       amtCell +
       paintAmtCell +
-      '<td style="padding:4px 2px;text-align:center">' +
-        '<button onclick="wEditOrBulk(event,' + i + ')" ' +
-          'class="w-edit-btn" title="編集（Shift+クリックで一括選択）">✎</button>' +
-      '</td>' +
-      '<td style="padding:4px 2px;text-align:center">' +
-        '<button onclick="wNoteOpen(event,' + i + ')" ' +
-          'class="w-edit-btn" title="メモ" style="background:none;border:none;font-size:13px;cursor:pointer">✍️</button>' +
-      '</td>' +
-      '<td style="padding:4px 2px;text-align:center">' +
-        '<button onclick="wDeleteRow(' + i + ')" ' +
-          'class="w-del-btn" title="削除">✕</button>' +
+      '<td style="padding:4px 8px;text-align:center">' +
+        '<button onclick="event.stopPropagation();wDeleteRow(' + i + ')" ' +
+          'class="hist-del-btn" title="削除">削除</button>' +
       '</td>' +
       '</tr>'
     );

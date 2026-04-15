@@ -1953,7 +1953,7 @@ function buildPrintSection(secIdx, secData) {
   html += '<div style="font-size:8px;font-weight:700;letter-spacing:.05em;margin-bottom:3px">切断リスト</div>';
   var sortedLens = Object.keys(secData.sumMap).map(Number).sort(function(a,b){return b-a;});
   if (sortedLens.length) {
-    html += '<table class="cut-tbl"><thead><tr><th>長さ</th><th style="text-align:center">合計</th></tr></thead><tbody>';
+    html += '<table class="cut-tbl"><tbody>';
     sortedLens.forEach(function(len) {
       html += '<tr><td>' + len.toLocaleString() + ' mm</td><td class="num">' + secData.sumMap[len] + '</td></tr>';
     });
@@ -3437,8 +3437,9 @@ function cartCopyCutStock() {
       rows.push([d.spec || '', sl, slCount[sl]]);
     });
   });
-  var header = ['規格', '定尺(mm)', '使用本数'];
-  var tsv = [header].concat(rows).map(function(r) { return r.join('\t'); }).join('\r\n');
+  var header = ['規格', '定尺', '使用本数'];
+  // ヘッダーなし・値のみのTSV（メール・Excelにそのまま貼り付け用）
+  var tsv = rows.map(function(r) { return r.join('\t'); }).join('\r\n');
   var previewHtml = buildCopyPreviewTable(header, rows);
   document.getElementById('copyPreviewTitle').textContent = '📋 使用予定の母材';
   _copyPendingTsv = tsv;

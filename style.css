@@ -3238,7 +3238,7 @@ html[data-theme="dark"] .contact-destination{
 .data-kind-select{
   display:block;
   width:100%;
-  max-width:280px;
+  max-width:720px;
   margin:10px 0 14px;
   padding:9px 32px 9px 14px;
   border:1.5px solid var(--bd);
