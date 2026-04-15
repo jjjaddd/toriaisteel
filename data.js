@@ -1598,15 +1598,14 @@ function renderDataSpecPicker() {
   wrap.innerHTML = `
     <div class="data-spec-picker">
       <div class="data-spec-input-wrap">
-        <input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索">
-        <button type="button" id="dataSpecToggleBtn">▼</button>
+        <input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索（クリックで一覧）">
+        <button type="button" class="dt-add-btn" onclick="dtCustomOpen()" title="カスタム鋼材を追加">+</button>
       </div>
       <div id="dataSpecDropdown" class="data-spec-dropdown"></div>
     </div>
   `;
 
   const input = document.getElementById('dataSpecInput');
-  const btn = document.getElementById('dataSpecToggleBtn');
   const spec = kindData.specs[_dataSpecIdx];
   if (input && spec) input.value = spec.name;
 
@@ -1635,17 +1634,6 @@ function renderDataSpecPicker() {
       } else if (e.key === 'Escape') {
         closeDataSpecDropdown();
       }
-    };
-  }
-
-  if (btn) {
-    btn.onclick = function() {
-      var wantOpen = !_dataSpecDropdownOpen;
-      if (wantOpen) {
-        renderDataSpecDropdownList(getSortedSpecsForKind(_dataKind));
-      }
-      toggleDataSpecDropdown(wantOpen);
-      if (wantOpen && input) input.focus();
     };
   }
 
@@ -2035,9 +2023,13 @@ function renderDataNote(specName) {
   var notes = [];
   try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
   var chatHtml = notes.length
-    ? notes.map(function(n) {
-        return '<div class="dt-note-item"><div class="dt-note-ts">' + n.ts + '</div>' +
-          '<div class="dt-note-text">' + n.text.replace(/</g,'&lt;') + '</div></div>';
+    ? notes.map(function(n, idx) {
+        return '<div class="dt-note-item" style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+          '<div><div class="dt-note-ts">' + n.ts + '</div>' +
+          '<div class="dt-note-text">' + n.text.replace(/</g,'&lt;') + '</div></div>' +
+          '<button onclick="dataNoteDelete(\'' + specName.replace(/'/g,"\\'") + '\',' + idx + ')" ' +
+            'style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;line-height:1" title="削除">×</button>' +
+          '</div>';
       }).join('')
     : '<div style="color:#aaa;font-size:12px">まだメモなし</div>';
   el.innerHTML =
@@ -2047,6 +2039,15 @@ function renderDataNote(specName) {
       '<textarea id="dataNoteInput" placeholder="自由記入..."></textarea>' +
       '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')">送信</button>' +
     '</div>';
+}
+
+function dataNoteDelete(specName, idx) {
+  var key = 'dnote_' + specName;
+  var notes = [];
+  try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+  notes.splice(idx, 1);
+  try { localStorage.setItem(key, JSON.stringify(notes)); } catch(e) {}
+  renderDataNote(specName);
 }
 
 function dataNotePost(specName) {
