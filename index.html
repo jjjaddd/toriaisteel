@@ -761,9 +761,9 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
             <!-- JS で描画 -->
           </div>
 
-          <div class="dp-section-title" style="margin-top:10px">断面性能</div>
-          <div class="dp-grid" id="dataPerfGrid">
-            <!-- JS で描画 -->
+          <button id="dataPerfToggle" onclick="(function(){var w=document.getElementById('dataPerfWrap');var open=w.style.display==='none';w.style.display=open?'block':'none';this.textContent=open?'断面性能を隠す ▲':'断面性能を表示 ▼'}).call(this)" style="margin-top:12px;width:100%;padding:7px;background:#f4f4f6;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#555;text-align:left;font-family:inherit">断面性能を表示 ▼</button>
+          <div id="dataPerfWrap" style="display:none">
+            <div class="dp-grid" id="dataPerfGrid"><!-- JS で描画 --></div>
           </div>
 
           <div class="dp-kgm-bar" id="dataKgmBar">

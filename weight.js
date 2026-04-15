@@ -570,7 +570,7 @@ function wBulkEdit() {
       '</div>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end">' +
         '<button onclick="document.getElementById(\'wBulkModal\').style.display=\'none\'" style="padding:8px 16px;border:1px solid #d4d4dc;background:#fff;border-radius:8px;cursor:pointer;font-family:inherit">キャンセル</button>' +
-        '<button onclick="wApplyBulk()" style="padding:8px 16px;background:#7c5ccc;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">適用</button>' +
+        '<button onclick="wApplyBulk()" style="padding:8px 16px;background:#333333;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">適用</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(m);
@@ -632,7 +632,7 @@ function wNoteOpen(e, i) {
       '<textarea id="wNoteInput" placeholder="殴り書きOK..." style="width:100%;height:64px;padding:8px;border:1px solid #d4d4dc;border-radius:8px;font-size:13px;resize:none;box-sizing:border-box;font-family:inherit"></textarea>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">' +
         '<button onclick="document.getElementById(\'wNoteModal\').remove()" style="padding:6px 14px;border:1px solid #d4d4dc;background:#fff;border-radius:8px;cursor:pointer;font-family:inherit">閉じる</button>' +
-        '<button onclick="wNotePost(\'' + key.replace(/'/g, "\\'") + '\')" style="padding:6px 14px;background:#7c5ccc;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">送信</button>' +
+        '<button onclick="wNotePost(\'' + key.replace(/'/g, "\\'") + '\')" style="padding:6px 14px;background:#333333;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">送信</button>' +
       '</div>' +
     '</div>';
   document.body.appendChild(m);

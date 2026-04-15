@@ -84,6 +84,15 @@ var STEEL = {
   ]
 };
 var STD = [5500,6000,7000,8000,9000,10000,11000,12000];
+// 鋼種ごとに除外する定尺（H形鋼は5500なし）
+var STEEL_STD_EXCLUDE = {
+  'H形鋼': [5500],
+  'I形鋼': [5500]
+};
+function getAvailableSTD(kind) {
+  var exclude = (STEEL_STD_EXCLUDE[kind] || []);
+  return STD.filter(function(len) { return exclude.indexOf(len) === -1; });
+}
 var ROWS = 10; // 初期行数（動的追加可能）
 
 var PIECE_COLORS = ['p0','p1','p2','p3','p4','p5','p6','p7','p8','p9'];

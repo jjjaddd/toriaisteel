@@ -2257,16 +2257,16 @@ input:focus,select:focus,textarea:focus{
   font-weight: 700;
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1.5px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1.5px solid #ddd;
+  background: #f6f6f6;
   color: #475569;
   cursor: pointer;
   transition: all .15s;
 }
 .dk-tab.active {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1d4ed8;
+  background: #f4f4f4;
+  border-color: #ccc;
+  color: #333;
 }
 .dk-tab.wip {
   opacity: 0.45;
@@ -2305,7 +2305,7 @@ input:focus,select:focus,textarea:focus{
 
 /* 断面図エリア */
 .dp-diagram-bg {
-  background: #f8fafc;
+  background: #f6f6f6;
   border-radius: 12px;
   padding: 12px 8px;
   display: flex;
@@ -2327,9 +2327,9 @@ input:focus,select:focus,textarea:focus{
   letter-spacing: .06em;
 }
 .dp-type-h {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1d4ed8;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
 }
 
 /* JISバッジ・名称 */
@@ -2337,9 +2337,9 @@ input:focus,select:focus,textarea:focus{
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  color: #555;
   font-size: 9px;
   font-weight: 700;
   padding: 3px 10px;
@@ -2350,12 +2350,12 @@ input:focus,select:focus,textarea:focus{
 .dp-spec-name {
   font-size: 16px;
   font-weight: 800;
-  color: #0f172a;
+  color: #111;
   margin-bottom: 2px;
 }
 .dp-spec-sub {
   font-size: 10px;
-  color: #94a3b8;
+  color: #888;
   margin-bottom: 14px;
 }
 
@@ -2363,7 +2363,7 @@ input:focus,select:focus,textarea:focus{
 .dp-spec-row-label {
   font-size: 9px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #888;
   letter-spacing: .08em;
   text-transform: uppercase;
   margin-bottom: 5px;
@@ -2379,23 +2379,23 @@ input:focus,select:focus,textarea:focus{
   font-weight: 700;
   padding: 5px 10px;
   border-radius: 8px;
-  border: 1.5px solid #e2e8f0;
-  background: #f8fafc;
+  border: 1.5px solid #ddd;
+  background: #f6f6f6;
   color: #475569;
   cursor: pointer;
   transition: all .15s;
 }
 .spec-btn.active {
-  background: #eff6ff;
-  border-color: #bfdbfe;
-  color: #1d4ed8;
+  background: #f4f4f4;
+  border-color: #ccc;
+  color: #333;
 }
 
 /* セクションタイトル */
 .dp-section-title {
   font-size: 9px;
   font-weight: 700;
-  color: #94a3b8;
+  color: #888;
   letter-spacing: .08em;
   text-transform: uppercase;
   margin-bottom: 6px;
@@ -2408,7 +2408,7 @@ input:focus,select:focus,textarea:focus{
   gap: 5px;
 }
 .dp-cell {
-  background: #f8fafc;
+  background: #f6f6f6;
   border-radius: 8px;
   padding: 6px 8px;
   text-align: center;
@@ -2416,13 +2416,13 @@ input:focus,select:focus,textarea:focus{
 .dp-cell span {
   display: block;
   font-size: 9px;
-  color: #94a3b8;
+  color: #888;
   font-weight: 700;
   margin-bottom: 2px;
 }
 .dp-cell strong {
   font-size: 12px;
-  color: #0f172a;
+  color: #111;
   font-weight: 800;
 }
 .dp-cell.dp-r {
@@ -2438,18 +2438,18 @@ input:focus,select:focus,textarea:focus{
   justify-content: space-between;
   align-items: center;
   padding: 8px 10px;
-  background: #eff6ff;
+  background: #f4f4f4;
   border-radius: 8px;
   margin-top: 10px;
 }
 .dp-kgm-bar span {
   font-size: 10px;
-  color: #3b82f6;
+  color: #555;
   font-weight: 700;
 }
 .dp-kgm-bar strong {
   font-size: 15px;
-  color: #1d4ed8;
+  color: #111;
   font-weight: 800;
 }
 
@@ -2460,8 +2460,8 @@ input:focus,select:focus,textarea:focus{
 }
 
 .dp-box {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #f6f6f6;
+  border: 1px solid #ddd;
   border-radius: 10px;
   padding: 10px 12px;
 }
@@ -2569,7 +2569,7 @@ input:focus,select:focus,textarea:focus{
 
 .data-spec-empty {
   padding: 12px 14px;
-  color: #64748b;
+  color: #555;
   font-size: 13px;
 }
 
@@ -2591,7 +2591,7 @@ input:focus,select:focus,textarea:focus{
 .data-topbar-label {
   font-size: 11px;
   font-weight: 700;
-  color: #64748b;
+  color: #555;
   letter-spacing: .08em;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -2639,7 +2639,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 .dp-diagram-bg {
-  background: #f8fafc;
+  background: #f6f6f6;
   border-radius: 14px;
   padding: 8px 6px;
   min-height: 352px;

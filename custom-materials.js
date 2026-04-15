@@ -116,7 +116,7 @@ function renderCustomMaterialsPanel() {
           '<input id="cmKgm" type="number" step="0.01" min="0" placeholder="例: 7.07" ' +
             'style="width:100%;padding:7px 8px;border:1px solid #d4d4dc;border-radius:8px;font-size:12px;box-sizing:border-box;font-family:inherit"></div>' +
         '<button onclick="cmAdd()" ' +
-          'style="padding:7px 14px;background:#7c5ccc;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">追加</button>' +
+          'style="padding:7px 14px;background:#333333;color:#fff;border:none;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">追加</button>' +
       '</div>' +
       '<div id="cmNewKindWrap" style="display:none;margin-top:8px">' +
         '<label style="font-size:11px;color:#666;display:block;margin-bottom:3px">新規種類名</label>' +

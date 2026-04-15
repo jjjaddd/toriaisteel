@@ -1288,28 +1288,28 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
   const rLx=wr+rr+14, rLy=ufb+rr/2;
   const rLine=`<circle cx="${wr+rr}" cy="${ufb+rr}" r="2" fill="#888888"/>
     <line x1="${wr+rr}" y1="${ufb+rr}" x2="${rLx-2}" y2="${rLy}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${rLx+1}" y="${rLy}" font-size="9" font-weight="700" fill="#555555" dominant-baseline="middle">r=${r}</text>`;
+    <text x="${rLx+1}" y="${rLy}" font-size="14" font-weight="700" fill="#555555" dominant-baseline="middle">r=${r}</text>`;
   const dimH=`<line x1="${lx}" y1="${uft}" x2="${lx}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
     <line x1="${lx-4}" y1="${uft}" x2="${lx+4}" y2="${uft}" stroke="#555555" stroke-width="1"/>
     <line x1="${lx-4}" y1="${lfb}" x2="${lx+4}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
-    <text x="${lx-5}" y="${cy}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,${lx-5},${cy})">H=${H}</text>`;
+    <text x="${lx-5}" y="${cy}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,${lx-5},${cy})">H=${H}</text>`;
   const dimB=`<line x1="${fl}" y1="${by}" x2="${fr}" y2="${by}" stroke="#555555" stroke-width="1"/>
     <line x1="${fl}" y1="${by-4}" x2="${fl}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
     <line x1="${fr}" y1="${by-4}" x2="${fr}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${by+10}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
+    <text x="${cx}" y="${by+10}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
   const dimT1=`<line x1="${wl}" y1="${cy}" x2="${wr}" y2="${cy}" stroke="#555555" stroke-width="1"/>
     <line x1="${wl}" y1="${cy-4}" x2="${wl}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
     <line x1="${wr}" y1="${cy-4}" x2="${wr}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${wr+5}" y="${cy}" font-size="8" fill="#555555" dominant-baseline="middle">t1=${t1}</text>`;
+    <text x="${wr+5}" y="${cy}" font-size="12" fill="#555555" dominant-baseline="middle">t1=${t1}</text>`;
   const tx2=fr+16;
   const dimT2=`<line x1="${tx2}" y1="${uft}" x2="${tx2}" y2="${ufb}" stroke="#555555" stroke-width="1"/>
     <line x1="${tx2-3}" y1="${uft}" x2="${tx2+3}" y2="${uft}" stroke="#555555" stroke-width="1"/>
     <line x1="${tx2-3}" y1="${ufb}" x2="${tx2+3}" y2="${ufb}" stroke="#555555" stroke-width="1"/>
-    <text x="${tx2+4}" y="${(uft+ufb)/2}" font-size="8" fill="#555555" dominant-baseline="middle">t2=${t2}</text>`;
+    <text x="${tx2+4}" y="${(uft+ufb)/2}" font-size="12" fill="#555555" dominant-baseline="middle">t2=${t2}</text>`;
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
     <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="round"/>
-    ${rHigh}${rLine}${dimH}${dimB}${dimT1}${dimT2}
+    ${dimH}${dimB}${dimT1}${dimT2}
   </svg>`;
 }
 
@@ -1351,19 +1351,19 @@ function drawLAngleSVG(spec, viewW, viewH) {
   const dimA = `<line x1="${ax}" y1="${oyt}" x2="${ax}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
     <line x1="${ax-4}" y1="${oyt}" x2="${ax+4}" y2="${oyt}" stroke="#555555" stroke-width="1"/>
     <line x1="${ax-4}" y1="${oyb}" x2="${ax+4}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
-    <text x="${ax-5}" y="${myY}" font-size="9" font-weight="700" fill="#222222"
+    <text x="${ax-5}" y="${myY}" font-size="14" font-weight="700" fill="#222222"
       text-anchor="middle" dominant-baseline="middle"
       transform="rotate(-90,${ax-5},${myY})">A=${A}</text>`;
   const by = oyb + 14;
   const dimB = `<line x1="${ox}" y1="${by}" x2="${ox+Bp}" y2="${by}" stroke="#555555" stroke-width="1"/>
     <line x1="${ox}" y1="${by-4}" x2="${ox}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
     <line x1="${ox+Bp}" y1="${by-4}" x2="${ox+Bp}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${ox+Bp/2}" y="${by+10}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
+    <text x="${ox+Bp/2}" y="${by+10}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
   const tx = ox + Bp + 6;
   const dimT = `<line x1="${tx}" y1="${oyb-tFlangeP}" x2="${tx}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
     <line x1="${tx-3}" y1="${oyb-tFlangeP}" x2="${tx+3}" y2="${oyb-tFlangeP}" stroke="#555555" stroke-width="1"/>
     <line x1="${tx-3}" y1="${oyb}" x2="${tx+3}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
-    <text x="${tx+4}" y="${oyb-tFlangeP/2}" font-size="8" fill="#555555" dominant-baseline="middle">${spec.t1 ? `t2=${tFlange}` : `t=${tFlange}`}</text>`;
+    <text x="${tx+4}" y="${oyb-tFlangeP/2}" font-size="12" fill="#555555" dominant-baseline="middle">${spec.t1 ? `t2=${tFlange}` : `t=${tFlange}`}</text>`;
 
   const r1sw = Math.max(1.5, r1p * 0.3);
   const r1High = `<path d="M ${ox+tWebP} ${oyb-tFlangeP-r1p} A ${r1p} ${r1p} 0 0 0 ${ox+tWebP+r1p} ${oyb-tFlangeP}"
@@ -1372,7 +1372,7 @@ function drawLAngleSVG(spec, viewW, viewH) {
   const r1lx = r1dx + 14, r1ly = r1dy - 10;
   const r1Anno = `<circle cx="${r1dx}" cy="${r1dy}" r="2" fill="#888888"/>
     <line x1="${r1dx}" y1="${r1dy}" x2="${r1lx-2}" y2="${r1ly}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${r1lx+1}" y="${r1ly}" font-size="9" font-weight="700" fill="#555555" dominant-baseline="middle">r1=${r1}</text>`;
+    <text x="${r1lx+1}" y="${r1ly}" font-size="14" font-weight="700" fill="#555555" dominant-baseline="middle">r1=${r1}</text>`;
 
   const r2sw = Math.max(1.5, r2p * 0.4);
   const r2High = `<path d="M ${ox+tWebP-r2p} ${oyt} A ${r2p} ${r2p} 0 0 1 ${ox+tWebP} ${oyt+r2p}"
@@ -1381,11 +1381,11 @@ function drawLAngleSVG(spec, viewW, viewH) {
   const r2lx = r2dx + r2p + 14, r2ly = r2dy - 2;
   const r2Anno = `<circle cx="${r2dx}" cy="${r2dy}" r="2" fill="#888888"/>
     <line x1="${r2dx}" y1="${r2dy}" x2="${r2lx-2}" y2="${r2ly}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${r2lx+1}" y="${r2ly}" font-size="9" font-weight="700" fill="#555555" dominant-baseline="middle">r2=${r2}</text>`;
+    <text x="${r2lx+1}" y="${r2ly}" font-size="14" font-weight="700" fill="#555555" dominant-baseline="middle">r2=${r2}</text>`;
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
     <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="miter"/>
-    ${r1High}${r2High}${r1Anno}${r2Anno}${dimA}${dimB}${dimT}
+    ${r1Anno}${r2Anno}${dimA}${dimB}${dimT}
   </svg>`;
 }
 
@@ -1464,7 +1464,7 @@ function drawRoundBarSVG(D, viewW, viewH) {
     <line x1="${cx - radius}" y1="${cy + radius + 18}" x2="${cx + radius}" y2="${cy + radius + 18}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx - radius}" y1="${cy + radius + 14}" x2="${cx - radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx + radius}" y1="${cy + radius + 14}" x2="${cx + radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${cy + radius + 32}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
+    <text x="${cx}" y="${cy + radius + 32}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
   </svg>`;
 }
 
@@ -1481,7 +1481,7 @@ function drawPipeSVG(D, d, viewW, viewH) {
     <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 18}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 18}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx - outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx + outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
+    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
   </svg>`;
 }
 
@@ -1496,7 +1496,7 @@ function drawSquareBarSVG(a, viewW, viewH) {
     <line x1="${x}" y1="${y + size + 18}" x2="${x + size}" y2="${y + size + 18}" stroke="#555555" stroke-width="1"/>
     <line x1="${x}" y1="${y + size + 14}" x2="${x}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
     <line x1="${x + size}" y1="${y + size + 14}" x2="${x + size}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${viewW / 2}" y="${y + size + 32}" font-size="9" font-weight="700" fill="#222222" text-anchor="middle">a=${a}</text>
+    <text x="${viewW / 2}" y="${y + size + 32}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">a=${a}</text>
   </svg>`;
 }
 
@@ -1745,10 +1745,17 @@ function renderDataSpec() {
     const subText = kindData.type === 'PIPE'
       ? `${kindData.jisSub} / ${spec.inch} inch`
       : kindData.jisSub;
+    const W = spec.W || spec.w || null;
+    const S = (typeof wGetPaintPerM === 'function') ? wGetPaintPerM(kindData.label, spec.name) : null;
     infoEl.innerHTML = `
-      <div class="dp-type-badge dp-type-${kindData.type.toLowerCase()}">${kindData.label}</div>
-      <div class="dp-jis-badge">${kindData.jis}</div>
-      <div class="dp-spec-name">${spec.name}</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
+        <div class="dp-type-badge dp-type-${kindData.type.toLowerCase()}">${kindData.label}</div>
+        <div class="dp-jis-badge">${kindData.jis}</div>
+      </div>
+      <div class="dp-spec-name">${spec.name}
+        ${W != null ? `<span style="font-size:13px;font-weight:600;color:#555;margin-left:10px">${W} kg/m</span>` : ''}
+        ${S ? `<span style="font-size:12px;font-weight:500;color:#888;margin-left:8px">塗装 ${S} m²/m</span>` : ''}
+      </div>
       <div class="dp-spec-sub">${subText}</div>`;
   }
 
@@ -1758,17 +1765,17 @@ function renderDataSpec() {
     const compactViewW = 340;
     const compactViewH = 260;
     if (kindData.type === 'H') {
-      svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 460, 340);
+      svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 552, 408);
     } else if (kindData.type === 'C') {
-      svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
+      svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 552, 408);
     } else if (kindData.type === 'C_LIGHT') {
       svgEl.innerHTML = drawCChannelSVG(spec.H, spec.A, spec.B, spec.t, compactViewW, compactViewH);
     } else if (kindData.type === 'LGC') {
       svgEl.innerHTML = ''; // 軽量溝形鋼: 断面図は準備中
     } else if (kindData.type === 'I') {
-      svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 460, 340);
+      svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 552, 408);
     } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {
-      svgEl.innerHTML = drawLAngleSVG(spec, 460, 340);
+      svgEl.innerHTML = drawLAngleSVG(spec, 552, 408);
     } else if (kindData.type === 'RB') {
       svgEl.innerHTML = drawRoundBarSVG(spec.D, compactViewW, compactViewH);
     } else if (kindData.type === 'SB') {
@@ -1885,7 +1892,11 @@ function renderDataSpec() {
     }
   }
 
-  // 断面性能グリッド
+  // 断面性能グリッド（デフォルト非表示）
+  const perfToggle = document.getElementById('dataPerfToggle');
+  if (perfToggle) { perfToggle.textContent = '断面性能を表示 ▼'; }
+  const perfWrap = document.getElementById('dataPerfWrap');
+  if (perfWrap) perfWrap.style.display = 'none';
   const perfEl = document.getElementById('dataPerfGrid');
   if (perfEl) {
     if (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE') {
@@ -1986,7 +1997,7 @@ function renderDataNote(specName) {
       '<textarea id="dataNoteInput" placeholder="殴り書きOK..." rows="2" ' +
         'style="flex:1;padding:7px;border:1px solid #d4d4dc;border-radius:8px;font-size:12px;resize:none;font-family:inherit;box-sizing:border-box"></textarea>' +
       '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')" ' +
-        'style="background:#7c5ccc;color:#fff;border:none;border-radius:8px;padding:0 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">送信</button>' +
+        'style="background:#333333;color:#fff;border:none;border-radius:8px;padding:0 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">送信</button>' +
     '</div>';
 }
 
