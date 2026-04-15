@@ -1221,8 +1221,8 @@ function drawRectPipeSVG(H, B, t, viewW, viewH) {
   const x = (viewW - w) / 2;
   const y = (viewH - h) / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
-    <rect x="${x + th}" y="${y + th}" width="${Math.max(0, w - th * 2)}" height="${Math.max(0, h - th * 2)}" fill="#fff" stroke="#222222" stroke-width="1.5"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
+    <rect x="${x + th}" y="${y + th}" width="${Math.max(0, w - th * 2)}" height="${Math.max(0, h - th * 2)}" fill="#fff" stroke="#111111" stroke-width="1.5"/>
   </svg>`;
 }
 
@@ -1255,7 +1255,7 @@ function drawCChannelSVG(H, B, L, t, viewW, viewH) {
     `Z`
   ].join(' ');
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="2" stroke-linejoin="round"/>
+    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="2.5" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -1292,11 +1292,11 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
   const dimH=`<line x1="${lx}" y1="${uft}" x2="${lx}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
     <line x1="${lx-4}" y1="${uft}" x2="${lx+4}" y2="${uft}" stroke="#555555" stroke-width="1"/>
     <line x1="${lx-4}" y1="${lfb}" x2="${lx+4}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
-    <text x="${lx-5}" y="${cy}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,${lx-5},${cy})">H=${H}</text>`;
+    <text x="${lx-5}" y="${cy}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,${lx-5},${cy})">H=${H}</text>`;
   const dimB=`<line x1="${fl}" y1="${by}" x2="${fr}" y2="${by}" stroke="#555555" stroke-width="1"/>
     <line x1="${fl}" y1="${by-4}" x2="${fl}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
     <line x1="${fr}" y1="${by-4}" x2="${fr}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${by+10}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
+    <text x="${cx}" y="${by+10}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">B=${B}</text>`;
   const dimT1=`<line x1="${wl}" y1="${cy}" x2="${wr}" y2="${cy}" stroke="#555555" stroke-width="1"/>
     <line x1="${wl}" y1="${cy-4}" x2="${wl}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
     <line x1="${wr}" y1="${cy-4}" x2="${wr}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
@@ -1308,7 +1308,7 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
     <text x="${tx2+4}" y="${(uft+ufb)/2}" font-size="12" fill="#555555" dominant-baseline="middle">t2=${t2}</text>`;
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"/>
     ${dimH}${dimB}${dimT1}${dimT2}
   </svg>`;
 }
@@ -1351,14 +1351,14 @@ function drawLAngleSVG(spec, viewW, viewH) {
   const dimA = `<line x1="${ax}" y1="${oyt}" x2="${ax}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
     <line x1="${ax-4}" y1="${oyt}" x2="${ax+4}" y2="${oyt}" stroke="#555555" stroke-width="1"/>
     <line x1="${ax-4}" y1="${oyb}" x2="${ax+4}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
-    <text x="${ax-5}" y="${myY}" font-size="14" font-weight="700" fill="#222222"
+    <text x="${ax-5}" y="${myY}" font-size="14" font-weight="700" fill="#111111"
       text-anchor="middle" dominant-baseline="middle"
       transform="rotate(-90,${ax-5},${myY})">A=${A}</text>`;
   const by = oyb + 14;
   const dimB = `<line x1="${ox}" y1="${by}" x2="${ox+Bp}" y2="${by}" stroke="#555555" stroke-width="1"/>
     <line x1="${ox}" y1="${by-4}" x2="${ox}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
     <line x1="${ox+Bp}" y1="${by-4}" x2="${ox+Bp}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${ox+Bp/2}" y="${by+10}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">B=${B}</text>`;
+    <text x="${ox+Bp/2}" y="${by+10}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">B=${B}</text>`;
   const tx = ox + Bp + 6;
   const dimT = `<line x1="${tx}" y1="${oyb-tFlangeP}" x2="${tx}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
     <line x1="${tx-3}" y1="${oyb-tFlangeP}" x2="${tx+3}" y2="${oyb-tFlangeP}" stroke="#555555" stroke-width="1"/>
@@ -1384,7 +1384,7 @@ function drawLAngleSVG(spec, viewW, viewH) {
     <text x="${r2lx+1}" y="${r2ly}" font-size="14" font-weight="700" fill="#555555" dominant-baseline="middle">r2=${r2}</text>`;
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="miter"/>
+    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="1.5" stroke-linejoin="miter"/>
     ${r1Anno}${r2Anno}${dimA}${dimB}${dimT}
   </svg>`;
 }
@@ -1405,7 +1405,7 @@ function drawFlatBarSVG(t, B, viewW, viewH) {
   return `
     <svg width="${viewW}" height="${viewH}">
       <rect x="${x}" y="${y}" width="${width}" height="${height}"
-        fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
+        fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
     </svg>
   `;
 }
@@ -1445,7 +1445,7 @@ function drawChannelSVG(H, B, t1, t2, r1, viewW, viewH) {
   ].join(' ');
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#f0f0f0" stroke="#222222" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"/>
   </svg>`;
 }
 
@@ -1460,11 +1460,11 @@ function drawRoundBarSVG(D, viewW, viewH) {
   const cx = viewW / 2;
   const cy = viewH / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
+    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
     <line x1="${cx - radius}" y1="${cy + radius + 18}" x2="${cx + radius}" y2="${cy + radius + 18}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx - radius}" y1="${cy + radius + 14}" x2="${cx - radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx + radius}" y1="${cy + radius + 14}" x2="${cx + radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${cy + radius + 32}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
+    <text x="${cx}" y="${cy + radius + 32}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">D=${D}</text>
   </svg>`;
 }
 
@@ -1476,12 +1476,12 @@ function drawPipeSVG(D, d, viewW, viewH) {
   const cx = viewW / 2;
   const cy = viewH / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <circle cx="${cx}" cy="${cy}" r="${outerRadius}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
-    <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#fff" stroke="#222222" stroke-width="1.5"/>
+    <circle cx="${cx}" cy="${cy}" r="${outerRadius}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
+    <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#fff" stroke="#111111" stroke-width="1.5"/>
     <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 18}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 18}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx - outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
     <line x1="${cx + outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">D=${D}</text>
+    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">D=${D}</text>
   </svg>`;
 }
 
@@ -1492,11 +1492,11 @@ function drawSquareBarSVG(a, viewW, viewH) {
   const x = (viewW - size) / 2;
   const y = (viewH - size) / 2;
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <rect x="${x}" y="${y}" width="${size}" height="${size}" fill="#f0f0f0" stroke="#222222" stroke-width="2"/>
+    <rect x="${x}" y="${y}" width="${size}" height="${size}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
     <line x1="${x}" y1="${y + size + 18}" x2="${x + size}" y2="${y + size + 18}" stroke="#555555" stroke-width="1"/>
     <line x1="${x}" y1="${y + size + 14}" x2="${x}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
     <line x1="${x + size}" y1="${y + size + 14}" x2="${x + size}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${viewW / 2}" y="${y + size + 32}" font-size="14" font-weight="700" fill="#222222" text-anchor="middle">a=${a}</text>
+    <text x="${viewW / 2}" y="${y + size + 32}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">a=${a}</text>
   </svg>`;
 }
 
@@ -1740,20 +1740,18 @@ function renderDataSpec() {
   const spec = kindData.specs[_dataSpecIdx];
   if (!spec) return;
 
-  // 規格名 + W + 塗装面積
+  // ヘッダー（規格名 + W + 塗装面積）
   const infoEl = document.getElementById('dataSpecInfo');
   if (infoEl) {
     const W = spec.W || spec.w || null;
     const S = (typeof wGetPaintPerM === 'function') ? wGetPaintPerM(kindData.label, spec.name) : null;
     infoEl.innerHTML =
-      '<div class="dp-badge-row">' +
-        '<span class="dp-kind-tag">' + kindData.label + '</span>' +
-        '<span class="dp-jis-tag">' + kindData.jis + '</span>' +
-      '</div>' +
-      '<div class="dp-spec-headline">' + spec.name + '</div>' +
-      '<div class="dp-spec-meta">' +
+      '<div class="dp2-hd-kind">' + kindData.label + '  ' + kindData.jis + '</div>' +
+      '<div class="dp2-hd-name">' + spec.name + '</div>' +
+      '<div class="dp2-hd-meta">' +
         (W != null ? '<span><strong>' + W + '</strong> kg/m</span>' : '') +
-        (S ? '<span style="color:#888">塗装 <strong style="color:#555">' + S + '</strong> m²/m</span>' : '') +
+        (W != null && S ? '<span class="dp2-hd-divider"></span>' : '') +
+        (S ? '<span>塗装 <strong>' + S + '</strong> m²/m</span>' : '') +
       '</div>';
   }
 
@@ -1795,100 +1793,100 @@ function renderDataSpec() {
   if (dimEl) {
     if (kindData.type === 'H') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>H</span><strong>${spec.H} mm</strong></div>
-        <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>t1（ウェブ）</span><strong>${spec.t1} mm</strong></div>
-        <div class="dp-cell"><span>t2（フランジ）</span><strong>${spec.t2} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r（フィレット）</span><strong>${spec.r} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.Ac} cm²</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t1（ウェブ）</div><div class="dp2-val">${spec.t1} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t2（フランジ）</div><div class="dp2-val">${spec.t2} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r（フィレット）</div><div class="dp2-val">${spec.r} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.Ac} cm²</div></div>`;
     } else if (kindData.type === 'C' || kindData.type === 'I') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>H</span><strong>${spec.H} mm</strong></div>
-        <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>t1（ウェブ）</span><strong>${spec.t1} mm</strong></div>
-        <div class="dp-cell"><span>t2（フランジ）</span><strong>${spec.t2} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t1（ウェブ）</div><div class="dp2-val">${spec.t1} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t2（フランジ）</div><div class="dp2-val">${spec.t2} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>`;
     } else if (kindData.type === 'C_LIGHT') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>H</span><strong>${spec.H} mm</strong></div>
-        <div class="dp-cell"><span>A</span><strong>${spec.A} mm</strong></div>
-        <div class="dp-cell"><span>B（リップ）</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>t</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.Asec} cm²</strong></div>
-        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">A</div><div class="dp2-val">${spec.A} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B（リップ）</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t</div><div class="dp2-val">${spec.t} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.Asec} cm²</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>`;
     } else if (kindData.type === 'L') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>A = B</span><strong>${spec.A} mm</strong></div>
-        <div class="dp-cell"><span>t（肉厚）</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>
-        <div class="dp-cell"><span>断面積 Ac</span><strong>${spec.Ac} cm²</strong></div>
-        <div class="dp-cell"><span>Cx = Cy</span><strong>${spec.Cx} cm</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">A = B</div><div class="dp2-val">${spec.A} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t（肉厚）</div><div class="dp2-val">${spec.t} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 Ac</div><div class="dp2-val">${spec.Ac} cm²</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Cx = Cy</div><div class="dp2-val">${spec.Cx} cm</div></div>`;
     } else if (kindData.type === 'LU') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>A（長辺）</span><strong>${spec.A} mm</strong></div>
-        <div class="dp-cell"><span>B（短辺）</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>t（板厚）</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>
-        <div class="dp-cell"><span>断面積 Ac</span><strong>${spec.Ac} cm²</strong></div>
-        <div class="dp-cell"><span>A 方向</span><strong>${spec.Cx} cm</strong></div>
-        <div class="dp-cell"><span>B 方向</span><strong>${spec.Cy} cm</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">A（長辺）</div><div class="dp2-val">${spec.A} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B（短辺）</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t（板厚）</div><div class="dp2-val">${spec.t} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 Ac</div><div class="dp2-val">${spec.Ac} cm²</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">A 方向</div><div class="dp2-val">${spec.Cx} cm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B 方向</div><div class="dp2-val">${spec.Cy} cm</div></div>`;
     } else if (kindData.type === 'LUT') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>A（長辺）</span><strong>${spec.A} mm</strong></div>
-        <div class="dp-cell"><span>B（短辺）</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>t1（長辺板厚）</span><strong>${spec.t1} mm</strong></div>
-        <div class="dp-cell"><span>t2（短辺板厚）</span><strong>${spec.t2} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r1（根元）</span><strong>${spec.r1} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r2（先端）</span><strong>${spec.r2} mm</strong></div>
-        <div class="dp-cell"><span>断面積 Ac</span><strong>${spec.Ac} cm²</strong></div>
-        <div class="dp-cell"><span>A 方向</span><strong>${spec.Cx} cm</strong></div>
-        <div class="dp-cell"><span>B 方向</span><strong>${spec.Cy} cm</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">A（長辺）</div><div class="dp2-val">${spec.A} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B（短辺）</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t1（長辺板厚）</div><div class="dp2-val">${spec.t1} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t2（短辺板厚）</div><div class="dp2-val">${spec.t2} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 Ac</div><div class="dp2-val">${spec.Ac} cm²</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">A 方向</div><div class="dp2-val">${spec.Cx} cm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B 方向</div><div class="dp2-val">${spec.Cy} cm</div></div>`;
     } else if (kindData.type === 'FL') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>厚さ t</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell"><span>幅 B</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>断面積</span><strong>${spec.Ac} cm²</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">厚さ t</div><div class="dp2-val">${spec.t} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">幅 B</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積</div><div class="dp2-val">${spec.Ac} cm²</div></div>
       `;
     } else if (kindData.type === 'RB') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>直径 D</span><strong>${spec.D} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
-        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">直径 D</div><div class="dp2-val">${spec.D} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.A} cm²</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>
       `;
     } else if (kindData.type === 'SB') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>一辺 a</span><strong>${spec.a} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
-        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">一辺 a</div><div class="dp2-val">${spec.a} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.A} cm²</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>
       `;
     } else if (kindData.type === 'PIPE') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>呼び径</span><strong>${spec.name}</strong></div>
-        <div class="dp-cell"><span>inch</span><strong>${spec.inch}</strong></div>
-        <div class="dp-cell"><span>外径 D</span><strong>${spec.D} mm</strong></div>
-        <div class="dp-cell"><span>内径 d</span><strong>${spec.d} mm</strong></div>
-        <div class="dp-cell"><span>厚さ t</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.A} cm²</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">呼び径</div><div class="dp2-val">${spec.name}</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">inch</div><div class="dp2-val">${spec.inch}</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">外径 D</div><div class="dp2-val">${spec.D} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">内径 d</div><div class="dp2-val">${spec.d} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">厚さ t</div><div class="dp2-val">${spec.t} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.A} cm²</div></div>
       `;
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>A</span><strong>${spec.A} mm</strong></div>
-        <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>t</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell"><span>断面積 A</span><strong>${spec.Asec} cm²</strong></div>
-        <div class="dp-cell"><span>単位質量 W</span><strong>${spec.W} kg/m</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">A</div><div class="dp2-val">${spec.A} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t</div><div class="dp2-val">${spec.t} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.Asec} cm²</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>
       `;
     } else if (kindData.type === 'BCR') {
       dimEl.innerHTML = `
-        <div class="dp-cell"><span>H</span><strong>${spec.H} mm</strong></div>
-        <div class="dp-cell"><span>B</span><strong>${spec.B} mm</strong></div>
-        <div class="dp-cell"><span>t</span><strong>${spec.t} mm</strong></div>
-        <div class="dp-cell dp-r"><span>r</span><strong>${spec.r} mm</strong></div>
-        <div class="dp-cell"><span>t/r</span><strong>${spec.Ht}</strong></div>
-        <div class="dp-cell"><span>ランク</span><strong>${spec.rank}</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t</div><div class="dp2-val">${spec.t} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">r</div><div class="dp2-val">${spec.r} mm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">t/r</div><div class="dp2-val">${spec.Ht}</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">ランク</div><div class="dp2-val">${spec.rank}</div></div>
       `;
     }
   }
@@ -1902,33 +1900,33 @@ function renderDataSpec() {
   if (perfEl) {
     if (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE') {
       perfEl.innerHTML = `
-        <div class="dp-cell"><span>I</span><strong>${spec.I} cm⁴</strong></div>
-        <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
-        <div class="dp-cell"><span>i</span><strong>${spec.i} cm</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">I</div><div class="dp2-val">${spec.I} cm⁴</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Z</div><div class="dp2-val">${spec.Z} cm³</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">i</div><div class="dp2-val">${spec.i} cm</div></div>
       `;
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       perfEl.innerHTML = `
-        <div class="dp-cell"><span>Ix</span><strong>${spec.Ix} cm⁴</strong></div>
-        <div class="dp-cell"><span>Iy</span><strong>${spec.Iy != null ? spec.Iy : spec.Ix} cm⁴</strong></div>
-        <div class="dp-cell"><span>Zx</span><strong>${spec.Zx} cm³</strong></div>
-        <div class="dp-cell"><span>Zy</span><strong>${spec.Zy != null ? spec.Zy : spec.Zx} cm³</strong></div>
-        <div class="dp-cell"><span>ix</span><strong>${spec.ix} cm</strong></div>
-        <div class="dp-cell"><span>iy</span><strong>${spec.iy != null ? spec.iy : spec.ix} cm</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Ix</div><div class="dp2-val">${spec.Ix} cm⁴</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Iy</div><div class="dp2-val">${spec.Iy != null ? spec.Iy : spec.Ix} cm⁴</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Zx</div><div class="dp2-val">${spec.Zx} cm³</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Zy</div><div class="dp2-val">${spec.Zy != null ? spec.Zy : spec.Zx} cm³</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">ix</div><div class="dp2-val">${spec.ix} cm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">iy</div><div class="dp2-val">${spec.iy != null ? spec.iy : spec.ix} cm</div></div>`;
     } else if (kindData.type === 'BCR') {
       perfEl.innerHTML = `
-        <div class="dp-cell"><span>I</span><strong>${spec.I} cm⁴</strong></div>
-        <div class="dp-cell"><span>Z</span><strong>${spec.Z} cm³</strong></div>
-        <div class="dp-cell"><span>Zp</span><strong>${spec.Zp} cm³</strong></div>
-        <div class="dp-cell"><span>i</span><strong>${spec.i} cm</strong></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">I</div><div class="dp2-val">${spec.I} cm⁴</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Z</div><div class="dp2-val">${spec.Z} cm³</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Zp</div><div class="dp2-val">${spec.Zp} cm³</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">i</div><div class="dp2-val">${spec.i} cm</div></div>
       `;
     } else {
       perfEl.innerHTML = `
-        <div class="dp-cell"><span>Ix</span><strong>${spec.Ix} cm⁴</strong></div>
-        <div class="dp-cell"><span>Iy</span><strong>${spec.Iy} cm⁴</strong></div>
-        <div class="dp-cell"><span>Zx</span><strong>${spec.Zx} cm³</strong></div>
-        <div class="dp-cell"><span>Zy</span><strong>${spec.Zy} cm³</strong></div>
-        <div class="dp-cell"><span>ix</span><strong>${spec.ix} cm</strong></div>
-        <div class="dp-cell"><span>iy</span><strong>${spec.iy} cm</strong></div>`;
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Ix</div><div class="dp2-val">${spec.Ix} cm⁴</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Iy</div><div class="dp2-val">${spec.Iy} cm⁴</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Zx</div><div class="dp2-val">${spec.Zx} cm³</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">Zy</div><div class="dp2-val">${spec.Zy} cm³</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">ix</div><div class="dp2-val">${spec.ix} cm</div></div>
+        <div class="dp2-dim-cell"><div class="dp2-lbl">iy</div><div class="dp2-val">${spec.iy} cm</div></div>`;
     }
   }
 
@@ -1955,9 +1953,9 @@ function renderDataSpec() {
           : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
 
     extraEl.innerHTML =
-      '<div class="dp-sec-label" style="margin-top:16px">単位重量 / 塗装</div>' +
-      '<div class="dp-extra-row"><span>計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
-      (S !== null ? '<div class="dp-extra-row"><span>塗装面積（参考）</span><strong>' + S + ' m²/m</strong></div>' : '');
+      '<div class="dp2-sec-lbl" style="margin-top:16px">単位重量 / 塗装</div>' +
+      '<div class="dp2-extra-row"><span>計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
+      (S !== null ? '<div class="dp2-extra-row"><span>塗装面積（参考）</span><strong>' + S + ' m²/m</strong></div>' : '');
   }
 
   const input = document.getElementById('dataSpecInput');
@@ -1989,14 +1987,14 @@ function renderDataStdChips(kind) {
   area.style.display = lengths.length ? 'block' : 'none';
   var chipsHtml = lengths.map(function(len) {
     var label = len >= 1000 ? (len / 1000) + 'm' : len + 'mm';
-    return '<span class="dp-std-chip">' + label +
-      '<button onclick="dpStdRemove(\'' + kind + '\',' + len + ')" title="削除">x</button></span>';
+    return '<span class="dp2-chip">' + label +
+      '<button class="dp2-chip-x" onclick="dpStdRemove(\'' + kind + '\',' + len + ')">x</button></span>';
   }).join('');
   chips.innerHTML = chipsHtml +
-    '<div class="dp-std-add-form">' +
-      '<input id="dpStdInput" type="number" placeholder="mm" min="1000" step="500">' +
+    '<span class="dp2-chip-add">' +
+      '<input id="dpStdInput" type="number" placeholder="mm" min="500" step="500">' +
       '<button onclick="dpStdAdd(\'' + kind + '\')">+ 追加</button>' +
-    '</div>';
+    '</span>';
 }
 function dpStdRemove(kind, len) {
   var lengths = getKindSTD(kind).filter(function(l) { return l !== len; });
@@ -2028,19 +2026,16 @@ function renderDataNote(specName) {
   try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
   var chatHtml = notes.length
     ? notes.map(function(n) {
-        return '<div style="background:#f6f6f6;border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:12px">' +
-          '<div style="color:#aaa;font-size:10px;margin-bottom:2px">' + n.ts + '</div>' +
-          '<div>' + n.text.replace(/</g,'&lt;') + '</div></div>';
+        return '<div class="dp2-note-item"><div class="dp2-note-ts">' + n.ts + '</div>' +
+          '<div class="dp2-note-text">' + n.text.replace(/</g,'&lt;') + '</div></div>';
       }).join('')
-    : '<div style="color:#bbb;font-size:12px;padding:8px 0">まだメモなし</div>';
+    : '<div style="color:#aaa;font-size:12px">まだメモなし</div>';
   el.innerHTML =
-    '<div class="dp-sec-label">メモ（後日みんなで共有予定）</div>' +
-    '<div style="max-height:180px;overflow-y:auto;margin-bottom:8px">' + chatHtml + '</div>' +
-    '<div style="display:flex;gap:6px">' +
-      '<textarea id="dataNoteInput" placeholder="自由記入..." rows="2" ' +
-        'style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:12px;resize:none;font-family:inherit;box-sizing:border-box"></textarea>' +
-      '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')" ' +
-        'style="background:#333;color:#fff;border:none;border-radius:6px;padding:0 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">送信</button>' +
+    '<div class="dp2-note-lbl">メモ（後日みんなで共有予定）</div>' +
+    '<div class="dp2-note-list">' + chatHtml + '</div>' +
+    '<div class="dp2-note-form">' +
+      '<textarea id="dataNoteInput" placeholder="自由記入..."></textarea>' +
+      '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')">送信</button>' +
     '</div>';
 }
 
