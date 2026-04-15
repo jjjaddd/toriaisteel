@@ -102,7 +102,6 @@ function renderCustomMaterialsPanel() {
 
   panel.innerHTML =
     '<div style="margin-bottom:12px">' +
-      '<div style="font-size:13px;font-weight:700;margin-bottom:10px">＋ カスタム鋼材を追加</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 80px auto;gap:8px;align-items:end">' +
         '<div><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">種類</label>' +
           '<select id="cmKind" style="width:100%;padding:7px 8px;border:1px solid #d4d4dc;border-radius:8px;font-size:12px;font-family:inherit">' +
