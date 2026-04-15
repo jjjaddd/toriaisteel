@@ -1714,8 +1714,9 @@ function renderDataSpecPicker() {
   if (input) {
     input.onmouseover = function() { this.style.backgroundColor = 'rgba(109,40,217,.06)'; };
     input.onmouseout  = function() { if (document.activeElement !== this) this.style.backgroundColor = '#fafafa'; };
-    input.onfocus = function() {
-      this.style.backgroundColor = '#fff';
+    input.onfocus = function() { this.style.backgroundColor = '#fff'; };
+    input.onmousedown = function(e) {
+      e.stopPropagation();
       renderDataSpecDropdownList(getSortedSpecsForKind(_dataKind));
       toggleDataSpecDropdown(true);
     };
@@ -1757,10 +1758,30 @@ function renderDataSpecPicker() {
 }
 
 function toggleDataSpecDropdown(forceOpen) {
-  const dd = document.getElementById('dataSpecDropdown');
+  var dd = document.getElementById('dataSpecDropdown');
+  var input = document.getElementById('dataSpecInput');
   if (!dd) return;
   _dataSpecDropdownOpen = typeof forceOpen === 'boolean' ? forceOpen : !_dataSpecDropdownOpen;
-  dd.style.display = _dataSpecDropdownOpen ? 'block' : 'none';
+  if (_dataSpecDropdownOpen && input) {
+    // position:fixed で親のoverflow/z-indexを完全に回避
+    var rect = input.getBoundingClientRect();
+    dd.style.cssText = [
+      'display:block',
+      'position:fixed',
+      'left:' + rect.left + 'px',
+      'top:' + (rect.bottom + 4) + 'px',
+      'width:' + rect.width + 'px',
+      'background:#fff',
+      'border:1.5px solid #ccc',
+      'border-radius:8px',
+      'box-shadow:0 6px 20px rgba(0,0,0,.12)',
+      'max-height:300px',
+      'overflow-y:auto',
+      'z-index:99999'
+    ].join(';');
+  } else {
+    dd.style.display = 'none';
+  }
 }
 
 function renderDataSpecDropdownList(specs) {
