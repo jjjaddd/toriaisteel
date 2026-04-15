@@ -13,7 +13,7 @@
 
 #dtPage {
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 0;           /* 左寄せ */
   padding: 20px 24px 28px;
   min-height: 100%;
   box-sizing: border-box;
@@ -69,11 +69,10 @@
 }
 #dataSpecPicker #dataSpecInput {
   height: 42px !important;
+  line-height: 42px;
   box-sizing: border-box;
-}
-#dataSpecPicker #dataSpecToggleBtn {
-  height: 42px !important;
-  box-sizing: border-box;
+  flex: 1;
+  border-radius: 8px !important;  /* ▼ボタン削除したので右角丸も */
 }
 
 /* + カスタム追加ボタン */
