@@ -417,3 +417,30 @@
 /* ── カスタム鋼材モーダル ──────────────── */
 #dtCustomModal { display: none; }
 #dtCustomModal.open { display: flex; }
+
+/* ── style.css グローバル select を #dpp 内で上書き ──────── */
+#dpp .dt-select {
+  width: auto !important;
+  height: 42px !important;
+  padding: 0 32px 0 12px !important;
+  background: #fafafa !important;
+  border: 1.5px solid #ccc !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-sizing: border-box !important;
+}
+#dpp .dt-select:hover,
+#dpp .dt-select:focus {
+  background: #fafafa !important;
+  border-color: #888 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 定尺の dt-sec は下線なし（他のセクション見出しとは別扱い） */
+#dpp #dtStdArea .dt-sec {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 8px !important;
+}
