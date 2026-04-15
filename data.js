@@ -1589,6 +1589,8 @@ function buildSelectorBar() {
   kindSel.style.backgroundRepeat = 'no-repeat';
   kindSel.style.backgroundPosition = 'right 10px center';
   kindSel.onchange = function() { dataSelectKind(this.value); };
+  kindSel.onmouseover = function() { this.style.backgroundColor = 'rgba(109,40,217,.06)'; };
+  kindSel.onmouseout  = function() { this.style.backgroundColor = '#fafafa'; };
 
   kindCol.appendChild(kindLbl);
   kindCol.appendChild(kindSel);
@@ -1613,17 +1615,24 @@ function buildSelectorBar() {
   addBtn.type = 'button';
   addBtn.title = 'カスタム鋼材を追加';
   addBtn.textContent = '+';
+  // runスタイルのアクションボタン
   addBtn.style.cssText = [
     'width:42px', 'height:42px', 'flex-shrink:0',
-    'background:#333', 'color:#fff',
-    'border:none', 'border-radius:8px',
+    'background:#fff', 'color:#1a1a2e',
+    'border:1.5px solid #d4d4dc', 'border-radius:8px',
     'font-size:22px', 'font-weight:300',
     'cursor:pointer', 'font-family:inherit',
     'display:flex', 'align-items:center', 'justify-content:center',
-    'box-sizing:border-box'
+    'box-sizing:border-box', 'transition:background .15s,border-color .15s'
   ].join(';');
-  addBtn.onmouseover = function() { this.style.background = '#5b21b6'; };
-  addBtn.onmouseout  = function() { this.style.background = '#333'; };
+  addBtn.onmouseover = function() {
+    this.style.background = 'rgba(109,40,217,.08)';
+    this.style.borderColor = '#ccc';
+  };
+  addBtn.onmouseout = function() {
+    this.style.background = '#fff';
+    this.style.borderColor = '#d4d4dc';
+  };
   addBtn.onclick = function() { if (typeof dtCustomOpen === 'function') dtCustomOpen(); };
 
   sizeRow.appendChild(specPicker);
@@ -1703,7 +1712,10 @@ function renderDataSpecPicker() {
   if (input && spec) input.value = spec.name;
 
   if (input) {
+    input.onmouseover = function() { this.style.backgroundColor = 'rgba(109,40,217,.06)'; };
+    input.onmouseout  = function() { if (document.activeElement !== this) this.style.backgroundColor = '#fafafa'; };
     input.onfocus = function() {
+      this.style.backgroundColor = '#fff';
       renderDataSpecDropdownList(getSortedSpecsForKind(_dataKind));
       toggleDataSpecDropdown(true);
     };

@@ -300,41 +300,68 @@
 #dtCustomModal { display: none; }
 #dtCustomModal.open { display: flex; }
 
-/* ── データタブ ホバー色 (薄紫) ────────────── */
+/* ── アクションボタン (.run スタイルに統一) ─── */
+/* +追加ボタン */
+#dpp .dt-chip-add button {
+  height: 30px;
+  padding: 0 12px;
+  background: #fff;
+  color: #1a1a2e;
+  border: 1.5px solid #d4d4dc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-sizing: border-box;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s;
+}
+#dpp .dt-chip-add button:hover {
+  background: rgba(109,40,217,.08);
+  border-color: #ccc;
+}
+
+/* メモ送信ボタン */
+#dpp .dt-note-form button {
+  background: #fff;
+  color: #1a1a2e;
+  border: 1.5px solid #d4d4dc;
+  border-radius: 6px;
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, border-color .15s;
+}
+#dpp .dt-note-form button:hover {
+  background: rgba(109,40,217,.08);
+  border-color: #ccc;
+}
+
+/* ── ホバー色 (薄紫アクセント) ─────────────── */
 
 /* 断面性能トグル */
 #dataPerfToggle:hover {
-  background: #f3efff;
-  border-color: #c4b5fd;
-  color: #333;
+  background: rgba(109,40,217,.06);
+  border-color: #ccc;
 }
 
 /* 定尺チップ */
 #dpp .dt-chip:hover {
-  background: #f3efff;
-  border-color: #c4b5fd;
-}
-
-/* + 追加ボタン */
-#dpp .dt-chip-add button:hover {
-  background: #5b21b6;
-}
-
-/* + カスタムボタン (buildSelectorBarで生成) はJSに追加 */
-
-/* メモ送信ボタン */
-#dpp .dt-note-form button:hover {
-  background: #5b21b6;
+  background: rgba(109,40,217,.06);
+  border-color: #bbb;
 }
 
 /* サイズ入力のフォーカス */
 #dpp #dataSpecInput:focus {
-  border-color: #8b5cf6 !important;
+  border-color: #888 !important;
 }
 
 /* ドロップダウン選択肢 */
 #dpp .data-spec-option:hover,
 #dpp .data-spec-option.active {
   background: #f3efff !important;
-  color: #5b21b6 !important;
+  color: #111 !important;
 }
