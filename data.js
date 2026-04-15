@@ -1622,6 +1622,8 @@ function buildSelectorBar() {
     'display:flex', 'align-items:center', 'justify-content:center',
     'box-sizing:border-box'
   ].join(';');
+  addBtn.onmouseover = function() { this.style.background = '#5b21b6'; };
+  addBtn.onmouseout  = function() { this.style.background = '#333'; };
   addBtn.onclick = function() { if (typeof dtCustomOpen === 'function') dtCustomOpen(); };
 
   sizeRow.appendChild(specPicker);

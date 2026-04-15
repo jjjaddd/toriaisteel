@@ -299,3 +299,42 @@
 /* ── カスタム鋼材モーダル ──────────────── */
 #dtCustomModal { display: none; }
 #dtCustomModal.open { display: flex; }
+
+/* ── データタブ ホバー色 (薄紫) ────────────── */
+
+/* 断面性能トグル */
+#dataPerfToggle:hover {
+  background: #f3efff;
+  border-color: #c4b5fd;
+  color: #333;
+}
+
+/* 定尺チップ */
+#dpp .dt-chip:hover {
+  background: #f3efff;
+  border-color: #c4b5fd;
+}
+
+/* + 追加ボタン */
+#dpp .dt-chip-add button:hover {
+  background: #5b21b6;
+}
+
+/* + カスタムボタン (buildSelectorBarで生成) はJSに追加 */
+
+/* メモ送信ボタン */
+#dpp .dt-note-form button:hover {
+  background: #5b21b6;
+}
+
+/* サイズ入力のフォーカス */
+#dpp #dataSpecInput:focus {
+  border-color: #8b5cf6 !important;
+}
+
+/* ドロップダウン選択肢 */
+#dpp .data-spec-option:hover,
+#dpp .data-spec-option.active {
+  background: #f3efff !important;
+  color: #5b21b6 !important;
+}
