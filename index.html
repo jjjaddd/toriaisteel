@@ -734,22 +734,26 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <div id="dpp" class="pg">
   <div id="dtPage">
 
-    <!-- セレクターバー -->
+    <!-- セレクターバー: 鋼種 + サイズ + [+]カスタム -->
     <div id="dtSelectors">
       <div class="dt-sel">
-        <label>鋼種</label>
-        <select id="dataKindSelect" onchange="dataSelectKind(this.value)"></select>
+        <label class="dt-sel-lbl">鋼種</label>
+        <select id="dataKindSelect" class="dt-select" onchange="dataSelectKind(this.value)"></select>
       </div>
       <div class="dt-sel dt-sel-wide">
-        <label>サイズ</label>
+        <label class="dt-sel-lbl">サイズ</label>
         <div id="dataSpecPicker"></div>
+      </div>
+      <div class="dt-sel dt-sel-btn">
+        <label class="dt-sel-lbl">カスタム</label>
+        <button class="dt-add-btn" onclick="dtCustomOpen()" title="カスタム鋼材を追加">+</button>
       </div>
     </div>
 
-    <!-- ヘッダー: 規格名 + 単位重量 + 塗装面積 -->
+    <!-- ヘッダー -->
     <div id="dtHeader"></div>
 
-    <!-- 定尺（編集可能） -->
+    <!-- 定尺 -->
     <div id="dtStdArea" style="display:none">
       <div class="dt-sec">定尺</div>
       <div id="dtStdChips"></div>
@@ -757,33 +761,33 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 
     <!-- メイン: 左=情報 右=図 -->
     <div id="dtMain">
-
       <div id="dtInfoCol">
         <div class="dt-sec">断面寸法</div>
         <div class="dt-dim-grid" id="dataDimGrid"></div>
-
         <button id="dataPerfToggle"
           onclick="var w=document.getElementById('dataPerfWrap');var o=w.style.display==='none';w.style.display=o?'block':'none';this.textContent=o?'断面性能 ▲':'断面性能 ▼'">断面性能 ▼</button>
         <div id="dataPerfWrap" style="display:none">
           <div class="dt-dim-grid" id="dataPerfGrid"></div>
         </div>
-
         <div id="dataExtraInfo"></div>
         <div id="dataNoteArea" style="display:none"></div>
       </div>
-
       <div id="dtFigCol">
         <div id="dataSVGWrap"></div>
       </div>
-
     </div>
 
-    <!-- カスタム鋼材 -->
-    <div id="dtCustom">
-      <div class="dt-sec">カスタム鋼材</div>
-      <div id="customMaterialsPanel"></div>
-    </div>
+  </div>
+</div>
 
+<!-- カスタム鋼材追加モーダル -->
+<div id="dtCustomModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center" onclick="if(event.target===this)dtCustomClose()">
+  <div style="background:#fff;border-radius:12px;padding:24px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:700;color:#111">カスタム鋼材を追加</div>
+      <button onclick="dtCustomClose()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#888;line-height:1">×</button>
+    </div>
+    <div id="customMaterialsPanel"></div>
   </div>
 </div>
 

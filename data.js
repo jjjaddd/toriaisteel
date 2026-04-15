@@ -1560,6 +1560,16 @@ function dataInit() {
   if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
 }
 
+function dtCustomOpen() {
+  if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
+  var m = document.getElementById('dtCustomModal');
+  if (m) m.classList.add('open');
+}
+function dtCustomClose() {
+  var m = document.getElementById('dtCustomModal');
+  if (m) m.classList.remove('open');
+}
+
 /* 鋼種タブ描画 */
 function renderDataKindTabs() {
   const sel = document.getElementById('dataKindSelect');
