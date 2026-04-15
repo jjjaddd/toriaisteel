@@ -1553,22 +1553,68 @@ function normalizeDataSpecText(value) {
     .toLowerCase();
 }
 
+function buildSelectorBar() {
+  var bar = document.getElementById('dtSelectors');
+  if (!bar) return;
+  bar.innerHTML = '';
+
+  // ── 共通スタイル文字列 ────────────────────────────
+  var S_BAR   = 'display:flex;align-items:flex-end;gap:12px;margin-bottom:20px';
+  var S_COL   = 'display:flex;flex-direction:column;gap:5px';
+  var S_LBL   = 'font-size:10px;font-weight:700;color:#888;letter-spacing:.1em;text-transform:uppercase;font-family:inherit';
+  var S_SEL   = [
+    'width:auto', 'min-width:130px', 'height:42px', 'box-sizing:border-box',
+    'padding:0 32px 0 12px', 'border:1.5px solid #ccc', 'border-radius:8px',
+    'font-size:13px', 'font-weight:600', 'font-family:inherit',
+    'background-color:#fafafa', 'color:#111', 'cursor:pointer',
+    'appearance:none', '-webkit-appearance:none', 'outline:none'
+  ].join(';');
+
+  // ── バー親 ────────────────────────────────────────
+  bar.style.cssText = S_BAR;
+
+  // ── 鋼種コラム ────────────────────────────────────
+  var kindCol = document.createElement('div');
+  kindCol.style.cssText = S_COL + ';flex-shrink:0';
+
+  var kindLbl = document.createElement('span');
+  kindLbl.textContent = '鋼種';
+  kindLbl.style.cssText = S_LBL;
+
+  var kindSel = document.createElement('select');
+  kindSel.id = 'dataKindSelect';
+  kindSel.style.cssText = S_SEL;
+  // 矢印を背景画像で追加（style.cssのbackground上書き回避のため別途設定）
+  kindSel.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'%3E%3Cpath fill=\'%23666\' d=\'M5 6L0 0h10z\'/%3E%3C/svg%3E")';
+  kindSel.style.backgroundRepeat = 'no-repeat';
+  kindSel.style.backgroundPosition = 'right 10px center';
+  kindSel.onchange = function() { dataSelectKind(this.value); };
+
+  kindCol.appendChild(kindLbl);
+  kindCol.appendChild(kindSel);
+
+  // ── サイズコラム ─────────────────────────────────
+  var sizeCol = document.createElement('div');
+  sizeCol.style.cssText = S_COL + ';flex:1;min-width:0';
+
+  var sizeLbl = document.createElement('span');
+  sizeLbl.textContent = 'サイズ';
+  sizeLbl.style.cssText = S_LBL;
+
+  var specPicker = document.createElement('div');
+  specPicker.id = 'dataSpecPicker';
+
+  sizeCol.appendChild(sizeLbl);
+  sizeCol.appendChild(specPicker);
+
+  bar.appendChild(kindCol);
+  bar.appendChild(sizeCol);
+}
+
 function dataInit() {
-  renderDataKindTabs();
-  // 鋼種selectにインラインスタイル直書き（グローバルCSSを回避）
-  var sel = document.getElementById('dataKindSelect');
-  if (sel) {
-    sel.style.cssText = [
-      'width:auto', 'min-width:120px', 'height:42px', 'box-sizing:border-box',
-      'padding:0 32px 0 12px', 'border:1.5px solid #ccc', 'border-radius:8px',
-      'font-size:13px', 'font-weight:600', 'font-family:inherit',
-      'background:#fafafa', 'color:#111', 'cursor:pointer',
-      'appearance:none', '-webkit-appearance:none', 'outline:none',
-      'background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'%3E%3Cpath fill=\'%23666\' d=\'M5 6L0 0h10z\'/%3E%3C/svg%3E")',
-      'background-repeat:no-repeat', 'background-position:right 10px center'
-    ].join(';');
-  }
-  renderDataSpecPicker();
+  buildSelectorBar();          // セレクターバーをJSで完全生成
+  renderDataKindTabs();        // 鋼種の選択肢を描画
+  renderDataSpecPicker();      // サイズピッカーを描画
   renderDataSpec();
   if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
 }

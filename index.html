@@ -734,20 +734,8 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <div id="dpp" class="pg">
   <div id="dtPage">
 
-    <!-- セレクターバー -->
-    <div id="dtSelectors"
-      style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px">
-      <!-- 鋼種 -->
-      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
-        <span class="dt-sel-lbl">鋼種</span>
-        <select id="dataKindSelect" onchange="dataSelectKind(this.value)"></select>
-      </div>
-      <!-- サイズ（flex:1で残り全幅） -->
-      <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:0">
-        <span class="dt-sel-lbl">サイズ</span>
-        <div id="dataSpecPicker"></div>
-      </div>
-    </div>
+    <!-- セレクターバー: JS で生成 (data.js buildSelectorBar) -->
+    <div id="dtSelectors"></div>
 
     <!-- ヘッダー -->
     <div id="dtHeader"></div>
