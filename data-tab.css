@@ -16,15 +16,7 @@
   box-sizing: border-box;
 }
 
-/* ── セレクターバー ─────────────────────── */
-#dtSelectors {
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
-  margin-bottom: 20px;
-}
-.dt-sel { display: flex; flex-direction: column; gap: 5px; }
-.dt-sel-wide { flex: 1; min-width: 0; }
+/* ── セクション見出しラベル（セレクターバー用） ─── */
 .dt-sel-lbl {
   font-size: 10px;
   font-weight: 700;

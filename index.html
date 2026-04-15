@@ -734,14 +734,17 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <div id="dpp" class="pg">
   <div id="dtPage">
 
-    <!-- セレクターバー: 鋼種 + サイズ + カスタム -->
-    <div id="dtSelectors">
-      <div class="dt-sel">
-        <label class="dt-sel-lbl">鋼種</label>
-        <select id="dataKindSelect" class="dt-select" onchange="dataSelectKind(this.value)"></select>
+    <!-- セレクターバー -->
+    <div id="dtSelectors"
+      style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px">
+      <!-- 鋼種 -->
+      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+        <span class="dt-sel-lbl">鋼種</span>
+        <select id="dataKindSelect" onchange="dataSelectKind(this.value)"></select>
       </div>
-      <div class="dt-sel dt-sel-wide">
-        <label class="dt-sel-lbl">サイズ</label>
+      <!-- サイズ（flex:1で残り全幅） -->
+      <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:0">
+        <span class="dt-sel-lbl">サイズ</span>
         <div id="dataSpecPicker"></div>
       </div>
     </div>

@@ -1559,7 +1559,7 @@ function dataInit() {
   var sel = document.getElementById('dataKindSelect');
   if (sel) {
     sel.style.cssText = [
-      'height:42px', 'min-width:120px', 'box-sizing:border-box',
+      'width:auto', 'min-width:120px', 'height:42px', 'box-sizing:border-box',
       'padding:0 32px 0 12px', 'border:1.5px solid #ccc', 'border-radius:8px',
       'font-size:13px', 'font-weight:600', 'font-family:inherit',
       'background:#fafafa', 'color:#111', 'cursor:pointer',
