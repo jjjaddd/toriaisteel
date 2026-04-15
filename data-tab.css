@@ -459,3 +459,44 @@
   font-weight: 700 !important;
   color: #111 !important;
 }
+
+/* ━━━ バー高さ統一・計算式レイアウト修正 ━━━ */
+
+/* 鋼種selectのbox-sizingをborder-boxに（高さずれ修正） */
+.dt-select {
+  box-sizing: border-box !important;
+  height: 42px !important;
+}
+
+/* サイズinputもborder-boxで確実に揃える */
+#dpp #dataSpecInput {
+  box-sizing: border-box !important;
+  height: 42px !important;
+}
+#dpp .data-spec-input-wrap {
+  height: 42px !important;
+  box-sizing: border-box !important;
+}
+#dpp .data-spec-input-wrap .dt-add-btn {
+  box-sizing: border-box !important;
+  height: 42px !important;
+}
+
+/* dt-extra-row: グリッドで左寄せ固定幅に（全画面でもズレない） */
+.dt-extra-row {
+  display: grid !important;
+  grid-template-columns: 130px 1fr !important;
+  justify-content: unset !important;
+  align-items: baseline !important;
+  gap: 0 !important;
+  padding: 8px 0 !important;
+  border-bottom: 1px solid #eee !important;
+}
+.dt-extra-row:last-child { border-bottom: none !important; }
+.dt-extra-row > span { color: #666 !important; font-size: 12px !important; }
+.dt-extra-row strong {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #111 !important;
+  text-align: left !important;
+}
