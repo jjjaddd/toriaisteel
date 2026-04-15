@@ -3374,3 +3374,211 @@ html[data-theme="dark"] #contactSubmitBtn:active{
   background:rgba(167,139,250,.3)!important;
 }
 html[data-theme="dark"] .contact-pen-l
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   データタブ 新レイアウト (案B)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.dp-selector-bar {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.dp-selector-item { display: flex; flex-direction: column; gap: 5px; }
+.dp-selector-grow { flex: 1; min-width: 200px; }
+.dp-selector-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* 2カラムグリッド */
+.dp-content-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 32px;
+}
+@media (max-width: 860px) {
+  .dp-content-grid { grid-template-columns: 1fr; }
+}
+
+/* 左: 情報カラム */
+.dp-info-col { display: flex; flex-direction: column; gap: 0; }
+
+/* 規格名エリア */
+#dataSpecInfo .dp-spec-headline {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -.02em;
+  margin-bottom: 4px;
+}
+#dataSpecInfo .dp-spec-meta {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 2px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#dataSpecInfo .dp-spec-meta strong { font-weight: 700; color: #111; }
+#dataSpecInfo .dp-badge-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+#dataSpecInfo .dp-kind-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 1.5px solid #ccc;
+  border-radius: 4px;
+  color: #444;
+  background: #f5f5f5;
+  letter-spacing: .04em;
+}
+#dataSpecInfo .dp-jis-tag {
+  font-size: 10px;
+  color: #888;
+  padding: 2px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+/* セクション見出し */
+.dp-sec-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid #111;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+/* 断面性能トグルボタン */
+.dp-toggle-btn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 8px 12px;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  text-align: left;
+  font-family: inherit;
+  letter-spacing: .04em;
+  transition: background .12s;
+}
+.dp-toggle-btn:hover { background: #ebebeb; }
+
+/* 定尺チップ */
+.dp-std-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.dp-std-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  cursor: default;
+}
+.dp-std-chip button {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.dp-std-chip button:hover { color: #e00; }
+.dp-std-add-form {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 4px;
+}
+.dp-std-add-form input {
+  width: 72px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+}
+.dp-std-add-form button {
+  padding: 4px 10px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* 右: 図カラム */
+.dp-fig-col {
+  position: sticky;
+  top: 80px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+.dp-svg-wrap svg { max-width: 100%; height: auto; }
+
+/* extraInfo */
+#dataExtraInfo { margin-top: 14px; }
+.dp-extra-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  color: #555;
+}
+.dp-extra-row:last-child { border-bottom: none; }
+.dp-extra-row strong { font-weight: 700; color: #111; font-size: 13px; }
+
+/* カスタム鋼材ブロック */
+.dp-custom-block {
+  border-top: 1.5px solid #111;
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+/* メモエリア */
+#dataNoteArea {
+  border-top: 1.5px solid #111;
+  padding-top: 14px;
+  margin-top: 14px;
+}

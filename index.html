@@ -731,61 +731,65 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 
 <!-- データページ -->
 <div id="dpp" class="pg">
-  <!-- データページ内部 -->
   <div class="dp-page">
 
-    <!-- 鋼種選択 -->
-    <select id="dataKindSelect" class="data-kind-select" onchange="dataSelectKind(this.value)">
-      <!-- JS で描画 -->
-    </select>
-
-    <div class="data-page-shell">
-      <div class="data-topbar">
-        <div class="data-topbar-label">サイズ選択</div>
+    <!-- セレクターバー -->
+    <div class="dp-selector-bar">
+      <div class="dp-selector-item">
+        <div class="dp-selector-label">鋼種</div>
+        <select id="dataKindSelect" class="data-kind-select" onchange="dataSelectKind(this.value)"></select>
+      </div>
+      <div class="dp-selector-item dp-selector-grow">
+        <div class="dp-selector-label">サイズ</div>
         <div id="dataSpecPicker"></div>
       </div>
+    </div>
 
-      <div class="data-main-grid">
-        <section class="data-figure-card">
-          <div id="dataSpecInfo" class="dp-spec-info">
-            <!-- JS で描画 -->
-          </div>
-          <div class="dp-diagram-bg">
-            <div id="dataSVGWrap"></div>
-          </div>
-        </section>
+    <!-- メインコンテンツ: 左=情報 右=図 -->
+    <div class="dp-content-grid">
 
-        <section class="data-info-card">
-          <div class="dp-section-title">断面寸法</div>
-          <div class="dp-grid" id="dataDimGrid">
-            <!-- JS で描画 -->
-          </div>
+      <!-- 左列: 情報パネル -->
+      <div class="dp-info-col">
 
-          <button id="dataPerfToggle" onclick="(function(){var w=document.getElementById('dataPerfWrap');var open=w.style.display==='none';w.style.display=open?'block':'none';this.textContent=open?'断面性能を隠す ▲':'断面性能を表示 ▼'}).call(this)" style="margin-top:12px;width:100%;padding:7px;background:#f4f4f6;border:1px solid #ddd;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#555;text-align:left;font-family:inherit">断面性能を表示 ▼</button>
-          <div id="dataPerfWrap" style="display:none">
-            <div class="dp-grid" id="dataPerfGrid"><!-- JS で描画 --></div>
-          </div>
+        <!-- 規格名 + 単位重量 + 塗装面積 -->
+        <div id="dataSpecInfo"></div>
 
-          <div class="dp-kgm-bar" id="dataKgmBar">
-            <!-- JS で描画 -->
-          </div>
-          <div id="dataExtraInfo"></div>
+        <!-- 定尺 (編集可能チップ) -->
+        <div id="dataStdArea" style="display:none">
+          <div class="dp-sec-label">定尺</div>
+          <div id="dataStdChips" class="dp-std-chips"></div>
+        </div>
 
-          <!-- 殴り書きメモ -->
-          <div id="dataNoteArea" style="margin-top:14px;padding:12px;background:#fafafa;border:1px solid #e8e8f0;border-radius:10px;display:none">
-          </div>
-        </section>
+        <!-- 断面寸法 -->
+        <div class="dp-sec-label" style="margin-top:16px">断面寸法</div>
+        <div class="dp-grid" id="dataDimGrid"></div>
+
+        <!-- 断面性能 折りたたみ -->
+        <button id="dataPerfToggle"
+          onclick="(function(){var w=document.getElementById('dataPerfWrap');var open=w.style.display==='none';w.style.display=open?'block':'none';document.getElementById('dataPerfToggle').textContent=open?'断面性能 ▲':'断面性能 ▼'}).call(this)"
+          class="dp-toggle-btn">断面性能 ▼</button>
+        <div id="dataPerfWrap" style="display:none">
+          <div class="dp-grid" id="dataPerfGrid"></div>
+        </div>
+
+        <!-- 単位重量・計算式 -->
+        <div id="dataExtraInfo"></div>
+
+        <!-- メモ -->
+        <div id="dataNoteArea" style="display:none;margin-top:16px"></div>
+
       </div>
+
+      <!-- 右列: 断面図 -->
+      <div class="dp-fig-col">
+        <div id="dataSVGWrap" class="dp-svg-wrap"></div>
+      </div>
+
     </div>
 
-    <!-- 他鋼種：準備中ノート -->
-    <div class="dp-wip-note">
-
-    </div>
-
-    <!-- カスタム鋼材管理 -->
-    <div style="margin-top:24px;background:#fff;border:1px solid #e0e0ea;border-radius:12px;padding:16px 20px">
-      <div style="font-size:14px;font-weight:700;margin-bottom:14px;color:#1a1a2e">⚙️ カスタム鋼材</div>
+    <!-- カスタム鋼材 -->
+    <div class="dp-custom-block">
+      <div class="dp-sec-label">カスタム鋼材</div>
       <div id="customMaterialsPanel"></div>
     </div>
 

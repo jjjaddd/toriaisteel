@@ -1557,6 +1557,7 @@ function dataInit() {
   renderDataKindTabs();
   renderDataSpecPicker();
   renderDataSpec();
+  if (typeof renderCustomMaterialsPanel === 'function') renderCustomMaterialsPanel();
 }
 
 /* 鋼種タブ描画 */
@@ -1739,25 +1740,25 @@ function renderDataSpec() {
   const spec = kindData.specs[_dataSpecIdx];
   if (!spec) return;
 
-  // JISバッジ + 名称
+  // 規格名 + W + 塗装面積
   const infoEl = document.getElementById('dataSpecInfo');
   if (infoEl) {
-    const subText = kindData.type === 'PIPE'
-      ? `${kindData.jisSub} / ${spec.inch} inch`
-      : kindData.jisSub;
     const W = spec.W || spec.w || null;
     const S = (typeof wGetPaintPerM === 'function') ? wGetPaintPerM(kindData.label, spec.name) : null;
-    infoEl.innerHTML = `
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
-        <div class="dp-type-badge dp-type-${kindData.type.toLowerCase()}">${kindData.label}</div>
-        <div class="dp-jis-badge">${kindData.jis}</div>
-      </div>
-      <div class="dp-spec-name">${spec.name}
-        ${W != null ? `<span style="font-size:13px;font-weight:600;color:#555;margin-left:10px">${W} kg/m</span>` : ''}
-        ${S ? `<span style="font-size:12px;font-weight:500;color:#888;margin-left:8px">塗装 ${S} m²/m</span>` : ''}
-      </div>
-      <div class="dp-spec-sub">${subText}</div>`;
+    infoEl.innerHTML =
+      '<div class="dp-badge-row">' +
+        '<span class="dp-kind-tag">' + kindData.label + '</span>' +
+        '<span class="dp-jis-tag">' + kindData.jis + '</span>' +
+      '</div>' +
+      '<div class="dp-spec-headline">' + spec.name + '</div>' +
+      '<div class="dp-spec-meta">' +
+        (W != null ? '<span><strong>' + W + '</strong> kg/m</span>' : '') +
+        (S ? '<span style="color:#888">塗装 <strong style="color:#555">' + S + '</strong> m²/m</span>' : '') +
+      '</div>';
   }
+
+  // 定尺チップ（編集可能）
+  renderDataStdChips(_dataKind);
 
   // SVG断面図（鋼種タイプに応じて切り替え）
   const svgEl = document.getElementById('dataSVGWrap');
@@ -1931,12 +1932,6 @@ function renderDataSpec() {
     }
   }
 
-  // kg/mバー
-  const kgmEl = document.getElementById('dataKgmBar');
-  if (kgmEl) {
-    kgmEl.innerHTML = `<span>単位質量 W</span><strong>${spec.W} kg/m</strong>`;
-  }
-
   const extraEl = document.getElementById('dataExtraInfo');
   if (extraEl) {
     const weightArea = (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE')
@@ -1959,13 +1954,10 @@ function renderDataSpec() {
           ? calcHPaintAreaPerMeter(spec)
           : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
 
-    extraEl.innerHTML = `
-      <div class="dp-box">
-        <div>単位重量の計算式</div>
-        <strong>${weightArea} × 0.785 = ${calcW}</strong>
-      </div>
-      ${S !== null ? `<div class="dp-box"><div>塗装面積（参考）</div><strong>${S} m²/m</strong></div>` : ''}
-    `;
+    extraEl.innerHTML =
+      '<div class="dp-sec-label" style="margin-top:16px">単位重量 / 塗装</div>' +
+      '<div class="dp-extra-row"><span>計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
+      (S !== null ? '<div class="dp-extra-row"><span>塗装面積（参考）</span><strong>' + S + ' m²/m</strong></div>' : '');
   }
 
   const input = document.getElementById('dataSpecInput');
@@ -1976,6 +1968,57 @@ function renderDataSpec() {
   renderDataNote(spec.name);
 }
 
+// ── 定尺チップ（鋼種ごと・ユーザー編集可能） ─────────────────
+function getKindSTD(kind) {
+  try {
+    var stored = localStorage.getItem('dp_std_' + kind);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return (typeof getAvailableSTD === 'function') ? getAvailableSTD(kind) : (typeof STD !== 'undefined' ? STD.slice() : []);
+}
+function saveKindSTD(kind, lengths) {
+  try { localStorage.setItem('dp_std_' + kind, JSON.stringify(lengths)); } catch(e) {}
+  // onSpec()を再実行して計算側にも反映
+  if (typeof onSpec === 'function') onSpec();
+}
+function renderDataStdChips(kind) {
+  var area = document.getElementById('dataStdArea');
+  var chips = document.getElementById('dataStdChips');
+  if (!area || !chips) return;
+  var lengths = getKindSTD(kind);
+  area.style.display = lengths.length ? 'block' : 'none';
+  var chipsHtml = lengths.map(function(len) {
+    var label = len >= 1000 ? (len / 1000) + 'm' : len + 'mm';
+    return '<span class="dp-std-chip">' + label +
+      '<button onclick="dpStdRemove(\'' + kind + '\',' + len + ')" title="削除">x</button></span>';
+  }).join('');
+  chips.innerHTML = chipsHtml +
+    '<div class="dp-std-add-form">' +
+      '<input id="dpStdInput" type="number" placeholder="mm" min="1000" step="500">' +
+      '<button onclick="dpStdAdd(\'' + kind + '\')">+ 追加</button>' +
+    '</div>';
+}
+function dpStdRemove(kind, len) {
+  var lengths = getKindSTD(kind).filter(function(l) { return l !== len; });
+  saveKindSTD(kind, lengths);
+  renderDataStdChips(kind);
+}
+function dpStdAdd(kind) {
+  var input = document.getElementById('dpStdInput');
+  if (!input) return;
+  var len = parseInt(input.value);
+  if (!len || len < 500) { alert('500mm以上の数値を入力してください'); return; }
+  var lengths = getKindSTD(kind);
+  if (lengths.indexOf(len) === -1) {
+    lengths.push(len);
+    lengths.sort(function(a, b) { return a - b; });
+    saveKindSTD(kind, lengths);
+    renderDataStdChips(kind);
+  }
+  input.value = '';
+}
+
+// ── 殴り書きメモ（絵文字なし） ────────────────────────────────
 function renderDataNote(specName) {
   var el = document.getElementById('dataNoteArea');
   if (!el) return;
@@ -1985,19 +2028,19 @@ function renderDataNote(specName) {
   try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
   var chatHtml = notes.length
     ? notes.map(function(n) {
-        return '<div style="background:#f8f8fc;border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:12px">' +
+        return '<div style="background:#f6f6f6;border-radius:4px;padding:7px 10px;margin-bottom:5px;font-size:12px">' +
           '<div style="color:#aaa;font-size:10px;margin-bottom:2px">' + n.ts + '</div>' +
           '<div>' + n.text.replace(/</g,'&lt;') + '</div></div>';
       }).join('')
-    : '<div style="color:#ccc;font-size:12px;padding:8px 0">まだメモなし</div>';
+    : '<div style="color:#bbb;font-size:12px;padding:8px 0">まだメモなし</div>';
   el.innerHTML =
-    '<div style="font-size:12px;font-weight:700;margin-bottom:8px;color:#555">✍️ ' + specName + ' メモ</div>' +
-    '<div style="max-height:160px;overflow-y:auto;margin-bottom:8px">' + chatHtml + '</div>' +
+    '<div class="dp-sec-label">メモ（後日みんなで共有予定）</div>' +
+    '<div style="max-height:180px;overflow-y:auto;margin-bottom:8px">' + chatHtml + '</div>' +
     '<div style="display:flex;gap:6px">' +
-      '<textarea id="dataNoteInput" placeholder="殴り書きOK..." rows="2" ' +
-        'style="flex:1;padding:7px;border:1px solid #d4d4dc;border-radius:8px;font-size:12px;resize:none;font-family:inherit;box-sizing:border-box"></textarea>' +
+      '<textarea id="dataNoteInput" placeholder="自由記入..." rows="2" ' +
+        'style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:12px;resize:none;font-family:inherit;box-sizing:border-box"></textarea>' +
       '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')" ' +
-        'style="background:#333333;color:#fff;border:none;border-radius:8px;padding:0 12px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">送信</button>' +
+        'style="background:#333;color:#fff;border:none;border-radius:6px;padding:0 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">送信</button>' +
     '</div>';
 }
 
