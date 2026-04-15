@@ -970,9 +970,9 @@ function onSpec() {
     // getKindSTD がある → ユーザー設定を優先、なければ STEEL_STD_EXCLUDE を使用
     var allowed;
     if (typeof getKindSTD === 'function') {
-      var curSpec = (typeof document !== 'undefined') ? (document.getElementById('spec') || {}).value || '' : '';
-      var userLengths = getKindSTD(curKind, curSpec);
-      allowed = userLengths.indexOf(len) !== -1;
+      // 今後: getKindSTD(curKind, curSpec) で規格別定尺を参照予定
+      var excl2 = (typeof STEEL_STD_EXCLUDE !== 'undefined') ? (STEEL_STD_EXCLUDE[curKind] || []) : [];
+      allowed = excl2.indexOf(len) === -1;
     } else {
       var excl = (typeof STEEL_STD_EXCLUDE !== 'undefined') ? (STEEL_STD_EXCLUDE[curKind] || []) : [];
       allowed = excl.indexOf(len) === -1;
@@ -997,15 +997,8 @@ function rebuildStkList() {
   var sl = document.getElementById('stkList');
   if (!sl) return;
 
-  // 今の鋼種のユーザー定尺を取得
-  var activeLens;
-  if (typeof getKindSTD === 'function') {
-    var _cs = (typeof document !== 'undefined') ? (document.getElementById('spec') || {}).value || '' : '';
-    activeLens = getKindSTD(typeof curKind !== 'undefined' ? curKind : '', _cs);
-  } else {
-    activeLens = STD.slice();
-  }
-  activeLens = activeLens.slice().sort(function(a, b) { return a - b; });
+  // 静的STD固定（定尺の動的連携は今後実装予定）
+  var activeLens = [5500,6000,7000,8000,9000,10000,11000,12000];
 
   // 現在のチェック状態を長さ→bool で保存
   var prevChecked = {};
@@ -1014,7 +1007,7 @@ function rebuildStkList() {
     if (cb) prevChecked[len] = cb.checked;
   });
 
-  // STD をこの鋼種の定尺に差し替え
+  // STD を固定配列に戻す
   STD.length = 0;
   activeLens.forEach(function(l) { STD.push(l); });
 

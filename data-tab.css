@@ -377,3 +377,13 @@
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* サイズドロップダウンが切れないよう overflow を解除 */
+#dpp #dtSelectors,
+#dpp #dtSelectors * {
+  overflow: visible;
+}
+/* ただし spec dropdown だけ scroll 許可 */
+#dpp .data-spec-dropdown {
+  overflow-y: auto !important;
+}
