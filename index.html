@@ -45,6 +45,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css?v=dm5">
 <link rel="stylesheet" href="toriai-theme.css?v=1">
+<link rel="stylesheet" href="data-tab.css?v=1">
 </head>
 <body>
 
@@ -731,58 +732,55 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 
 <!-- データページ -->
 <div id="dpp" class="pg">
-  <div class="dp2-page">
+  <div id="dtPage">
 
     <!-- セレクターバー -->
-    <div class="dp2-sel-bar">
-      <div class="dp2-sel-item">
-        <div class="dp2-sel-label">鋼種</div>
-        <select id="dataKindSelect" class="dp2-kind-sel" onchange="dataSelectKind(this.value)"></select>
+    <div id="dtSelectors">
+      <div class="dt-sel">
+        <label>鋼種</label>
+        <select id="dataKindSelect" onchange="dataSelectKind(this.value)"></select>
       </div>
-      <div class="dp2-sel-item dp2-sel-grow">
-        <div class="dp2-sel-label">サイズ</div>
+      <div class="dt-sel dt-sel-wide">
+        <label>サイズ</label>
         <div id="dataSpecPicker"></div>
       </div>
     </div>
 
-    <!-- ヘッダー（全幅）: 規格名 + 単位重量 + 塗装面積 -->
-    <div id="dataSpecInfo" class="dp2-header"></div>
+    <!-- ヘッダー: 規格名 + 単位重量 + 塗装面積 -->
+    <div id="dtHeader"></div>
 
-    <!-- 定尺エリア（全幅）-->
-    <div id="dataStdArea" style="display:none">
-      <div class="dp2-sec-lbl">定尺</div>
-      <div id="dataStdChips" class="dp2-std-chips"></div>
+    <!-- 定尺（編集可能） -->
+    <div id="dtStdArea" style="display:none">
+      <div class="dt-sec">定尺</div>
+      <div id="dtStdChips"></div>
     </div>
 
-    <!-- メインボディ: 左=断面情報, 右=図 -->
-    <div class="dp2-body">
+    <!-- メイン: 左=情報 右=図 -->
+    <div id="dtMain">
 
-      <!-- 左: 断面寸法 + 断面性能 + 単位重量 + メモ -->
-      <div class="dp2-info-col">
-        <div class="dp2-sec-lbl">断面寸法</div>
-        <div class="dp2-dim-grid" id="dataDimGrid"></div>
+      <div id="dtInfoCol">
+        <div class="dt-sec">断面寸法</div>
+        <div class="dt-dim-grid" id="dataDimGrid"></div>
 
-        <button id="dataPerfToggle" class="dp2-toggle-btn"
-          onclick="var w=document.getElementById('dataPerfWrap');var o=w.style.display==='none';w.style.display=o?'block':'none';this.textContent=o?'断面性能 ▲':'断面性能 ▼'">
-          断面性能 ▼</button>
+        <button id="dataPerfToggle"
+          onclick="var w=document.getElementById('dataPerfWrap');var o=w.style.display==='none';w.style.display=o?'block':'none';this.textContent=o?'断面性能 ▲':'断面性能 ▼'">断面性能 ▼</button>
         <div id="dataPerfWrap" style="display:none">
-          <div class="dp2-dim-grid" id="dataPerfGrid"></div>
+          <div class="dt-dim-grid" id="dataPerfGrid"></div>
         </div>
 
         <div id="dataExtraInfo"></div>
         <div id="dataNoteArea" style="display:none"></div>
       </div>
 
-      <!-- 右: 断面図 -->
-      <div class="dp2-fig-col">
+      <div id="dtFigCol">
         <div id="dataSVGWrap"></div>
       </div>
 
     </div>
 
     <!-- カスタム鋼材 -->
-    <div class="dp2-custom-section">
-      <div class="dp2-sec-lbl">カスタム鋼材</div>
+    <div id="dtCustom">
+      <div class="dt-sec">カスタム鋼材</div>
       <div id="customMaterialsPanel"></div>
     </div>
 

@@ -1,0 +1,302 @@
+/* ============================================================
+   data-tab.css — データタブ専用スタイル
+   #dpp スコープで他のCSSと完全に分離
+   ============================================================ */
+
+#dpp { display:none; }
+#dpp.show { display:block; }
+
+#dtPage {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+}
+
+/* ── セレクターバー ─────────────────────── */
+#dtSelectors {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.dt-sel { display: flex; flex-direction: column; gap: 5px; }
+.dt-sel-wide { flex: 1; min-width: 180px; }
+.dt-sel label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+#dataKindSelect {
+  padding: 9px 34px 9px 12px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%23666' d='M5 6L0 0h10z'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
+}
+#dataKindSelect:hover { border-color: #888; }
+
+/* ── ヘッダー ──────────────────────────── */
+#dtHeader {
+  padding-bottom: 18px;
+  border-bottom: 2px solid #111;
+  margin-bottom: 20px;
+}
+.dt-kind-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.dt-spec-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.dt-meta {
+  display: flex;
+  gap: 18px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #666;
+}
+.dt-meta-val { font-size: 18px; font-weight: 800; color: #111; }
+
+/* ── セクション見出し ───────────────────── */
+.dt-sec {
+  font-size: 10px;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border-bottom: 2px solid #111;
+  padding-bottom: 5px;
+  margin-bottom: 12px;
+}
+
+/* ── 定尺エリア ─────────────────────────── */
+#dtStdArea { margin-bottom: 24px; }
+#dtStdChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.dt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: #f4f4f4;
+  border: 1.5px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+.dt-chip-x {
+  background: none;
+  border: none;
+  font-size: 10px;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 700;
+  line-height: 1;
+}
+.dt-chip-x:hover { color: #c00; }
+.dt-chip-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dt-chip-add input {
+  width: 72px;
+  padding: 5px 7px;
+  border: 1.5px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+.dt-chip-add input:focus { border-color: #555; }
+.dt-chip-add button {
+  padding: 5px 10px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── メイン2カラム ──────────────────────── */
+#dtMain {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+#dtInfoCol { flex: 1; min-width: 0; }
+#dtFigCol {
+  width: 400px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  border: 1.5px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+}
+#dtFigCol svg { max-width: 100%; height: auto; display: block; }
+@media (max-width: 820px) {
+  #dtMain { flex-direction: column-reverse; }
+  #dtFigCol { width: 100%; position: static; }
+}
+
+/* ── 断面寸法グリッド ───────────────────── */
+.dt-dim-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.dt-dim-cell {
+  background: #fff;
+  padding: 11px 12px;
+  text-align: center;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+.dt-dim-cell:nth-child(3n) { border-right: none; }
+.dt-dim-cell:nth-last-child(-n+3) { border-bottom: none; }
+.dt-dim-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 5px;
+}
+.dt-dim-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* ── 断面性能トグル ─────────────────────── */
+#dataPerfToggle {
+  width: 100%;
+  padding: 9px 12px;
+  background: #f4f4f4;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: .04em;
+  margin-bottom: 6px;
+}
+#dataPerfToggle:hover { background: #ebebeb; }
+
+/* ── 単位重量・塗装 ─────────────────────── */
+#dataExtraInfo { margin-top: 16px; }
+.dt-extra-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  color: #666;
+}
+.dt-extra-row:last-child { border-bottom: none; }
+.dt-extra-row strong { font-weight: 700; color: #111; font-size: 13px; }
+
+/* ── メモ ──────────────────────────────── */
+#dataNoteArea {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 2px solid #111;
+}
+.dt-note-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #555;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.dt-note-list {
+  background: #f8f8f8;
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-height: 44px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #888;
+}
+.dt-note-item {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 7px 10px;
+  margin-bottom: 5px;
+}
+.dt-note-ts { font-size: 10px; color: #aaa; margin-bottom: 3px; }
+.dt-note-text { font-size: 12px; color: #333; }
+.dt-note-form { display: flex; gap: 6px; }
+.dt-note-form textarea {
+  flex: 1;
+  padding: 8px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 12px;
+  resize: none;
+  font-family: inherit;
+  height: 52px;
+  outline: none;
+}
+.dt-note-form textarea:focus { border-color: #555; }
+.dt-note-form button {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0 16px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── カスタム鋼材 ───────────────────────── */
+#dtCustom {
+  margin-top: 40px;
+  padding-top: 18px;
+  border-top: 2px solid #111;
+}

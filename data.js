@@ -1741,17 +1741,17 @@ function renderDataSpec() {
   if (!spec) return;
 
   // ヘッダー（規格名 + W + 塗装面積）
-  const infoEl = document.getElementById('dataSpecInfo');
+  const infoEl = document.getElementById('dtHeader');
   if (infoEl) {
     const W = spec.W || spec.w || null;
     const S = (typeof wGetPaintPerM === 'function') ? wGetPaintPerM(kindData.label, spec.name) : null;
     infoEl.innerHTML =
-      '<div class="dp2-hd-kind">' + kindData.label + '  ' + kindData.jis + '</div>' +
-      '<div class="dp2-hd-name">' + spec.name + '</div>' +
-      '<div class="dp2-hd-meta">' +
-        (W != null ? '<span><strong>' + W + '</strong> kg/m</span>' : '') +
-        (W != null && S ? '<span class="dp2-hd-divider"></span>' : '') +
-        (S ? '<span>塗装 <strong>' + S + '</strong> m²/m</span>' : '') +
+      '<div class="dt-kind-label">' + kindData.label + '  ' + kindData.jis + '</div>' +
+      '<div class="dt-spec-name">' + spec.name + '</div>' +
+      '<div class="dt-meta">' +
+        (W != null ? '<span><span class="dt-meta-val">' + W + '</span> kg/m</span>' : '') +
+        (W != null && S ? '<span class="dt-meta-div"></span>' : '') +
+        (S ? '<span>塗装 <span class="dt-meta-val">' + S + '</span> m²/m</span>' : '') +
       '</div>';
   }
 
@@ -1793,100 +1793,100 @@ function renderDataSpec() {
   if (dimEl) {
     if (kindData.type === 'H') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t1（ウェブ）</div><div class="dp2-val">${spec.t1} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t2（フランジ）</div><div class="dp2-val">${spec.t2} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r（フィレット）</div><div class="dp2-val">${spec.r} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.Ac} cm²</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t1（ウェブ）</div><div class="dt-dim-val">${spec.t1} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t2（フランジ）</div><div class="dt-dim-val">${spec.t2} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r（フィレット）</div><div class="dt-dim-val">${spec.r} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>`;
     } else if (kindData.type === 'C' || kindData.type === 'I') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t1（ウェブ）</div><div class="dp2-val">${spec.t1} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t2（フランジ）</div><div class="dp2-val">${spec.t2} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t1（ウェブ）</div><div class="dt-dim-val">${spec.t1} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t2（フランジ）</div><div class="dt-dim-val">${spec.t2} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>`;
     } else if (kindData.type === 'C_LIGHT') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">A</div><div class="dp2-val">${spec.A} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B（リップ）</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t</div><div class="dp2-val">${spec.t} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.Asec} cm²</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">A</div><div class="dt-dim-val">${spec.A} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B（リップ）</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t</div><div class="dt-dim-val">${spec.t} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.Asec} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>`;
     } else if (kindData.type === 'L') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">A = B</div><div class="dp2-val">${spec.A} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t（肉厚）</div><div class="dp2-val">${spec.t} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 Ac</div><div class="dp2-val">${spec.Ac} cm²</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Cx = Cy</div><div class="dp2-val">${spec.Cx} cm</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">A = B</div><div class="dt-dim-val">${spec.A} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t（肉厚）</div><div class="dt-dim-val">${spec.t} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 Ac</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Cx = Cy</div><div class="dt-dim-val">${spec.Cx} cm</div></div>`;
     } else if (kindData.type === 'LU') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">A（長辺）</div><div class="dp2-val">${spec.A} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B（短辺）</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t（板厚）</div><div class="dp2-val">${spec.t} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 Ac</div><div class="dp2-val">${spec.Ac} cm²</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">A 方向</div><div class="dp2-val">${spec.Cx} cm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B 方向</div><div class="dp2-val">${spec.Cy} cm</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">A（長辺）</div><div class="dt-dim-val">${spec.A} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B（短辺）</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t（板厚）</div><div class="dt-dim-val">${spec.t} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 Ac</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">A 方向</div><div class="dt-dim-val">${spec.Cx} cm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B 方向</div><div class="dt-dim-val">${spec.Cy} cm</div></div>`;
     } else if (kindData.type === 'LUT') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">A（長辺）</div><div class="dp2-val">${spec.A} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B（短辺）</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t1（長辺板厚）</div><div class="dp2-val">${spec.t1} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t2（短辺板厚）</div><div class="dp2-val">${spec.t2} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r1（根元）</div><div class="dp2-val">${spec.r1} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r2（先端）</div><div class="dp2-val">${spec.r2} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 Ac</div><div class="dp2-val">${spec.Ac} cm²</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">A 方向</div><div class="dp2-val">${spec.Cx} cm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B 方向</div><div class="dp2-val">${spec.Cy} cm</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">A（長辺）</div><div class="dt-dim-val">${spec.A} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B（短辺）</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t1（長辺板厚）</div><div class="dt-dim-val">${spec.t1} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t2（短辺板厚）</div><div class="dt-dim-val">${spec.t2} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 Ac</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">A 方向</div><div class="dt-dim-val">${spec.Cx} cm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B 方向</div><div class="dt-dim-val">${spec.Cy} cm</div></div>`;
     } else if (kindData.type === 'FL') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">厚さ t</div><div class="dp2-val">${spec.t} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">幅 B</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積</div><div class="dp2-val">${spec.Ac} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">厚さ t</div><div class="dt-dim-val">${spec.t} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">幅 B</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
       `;
     } else if (kindData.type === 'RB') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">直径 D</div><div class="dp2-val">${spec.D} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.A} cm²</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">直径 D</div><div class="dt-dim-val">${spec.D} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.A} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>
       `;
     } else if (kindData.type === 'SB') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">一辺 a</div><div class="dp2-val">${spec.a} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.A} cm²</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">一辺 a</div><div class="dt-dim-val">${spec.a} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.A} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>
       `;
     } else if (kindData.type === 'PIPE') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">呼び径</div><div class="dp2-val">${spec.name}</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">inch</div><div class="dp2-val">${spec.inch}</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">外径 D</div><div class="dp2-val">${spec.D} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">内径 d</div><div class="dp2-val">${spec.d} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">厚さ t</div><div class="dp2-val">${spec.t} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.A} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">呼び径</div><div class="dt-dim-val">${spec.name}</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">inch</div><div class="dt-dim-val">${spec.inch}</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">外径 D</div><div class="dt-dim-val">${spec.D} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">内径 d</div><div class="dt-dim-val">${spec.d} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">厚さ t</div><div class="dt-dim-val">${spec.t} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.A} cm²</div></div>
       `;
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">A</div><div class="dp2-val">${spec.A} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t</div><div class="dp2-val">${spec.t} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">断面積 A</div><div class="dp2-val">${spec.Asec} cm²</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">単位質量 W</div><div class="dp2-val">${spec.W} kg/m</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">A</div><div class="dt-dim-val">${spec.A} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t</div><div class="dt-dim-val">${spec.t} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.Asec} cm²</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>
       `;
     } else if (kindData.type === 'BCR') {
       dimEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">H</div><div class="dp2-val">${spec.H} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">B</div><div class="dp2-val">${spec.B} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t</div><div class="dp2-val">${spec.t} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">r</div><div class="dp2-val">${spec.r} mm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">t/r</div><div class="dp2-val">${spec.Ht}</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">ランク</div><div class="dp2-val">${spec.rank}</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t</div><div class="dt-dim-val">${spec.t} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">r</div><div class="dt-dim-val">${spec.r} mm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">t/r</div><div class="dt-dim-val">${spec.Ht}</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">ランク</div><div class="dt-dim-val">${spec.rank}</div></div>
       `;
     }
   }
@@ -1900,33 +1900,33 @@ function renderDataSpec() {
   if (perfEl) {
     if (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE') {
       perfEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">I</div><div class="dp2-val">${spec.I} cm⁴</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Z</div><div class="dp2-val">${spec.Z} cm³</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">i</div><div class="dp2-val">${spec.i} cm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">I</div><div class="dt-dim-val">${spec.I} cm⁴</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Z</div><div class="dt-dim-val">${spec.Z} cm³</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">i</div><div class="dt-dim-val">${spec.i} cm</div></div>
       `;
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       perfEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Ix</div><div class="dp2-val">${spec.Ix} cm⁴</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Iy</div><div class="dp2-val">${spec.Iy != null ? spec.Iy : spec.Ix} cm⁴</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Zx</div><div class="dp2-val">${spec.Zx} cm³</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Zy</div><div class="dp2-val">${spec.Zy != null ? spec.Zy : spec.Zx} cm³</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">ix</div><div class="dp2-val">${spec.ix} cm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">iy</div><div class="dp2-val">${spec.iy != null ? spec.iy : spec.ix} cm</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Ix</div><div class="dt-dim-val">${spec.Ix} cm⁴</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Iy</div><div class="dt-dim-val">${spec.Iy != null ? spec.Iy : spec.Ix} cm⁴</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zx</div><div class="dt-dim-val">${spec.Zx} cm³</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zy</div><div class="dt-dim-val">${spec.Zy != null ? spec.Zy : spec.Zx} cm³</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">ix</div><div class="dt-dim-val">${spec.ix} cm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">iy</div><div class="dt-dim-val">${spec.iy != null ? spec.iy : spec.ix} cm</div></div>`;
     } else if (kindData.type === 'BCR') {
       perfEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">I</div><div class="dp2-val">${spec.I} cm⁴</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Z</div><div class="dp2-val">${spec.Z} cm³</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Zp</div><div class="dp2-val">${spec.Zp} cm³</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">i</div><div class="dp2-val">${spec.i} cm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">I</div><div class="dt-dim-val">${spec.I} cm⁴</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Z</div><div class="dt-dim-val">${spec.Z} cm³</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zp</div><div class="dt-dim-val">${spec.Zp} cm³</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">i</div><div class="dt-dim-val">${spec.i} cm</div></div>
       `;
     } else {
       perfEl.innerHTML = `
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Ix</div><div class="dp2-val">${spec.Ix} cm⁴</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Iy</div><div class="dp2-val">${spec.Iy} cm⁴</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Zx</div><div class="dp2-val">${spec.Zx} cm³</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">Zy</div><div class="dp2-val">${spec.Zy} cm³</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">ix</div><div class="dp2-val">${spec.ix} cm</div></div>
-        <div class="dp2-dim-cell"><div class="dp2-lbl">iy</div><div class="dp2-val">${spec.iy} cm</div></div>`;
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Ix</div><div class="dt-dim-val">${spec.Ix} cm⁴</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Iy</div><div class="dt-dim-val">${spec.Iy} cm⁴</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zx</div><div class="dt-dim-val">${spec.Zx} cm³</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zy</div><div class="dt-dim-val">${spec.Zy} cm³</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">ix</div><div class="dt-dim-val">${spec.ix} cm</div></div>
+        <div class="dt-dim-cell"><div class="dt-dim-lbl">iy</div><div class="dt-dim-val">${spec.iy} cm</div></div>`;
     }
   }
 
@@ -1953,9 +1953,9 @@ function renderDataSpec() {
           : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
 
     extraEl.innerHTML =
-      '<div class="dp2-sec-lbl" style="margin-top:16px">単位重量 / 塗装</div>' +
-      '<div class="dp2-extra-row"><span>計算式</span><strong>' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</strong></div>' +
-      (S !== null ? '<div class="dp2-extra-row"><span>塗装面積（参考）</span><strong>' + S + ' m²/m</strong></div>' : '');
+      '<div class="dt-sec" style="margin-top:16px">単位重量 / 塗装</div>' +
+      '<div class="dt-extra-row"><span>計算式</span><span class="dt-meta-val">' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</span></div>' +
+      (S !== null ? '<div class="dt-extra-row"><span>塗装面積（参考）</span><span class="dt-meta-val">' + S + ' m²/m</span></div>' : '');
   }
 
   const input = document.getElementById('dataSpecInput');
@@ -1980,18 +1980,18 @@ function saveKindSTD(kind, lengths) {
   if (typeof onSpec === 'function') onSpec();
 }
 function renderDataStdChips(kind) {
-  var area = document.getElementById('dataStdArea');
-  var chips = document.getElementById('dataStdChips');
+  var area = document.getElementById('dtStdArea');
+  var chips = document.getElementById('dtStdChips');
   if (!area || !chips) return;
   var lengths = getKindSTD(kind);
   area.style.display = lengths.length ? 'block' : 'none';
   var chipsHtml = lengths.map(function(len) {
     var label = len >= 1000 ? (len / 1000) + 'm' : len + 'mm';
-    return '<span class="dp2-chip">' + label +
-      '<button class="dp2-chip-x" onclick="dpStdRemove(\'' + kind + '\',' + len + ')">x</button></span>';
+    return '<span class="dt-chip">' + label +
+      '<button class="dt-chip-x" onclick="dpStdRemove(\'' + kind + '\',' + len + ')">x</button></span>';
   }).join('');
   chips.innerHTML = chipsHtml +
-    '<span class="dp2-chip-add">' +
+    '<span class="dt-chip-add">' +
       '<input id="dpStdInput" type="number" placeholder="mm" min="500" step="500">' +
       '<button onclick="dpStdAdd(\'' + kind + '\')">+ 追加</button>' +
     '</span>';
@@ -2026,14 +2026,14 @@ function renderDataNote(specName) {
   try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
   var chatHtml = notes.length
     ? notes.map(function(n) {
-        return '<div class="dp2-note-item"><div class="dp2-note-ts">' + n.ts + '</div>' +
-          '<div class="dp2-note-text">' + n.text.replace(/</g,'&lt;') + '</div></div>';
+        return '<div class="dt-note-item"><div class="dt-note-ts">' + n.ts + '</div>' +
+          '<div class="dt-note-text">' + n.text.replace(/</g,'&lt;') + '</div></div>';
       }).join('')
     : '<div style="color:#aaa;font-size:12px">まだメモなし</div>';
   el.innerHTML =
-    '<div class="dp2-note-lbl">メモ（後日みんなで共有予定）</div>' +
-    '<div class="dp2-note-list">' + chatHtml + '</div>' +
-    '<div class="dp2-note-form">' +
+    '<div class="dt-note-lbl">メモ（後日みんなで共有予定）</div>' +
+    '<div class="dt-note-list">' + chatHtml + '</div>' +
+    '<div class="dt-note-form">' +
       '<textarea id="dataNoteInput" placeholder="自由記入..."></textarea>' +
       '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')">送信</button>' +
     '</div>';
