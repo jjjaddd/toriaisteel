@@ -970,7 +970,8 @@ function onSpec() {
     // getKindSTD がある → ユーザー設定を優先、なければ STEEL_STD_EXCLUDE を使用
     var allowed;
     if (typeof getKindSTD === 'function') {
-      var userLengths = getKindSTD(curKind);
+      var curSpec = (typeof document !== 'undefined') ? (document.getElementById('spec') || {}).value || '' : '';
+      var userLengths = getKindSTD(curKind, curSpec);
       allowed = userLengths.indexOf(len) !== -1;
     } else {
       var excl = (typeof STEEL_STD_EXCLUDE !== 'undefined') ? (STEEL_STD_EXCLUDE[curKind] || []) : [];
@@ -999,7 +1000,8 @@ function rebuildStkList() {
   // 今の鋼種のユーザー定尺を取得
   var activeLens;
   if (typeof getKindSTD === 'function') {
-    activeLens = getKindSTD(typeof curKind !== 'undefined' ? curKind : '');
+    var _cs = (typeof document !== 'undefined') ? (document.getElementById('spec') || {}).value || '' : '';
+    activeLens = getKindSTD(typeof curKind !== 'undefined' ? curKind : '', _cs);
   } else {
     activeLens = STD.slice();
   }

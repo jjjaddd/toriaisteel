@@ -1858,8 +1858,8 @@ function renderDataSpec() {
       '</div>';
   }
 
-  // 定尺チップ（編集可能）
-  renderDataStdChips(_dataKind);
+  // 定尺チップ（規格ごとに管理）
+  renderDataStdChips(_dataKind, spec.name);
 
   // SVG断面図（鋼種タイプに応じて切り替え）
   const svgEl = document.getElementById('dataSVGWrap');
@@ -2081,52 +2081,64 @@ function renderDataSpec() {
 }
 
 // ── 定尺チップ（鋼種ごと・ユーザー編集可能） ─────────────────
-function getKindSTD(kind) {
+// ── 定尺管理: 規格（種類×サイズ）ごとに独立 ─────────────────────
+
+function _stdKey(kind, spec) {
+  return 'dp_std_' + kind + '_' + (spec || '');
+}
+
+function getKindSTD(kind, spec) {
   try {
-    var stored = localStorage.getItem('dp_std_' + kind);
+    var stored = localStorage.getItem(_stdKey(kind, spec));
     if (stored) return JSON.parse(stored);
   } catch(e) {}
   return (typeof getAvailableSTD === 'function') ? getAvailableSTD(kind) : (typeof STD !== 'undefined' ? STD.slice() : []);
 }
-function saveKindSTD(kind, lengths) {
-  try { localStorage.setItem('dp_std_' + kind, JSON.stringify(lengths)); } catch(e) {}
-  // 在庫定尺リスト再構築 → 取り合い計算に即反映
+
+function saveKindSTD(kind, lengths, spec) {
+  try { localStorage.setItem(_stdKey(kind, spec), JSON.stringify(lengths)); } catch(e) {}
   if (typeof rebuildStkList === 'function') rebuildStkList();
   if (typeof onSpec === 'function') onSpec();
 }
-function renderDataStdChips(kind) {
-  var area = document.getElementById('dtStdArea');
+
+function renderDataStdChips(kind, spec) {
+  var area  = document.getElementById('dtStdArea');
   var chips = document.getElementById('dtStdChips');
   if (!area || !chips) return;
-  var lengths = getKindSTD(kind);
-  area.style.display = lengths.length ? 'block' : 'none';
+  if (!spec) { area.style.display = 'none'; return; }
+  var lengths = getKindSTD(kind, spec);
+  area.style.display = 'block';
+  var ke = kind.replace(/'/g, "\\'");
+  var se = spec.replace(/'/g, "\\'");
   var chipsHtml = lengths.map(function(len) {
     var label = len >= 1000 ? (len / 1000) + 'm' : len + 'mm';
     return '<span class="dt-chip">' + label +
-      '<button class="dt-chip-x" onclick="dpStdRemove(\'' + kind + '\',' + len + ')">x</button></span>';
+      '<button class="dt-chip-x" onclick="dpStdRemove(\'' + ke + '\',\'' + se + '\',' + len + ')">x</button></span>';
   }).join('');
   chips.innerHTML = chipsHtml +
     '<span class="dt-chip-add">' +
       '<input id="dpStdInput" type="number" placeholder="mm" min="500" step="500">' +
-      '<button onclick="dpStdAdd(\'' + kind + '\')">+ 追加</button>' +
+      '<button onclick="dpStdAdd(\'' + ke + '\',\'' + se + '\')">+ 追加</button>' +
     '</span>';
 }
-function dpStdRemove(kind, len) {
-  var lengths = getKindSTD(kind).filter(function(l) { return l !== len; });
-  saveKindSTD(kind, lengths);
-  renderDataStdChips(kind);
+
+function dpStdRemove(kind, spec, len) {
+  var lengths = getKindSTD(kind, spec).filter(function(l) { return l !== len; });
+  saveKindSTD(kind, lengths, spec);
+  renderDataStdChips(kind, spec);
 }
-function dpStdAdd(kind) {
+
+function dpStdAdd(kind, spec) {
   var input = document.getElementById('dpStdInput');
   if (!input) return;
   var len = parseInt(input.value);
   if (!len || len < 500) { alert('500mm以上の数値を入力してください'); return; }
-  var lengths = getKindSTD(kind);
+  var lengths = getKindSTD(kind, spec);
   if (lengths.indexOf(len) === -1) {
     lengths.push(len);
     lengths.sort(function(a, b) { return a - b; });
-    saveKindSTD(kind, lengths);
-    renderDataStdChips(kind);
+    saveKindSTD(kind, lengths, spec);
+    renderDataStdChips(kind, spec);
   }
   input.value = '';
 }
