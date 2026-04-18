@@ -62,7 +62,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=dm7">
+  <link rel="stylesheet" href="style.css?v=dm8">
 <link rel="stylesheet" href="toriai-theme.css?v=1">
 <link rel="stylesheet" href="data-tab.css?v=1">
 </head>
@@ -80,7 +80,6 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
     <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">履歴・在庫</a>
   </nav>
   <div class="hdr-right">
-    <button type="button" class="guide-help-btn" onclick="openGuide(true)" aria-label="使い方ガイド">?</button>
     <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">カート 0件</button>
     <button id="hamBtn" class="ham-btn" type="button" onclick="toggleHeaderMenu()" aria-label="設定メニュー" aria-expanded="false">☰</button>
     <div id="hamMenu" class="ham-menu">
@@ -99,11 +98,6 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         </button>
         <button class="hm-row" type="button" onclick="openChangelog();closeHeaderMenu()">
           <span class="hm-txt">更新履歴 <span id="appVersionLabel" style="font-size:10px;color:var(--g3);font-weight:400">v1.0.0</span></span>
-        </button>
-      </div>
-      <div class="hm-section">
-        <button class="hm-row" type="button" onclick="openGuide(true);closeHeaderMenu()">
-          <span class="hm-txt">使い方ガイド</span>
         </button>
       </div>
     </div>
@@ -902,27 +896,6 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
     <li>Excel/CADデータのコピペ対応・PWA対応</li>
   </ul>
 </footer>
-
-<!-- ── 使い方ガイドモーダル ── -->
-<div id="guideModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)closeGuide()">
-  <div class="guide-box">
-    <button class="guide-close-btn" onclick="closeGuide()">×</button>
-    <div class="guide-icon" id="guideIcon">👋</div>
-    <div class="guide-title" id="guideTitle"></div>
-    <div class="guide-body" id="guideBody"></div>
-    <div class="guide-dots">
-      <span class="guide-dot"></span><span class="guide-dot"></span><span class="guide-dot"></span><span class="guide-dot"></span><span class="guide-dot"></span>
-    </div>
-    <div class="guide-nav">
-      <button id="guidePrevBtn" class="guide-prev-btn" onclick="guidePrev()">← 戻る</button>
-      <span id="guideCounter" class="guide-counter">1 / 5</span>
-      <button id="guideNextBtn" class="guide-next-btn" onclick="guideNext()">次へ →</button>
-    </div>
-    <div class="guide-footer-row">
-      <label class="guide-dontshow"><input type="checkbox" id="guideDontShow"><span>次回から自動で表示しない</span></label>
-    </div>
-  </div>
-</div>
 
 <!-- ── 更新履歴モーダル ── -->
 <div id="changelogModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)closeChangelog()">

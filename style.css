@@ -3716,27 +3716,3 @@ html[data-theme="dark"] .contact-pen-l
 #dpp .dp2-sel-item { display:flex; flex-direction:column; gap:5px; }
 #dpp .dp2-sel-grow { flex:1; min-width:180px; }
 #dpp .dp2-sel-label { font-size:10px; font-weight:700; color:#888; letter-spacing:.08em; text-transform:uppercase; }
-
-/* ── Guide Modal ────────────────────────────────────── */
-.guide-help-btn{background:transparent;border:1.5px solid var(--bd);color:var(--g2);border-radius:50%;width:28px;height:28px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;font-family:inherit;flex-shrink:0}
-.guide-help-btn:hover{border-color:var(--br);color:var(--br)}
-.guide-box{background:var(--sf);border-radius:var(--r-lg);width:min(420px,92vw);padding:32px 28px 20px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.2);text-align:center}
-.guide-close-btn{position:absolute;top:10px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--g2);line-height:1;padding:4px}
-.guide-close-btn:hover{color:var(--ink)}
-.guide-icon{font-size:42px;margin-bottom:12px;line-height:1}
-.guide-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:10px;line-height:1.4}
-.guide-body{font-size:13px;color:var(--g2);line-height:1.75;min-height:64px;margin-bottom:18px}
-.guide-dots{display:flex;gap:7px;justify-content:center;margin-bottom:18px}
-.guide-dot{width:7px;height:7px;border-radius:50%;background:var(--bd);transition:.2s;cursor:pointer}
-.guide-dot.active{background:var(--br);transform:scale(1.25)}
-.guide-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px}
-.guide-counter{font-size:11px;color:var(--g3);min-width:32px;text-align:center}
-.guide-prev-btn,.guide-next-btn{padding:8px 18px;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;white-space:nowrap}
-.guide-prev-btn{background:transparent;border:1.5px solid var(--bd);color:var(--g2)}
-.guide-prev-btn:hover{border-color:var(--br);color:var(--br)}
-.guide-next-btn{background:var(--br);border:1.5px solid var(--br);color:#fff;flex:1}
-.guide-next-btn:hover{background:var(--br2);border-color:var(--br2)}
-.guide-footer-row{border-top:1px solid var(--line);padding-top:12px}
-.guide-dontshow{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:var(--g2);cursor:pointer;user-select:none}
-.guide-dontshow input{cursor:pointer;accent-color:var(--br)}
-@media(max-width:480px){.guide-box{padding:24px 18px 16px}.guide-title{font-size:14px}.guide-body{font-size:12px}}

@@ -1,81 +1,8 @@
-// guide.js — 使い方ガイド・バージョン・Changelog
+// guide.js — バージョン表示 & 更新履歴（使い方ガイドは一旦削除）
 
 var APP_VERSION = '1.0.0';
-var GUIDE_SEEN_KEY = 'toriai_guide_seen';
-var _guideSlide = 0;
-
-var GUIDE_SLIDES = [
-  {
-    icon: '👋',
-    title: 'TORIAIへようこそ',
-    body: '鋼材の取り合い・重量計算がブラウザだけで完結する無料ツールです。インストール不要、スマホでも使えます。'
-  },
-  {
-    icon: '📋',
-    title: 'STEP 1: データタブで鋼材を管理',
-    body: '鋼種・サイズ・定尺を自由に編集できます。独自サイズや特殊な定尺の登録も可能で、現場ごとにカスタマイズできます。'
-  },
-  {
-    icon: '✂️',
-    title: 'STEP 2: 取り合いタブで切断計画',
-    body: '必要な長さと数量を入力すれば、バンドソー歩留まりを最適化した切断計画が自動算出されます。残材も活用できます。'
-  },
-  {
-    icon: '⚖️',
-    title: 'STEP 3: 重量シミュレーター',
-    body: '鋼種・サイズ・本数から総重量と塗装面積を一瞬で算出。単価を入れれば概算金額も計算できます。'
-  },
-  {
-    icon: '♻️',
-    title: 'STEP 4: 残材・カスタム定尺',
-    body: '余った材料は残材登録して次の計算に活用。特殊な定尺も追加でき、現場に合わせて育てられます。'
-  }
-];
-
-function openGuide(force) {
-  if (!force && localStorage.getItem(GUIDE_SEEN_KEY) === 'skip') return;
-  _guideSlide = 0;
-  _renderGuideSlide();
-  var m = document.getElementById('guideModal');
-  if (m) { m.style.display = 'flex'; document.getElementById('guideDontShow').checked = false; }
-}
-
-function closeGuide() {
-  var m = document.getElementById('guideModal');
-  if (m) m.style.display = 'none';
-  var cb = document.getElementById('guideDontShow');
-  localStorage.setItem(GUIDE_SEEN_KEY, (cb && cb.checked) ? 'skip' : 'seen');
-}
-
-function _renderGuideSlide() {
-  var s = GUIDE_SLIDES[_guideSlide];
-  var set = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
-  set('guideIcon', s.icon);
-  set('guideTitle', s.title);
-  set('guideBody', s.body);
-  set('guideCounter', (_guideSlide + 1) + ' / ' + GUIDE_SLIDES.length);
-
-  var prev = document.getElementById('guidePrevBtn');
-  var next = document.getElementById('guideNextBtn');
-  if (prev) prev.style.visibility = _guideSlide === 0 ? 'hidden' : 'visible';
-  if (next) next.textContent = _guideSlide === GUIDE_SLIDES.length - 1 ? '閉じる ✓' : '次へ →';
-
-  document.querySelectorAll('.guide-dot').forEach(function(d, i) {
-    d.classList.toggle('active', i === _guideSlide);
-  });
-}
-
-function guidePrev() {
-  if (_guideSlide > 0) { _guideSlide--; _renderGuideSlide(); }
-}
-
-function guideNext() {
-  if (_guideSlide < GUIDE_SLIDES.length - 1) { _guideSlide++; _renderGuideSlide(); }
-  else closeGuide();
-}
 
 // ── Changelog ──────────────────────────────────────────────
-
 function openChangelog() {
   var m = document.getElementById('changelogModal');
   if (!m) return;
@@ -102,7 +29,7 @@ function _parseMd(md) {
   };
   var html = '';
   md.split('\n').forEach(function(line) {
-    line = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    line = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     if (/^## /.test(line)) {
       html += '<h3 style="font-size:13px;font-weight:700;color:var(--ink);margin:16px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)">' + line.slice(3) + '</h3>';
     } else if (/^# /.test(line)) {
@@ -119,15 +46,16 @@ function _parseMd(md) {
   return html;
 }
 
-// ── 初回自動オープン ────────────────────────────────────────
-
+// ── バージョン表示 ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-  // バージョン表示を更新
   var vEl = document.getElementById('appVersionLabel');
   if (vEl) vEl.textContent = 'v' + APP_VERSION;
-
-  // 初回のみガイドを自動表示
-  if (localStorage.getItem(GUIDE_SEEN_KEY) !== 'skip') {
-    setTimeout(openGuide, 600);
-  }
+  var cvEl = document.getElementById('changelogVersion');
+  if (cvEl) cvEl.textContent = 'v' + APP_VERSION;
 });
+
+// 後方互換：旧 openGuide/closeGuide 呼び出しは no-op にして誤動作を防ぐ
+function openGuide() {}
+function closeGuide() {}
+function guideNext() {}
+function guidePrev() {}
