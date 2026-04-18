@@ -115,13 +115,18 @@ function saveSettings() {
       jobName:     (document.getElementById('jobName')||{}).value||'',
       jobDeadline: (document.getElementById('jobDeadline')||{}).value||'',
       jobWorker:   (document.getElementById('jobWorker')||{}).value||'',
-      stocks:      []
+      stocks:      [],
+      stockLengths: [],
+      stocksByLength: {}
     };
     STD.forEach(function(sl, i) {
-      obj.stocks.push({
+      var state = {
         checked: document.getElementById('sc'+i).checked,
         max:     document.getElementById('sm'+i).value
-      });
+      };
+      obj.stocks.push(state);
+      obj.stockLengths.push(sl);
+      obj.stocksByLength[String(sl)] = state;
     });
     localStorage.setItem(LS_SETTINGS, JSON.stringify(obj));
   } catch(e) {}
@@ -135,15 +140,6 @@ function loadSettings() {
     if (obj.blade)         document.getElementById('blade').value = obj.blade;
     if (obj.endloss)       document.getElementById('endloss').value = obj.endloss;
     if (obj.minRemnantLen) document.getElementById('minRemnantLen').value = obj.minRemnantLen;
-    if (obj.stocks) {
-      obj.stocks.forEach(function(s, i) {
-        var cb = document.getElementById('sc'+i);
-        var mx = document.getElementById('sm'+i);
-        if (cb) cb.checked = s.checked;
-        if (mx) mx.value = s.max;
-        if (cb) togStk(i);
-      });
-    }
     if (obj.jobClient) { var el=document.getElementById('jobClient'); if(el)el.value=obj.jobClient; }
     if (obj.jobName)   { var el=document.getElementById('jobName');   if(el)el.value=obj.jobName; }
     if (obj.jobDeadline){var el=document.getElementById('jobDeadline');if(el)el.value=obj.jobDeadline;}
@@ -154,6 +150,25 @@ function loadSettings() {
         b.classList.toggle('on', b.querySelector('span') && b.querySelector('span').textContent === obj.kind);
       });
       buildSpec();
+    }
+    if (obj.stocksByLength) {
+      STD.forEach(function(sl, i) {
+        var state = obj.stocksByLength[String(sl)];
+        if (!state) return;
+        var cb = document.getElementById('sc'+i);
+        var mx = document.getElementById('sm'+i);
+        if (cb) cb.checked = state.checked;
+        if (mx) mx.value = state.max;
+        if (cb) togStk(i);
+      });
+    } else if (obj.stocks) {
+      obj.stocks.forEach(function(s, i) {
+        var cb = document.getElementById('sc'+i);
+        var mx = document.getElementById('sm'+i);
+        if (cb) cb.checked = s.checked;
+        if (mx) mx.value = s.max;
+        if (cb) togStk(i);
+      });
     }
   } catch(e) {}
 }

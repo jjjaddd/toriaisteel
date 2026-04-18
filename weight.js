@@ -35,6 +35,14 @@ var _tdR = 'padding:8px 10px;text-align:right;white-space:nowrap;font-family:mon
 // ── ヘルパー ──────────────────────────────────────────────────
 function _wSpecName(row) { return row[0]; }
 function _wSpecKgm(row)  { return row[1]; }
+function _wKinds() {
+  if (typeof getCalcEnabledKinds === 'function') return getCalcEnabledKinds();
+  return Object.keys(STEEL || {});
+}
+function _wRowsByKind(kind) {
+  if (typeof getSteelRowsForKind === 'function') return getSteelRowsForKind(kind);
+  return Array.isArray(STEEL[kind]) ? STEEL[kind] : [];
+}
 
 /**
  * JIS Z 8401 偶数丸め
@@ -83,10 +91,11 @@ function _escAttr(s) {
 function wInit() {
   var kindEl = document.getElementById('wKind');
   if (!kindEl || typeof STEEL !== 'object' || !STEEL) return;
+  var kinds = _wKinds();
 
   if (!_wInited) {
     kindEl.innerHTML = '';
-    Object.keys(STEEL).forEach(function(kind) {
+    kinds.forEach(function(kind) {
       var opt = document.createElement('option');
       opt.value = kind;
       opt.textContent = kind;
@@ -101,9 +110,10 @@ function wInit() {
   wCmdBuildAll();
 
   var cmdInput = document.getElementById('wCmdInput');
-  if (cmdInput && !cmdInput.value && Object.keys(STEEL).length > 0) {
-    var firstKind = Object.keys(STEEL)[0];
-    var firstSpec = Array.isArray(STEEL[firstKind]) && STEEL[firstKind].length > 0 ? STEEL[firstKind][0] : null;
+  if (cmdInput && !cmdInput.value && kinds.length > 0) {
+    var firstKind = kinds[0];
+    var firstRows = _wRowsByKind(firstKind);
+    var firstSpec = firstRows.length > 0 ? firstRows[0] : null;
     if (firstSpec) {
       wCmdSelect({
         kind:  firstKind,
@@ -297,7 +307,7 @@ function wOnKind() {
   var kindEl = document.getElementById('wKind');
   var specEl = document.getElementById('wSpec');
   if (!kindEl || !specEl || !STEEL) return;
-  var specs = Array.isArray(STEEL[kindEl.value]) ? STEEL[kindEl.value] : [];
+  var specs = _wRowsByKind(kindEl.value);
   specEl.innerHTML = '';
   specs.forEach(function(item) {
     var opt = document.createElement('option');
@@ -314,7 +324,7 @@ function wOnSpec() {
   var kgmEl    = document.getElementById('wKgm');
   var kgmValEl = document.getElementById('wKgmVal');
   if (!kindEl || !specEl || !kgmEl || !STEEL) return;
-  var list = Array.isArray(STEEL[kindEl.value]) ? STEEL[kindEl.value] : [];
+  var list = _wRowsByKind(kindEl.value);
   var hit  = list.find(function(item) { return item[0] === specEl.value; });
   var kgm  = hit ? Number(hit[1]) : 0;
   kgmEl.value = kgm > 0 ? String(kgm) : '';
@@ -1133,8 +1143,8 @@ function wPrint() {
 function wCmdBuildAll() {
   _wCmdAll = [];
   if (typeof STEEL !== 'object' || !STEEL) return;
-  Object.keys(STEEL).forEach(function(kind) {
-    (STEEL[kind] || []).forEach(function(row) {
+  _wKinds().forEach(function(kind) {
+    _wRowsByKind(kind).forEach(function(row) {
       _wCmdAll.push({ kind: kind, spec: row[0], kgm: row[1], label: kind + ' ' + row[0] });
     });
   });
@@ -1161,7 +1171,7 @@ function wCmdOpenBrowse() {
   var dd = document.getElementById('wCmdDropdown');
   if (!dd) return;
   var html = '';
-  Object.keys(STEEL).forEach(function(kind) {
+  _wKinds().forEach(function(kind) {
     html += '<div class="cmd-item cmd-cat-link" onmouseover="wCmdHover(this)" ' +
             'onmousedown="event.preventDefault();wCmdShowKind(\'' + kind + '\')">' +
             '<span>' + kind + '</span><span class="cmd-sub">▶</span></div>';
@@ -1174,7 +1184,7 @@ function wCmdOpenBrowse() {
 
 function wCmdShowKind(kind) {
   var dd   = document.getElementById('wCmdDropdown');
-  var list = STEEL[kind] || [];
+  var list = _wRowsByKind(kind);
   if (!dd) return;
   var html = '<div class="cmd-cat" style="cursor:pointer;color:#aaa;display:flex;align-items:center;gap:4px" ' +
              'onmousedown="event.preventDefault();wCmdOpenBrowse()">◀ 戻る　<strong style="color:#5a5a78">' + kind + '</strong></div>';

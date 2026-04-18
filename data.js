@@ -1122,6 +1122,92 @@ SECTION_DATA['BCR295'] = {
   specs: BCR295_DATA
 };
 
+// ===== 鋼材DB共通定義 =====
+// data.js を鋼材データの唯一のソースに寄せるための中間レイヤー。
+// 既存コードは当面 SECTION_DATA / STEEL の両方を参照するため、
+// ここでは「新しい取得API」を追加しつつ旧互換も維持する。
+const STEEL_DB = SECTION_DATA;
+
+const DEFAULT_STOCK_DB = {
+  common: [5500, 6000, 7000, 8000, 9000, 10000, 11000, 12000],
+  byKind: {
+    // H形鋼は現行仕様どおり 5.5m を初期候補から外す
+    'H形鋼': { exclude: [5500] }
+
+    /* ⬇ ここに鋼種ごとの初期定尺を追加 ⬇
+    ,'SGP配管': { lengths: [4000, 5500, 6000] }
+    ,'BCR295': { lengths: [6000, 9000, 12000] }
+    */
+  }
+};
+
+function getCalcKindName(kind) {
+  var entry = STEEL_DB[kind];
+  return entry && entry.calcKey ? entry.calcKey : kind;
+}
+
+function getCalcEnabledSpecs(kind) {
+  var entry = STEEL_DB[kind];
+  if (!entry || !Array.isArray(entry.specs)) return [];
+  return entry.specs.filter(function(spec) {
+    if (spec.inCalc === false) return false;
+    return spec.W != null && spec.W > 0;
+  });
+}
+
+function getCalcEnabledKinds() {
+  return getDataKindOrder().filter(function(kind) {
+    var entry = STEEL_DB[kind];
+    return !!(entry && entry.showInCalc && getCalcEnabledSpecs(kind).length);
+  });
+}
+
+function getDefaultStockLengths(kind, spec) {
+  var entry = STEEL_DB[kind] || {};
+  var specs = Array.isArray(entry.specs) ? entry.specs : [];
+  var specEntry = specs.find(function(item) { return item.name === spec; }) || null;
+
+  // 規格単位の初期定尺があれば最優先
+  if (specEntry && Array.isArray(specEntry.defaultStock) && specEntry.defaultStock.length) {
+    return specEntry.defaultStock.slice();
+  }
+
+  var base = DEFAULT_STOCK_DB.common.slice();
+  var policy = DEFAULT_STOCK_DB.byKind[kind] || {};
+
+  // data.js 側の kind ポリシーを優先、未設定なら共通DBを見る
+  if (entry.defaultStockPolicy) {
+    if (Array.isArray(entry.defaultStockPolicy.lengths) && entry.defaultStockPolicy.lengths.length) {
+      base = entry.defaultStockPolicy.lengths.slice();
+    }
+    if (Array.isArray(entry.defaultStockPolicy.exclude) && entry.defaultStockPolicy.exclude.length) {
+      base = base.filter(function(len) {
+        return entry.defaultStockPolicy.exclude.indexOf(len) === -1;
+      });
+    }
+  } else {
+    if (Array.isArray(policy.lengths) && policy.lengths.length) {
+      base = policy.lengths.slice();
+    }
+    if (Array.isArray(policy.exclude) && policy.exclude.length) {
+      base = base.filter(function(len) { return policy.exclude.indexOf(len) === -1; });
+    }
+  }
+
+  return base;
+}
+
+function getSteelRowsForKind(kind) {
+  return getCalcEnabledSpecs(kind).map(function(spec) {
+    return [spec.name, spec.W];
+  });
+}
+
+function getSteelRow(kind, specName) {
+  var rows = getSteelRowsForKind(kind);
+  return rows.find(function(row) { return row[0] === specName; }) || null;
+}
+
 function calcUnitWeightFromArea(Ac){
   return typeof jisRound === 'function'
     ? jisRound(Ac * 0.785, 2)
@@ -2113,7 +2199,7 @@ function getKindSTD(kind, spec) {
     var stored = localStorage.getItem(_stdKey(kind, spec));
     if (stored) return JSON.parse(stored);
   } catch(e) {}
-  return (typeof getAvailableSTD === 'function') ? getAvailableSTD(kind) : (typeof STD !== 'undefined' ? STD.slice() : []);
+  return getDefaultStockLengths(kind, spec);
 }
 
 function saveKindSTD(kind, lengths, spec) {
@@ -2235,21 +2321,11 @@ function dataSelectSpec(idx) {
     delete STEEL[key];
   });
 
-  getDataKindOrder().forEach(function(key) {
-    var entry = SECTION_DATA[key];
-    if (!entry || !entry.showInCalc) return;
-
-    var calcKey = entry.calcKey || key;
-    var specs = (entry.specs || []).filter(function(spec) {
-      if (spec.inCalc === false) return false;
-      return spec.W != null && spec.W > 0;
-    });
-
-    if (!specs.length) return;
-
-    STEEL[calcKey] = specs.map(function(spec) {
-      return [spec.name, spec.W];
-    });
+  getCalcEnabledKinds().forEach(function(kind) {
+    var calcKey = getCalcKindName(kind);
+    var rows = getSteelRowsForKind(kind);
+    if (!rows.length) return;
+    STEEL[calcKey] = rows;
   });
 
   console.log('[TORIAI] STEEL rebuilt from SECTION_DATA:', Object.keys(STEEL));

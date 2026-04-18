@@ -89,8 +89,22 @@ var STEEL_STD_EXCLUDE = {
   'H形鋼': [5500]
 };
 function getAvailableSTD(kind) {
+  if (typeof getDefaultStockLengths === 'function') {
+    return getDefaultStockLengths(kind, (document.getElementById('spec') || {}).value || '');
+  }
   var exclude = (STEEL_STD_EXCLUDE[kind] || []);
   return STD.filter(function(len) { return exclude.indexOf(len) === -1; });
+}
+
+function getDynamicStdLengths(kind, spec) {
+  if (typeof getKindSTD === 'function') return getKindSTD(kind, spec);
+  return getAvailableSTD(kind);
+}
+
+function buildUnlimitedStockPool(kind, spec) {
+  return getDynamicStdLengths(kind, spec).map(function(sl) {
+    return { sl: sl, max: Infinity };
+  });
 }
 var ROWS = 10; // 初期行数（動的追加可能）
 
@@ -795,7 +809,7 @@ function doCalc() {
   // calcPieces / calcStocks の決定
   calcPieces = remainingPieces;
   calcStocks = (remnants.length > 0 && remainingPieces.length > 0)
-    ? STD.map(function(sl){ return {sl:sl, max:Infinity}; })
+    ? buildUnlimitedStockPool(curKind, (document.getElementById('spec') || {}).value || '')
     : stocks;
 
   // 残材で全部材消化済みの場合は定尺計算をスキップ
@@ -1100,6 +1114,17 @@ function runCalc() {
     };
     render([], [], [], endLoss, remOnlyBars, kgm, [], [], null, null, null, null, null, null);
     btn.innerHTML = '計算を実行する <span class="arr">→</span><span class="run-hint">Ctrl + Enter</span>';
+    btn.disabled = false;
+    hideCalcLoadingOverlay();
+    return;
+  }
+
+  // Worker 側にはまだ固定STDの埋め込みが残っているため、
+  // 残材あり計算だけは browser-side の doCalc() に寄せて
+  // data.js 連動の定尺を正として扱う。
+  if (remnants.length > 0) {
+    try { doCalc(); } catch (fallbackErr) { alert('計算エラー: ' + fallbackErr.message); }
+    btn.innerHTML = '險育ｮ励ｒ螳溯｡後☆繧・<span class="arr">竊・/span><span class="run-hint">Ctrl + Enter</span>';
     btn.disabled = false;
     hideCalcLoadingOverlay();
     return;

@@ -953,61 +953,45 @@ function cmdKey(e) {
 function onSpec() {
   updateInvDropdown();
   var spec = document.getElementById('spec').value;
-  var list = STEEL[curKind] || [];
-  var row = list.find(function(r) { return r[0] === spec; });
+  var row = (typeof getSteelRow === 'function')
+    ? getSteelRow(curKind, spec)
+    : (STEEL[curKind] || []).find(function(r) { return r[0] === spec; });
   if (row) {
     document.getElementById('kgm').value = row[1];
   }
   updKg();
   buildInventoryDropdown();
-  // 鋼種が変わったら在庫定尺リストをその鋼種の定尺で再構築
   rebuildStkList();
-  STD.forEach(function(len, i) {
-    var cb  = document.getElementById('sc' + i);
-    var row = document.getElementById('sr' + i);
-    if (!cb) return;
-
-    // getKindSTD がある → ユーザー設定を優先、なければ STEEL_STD_EXCLUDE を使用
-    var allowed;
-    if (typeof getKindSTD === 'function') {
-      // 今後: getKindSTD(curKind, curSpec) で規格別定尺を参照予定
-      var excl2 = (typeof STEEL_STD_EXCLUDE !== 'undefined') ? (STEEL_STD_EXCLUDE[curKind] || []) : [];
-      allowed = excl2.indexOf(len) === -1;
-    } else {
-      var excl = (typeof STEEL_STD_EXCLUDE !== 'undefined') ? (STEEL_STD_EXCLUDE[curKind] || []) : [];
-      allowed = excl.indexOf(len) === -1;
-    }
-
-    if (!allowed) {
-      cb.checked  = false;
-      cb.disabled = true;
-      if (row) { row.style.opacity = '0.35'; row.title = curKind + 'では' + (len / 1000) + 'm は設定なし'; }
-    } else {
-      cb.disabled = false;
-      if (row) { row.style.opacity = ''; row.title = ''; }
-      if (!cb.checked && row && !row.classList.contains('off')) cb.checked = true;
-    }
-    togStk(i);
-  });
 }
 
 // 在庫定尺リストを再構築
-// ★ 現在選択中の鋼種の定尺だけ表示（データタブが主）
+// ★ 現在選択中の鋼種・規格の定尺だけ表示（データタブと完全連動）
+var _stkRenderKey = '';
 function rebuildStkList() {
   var sl = document.getElementById('stkList');
   if (!sl) return;
+  var specEl = document.getElementById('spec');
+  var currentSpec = specEl ? specEl.value : '';
+  var currentKey = (curKind || '') + '__' + currentSpec;
+  var preserveCurrent = (_stkRenderKey === currentKey);
+  var activeLens = (typeof getKindSTD === 'function')
+    ? getKindSTD(curKind, currentSpec)
+    : ((typeof getAvailableSTD === 'function') ? getAvailableSTD(curKind) : STD.slice());
+  activeLens = (activeLens || []).slice().sort(function(a, b) { return a - b; });
 
-  // 静的STD固定（定尺の動的連携は今後実装予定）
-  var activeLens = [5500,6000,7000,8000,9000,10000,11000,12000];
-
-  // 現在のチェック状態を長さ→bool で保存
+  // 同一規格の再描画時だけ現在のチェック状態を保持する。
+  // 鋼種切替や規格切替では前の状態を引きずらない。
   var prevChecked = {};
-  STD.forEach(function(len, i) {
-    var cb = document.getElementById('sc' + i);
-    if (cb) prevChecked[len] = cb.checked;
-  });
+  var prevMax = {};
+  if (preserveCurrent) {
+    STD.forEach(function(len, i) {
+      var cb = document.getElementById('sc' + i);
+      var mx = document.getElementById('sm' + i);
+      if (cb) prevChecked[len] = cb.checked;
+      if (mx) prevMax[len] = mx.value;
+    });
+  }
 
-  // STD を固定配列に戻す
   STD.length = 0;
   activeLens.forEach(function(l) { STD.push(l); });
 
@@ -1018,6 +1002,8 @@ function rebuildStkList() {
     d.id = 'sr' + i;
     d.style.cursor = 'pointer';
     var wasChecked = prevChecked.hasOwnProperty(len) ? prevChecked[len] : true;
+    var maxValue = prevMax.hasOwnProperty(len) ? prevMax[len] : '';
+    var maxAttr = String(maxValue).replace(/"/g, '&quot;');
     d.innerHTML =
       '<input type="checkbox" id="sc' + i + '"' + (wasChecked ? ' checked' : '') +
         ' onchange="togStk(' + i + ');saveSettings()">' +
@@ -1025,7 +1011,7 @@ function rebuildStkList() {
       '<div style="display:flex;align-items:center;gap:2px">' +
         '<button onclick="stkDown(' + i + ')" style="width:18px;height:18px;border:1px solid #d4d4dc;background:#fff;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">▼</button>' +
         '<span id="sm_lbl' + i + '" onclick="stkEdit(' + i + ')" style="min-width:22px;text-align:center;font-size:11px;font-weight:600;color:#1a1a2e;cursor:pointer" title="クリックで直接入力">∞</span>' +
-        '<input type="number" class="stk-mx" id="sm' + i + '" placeholder="∞" min="1" onchange="stkInputChange(' + i + ')" style="display:none;width:36px">' +
+        '<input type="number" class="stk-mx" id="sm' + i + '" value="' + maxAttr + '" placeholder="∞" min="1" onchange="stkInputChange(' + i + ')" style="display:none;width:36px">' +
         '<button onclick="stkUp(' + i + ')" style="width:18px;height:18px;border:1px solid #d4d4dc;background:#fff;border-radius:4px;cursor:pointer;font-size:11px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">▲</button>' +
       '</div>';
     d.addEventListener('click', function(e) {
@@ -1036,7 +1022,10 @@ function rebuildStkList() {
       document.getElementById('sc' + i).click();
     });
     sl.appendChild(d);
+    togStk(i);
+    stkInputChange(i);
   });
+  _stkRenderKey = currentKey;
 }
 
 function togStk(i) {
