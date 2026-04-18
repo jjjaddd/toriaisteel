@@ -1,62 +1,33 @@
-﻿<head>
-  <!-- 文字コード -->
-  <meta charset="UTF-8">
-
-  <!-- スマホ対応 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- タイトル（超重要） -->
-  <title>鋼材取り合い計算ツール｜無料Webで切断計画・重量計算【TORIAI】</title>
-
-  <!-- 説明（検索結果に出る） -->
-  <meta name="description" content="TORIAIは鋼材取り合い計算をブラウザで行える無料Webツールです。切断計画・重量計算・残材管理に対応。インストール不要です。">
-
-  <!-- OGP（SNSでシェアされたとき） -->
-  <meta property="og:title" content="TORIAI - 鋼材取り合い計算ツール">
-  <meta property="og:description" content="鋼材の取り合い計算・重量計算・残材管理がブラウザだけで使える無料ツール">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://toriai.app">
-  <meta property="og:image" content="https://toriai.app/ogp.png">
-
-  <!-- Twitter用 -->
-  <meta name="twitter:card" content="summary_large_image">
-
-  <!-- ★ Search Console用（後でここに貼る） -->
-  <!-- <meta name="google-site-verification" content="ここにコード"> -->
-</head>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<me
-<meta property="og:title" conte<me
-
+<title>鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画・重量計算【TORIAI】</title>
+<meta name="description" content="TORIAIはバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。H形鋼・山形鋼・角鋼など主要鋼材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
+<meta property="og:title" content="鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
+<meta property="og:description" content="バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。H形鋼・山形鋼・角鋼・丸鋼対応。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toriai.app">
 <meta property="og:image" content="https://toriai.app/ogp.png">
 <link rel="canonical" href="https://toriai.app">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="鉤材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
-<meta name="twitter:description" content="バンドソー歩留まり計算・鉤材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。">
-<!-- Search Co<meta name="google-site-Content="nejuDRI7NWbXEMzsqxWKi6eUDqMG4aauP5n7e5hbZvc">
-plication/nejuDRI7NWbXEMzsqxWKi6eUDqMG4aauP5n7e5hbZvc">
-plicationma.org",
+<meta name="twitter:title" content="鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
+<meta name="twitter:description" content="バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。">
+<meta name="google-site-verification" content="nejuDRI7NWbXEMzsqxWKi6eUDqMG4aauP5n7e5hbZvc">
+<!-- Search Console用
+<meta name="google-site-verification" content="nejuDRI7NWbXEMzsqxWKi6eUDqMG4aauP5n7e5hbZvc"> -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "TORIAI",
-  "alternateName": "鉤材取り合い計算ツール",
+  "alternateName": "鋼材取り合い計算ツール",
   "applicationCategory": "BusinessApplication",
-  "applicationSubCategory": "鉤材計算・切断計画",
   "operatingSystem": "Any",
-  "description": "バンドソー歩留まり計算・鉤材取り合い最適化・切断計画作成・重量計算・残材在庫管理が無料で使えるWebツール。H形鉤・山形鉤・溝形鉤・角鉤・丸鉤に対応。",
-  "featureList": ["鉤材取り合い計算", "バンドソー歩留まり計算", "切断計画作成", "H形鉤重量計算", "残材在庫管理", "山形鉤・角鉤・丸鉤対応", "切断ロス最小化"],
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "JPY"
-  },
-  "url": "https://toriai.app",
-  "image": "https://toriai.app/ogp.png"
+  "description": "バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材在庫管理が無料で使えるWebツール。",
+  "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"},
+  "url": "https://toriai.app"
 }
 </script>
 <meta name="theme-color" content="#111111">
@@ -75,39 +46,28 @@ plicationma.org",
 })();
 </script>
 <style id="toriai-theme-critical">
-/* ダークモード基調 — Claude と同じニュートラルダーク（紺/青みなし） */
 html[data-theme="dark"]{background:#1c1c1c!important;}
-html[data-theme="dark"] body{
-  color:#ececec!important;
-  background:#1c1c1c!important;
-}
-html[data-theme="dark"] header{
-  background:rgba(28,28,28,.96)!important;
-  border-bottom-color:#3a3a3a!important;
-}
-html[data-theme="dark"] #hip,
-html[data-theme="dark"] .hi-panel{background:#1c1c1c!important;}
+html[data-theme="dark"] body{color:#ececec!important;background:#1c1c1c!important;}
+html[data-theme="dark"] header{background:rgba(28,28,28,.96)!important;border-bottom-color:#3a3a3a!important;}
+html[data-theme="dark"] #hip,html[data-theme="dark"] .hi-panel{background:#1c1c1c!important;}
 html[data-theme="dark"] .sb{background:#212121!important;border-right-color:#3a3a3a!important;}
 html[data-theme="dark"] .mn{background:#1c1c1c!important;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鋼材計算">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>鉤材取り合い計算ツール｜バンドソー歩留まり・切断計画・重量計算【TORIAI】</title>
-<meta name="descr<title>鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画・重量計算【TORIAI】</title>
-<meta name="deription" content="TORIAIはバンドソー歩留まり計算・鉤材取り合い最適化が無料で使えるWebツールです。H形鉤・山形鉤・角鉤など主要鉤材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=dm5">
+<link rel="stylesheet" href="style.css?v=dm6">
 <link rel="stylesheet" href="toriai-theme.css?v=1">
 <link rel="stylesheet" href="data-tab.css?v=1">
 </head>
 <body>
 <h1 class="sr-only">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
-<h1 class="sr-only">鉤材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
 
 <header>
   <div class="logo" onclick="goPage('c')" style="cursor:pointer">
