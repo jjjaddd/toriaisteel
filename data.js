@@ -994,7 +994,7 @@ SECTION_DATA['不等辺山形鋼'] = {
 
 SECTION_DATA['不等辺不等厚山形鋼'] = {
   type: 'LUT',
-  showInCalc: false,
+  showInCalc: true,
   label: '不等辺不等厚山形鋼',
   jis: 'JIS G 3192',
   jisSub: 'Unequal leg and unequal thickness angles',
@@ -1069,7 +1069,7 @@ SECTION_DATA['丸鋼'] = {
 
 SECTION_DATA['角鋼'] = {
   type: 'SB',
-  showInCalc: false,
+  showInCalc: true,
   label: '角鋼',
   jis: 'JIS G 3191',
   jisSub: 'Hot-rolled steel bar - Square bar',
@@ -1106,7 +1106,7 @@ SECTION_DATA['スモール角パイプ'] = {
 
 SECTION_DATA['SGP配管'] = {
   type: 'PIPE',
-  showInCalc: false,
+  showInCalc: true,
   label: '配管用炭素鋼鋼管（SGP）',
   jis: 'JIS G 3452',
   jisSub: 'Carbon steel pipe for ordinary piping',
@@ -1115,7 +1115,7 @@ SECTION_DATA['SGP配管'] = {
 
 SECTION_DATA['BCR295'] = {
   type: 'BCR',
-  showInCalc: false,
+  showInCalc: true,
   label: 'BCR295',
   jis: 'BCP 235',
   jisSub: 'Cold roll formed square steel tube',
@@ -1144,6 +1144,15 @@ const DEFAULT_STOCK_DB = {
 function getCalcKindName(kind) {
   var entry = STEEL_DB[kind];
   return entry && entry.calcKey ? entry.calcKey : kind;
+}
+
+function getDataKindByCalcName(kind) {
+  if (STEEL_DB[kind]) return kind;
+  var keys = Object.keys(STEEL_DB);
+  for (var i = 0; i < keys.length; i++) {
+    if (getCalcKindName(keys[i]) === kind) return keys[i];
+  }
+  return kind;
 }
 
 function getCalcEnabledSpecs(kind) {
@@ -2194,16 +2203,33 @@ function _stdKey(kind, spec) {
   return 'dp_std_' + kind + '_' + (spec || '');
 }
 
+function _stdKeyCandidates(kind, spec) {
+  var dataKind = getDataKindByCalcName(kind);
+  var keys = [_stdKey(kind, spec)];
+  var canonicalKey = _stdKey(dataKind, spec);
+  if (keys.indexOf(canonicalKey) === -1) keys.push(canonicalKey);
+  var calcKind = getCalcKindName(dataKind);
+  var calcKey = _stdKey(calcKind, spec);
+  if (keys.indexOf(calcKey) === -1) keys.push(calcKey);
+  return keys;
+}
+
 function getKindSTD(kind, spec) {
-  try {
-    var stored = localStorage.getItem(_stdKey(kind, spec));
-    if (stored) return JSON.parse(stored);
-  } catch(e) {}
-  return getDefaultStockLengths(kind, spec);
+  var dataKind = getDataKindByCalcName(kind);
+  var keys = _stdKeyCandidates(kind, spec);
+  for (var i = 0; i < keys.length; i++) {
+    try {
+      var stored = localStorage.getItem(keys[i]);
+      if (stored) return JSON.parse(stored);
+    } catch(e) {}
+  }
+  return getDefaultStockLengths(dataKind, spec);
 }
 
 function saveKindSTD(kind, lengths, spec) {
-  try { localStorage.setItem(_stdKey(kind, spec), JSON.stringify(lengths)); } catch(e) {}
+  _stdKeyCandidates(kind, spec).forEach(function(key) {
+    try { localStorage.setItem(key, JSON.stringify(lengths)); } catch(e) {}
+  });
   if (typeof rebuildStkList === 'function') rebuildStkList();
   if (typeof onSpec === 'function') onSpec();
 }
