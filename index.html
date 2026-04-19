@@ -1,33 +1,37 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画・重量計算【TORIAI】</title>
-<meta name="description" content="TORIAIはバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。H形鋼・山形鋼・角鋼など主要鋼材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
-<meta property="og:title" content="鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
-<meta property="og:description" content="バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。H形鋼・山形鋼・角鋼・丸鋼対応。">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta property="og:title" content="鉤材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
+<meta property="og:description" content="バンドソー歩留まり計算・鉤材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。H形鉤・山形鉤・角鉤・丸鉤対応。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toriai.app">
 <meta property="og:image" content="https://toriai.app/ogp.png">
 <link rel="canonical" href="https://toriai.app">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
-<meta name="twitter:description" content="バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。">
+<meta name="twitter:title" content="鉤材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
+<meta name="twitter:description" content="バンドソー歩留まり計算・鉤材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。">
 <meta name="google-site-verification" content="nejuDRI7NWbXEMzsqxWKi6eUDqMG4aauP5n7e5hbZvc">
-<!-- Search Console用
-<meta name="google-site-verification" content="nejuDRI7NWbXEMzsqxWKi6eUDqMG4aauP5n7e5hbZvc"> -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "TORIAI",
-  "alternateName": "鋼材取り合い計算ツール",
+  "alternateName": "鉤材取り合い計算ツール",
   "applicationCategory": "BusinessApplication",
+  "applicationSubCategory": "鉤材計算・切断計画",
   "operatingSystem": "Any",
-  "description": "バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材在庫管理が無料で使えるWebツール。",
-  "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"},
-  "url": "https://toriai.app"
+  "description": "バンドソー歩留まり計算・鉤材取り合い最適化・切断計画作成・重量計算・残材在庫管理が無料で使えるWebツール。H形鉤・山形鉤・溝形鉤・角鉤・丸鉤に対応。",
+  "featureList": ["鉤材取り合い計算", "バンドソー歩留まり計算", "切断計画作成", "H形鉤重量計算", "残材在庫管理", "山形鉤・角鉤・丸鉤対応", "切断ロス最小化"],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "JPY"
+  },
+  "url": "https://toriai.app",
+  "image": "https://toriai.app/ogp.png"
 }
 </script>
 <meta name="theme-color" content="#111111">
@@ -46,28 +50,37 @@
 })();
 </script>
 <style id="toriai-theme-critical">
+/* ダークモード基調 — Claude と同じニュートラルダーク（紺/青みなし） */
 html[data-theme="dark"]{background:#1c1c1c!important;}
-html[data-theme="dark"] body{color:#ececec!important;background:#1c1c1c!important;}
-html[data-theme="dark"] header{background:rgba(28,28,28,.96)!important;border-bottom-color:#3a3a3a!important;}
-html[data-theme="dark"] #hip,html[data-theme="dark"] .hi-panel{background:#1c1c1c!important;}
+html[data-theme="dark"] body{
+  color:#ececec!important;
+  background:#1c1c1c!important;
+}
+html[data-theme="dark"] header{
+  background:rgba(28,28,28,.96)!important;
+  border-bottom-color:#3a3a3a!important;
+}
+html[data-theme="dark"] #hip,
+html[data-theme="dark"] .hi-panel{background:#1c1c1c!important;}
 html[data-theme="dark"] .sb{background:#212121!important;border-right-color:#3a3a3a!important;}
 html[data-theme="dark"] .mn{background:#1c1c1c!important;}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 </style>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鋼材計算">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+
+<meta name="description" content="TORIAIはバンドソー歩留まり計算・鉤材取り合い最適化が無料で使えるWebツールです。H形鉤・山形鉤・角鉤など主要鉤材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="style.css?v=dm8">
+<link rel="stylesheet" href="style.css?v=dm5">
 <link rel="stylesheet" href="toriai-theme.css?v=1">
 <link rel="stylesheet" href="data-tab.css?v=1">
 </head>
 <body>
-<h1 class="sr-only">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
+<h1 style="display:none">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
 
 <header>
   <div class="logo" onclick="goPage('c')" style="cursor:pointer">
@@ -96,8 +109,13 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         <button class="hm-row" type="button" onclick="importAllData(); closeHeaderMenu()">
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
-        <button class="hm-row" type="button" onclick="openChangelog();closeHeaderMenu()">
-          <span class="hm-txt">更新履歴 <span id="appVersionLabel" style="font-size:10px;color:var(--g3);font-weight:400">v1.0.0</span></span>
+        <div class="hm-row hm-row--wip">
+          <span class="hm-txt">バージョン<span class="wip-badge">準備中</span></span>
+        </div>
+      </div>
+      <div class="hm-section">
+        <button class="hm-row hm-row--wip" type="button" onclick="headerMenuPlaceholder('使い方ガイド')">
+          <span class="hm-txt">使い方ガイド<span class="wip-badge">準備中</span></span>
         </button>
       </div>
     </div>
@@ -300,7 +318,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
           <span class="ds-tog-track"></span>
         </label>
       </div>
-      <div class="ds-toggle-row" onclick="document.getElementById('noAutoRegister').click()">
+      <div class="ds-toggle-row wip-block" onclick="document.getElementById('noAutoRegister').click()">
         <div class="ds-toggle-label">
           <span>印刷時に在庫登録しない</span>
           <small>印刷・カート追加時に端材が自動登録されません</small>
@@ -310,7 +328,32 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
           <span class="ds-tog-track"></span>
         </label>
       </div>
-      </div><!-- /cp -->
+      <div class="ds-toggle-row wip-block" onclick="document.getElementById('useCarbonFootprint').click()">
+        <div class="ds-toggle-label">
+          <span>カーボンフットプリント計算</span>
+          <small>切断計画と同時にCO2排出量を算出します</small>
+        </div>
+        <label class="ds-tog" onclick="event.stopPropagation()">
+          <input type="checkbox" id="useCarbonFootprint" onchange="saveSettings()">
+          <span class="ds-tog-track"></span>
+        </label>
+      </div>
+</aside>
+
+
+<!-- 作業指示書ヘッダー（印刷時のみ表示） -->
+<div id="printJobHeader" class="print-job-hdr" style="display:none;padding:12px 16px;border-bottom:2px solid #000;margin-bottom:8px">
+</div>
+<main class="mn" id="rp">
+  <div class="ph" id="ph">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
+    <p>設定・部材を入力して「計算を実行する」を押してください</p>
+    <small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>
+  </div>
+</main>
+</div>
+</div>
+</div><!-- /cp -->
 
 <!-- HISTORY PAGE / 切断履歴 -->
 <!-- 履歴・在庫統合ページ -->
@@ -884,29 +927,16 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <script src="supabase-client.js"></script>
 <script src="supabase-sync.js"></script>
 <script src="custom-materials.js"></script>
-
-<!-- ── SEOフッター（非表示） ── -->
 <footer style="display:none" aria-label="サイト情報">
-  <p>TORIAI（鋼材取り合い計算ツール）はバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。</p>
-  <ul>
-    <li>鋼材取り合い計算・バンドソー歩留まり最大化・切断ロス最小化</li>
-    <li>H形鋼・山形鋼・溝形鋼・角鋼・丸鋼・平鋼の重量計算</li>
-    <li>切断計画・作業指示書の作成・印刷</li>
-    <li>残材・端材の在庫管理</li>
-    <li>Excel/CADデータのコピペ対応・PWA対応</li>
-  </ul>
-</footer>
-
-<!-- ── 更新履歴モーダル ── -->
-<div id="changelogModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center" onclick="if(event.target===this)closeChangelog()">
-  <div style="background:var(--sf);border-radius:var(--r-lg);width:min(480px,92vw);max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)">
-      <div style="font-size:13px;font-weight:700;color:var(--ink)">更新履歴 <span id="changelogVersion" style="font-size:11px;color:var(--g2);font-weight:400">v1.0.0</span></div>
-      <button onclick="closeChangelog()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--g2);line-height:1;padding:0 4px">×</button>
-    </div>
-    <div id="changelogBody" style="overflow-y:auto;padding:14px 18px;flex:1"></div>
+  <div>
+    <p>TORIAI（鋼材取り合い計算ツール）はバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。</p>
+    <ul>
+      <li>鋼材取り合い計算・バンドソー歩留まり最大化・切断ロス最小化</li>
+      <li>H形鋼・山形鋼・溝形鋼・角鋼・丸鋼・平鋼の重量計算</li>
+      <li>切断計画・作業指示書の作成・印刷</li>
+      <li>残材・端材の在庫管理</li>
+      <li>Excel/CADデータのコピペ対応・PWA対応</li>
+    </ul>
   </div>
-</div>
-
-<script src="guide.js"></script>
+</footer>
 </body></html>

@@ -115,7 +115,6 @@ function saveSettings() {
       jobName:     (document.getElementById('jobName')||{}).value||'',
       jobDeadline: (document.getElementById('jobDeadline')||{}).value||'',
       jobWorker:   (document.getElementById('jobWorker')||{}).value||'',
-      noAutoRegister: !!(document.getElementById('noAutoRegister')||{}).checked,
       stocks:      [],
       stockLengths: [],
       stocksByLength: {}
@@ -145,7 +144,6 @@ function loadSettings() {
     if (obj.jobName)   { var el=document.getElementById('jobName');   if(el)el.value=obj.jobName; }
     if (obj.jobDeadline){var el=document.getElementById('jobDeadline');if(el)el.value=obj.jobDeadline;}
     if (obj.jobWorker) { var el=document.getElementById('jobWorker'); if(el)el.value=obj.jobWorker; }
-    if (obj.noAutoRegister != null) { var nr=document.getElementById('noAutoRegister'); if(nr) nr.checked=obj.noAutoRegister; }
     if (obj.kind && STEEL[obj.kind]) {
       curKind = obj.kind;
       document.querySelectorAll('.tbtn').forEach(function(b) {

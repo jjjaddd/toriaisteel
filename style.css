@@ -2821,9 +2821,8 @@ input:focus,select:focus,textarea:focus{
 }
 .w-edit-btn:hover {
   background: #e8eaf6;
-  color: #5c6bc0;
-  border-color: #c0c4e8;
-}
+  col
+
 
 /* ── ダークモード（data-theme="dark"） ───────────────── */
 .hm-theme-pill{

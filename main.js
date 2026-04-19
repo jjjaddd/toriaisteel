@@ -2490,8 +2490,6 @@ function clearHistSearch() {
 }
 
 function autoSyncResultRemnants(resultData) {
-  var noReg = document.getElementById('noAutoRegister');
-  if (noReg && noReg.checked) return;
   if (!resultData || typeof extractRemnants !== 'function') return;
   var remnants = extractRemnants(resultData).filter(function(item) { return item && item.len; });
   if (!remnants.length) return;
