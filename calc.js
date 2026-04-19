@@ -284,7 +284,10 @@ function calcMetrics(bars, sl, endLoss, kgm, minValidLen) {
   });
   var yieldPct = totalUsable > 0 ? (totalPieceLen / totalUsable) * 100 : 0;
   var lossKg = (totalLoss / 1000) * kgm;
-  var barKg = (sl / 1000) * kgm * bars.length;
+  // 残材混在時も正しく計算するため per-bar 合計（BUG-FIX 2026-04）
+  var barKg = bars.reduce(function(acc, b) {
+    return acc + ((b.sl || sl) / 1000) * kgm;
+  }, 0);
   var lossRate = 100 - yieldPct;
 
   // バランススコア（高いほど良い）

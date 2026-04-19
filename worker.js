@@ -97,7 +97,8 @@ function calcMetrics(bars,sl,endLoss,kgm,minValidLen){
   bars.forEach(function(b){b.pat.forEach(function(p){totalPieceLen+=p;});});
   var yieldPct=totalUsable>0?(totalPieceLen/totalUsable)*100:0;
   var lossKg=(totalLoss/1000)*kgm;
-  var barKg=(sl/1000)*kgm*bars.length;
+  // 残材混在時も正しく計算するため per-bar 合計（BUG-FIX 2026-04）
+  var barKg=bars.reduce(function(acc,b){return acc+((b.sl||sl)/1000)*kgm;},0);
   var lossRate=100-yieldPct;
   var balanceScore=yieldPct*0.5-totalCuts*0.2-invalidRemnants*0.2-switchCount*0.1;
   return{totalCuts:totalCuts,switchCount:switchCount,validRemnants:validRemnants,

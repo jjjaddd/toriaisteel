@@ -75,7 +75,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=dm5">
+<link rel="stylesheet" href="style.css?v=dm13">
 <link rel="stylesheet" href="toriai-theme.css?v=1">
 <link rel="stylesheet" href="data-tab.css?v=1">
 </head>
@@ -109,14 +109,9 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
         <button class="hm-row" type="button" onclick="importAllData(); closeHeaderMenu()">
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
-        <div class="hm-row hm-row--wip">
-          <span class="hm-txt">バージョン<span class="wip-badge">準備中</span></span>
+        <div class="hm-row hm-row--version">
+          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.0</span></span>
         </div>
-      </div>
-      <div class="hm-section">
-        <button class="hm-row hm-row--wip" type="button" onclick="headerMenuPlaceholder('使い方ガイド')">
-          <span class="hm-txt">使い方ガイド<span class="wip-badge">準備中</span></span>
-        </button>
       </div>
     </div>
   </div>
@@ -318,26 +313,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
           <span class="ds-tog-track"></span>
         </label>
       </div>
-      <div class="ds-toggle-row wip-block" onclick="document.getElementById('noAutoRegister').click()">
-        <div class="ds-toggle-label">
-          <span>印刷時に在庫登録しない</span>
-          <small>印刷・カート追加時に端材が自動登録されません</small>
-        </div>
-        <label class="ds-tog" onclick="event.stopPropagation()">
-          <input type="checkbox" id="noAutoRegister" onchange="saveSettings()">
-          <span class="ds-tog-track"></span>
-        </label>
-      </div>
-      <div class="ds-toggle-row wip-block" onclick="document.getElementById('useCarbonFootprint').click()">
-        <div class="ds-toggle-label">
-          <span>カーボンフットプリント計算</span>
-          <small>切断計画と同時にCO2排出量を算出します</small>
-        </div>
-        <label class="ds-tog" onclick="event.stopPropagation()">
-          <input type="checkbox" id="useCarbonFootprint" onchange="saveSettings()">
-          <span class="ds-tog-track"></span>
-        </label>
-      </div>
+    </div>
 </aside>
 
 

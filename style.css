@@ -1067,11 +1067,23 @@ header nav{
 .hm-row.is-disabled:hover{
   background:transparent;
 }
-.hm-row--wip{
-  opacity:.6;
+.hm-row--version{
+  cursor:default;
+  opacity:.85;
 }
-.hm-row--wip:hover{
-  opacity:.8;
+.hm-row--version:hover{
+  background:transparent;
+}
+.hm-version-tag{
+  margin-left:8px;
+  font-size:10px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:20px;
+  background:rgba(100,100,120,.08);
+  border:1px solid rgba(100,100,120,.2);
+  color:#66667a;
+  letter-spacing:.3px;
 }
 .hm-txt{
   flex:1;

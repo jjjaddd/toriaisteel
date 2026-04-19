@@ -1498,7 +1498,6 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
     // No.1：歩留まり最大、No.2：カット数考慮型（存在する場合のみ）
     var yieldCards = [yieldCard1].filter(Boolean);
     var yieldCardHtmls = yieldCards.map(function(yb, yi) {
-      var yld2 = (100 - yb.lossRate).toFixed(1);
       // bars を定尺ごとにグループ化（BnB混在定尺対応）
       var allBarsY = yb.bars || yb.bA || [];
       var slGroupsY = {};
@@ -1507,9 +1506,15 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
         if (!slGroupsY[sl]) slGroupsY[sl] = [];
         slGroupsY[sl].push(b);
       });
-      // 残材バーをyPatHtmlに含める（切断リスト集計でpc-rowに出るようにするため）
-      if (remnantBars && remnantBars.length) {
-        remnantBars.forEach(function(rb) {
+      // solver が既に残材を bars に含めているか判定（BUG-FIX 2026-04）
+      var hasRemnantBarsInYield = allBarsY.some(function(bar) {
+        var sl = (bar && bar.sl) || yb.slA || 0;
+        return sl && typeof isStdStockLength === 'function' && !isStdStockLength(sl);
+      });
+      // solver が残材を含んでいない場合のみ、別管理の remnantBars を表示用にマージ
+      var effectiveRemnantBars = (remnantBars && remnantBars.length && !hasRemnantBarsInYield) ? remnantBars : [];
+      if (effectiveRemnantBars.length) {
+        effectiveRemnantBars.forEach(function(rb) {
           var sl = rb.sl;
           if (!sl) return;
           if (!slGroupsY[sl]) slGroupsY[sl] = [];
@@ -1525,33 +1530,53 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           sl.toLocaleString() + 'mm × ' + barsInSl.length + '</span></div>' +
           patRows(barsInSl) + '</div>';
       });
+      // 切断図：残材と定尺は別ルートで描画（二重描画防止 BUG-FIX 2026-04）
       var yDiag2 = '';
-      var hasRemnantBarsInYield = allBarsY.some(function(bar) {
-        var sl = (bar && bar.sl) || yb.slA || 0;
-        return sl && typeof isStdStockLength === 'function' && !isStdStockLength(sl);
-      });
-      if (remnantBars && remnantBars.length && !hasRemnantBarsInYield) {
+      if (effectiveRemnantBars.length) {
         var rgy2 = {};
-        remnantBars.forEach(function(rb){ var k=rb.sl; if(!rgy2[k]) rgy2[k]=[]; rgy2[k].push(rb); });
+        effectiveRemnantBars.forEach(function(rb){ var k=rb.sl; if(!rgy2[k]) rgy2[k]=[]; rgy2[k].push(rb); });
         Object.keys(rgy2).forEach(function(sl){ yDiag2 += buildCutDiagram(rgy2[sl], parseInt(sl), '残材 ' + parseInt(sl).toLocaleString() + 'mm'); });
       }
       sortedSlsY.forEach(function(sl){
+        // 残材は上の block で出しているのでスキップ（二重描画防止）
+        if (typeof isStdStockLength === 'function' && !isStdStockLength(sl)) return;
         yDiag2 += buildCutDiagram(slGroupsY[sl], sl, sl.toLocaleString() + 'mm 定尺');
       });
       var yDiagId2 = 'diag_yield_' + yi;
       var yCardId2 = 'card_yield_' + yi;
-      var barCount = allBarsY.length;
+
+      // 残材分を加算した集計値（BUG-FIX 2026-04）
+      var remBarKg = effectiveRemnantBars.reduce(function(s, b){ return s + ((b.sl || 0) / 1000) * kgm; }, 0);
+      var remLossKg = effectiveRemnantBars.reduce(function(s, b){ return s + ((b.loss || 0) / 1000) * kgm; }, 0);
+      var remUsable = effectiveRemnantBars.reduce(function(s, b){ return s + (b.sl || 0); }, 0);
+      var remPieceLen = effectiveRemnantBars.reduce(function(s, b){
+        return s + ((b.pat || []).reduce(function(a, p){ return a + p; }, 0));
+      }, 0);
+
+      var effBarCount = allBarsY.length + effectiveRemnantBars.length;
+      var effBarKg = (yb.barKg || 0) + remBarKg;
+      var effLossKg = (yb.lossKg || 0) + remLossKg;
+
+      // 歩留まりも残材を分母に含めて再計算
+      var stockUsable = allBarsY.reduce(function(s, b){ return s + (b.sl || yb.slA || 0); }, 0);
+      var stockPieceLen = allBarsY.reduce(function(s, b){
+        return s + ((b.pat || []).reduce(function(a, p){ return a + p; }, 0));
+      }, 0);
+      var totalUsable = stockUsable + remUsable;
+      var totalPieceLen = stockPieceLen + remPieceLen;
+      var yld2 = totalUsable > 0 ? ((totalPieceLen / totalUsable) * 100).toFixed(1) : (100 - yb.lossRate).toFixed(1);
+
       return '<div class="cc" id="' + yCardId2 + '" style="border:1.5px solid #d4d4dc">' +
         '<div class="cc-hd">' +
           '<div class="cc-desc" style="color:#1a1a2e">' + yb.desc +
-            (remnantBars && remnantBars.length ? '<span style="margin-left:8px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(34,211,238,.18);border:1px solid var(--cy);color:var(--cy);vertical-align:middle">残材消費</span>' : '') +
+            (effectiveRemnantBars.length ? '<span style="margin-left:8px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(34,211,238,.18);border:1px solid var(--cy);color:var(--cy);vertical-align:middle">残材消費</span>' : '') +
           '</div>' +
           '<div class="cc-stats" style="margin-left:auto">' +
             '<div class="cs"><div class="cl">歩留まり</div><div class="cv">' + yld2 + ' %</div></div>' +
             '<div class="cs"><div class="cl">カット数</div><div class="cv">' + (yb.chg || '—') + ' 回</div></div>' +
-            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + jisRoundKg(yb.barKg) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + jisRoundKg(yb.lossKg) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + barCount + ' 本</div></div>' +
+            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + jisRoundKg(effBarKg) + ' kg</div></div>' +
+            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + jisRoundKg(effLossKg) + ' kg</div></div>' +
+            '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + effBarCount + ' 本</div></div>' +
           '</div>' +
 '<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + yCardId2 + '" onclick="cartAdd(\'' + yCardId2 + '\',this)">＋ 追加</button>' + '</div>' +
         '</div>' +
@@ -1830,11 +1855,6 @@ function closeHeaderMenu() {
   }
   if (menu) menu.classList.remove('show');
   if (overlay) overlay.classList.remove('show');
-}
-
-function headerMenuPlaceholder(label) {
-  closeHeaderMenu();
-  alert(label + ' は準備中です');
 }
 
 document.addEventListener('keydown', function(e) {
