@@ -1127,7 +1127,7 @@ function runCalc() {
   // data.js 連動の定尺を正として扱う。
   if (remnants.length > 0) {
     try { doCalc(); } catch (fallbackErr) { alert('計算エラー: ' + fallbackErr.message); }
-    btn.innerHTML = '險育ｮ励ｒ螳溯｡後☆繧・<span class="arr">竊・/span><span class="run-hint">Ctrl + Enter</span>';
+    btn.innerHTML = '計算を実行する <span class="arr">→</span><span class="run-hint">Ctrl + Enter</span>';
     btn.disabled = false;
     hideCalcLoadingOverlay();
     return;
