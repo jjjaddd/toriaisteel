@@ -45,7 +45,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=dm14">
+<link rel="stylesheet" href="style.css?v=dm15">
 <link rel="stylesheet" href="toriai-theme.css?v=1">
 <link rel="stylesheet" href="data-tab.css?v=1">
 </head>
@@ -73,9 +73,10 @@
         <button class="hm-row" type="button" onclick="importAllData(); closeHeaderMenu()">
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
-        <div class="hm-row hm-row--version">
+        <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
           <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.0</span></span>
-        </div>
+          <span class="hm-version-arrow">›</span>
+        </button>
       </div>
     </div>
   </div>
@@ -867,6 +868,17 @@
 <script src="supabase-client.js"></script>
 <script src="supabase-sync.js"></script>
 <script src="custom-materials.js"></script>
+<!-- 更新履歴モーダル -->
+<div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">
+  <div class="changelog-card">
+    <div class="changelog-head">
+      <div class="changelog-title">更新履歴</div>
+      <button type="button" class="changelog-close" onclick="closeChangelog()" aria-label="閉じる">✕</button>
+    </div>
+    <div id="changelogBody" class="changelog-body"></div>
+  </div>
+</div>
+
 <footer style="display:none" aria-label="サイト情報">
   <div>
     <p>TORIAI（鋼材取り合い計算ツール）はバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。</p>

@@ -1795,6 +1795,58 @@ function clearParts() {
   document.getElementById('totkg').textContent = '—';
 }
 
+// ── 更新履歴 ──────────────────────────────────────────────
+// 新しいバージョンを出すときは、この配列の先頭に追記するだけ。
+// date は YYYY-MM-DD、changes は 1 行 1 項目で短く。
+var TORIAI_CHANGELOG = [
+  {
+    version: 'v1.0.0',
+    date: '2026-04-19',
+    changes: [
+      '正式リリース',
+      '残材消費時の計算バグ（母材重量・歩留まり・切断図の二重描画）を修正',
+      'ダークモード・未実装機能（カーボンフットプリント計算／印刷時在庫登録しない／使い方ガイド）を整理',
+      'ハンバーガーメニューからバージョンクリックで更新履歴を表示',
+      '計算実行ボタンの文字化けを修正'
+    ]
+  }
+];
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+
+function renderChangelog() {
+  var body = document.getElementById('changelogBody');
+  if (!body) return;
+  body.innerHTML = TORIAI_CHANGELOG.map(function(entry, idx) {
+    var items = entry.changes.map(function(c){
+      return '<li>' + escapeHtml(c) + '</li>';
+    }).join('');
+    return '<section class="changelog-entry' + (idx === 0 ? ' is-latest' : '') + '">' +
+      '<div class="changelog-entry-head">' +
+        '<span class="changelog-ver">' + escapeHtml(entry.version) + '</span>' +
+        '<span class="changelog-date">' + escapeHtml(entry.date) + '</span>' +
+      '</div>' +
+      '<ul class="changelog-list">' + items + '</ul>' +
+    '</section>';
+  }).join('');
+}
+
+function openChangelog() {
+  renderChangelog();
+  var modal = document.getElementById('changelogModal');
+  if (modal) modal.classList.add('show');
+  closeHeaderMenu();
+}
+
+function closeChangelog() {
+  var modal = document.getElementById('changelogModal');
+  if (modal) modal.classList.remove('show');
+}
+
 function toggleHeaderMenu() {
   var btn = document.getElementById('hamBtn');
   var menu = document.getElementById('hamMenu');
@@ -1820,7 +1872,7 @@ function closeHeaderMenu() {
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeHeaderMenu();
+  if (e.key === 'Escape') { closeHeaderMenu(); closeChangelog(); }
 });
 
 // ── 初期化 ──────────────────────────────────────────────
