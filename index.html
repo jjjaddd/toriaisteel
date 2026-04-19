@@ -35,36 +35,6 @@
 }
 </script>
 <meta name="theme-color" content="#111111">
-<script>
-(function(){
-  var d=document.documentElement;
-  var theme='light';
-  try{
-    var t=localStorage.getItem('toriai-theme');
-    if(t==='dark'||t==='light') theme=t;
-    else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches) theme='dark';
-  }catch(e){}
-  d.setAttribute('data-theme', theme);
-  var m=document.querySelector('meta[name="theme-color"]');
-  if(m) m.setAttribute('content', theme==='dark' ? '#1c1c1c' : '#111111');
-})();
-</script>
-<style id="toriai-theme-critical">
-/* ダークモード基調 — Claude と同じニュートラルダーク（紺/青みなし） */
-html[data-theme="dark"]{background:#1c1c1c!important;}
-html[data-theme="dark"] body{
-  color:#ececec!important;
-  background:#1c1c1c!important;
-}
-html[data-theme="dark"] header{
-  background:rgba(28,28,28,.96)!important;
-  border-bottom-color:#3a3a3a!important;
-}
-html[data-theme="dark"] #hip,
-html[data-theme="dark"] .hi-panel{background:#1c1c1c!important;}
-html[data-theme="dark"] .sb{background:#212121!important;border-right-color:#3a3a3a!important;}
-html[data-theme="dark"] .mn{background:#1c1c1c!important;}
-</style>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -75,7 +45,7 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=dm13">
+<link rel="stylesheet" href="style.css?v=dm14">
 <link rel="stylesheet" href="toriai-theme.css?v=1">
 <link rel="stylesheet" href="data-tab.css?v=1">
 </head>
@@ -96,12 +66,6 @@ html[data-theme="dark"] .mn{background:#1c1c1c!important;}
     <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">カート 0件</button>
     <button id="hamBtn" class="ham-btn" type="button" onclick="toggleHeaderMenu()" aria-label="設定メニュー" aria-expanded="false">☰</button>
     <div id="hamMenu" class="ham-menu">
-      <div class="hm-section">
-        <button class="hm-row" type="button" id="themeToggleBtn" onclick="toggleTheme()" role="switch" aria-checked="false" aria-label="ダークモードの切り替え">
-          <span class="hm-txt">ダークモード</span>
-          <span class="hm-theme-pill" id="themeToggleState">オフ</span>
-        </button>
-      </div>
       <div class="hm-section">
         <button class="hm-row" type="button" onclick="exportAllData(); closeHeaderMenu()">
           <span class="hm-txt">データ書き出し（JSON）</span>

@@ -1795,44 +1795,6 @@ function clearParts() {
   document.getElementById('totkg').textContent = '—';
 }
 
-var THEME_STORAGE_KEY = 'toriai-theme';
-
-function getPreferredTheme() {
-  try {
-    var s = localStorage.getItem(THEME_STORAGE_KEY);
-    if (s === 'dark' || s === 'light') return s;
-  } catch (e) {}
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-  return 'light';
-}
-
-function applyTheme(theme) {
-  if (theme !== 'dark' && theme !== 'light') theme = 'light';
-  document.documentElement.setAttribute('data-theme', theme);
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch (e) {}
-  var meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', theme === 'dark' ? '#12121a' : '#111111');
-  var state = document.getElementById('themeToggleState');
-  var btn = document.getElementById('themeToggleBtn');
-  if (state) state.textContent = theme === 'dark' ? 'オン' : 'オフ';
-  if (btn) {
-    btn.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
-    btn.classList.toggle('is-on', theme === 'dark');
-  }
-}
-
-function toggleTheme() {
-  var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  applyTheme(cur === 'dark' ? 'light' : 'dark');
-  closeHeaderMenu();
-}
-
-function initTheme() {
-  applyTheme(getPreferredTheme());
-}
-
 function toggleHeaderMenu() {
   var btn = document.getElementById('hamBtn');
   var menu = document.getElementById('hamMenu');
@@ -2575,7 +2537,6 @@ function buildPrintHeaderMini(job, pageInfo) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-  initTheme();
   init();
   // カスタム鋼材ロード
   if (typeof loadCustomMaterials === 'function') loadCustomMaterials();
