@@ -76,11 +76,9 @@ html[data-theme="dark"] header {
   border-bottom-color: var(--line) !important;
 }
 
-/* Nav links */
-nav a { color: var(--ink) !important; }
+/* Nav links — color は style.css に任せる（デフォルト#6b7280／ホバー#1a1a2e） */
 nav a:hover, nav a.active {
   background: var(--hp) !important;
-  color: var(--ink) !important;
 }
 html[data-theme="dark"] nav a { color: var(--ink) !important; }
 html[data-theme="dark"] nav a:hover,
