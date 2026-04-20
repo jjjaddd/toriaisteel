@@ -106,7 +106,7 @@ function buildUnlimitedStockPool(kind, spec) {
     return { sl: sl, max: Infinity };
   });
 }
-var ROWS = 10; // 初期行数（動的追加可能）
+var ROWS = 15; // 初期行数（動的追加可能）
 
 var PIECE_COLORS = ['p0','p1','p2','p3','p4','p5','p6','p7','p8','p9'];
 

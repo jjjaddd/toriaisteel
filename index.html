@@ -1,30 +1,53 @@
 ﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
+<script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){
+function g(t,e){var o=e.split(".");
+2==o.length&&(t=t[o[0]],e=o[1]),
+t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}
+}
+(p=t.createElement("script")).type="text/javascript",
+p.async=!0,p.src=s.api_host+"/static/array.js",
+(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);
+var u=e;
+for(void 0!==a?u=e[a]=[]:a="posthog",
+u.people=u.people||[],u.toString=function(t){
+var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},
+u.people.toString=function(){return u.toString(1)+".people (stub)"},
+o="capture identify alias people.set people.set_once group group.set group.set_once reset".split(" "),
+n=0;n<o.length;n++)g(u,o[n]);
+e._i.push([i,s,a])
+},e.__SV=1)}(document,window.posthog||[]);
+
+posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
+    api_host: 'https://app.posthog.com'
+});
+</script>
 <meta charset="UTF-8">
 <title>鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画・重量計算【TORIAI】</title>
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta property="og:title" content="鉤材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
-<meta property="og:description" content="バンドソー歩留まり計算・鉤材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。H形鉤・山形鉤・角鉤・丸鉤対応。">
+<meta property="og:title" content="鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
+<meta property="og:description" content="バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。H形鋼・山形鋼・角鋼・丸鋼対応。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://toriai.app">
 <meta property="og:image" content="https://toriai.app/ogp.png">
 <link rel="canonical" href="https://toriai.app">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="鉤材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
-<meta name="twitter:description" content="バンドソー歩留まり計算・鉤材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。">
+<meta name="twitter:title" content="鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
+<meta name="twitter:description" content="バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。">
 <meta name="google-site-verification" content="nejuDRI7NWbXEMzsqxWKi6eUDqMG4aauP5n7e5hbZvc">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "TORIAI",
-  "alternateName": "鉤材取り合い計算ツール",
+  "alternateName": "鋼材取り合い計算ツール",
   "applicationCategory": "BusinessApplication",
-  "applicationSubCategory": "鉤材計算・切断計画",
+  "applicationSubCategory": "鋼材計算・切断計画",
   "operatingSystem": "Any",
-  "description": "バンドソー歩留まり計算・鉤材取り合い最適化・切断計画作成・重量計算・残材在庫管理が無料で使えるWebツール。H形鉤・山形鉤・溝形鉤・角鉤・丸鉤に対応。",
-  "featureList": ["鉤材取り合い計算", "バンドソー歩留まり計算", "切断計画作成", "H形鉤重量計算", "残材在庫管理", "山形鉤・角鉤・丸鉤対応", "切断ロス最小化"],
+  "description": "バンドソー歩留まり計算・鋼材取り合い最適化・切断計画作成・重量計算・残材在庫管理が無料で使えるWebツール。H形鋼・山形鋼・溝形鋼・角鋼・丸鋼に対応。",
+  "featureList": ["鋼材取り合い計算", "バンドソー歩留まり計算", "切断計画作成", "H形鋼重量計算", "残材在庫管理", "山形鋼・角鋼・丸鋼対応", "切断ロス最小化"],
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -41,11 +64,11 @@
 <meta name="apple-mobile-web-app-title" content="鋼材計算">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
-<meta name="description" content="TORIAIはバンドソー歩留まり計算・鉤材取り合い最適化が無料で使えるWebツールです。H形鉤・山形鉤・角鉤など主要鉤材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
+<meta name="description" content="TORIAIはバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。H形鋼・山形鋼・角鋼など主要鋼材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=ui8">
+<link rel="stylesheet" href="style.css?v=ui13">
 <link rel="stylesheet" href="toriai-theme.css?v=ui6">
 <link rel="stylesheet" href="data-tab.css?v=1">
 </head>
@@ -88,12 +111,6 @@
 <div class="layout">
 
 <aside class="sb">
-  <div class="sb-tabs">
-    <div class="sb-tab active" id="sbTab1" onclick="sbSwitch(1)">基本</div>
-    <div class="sb-tab" id="sbTab2" onclick="sbSwitch(2)">詳細設定</div>
-  </div>
-
-  <div class="sb-panel active" id="sbPanel1">
     <section style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-shrink:0">
         <div class="shd" style="margin-bottom:0">鋼材種類・規格</div>
@@ -165,120 +182,6 @@
 
     <button class="run" id="runBtn" onclick="runCalc()">計算を実行する <span class="arr">→</span><span class="run-hint">Ctrl + Enter</span></button>
     <div class="calc-note">本ソフトは計算支援を目的としたツールです。計算結果や切断指示は、実作業前に必ずご確認ください。</div>
-  </div>
-
-  <div class="sb-panel" id="sbPanel2">
-
-    <!-- 設定 -->
-    <div class="ds-section">
-      <div class="ds-sec-head" onclick="toggleSection('settingBody','settingToggleBtn','')">
-        <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">切断条件</div>
-        <span id="settingToggleBtn" class="ds-toggle-icon">＋</span>
-      </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
-      <div id="settingBody" style="display:none">
-        <div class="ds-grid">
-          <div class="ds-field">
-            <label>刃厚 (mm)</label>
-            <input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()">
-          </div>
-          <div class="ds-field">
-            <label>端部ロス (mm)</label>
-            <input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()">
-          </div>
-        </div>
-        <div class="ds-field">
-          <label>端材 最小有効長さ (mm)</label>
-          <input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()">
-        </div>
-      </div>
-    </div>
-
-    <!-- 作業情報 -->
-    <div class="ds-section">
-      <div class="ds-sec-head" onclick="toggleSection('jobBody','jobToggleBtn','')">
-        <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">作業情報</div>
-        <span id="jobToggleBtn" class="ds-toggle-icon">＋</span>
-      </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
-      <div id="jobBody" style="display:none">
-        <div class="ds-field">
-          <label>顧客名</label>
-          <input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off">
-          <datalist id="clientHistList"></datalist>
-        </div>
-        <div class="ds-field">
-          <label>工事名</label>
-          <input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off">
-          <datalist id="nameHistList"></datalist>
-        </div>
-        <div class="ds-grid">
-          <div class="ds-field">
-            <label>納期</label>
-            <input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()">
-          </div>
-          <div class="ds-field">
-            <label>メモ</label>
-            <input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 在庫定尺 -->
-    <div class="ds-section">
-      <div class="ds-sec-head" onclick="toggleSection('stockBody','stockToggleBtn','var(--br)')">
-        <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">在庫定尺</div>
-        <span id="stockToggleBtn" class="ds-toggle-icon">＋</span>
-      </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
-      <div id="stockBody" style="display:none">
-        <div id="stkList"></div>
-        <div style="font-size:10px;color:#8888a8;margin-top:3px">☑ 対象　右=上限本数</div>
-      </div>
-    </div>
-
-    <!-- 手持ち残材 -->
-    <div class="ds-section">
-      <div class="ds-sec-head" onclick="toggleSection('remnantBody','remnantToggleBtn','var(--cy)');updateInvDropdown()">
-        <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">手持ち残材</div>
-        <span id="remnantToggleBtn" class="ds-toggle-icon">＋</span>
-      </div>
-      <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
-      <div id="remnantBody" style="display:none">
-        <div id="invDropCont" style="display:block;margin-bottom:8px;padding:8px;background:transparent;border:1px solid #e8e8e8;border-radius:8px">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-            <span id="invBadge" style="font-size:10px;font-weight:700;color:#555555;background:#f0f0f0;padding:2px 8px;border-radius:20px;border:1px solid #e0e0e0">在庫 0本</span>
-          </div>
-          <div class="remnant-inventory-picker">
-            <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8f8;border:1px solid #e0e0e0;color:#111111;border-radius:6px;padding:4px 6px">
-              <option value="">── 在庫から残材に追加 ──</option>
-            </select>
-            <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#111111;border:1.5px solid #d0d0d0;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
-          </div>
-        </div>
-        <div class="remnant-area">
-          <div class="remnant-head">
-            <span>計算に使う残材</span>
-          </div>
-          <div id="remnantList"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- オプション（トグルスイッチ） -->
-    <div class="ds-toggle-area">
-      <div class="ds-toggle-row" onclick="document.getElementById('useKuiku').click()">
-        <div class="ds-toggle-label">
-          <span>工区を入力する</span>
-          <small>チェックで部材リストに工区欄が表示されます</small>
-        </div>
-        <label class="ds-tog" onclick="event.stopPropagation()">
-          <input type="checkbox" id="useKuiku" onchange="saveSettings(); toggleKuiku()">
-          <span class="ds-tog-track"></span>
-        </label>
-      </div>
-    </div>
 </aside>
 
 
@@ -543,7 +446,137 @@
           <button onclick="document.getElementById(&#39;cutDoneModal&#39;).style.display=&#39;none&#39;" style="background:#f8f8fc;color:#5a5a78;border:1px solid #d4d4dc;border-radius:8px;padding:10px 14px;font-size:12px;cursor:pointer">キャンセル</button>
         </div>
       </div>
-    
+
+  </div>
+
+  <!-- 詳細設定ボタン（右下固定・取り合いタブのみ表示） -->
+  <button type="button" class="gear-btn" id="gearBtn" aria-label="詳細設定を開く" onclick="openGearPopup()">
+    <svg class="gear-ico" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+    </svg>
+  </button>
+
+  <!-- 詳細設定ポップアップ（空、中身は段階4で移植） -->
+  <div class="gear-pop-bd" id="gearPopBd" onclick="if(event.target===this)closeGearPopup()">
+    <div class="gear-pop" role="dialog" aria-modal="true" aria-labelledby="gearPopTitle">
+      <div class="gear-pop-hd">
+        <div class="gear-pop-ttl" id="gearPopTitle">詳細設定</div>
+        <button type="button" class="gear-pop-x" aria-label="閉じる" onclick="closeGearPopup()">✕</button>
+      </div>
+      <div class="gear-pop-bdy">
+        <!-- 設定 -->
+        <div class="ds-section">
+          <div class="ds-sec-head" onclick="toggleSection('settingBody','settingToggleBtn','')">
+            <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">切断条件</div>
+            <span id="settingToggleBtn" class="ds-toggle-icon">＋</span>
+          </div>
+          <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
+          <div id="settingBody" style="display:none">
+            <div class="ds-grid">
+              <div class="ds-field">
+                <label>刃厚 (mm)</label>
+                <input type="number" id="blade" onkeydown="enterNext(event,'endloss')" value="3" min="1" oninput="saveSettings()">
+              </div>
+              <div class="ds-field">
+                <label>端部ロス (mm)</label>
+                <input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()">
+              </div>
+            </div>
+            <div class="ds-field">
+              <label>端材 最小有効長さ (mm)</label>
+              <input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()">
+            </div>
+          </div>
+        </div>
+
+        <!-- 作業情報 -->
+        <div class="ds-section">
+          <div class="ds-sec-head" onclick="toggleSection('jobBody','jobToggleBtn','')">
+            <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">作業情報</div>
+            <span id="jobToggleBtn" class="ds-toggle-icon">＋</span>
+          </div>
+          <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
+          <div id="jobBody" style="display:none">
+            <div class="ds-field">
+              <label>顧客名</label>
+              <input type="text" id="jobClient" onkeydown="enterNext(event,'jobName')" oninput="saveSettings()" list="clientHistList" autocomplete="off">
+              <datalist id="clientHistList"></datalist>
+            </div>
+            <div class="ds-field">
+              <label>工事名</label>
+              <input type="text" id="jobName" onkeydown="enterNext(event,'jobDeadline')" oninput="saveSettings()" list="nameHistList" autocomplete="off">
+              <datalist id="nameHistList"></datalist>
+            </div>
+            <div class="ds-grid">
+              <div class="ds-field">
+                <label>納期</label>
+                <input type="date" id="jobDeadline" onkeydown="enterNext(event,'jobWorker')" oninput="saveSettings()">
+              </div>
+              <div class="ds-field">
+                <label>メモ</label>
+                <input type="text" id="jobWorker" onkeydown="enterNext(event,'pl0')" oninput="saveSettings()">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 在庫定尺 -->
+        <div class="ds-section">
+          <div class="ds-sec-head" onclick="toggleSection('stockBody','stockToggleBtn','var(--br)')">
+            <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">在庫定尺</div>
+            <span id="stockToggleBtn" class="ds-toggle-icon">＋</span>
+          </div>
+          <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
+          <div id="stockBody" style="display:none">
+            <div id="stkList"></div>
+            <div style="font-size:10px;color:#8888a8;margin-top:3px">☑ 対象　右=上限本数</div>
+          </div>
+        </div>
+
+        <!-- 手持ち残材 -->
+        <div class="ds-section">
+          <div class="ds-sec-head" onclick="toggleSection('remnantBody','remnantToggleBtn','var(--cy)');updateInvDropdown()">
+            <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">手持ち残材</div>
+            <span id="remnantToggleBtn" class="ds-toggle-icon">＋</span>
+          </div>
+          <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
+          <div id="remnantBody" style="display:none">
+            <div id="invDropCont" style="display:block;margin-bottom:8px;padding:8px;background:transparent;border:1px solid #e8e8e8;border-radius:8px">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                <span id="invBadge" style="font-size:10px;font-weight:700;color:#555555;background:#f0f0f0;padding:2px 8px;border-radius:20px;border:1px solid #e0e0e0">在庫 0本</span>
+              </div>
+              <div class="remnant-inventory-picker">
+                <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8f8;border:1px solid #e0e0e0;color:#111111;border-radius:6px;padding:4px 6px">
+                  <option value="">── 在庫から残材に追加 ──</option>
+                </select>
+                <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#111111;border:1.5px solid #d0d0d0;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
+              </div>
+            </div>
+            <div class="remnant-area">
+              <div class="remnant-head">
+                <span>計算に使う残材</span>
+              </div>
+              <div id="remnantList"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- オプション（トグルスイッチ） -->
+        <div class="ds-toggle-area">
+          <div class="ds-toggle-row" onclick="document.getElementById('useKuiku').click()">
+            <div class="ds-toggle-label">
+              <span>工区を入力する</span>
+              <small>チェックで部材リストに工区欄が表示されます</small>
+            </div>
+            <label class="ds-tog" onclick="event.stopPropagation()">
+              <input type="checkbox" id="useKuiku" onchange="saveSettings(); toggleKuiku()">
+              <span class="ds-tog-track"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -784,13 +817,13 @@
   </div>
 </div>
 
-  <script src="storage.js?v=dm15"></script>
-  <script src="calc.js?v=dm15"></script>
-  <script src="utils.js?v=dm15"></script>
-  <script src="main.js?v=dm15"></script>
-  <script src="final-overrides.js?v=dm15"></script>
-  <script src="weight.js?v=dm15"></script>
-  <script src="data.js?v=dm15"></script>
+  <script src="storage.js?v=ui13"></script>
+  <script src="calc.js?v=ui13"></script>
+  <script src="utils.js?v=ui13"></script>
+  <script src="main.js?v=ui13"></script>
+  <script src="final-overrides.js?v=ui13"></script>
+  <script src="weight.js?v=ui13"></script>
+  <script src="data.js?v=ui13"></script>
 
 <!-- カートモーダル -->
 <div id="cartModal" onclick="if(event.target===this)closeCartModal()">
@@ -865,9 +898,9 @@
 
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1e0c6bf1-9e00-4c1b-9913-b5f34f04bae1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-client.js?v=dm15"></script>
-<script src="supabase-sync.js?v=dm15"></script>
-<script src="custom-materials.js?v=dm15"></script>
+<script src="supabase-client.js?v=ui13"></script>
+<script src="supabase-sync.js?v=ui13"></script>
+<script src="custom-materials.js?v=ui13"></script>
 <!-- 更新履歴モーダル -->
 <div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">
   <div class="changelog-card">

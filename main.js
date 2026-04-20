@@ -6,7 +6,7 @@
  */
 
 // ── アプリ状態 ─────────────────────────────────────────
-var ROWS         = 10;   // 部材リスト初期行数
+var ROWS         = 15;   // 部材リスト初期行数
 var curKind      = 'H形鋼';
 
 // ── 行選択（Ctrl+A / Delete） ────────────────────────────
@@ -521,6 +521,27 @@ function hiSetView(view) {
   renderHistory();
 }
 
+/* ============================================================
+   詳細設定ポップアップ（段階3: 骨組みのみ）
+   ============================================================ */
+function openGearPopup() {
+  var bd = document.getElementById('gearPopBd');
+  if (bd) bd.classList.add('show');
+}
+function closeGearPopup() {
+  var bd = document.getElementById('gearPopBd');
+  if (bd) bd.classList.remove('show');
+}
+// Escキーでポップアップを閉じる
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var bd = document.getElementById('gearPopBd');
+    if (bd && bd.classList.contains('show')) {
+      closeGearPopup();
+    }
+  }
+});
+
 function goPage(p) {
   document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('show'); });
   // ナビ全リセット
@@ -528,6 +549,15 @@ function goPage(p) {
     var el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
+
+  // 歯車ボタンは取り合いタブのみ表示
+  var gearBtn = document.getElementById('gearBtn');
+  if (gearBtn) gearBtn.style.display = (p === 'c') ? 'flex' : 'none';
+  // タブ切替時はポップアップも閉じる
+  if (p !== 'c') {
+    var gpb = document.getElementById('gearPopBd');
+    if (gpb) gpb.classList.remove('show');
+  }
 
   if (p === 'c') {
     var cp = document.getElementById('cp');
@@ -622,7 +652,7 @@ function addPartRowAt(i) {
   d.id = 'pr' + i;
   var kuikuEnabled = document.getElementById('useKuiku') && document.getElementById('useKuiku').checked;
   d.innerHTML =
-    '<span class="pt-n">' + (i+1) + '</span>' +
+    '<span class="pt-n">' + String(i+1).padStart(2, '0') + '</span>' +
     '<input type="number" id="pl' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'l\')" style="text-align:right">' +
     '<input type="number" id="pq' + i + '" placeholder="—" min="1" inputmode="numeric" oninput="updKg()" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'q\')" style="text-align:right">' +
     '<input type="text" id="pz' + i + '" onfocus="ptUndoFocus()" onblur="ptUndoBlur()" onkeydown="ptEnter(event,' + i + ',\'z\')" style="' + (kuikuEnabled ? '' : 'display:none') + '">' +

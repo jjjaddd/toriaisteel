@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>取り合いタブ UI モックアップ（送付CSS準拠）</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+  :root{
+    --r-sm:6px;
+    --r:8px;
+    --cy:#0e7490;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Space Grotesk','Noto Sans JP',sans-serif;
+    background:#f4f4f8;
+    color:#1a1a2e;
+    padding:24px;
+    min-height:100vh;
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .note{
+    max-width:980px;
+    margin:0 auto 16px;
+    background:#fff7e6;
+    border:1px solid #ffd591;
+    padding:10px 14px;
+    border-radius:8px;
+    font-size:13px;
+    color:#7a4a00;
+  }
+  .frame{
+    max-width:980px;
+    margin:0 auto;
+    background:#fff;
+    border:1px solid #e0e0ea;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 20px rgba(0,0,0,.05);
+  }
+
+  /* ─── Header ─── */
+  .hdr{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:10px 16px;
+    border-bottom:1px solid #e0e0ea;
+    background:#fff;
+  }
+  .hdr .brand{font-weight:900;letter-spacing:-.02em;color:#1a1a2e;font-size:16px;display:flex;align-items:center;gap:6px}
+  .hdr .brand .diamond{width:14px;height:14px;background:#1a1a2e;transform:rotate(45deg);border-radius:2px}
+  .hdr nav{display:flex;gap:8px;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#6b7280}
+  .hdr nav a{padding:4px 12px;border-radius:6px;cursor:pointer;text-decoration:none;color:inherit}
+  .hdr nav a.active{color:#1a1a2e;background:rgba(109,40,217,.1)}
+  .hdr .right{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;color:#5a5a78}
+
+  /* ─── Body Layout ─── */
+  .body{display:flex;min-height:680px}
+
+  /* 送付CSS: .sb background:#ffffff; border-right:1px solid #e0e0ea; padding:16px 14px; gap:14px */
+  .sb{
+    width:320px;
+    background:#ffffff;
+    border-right:1px solid #e0e0ea;
+    padding:16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    position:relative;
+  }
+  .main-ph{
+    flex:1;
+    background:#fafafd;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#aaa;
+    font-size:13px;
+  }
+
+  /* 送付CSS: .shd font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#2a2a3e;margin-bottom:8px */
+  .shd{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:#2a2a3e;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+
+  /* 送付CSS: input[type=text] font-size:12px; padding:6px 9px; border:1px solid #d4d4dc; color:#2a2a3e */
+  .mat-box{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .mat-search{
+    width:34px;height:34px;
+    background:#ede9fe;
+    border-radius:var(--r-sm);
+    display:flex;align-items:center;justify-content:center;
+    color:#6d28d9;
+    font-size:14px;
+    flex-shrink:0;
+    border:1px solid #e0e0ea;
+  }
+  .mat-box input{
+    flex:1;
+    background:#fff;
+    border:1px solid #d4d4dc;
+    color:#2a2a3e;
+    font-family:'Space Grotesk',monospace;
+    font-size:12px;
+    font-weight:500;
+    padding:6px 9px;
+    outline:none;
+    border-radius:var(--r-sm);
+  }
+  .mat-meta{
+    font-size:11px;
+    color:#5a5a78;
+    display:flex;
+    justify-content:space-between;
+    margin-top:-6px;
+  }
+  .mat-meta b{color:#1a1a2e;font-weight:700;font-family:'Space Grotesk',monospace}
+
+  /* ── Parts List ── */
+  .parts-sec{display:flex;flex-direction:column;min-height:0}
+  .mini-btns{display:flex;gap:4px}
+  .mini-btn{
+    width:24px;height:24px;
+    background:#fff;
+    border:1px solid #d4d4dc;
+    border-radius:var(--r-sm);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    color:#5a5a78;
+    font-size:12px;
+    transition:.12s;
+  }
+  .mini-btn:hover{background:#faf5ff;border-color:#c4b5fd;color:#6d28d9}
+
+  /* 送付CSS: .pt-hd display:grid; grid-template-columns:18px 1fr 54px 56px; border-bottom:1px solid #d4d4dc; padding:4px 0; background:#fff */
+  .pt-hd{
+    display:grid;
+    grid-template-columns:18px 1fr 54px 56px;
+    border-bottom:1px solid #d4d4dc;
+    padding:4px 0;
+    background:#fff;
+  }
+  /* 送付CSS: .pt-hd span font-size:10px; font-weight:700; letter-spacing:.1em; uppercase; color:#5a5a78; padding:0 5px */
+  .pt-hd span{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#5a5a78;
+    padding:0 5px;
+  }
+  .pt-hd .h-c{text-align:center}
+  .pt-hd .h-r{text-align:right}
+
+  .pt-scroll{
+    overflow-y:auto;
+    max-height:420px;
+  }
+
+  /* 送付CSS: .pt-row grid-template-columns:18px 1fr 54px 56px; border-bottom:1px solid #e8e8ed */
+  .pt-row{
+    display:grid;
+    grid-template-columns:18px 1fr 54px 56px;
+    border-bottom:1px solid #e8e8ed;
+  }
+  .pt-row:last-child{border-bottom:none}
+
+  /* 送付CSS: .pt-n font-size:11px; color:#8888a8; font-family:monospace */
+  .pt-n{
+    font-size:11px;
+    color:#8888a8;
+    display:flex;align-items:center;justify-content:center;
+    font-family:monospace;
+  }
+
+  /* 送付CSS: .pt-row input font-family:'Space Grotesk',monospace; font-size:12px; padding:5px 6px; color:#2a2a3e */
+  .pt-row input{
+    background:transparent;
+    border:1px solid transparent;
+    color:#2a2a3e;
+    font-family:'Space Grotesk',monospace;
+    font-size:12px;
+    padding:5px 6px;
+    outline:none;
+    transition:.12s;
+    width:100%;
+    border-radius:4px;
+  }
+  .pt-row input:hover,
+  .pt-row input:focus{background:#faf5ff;outline:none}
+  .pt-row input.num{text-align:center}
+
+  /* 送付CSS: .pt-kg font-size:11px; font-weight:500; color:#5a5a78; font-family:monospace */
+  .pt-kg{
+    display:flex;align-items:center;justify-content:flex-end;
+    padding-right:6px;
+    font-size:11px;
+    font-weight:500;
+    color:#5a5a78;
+    font-family:monospace;
+  }
+  .pt-row.empty input::placeholder{color:#d4d4dc}
+  .pt-row.empty .pt-kg{color:#d4d4dc}
+
+  /* 送付CSS: .tot padding:8px 11px; border:1px solid #d4d4dc; background:#fff */
+  .tot{
+    display:flex;justify-content:space-between;align-items:center;
+    border:1px solid #d4d4dc;
+    padding:8px 11px;
+    background:#fff;
+    margin-top:2px;
+    border-radius:0 0 var(--r-sm) var(--r-sm);
+  }
+  /* 送付CSS: .tot-l font-size:11px; font-weight:700; letter-spacing:.1em; uppercase; color:#5a5a78 */
+  .tot-l{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#5a5a78;
+  }
+  /* 送付CSS: .tot-v font-size:13px; font-weight:500; color:#2a2a3e; monospace */
+  .tot-v{
+    font-size:13px;
+    font-weight:500;
+    color:#2a2a3e;
+    font-family:monospace;
+  }
+
+  /* 送付CSS: .run font-size:12px; font-weight:700; letter-spacing:.1em; uppercase; padding:13px; border:1.5px solid #d4d4dc */
+  .run{
+    width:100%;
+    background:#fff;
+    color:#1a1a2e;
+    border:1.5px solid #d4d4dc;
+    font-family:'Space Grotesk','Noto Sans JP',sans-serif;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    padding:13px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    transition:all .2s;
+    border-radius:var(--r);
+  }
+  .run:hover{background:rgba(109,40,217,.08);border-color:#c4b5fd}
+  .run .run-hint{
+    font-size:10px;font-weight:500;color:#8888a8;
+    background:#f4f4f8;padding:3px 7px;border-radius:4px;
+    letter-spacing:0;
+    text-transform:none;
+  }
+
+  .disclaimer{
+    font-size:10px;color:#8888a8;line-height:1.5;padding:0 2px;
+  }
+
+  /* ─── Gear button (ページ右下固定・色変化なし・アイコンのみ回転) ─── */
+  .gear-btn{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    width:52px;height:52px;
+    background:#1a1a2e;
+    color:#fff;
+    border:none;
+    border-radius:50%;
+    box-shadow:0 6px 20px rgba(26,26,46,.3);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    z-index:90;
+    /* 色・枠は変化させない */
+  }
+  .gear-btn .gear-ico{
+    display:inline-block;
+    transition:transform .4s ease;
+  }
+  .gear-btn:hover .gear-ico{transform:rotate(90deg)}
+  .gear-btn:active .gear-ico{transform:rotate(180deg)}
+
+  /* ─── Popup ─── */
+  .popup-backdrop{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.35);
+    display:none;align-items:center;justify-content:center;
+    z-index:100;
+  }
+  .popup-backdrop.show{display:flex}
+  .popup{
+    background:#fff;
+    border-radius:12px;
+    width:460px;max-width:90vw;max-height:80vh;
+    overflow-y:auto;padding:20px 22px;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);
+  }
+  .popup h3{
+    font-size:14px;
+    margin-bottom:16px;
+    display:flex;justify-content:space-between;align-items:center;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+  .popup .close{
+    background:transparent;border:none;cursor:pointer;
+    font-size:20px;color:#8888a8;padding:4px 8px;
+  }
+  .popup .fld{margin-bottom:12px}
+  .popup .fld label{
+    display:block;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:#5a5a78;
+    margin-bottom:4px;
+  }
+  .popup .fld input,.popup .fld select{
+    width:100%;
+    background:#fff;
+    border:1px solid #d4d4dc;
+    color:#2a2a3e;
+    font-family:'Space Grotesk',monospace;
+    font-size:12px;
+    font-weight:500;
+    padding:6px 9px;
+    outline:none;
+    border-radius:var(--r-sm);
+  }
+
+  /* ─── Popup (詳細設定) sections ─── */
+  .pop-detail{padding:22px 22px;position:relative}
+  .pop-detail .close{position:absolute;top:12px;right:12px}
+  .pop-sec{margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid #f0f0f5}
+  .pop-sec:last-of-type{border-bottom:none}
+  .pop-sec-hd{
+    font-size:13px;font-weight:700;color:#1a1a2e;
+    margin-bottom:10px;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .pop-sec-hd::after{content:"—";color:#c8c8d4;font-weight:400}
+  .pop-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+
+  /* 在庫定尺 chips */
+  .stock-chip{
+    display:flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid #d4d4dc;border-radius:8px;
+    padding:6px 8px;
+  }
+  .stock-chip input[type=checkbox]{margin:0;accent-color:#6d28d9}
+  .stock-chip .len{font-family:'Space Grotesk',monospace;font-size:12px;font-weight:600;color:#1a1a2e;flex:1}
+  .stock-chip .arr{color:#8888a8;font-size:9px;cursor:pointer;padding:2px}
+  .stock-chip .inf{color:#8888a8;font-size:12px;margin:0 2px}
+  .pop-note{font-size:10px;color:#8888a8;margin-top:6px}
+
+  /* 手持ち残材 */
+  .zairyo-add{margin-bottom:10px}
+  .zairyo-badge{font-size:10px;color:#5a5a78;background:#f4f4f8;padding:3px 7px;border-radius:4px;display:inline-block;margin-bottom:6px}
+  .zairyo-badge b{color:#1a1a2e;font-weight:700}
+  .zairyo-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+  .zairyo-select{width:100%;background:#fff;border:1px solid #d4d4dc;padding:7px 9px;border-radius:var(--r-sm);font-family:'Space Grotesk',monospace;font-size:12px;color:#8888a8;appearance:none}
+  .zairyo-add-btn{
+    background:#fff;border:1.5px solid #16a34a;color:#16a34a;
+    font-family:inherit;font-size:12px;font-weight:700;
+    padding:6px 14px;border-radius:var(--r-sm);cursor:pointer;
+  }
+  .zairyo-use{background:#f7f7fb;border:1px solid #e8e8ef;border-radius:8px;padding:10px}
+  .zairyo-use-hd{font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+  .zairyo-use-body{font-size:11px;color:#8888a8}
+
+  /* 工区を入力する toggle */
+  .pop-toggle{
+    display:flex;justify-content:space-between;align-items:center;
+    background:#f4f4f8;border-radius:8px;padding:12px 14px;margin-top:4px;
+  }
+  .pop-toggle-ttl{font-size:12px;font-weight:700;color:#1a1a2e}
+  .pop-toggle-sub{font-size:10px;color:#8888a8;margin-top:2px}
+  .switch{position:relative;display:inline-block;width:42px;height:22px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{position:absolute;cursor:pointer;inset:0;background:#d4d4dc;border-radius:22px;transition:.2s}
+  .slider::before{position:absolute;content:"";height:18px;width:18px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked + .slider{background:#6d28d9}
+  .switch input:checked + .slider::before{transform:translateX(20px)}
+</style>
+</head>
+<body>
+
+<div class="note">
+  <b>📝 モックアップ（送付CSS準拠）</b>：フォントサイズ・枠サイズは送ってもらったCSSの値そのままです。<br>
+  <b>ページ右下の歯車 ⚙</b> を押すと詳細設定ポップアップが開きます（色は変化せず、歯車アイコンのみ回転）。行番号は 01〜15。
+</div>
+
+<div class="frame">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="brand"><span class="diamond"></span>TORIAI</div>
+    <nav>
+      <a class="active">取り合い</a>
+      <a>重量計算</a>
+      <a>データ</a>
+      <a>規格・在庫</a>
+      <a>お問い合わせ</a>
+    </nav>
+    <div class="right">? カート 0件 ≡</div>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+    <!-- Sidebar -->
+    <div class="sb">
+
+      <!-- 鋼材種類・規格 -->
+      <div>
+        <div class="shd">鋼材種類・規格</div>
+        <div class="mat-box">
+          <div class="mat-search">🔍</div>
+          <input type="text" value="H-200×100×5.5×8">
+        </div>
+      </div>
+      <div class="mat-meta">
+        <span>H形鋼（広幅/中幅）</span>
+        <span>単位重量 <b>21.3 kg/m</b></span>
+      </div>
+
+      <!-- 切り出し部材リスト -->
+      <div class="parts-sec">
+        <div class="shd">
+          <span>切り出し部材リスト</span>
+          <div class="mini-btns">
+            <button class="mini-btn" title="クリップボードから貼付">📋</button>
+            <button class="mini-btn" title="行追加">＋</button>
+            <button class="mini-btn" title="全クリア">×</button>
+          </div>
+        </div>
+        <div class="pt-hd">
+          <span></span>
+          <span>長さ (MM)</span>
+          <span class="h-c">数量</span>
+          <span class="h-r">重量</span>
+        </div>
+        <div class="pt-scroll">
+          <div class="pt-row"><span class="pt-n">01</span><input value="2400"><input class="num" value="4"><span class="pt-kg">204.48</span></div>
+          <div class="pt-row"><span class="pt-n">02</span><input value="1800"><input class="num" value="6"><span class="pt-kg">229.68</span></div>
+          <div class="pt-row"><span class="pt-n">03</span><input value="1500"><input class="num" value="5"><span class="pt-kg">159.75</span></div>
+          <div class="pt-row"><span class="pt-n">04</span><input value="1200"><input class="num" value="3"><span class="pt-kg">76.68</span></div>
+          <div class="pt-row"><span class="pt-n">05</span><input value="900"><input class="num" value="6"><span class="pt-kg">114.91</span></div>
+          <div class="pt-row empty"><span class="pt-n">06</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">07</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">08</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">09</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">10</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">11</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">12</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">13</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">14</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+          <div class="pt-row empty"><span class="pt-n">15</span><input placeholder="—"><input class="num" placeholder="—"><span class="pt-kg">—</span></div>
+        </div>
+        <div class="tot">
+          <div class="tot-l">部材合計重量</div>
+          <div class="tot-v">785.50 kg</div>
+        </div>
+      </div>
+
+      <!-- Run -->
+      <button class="run">
+        計算を実行する →
+        <span class="run-hint">Ctrl + Enter</span>
+      </button>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer">
+        本ソフトは計算支援を目的としたツールです。計算結果や切断指示は、実作業前に必ずご確認ください。
+      </div>
+
+    </div>
+
+    <!-- Main placeholder -->
+    <div class="main-ph">（結果表示エリア：従来通り）</div>
+  </div>
+</div>
+
+<!-- Gear button (ページ右下固定) -->
+<button class="gear-btn" onclick="document.getElementById('pop').classList.add('show')" title="詳細設定">
+  <span class="gear-ico">⚙</span>
+</button>
+
+<!-- Popup (詳細設定 — 送付内容を変更せず反映) -->
+<div class="popup-backdrop" id="pop" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="popup pop-detail">
+    <button class="close" onclick="document.getElementById('pop').classList.remove('show')">×</button>
+
+    <!-- 切断条件 -->
+    <div class="pop-sec">
+      <div class="pop-sec-hd">切断条件</div>
+      <div class="pop-grid-2">
+        <div class="fld"><label>刃厚 (mm)</label><input type="number" value="3"></div>
+        <div class="fld"><label>端部ロス (mm)</label><input type="number" value="150"></div>
+      </div>
+      <div class="fld"><label>残材 最小有効長さ (mm)</label><input type="number" value="500"></div>
+    </div>
+
+    <!-- 作業情報 -->
+    <div class="pop-sec">
+      <div class="pop-sec-hd">作業情報</div>
+      <div class="fld"><label>顧客名</label><input type="text"></div>
+      <div class="fld"><label>工事名</label><input type="text"></div>
+      <div class="pop-grid-2">
+        <div class="fld"><label>納期</label><input type="date"></div>
+        <div class="fld"><label>メモ</label><input type="text"></div>
+      </div>
+    </div>
+
+    <!-- 在庫定尺 -->
+    <div class="pop-sec">
+      <div class="pop-sec-hd">在庫定尺</div>
+      <div class="pop-grid-2">
+        <div class="stock-chip"><input type="checkbox" checked><span class="len">6,000</span><span class="arr">▼</span><span class="inf">∞</span><span class="arr">▲</span></div>
+        <div class="stock-chip"><input type="checkbox" checked><span class="len">7,000</span><span class="arr">▼</span><span class="inf">∞</span><span class="arr">▲</span></div>
+        <div class="stock-chip"><input type="checkbox" checked><span class="len">8,000</span><span class="arr">▼</span><span class="inf">∞</span><span class="arr">▲</span></div>
+        <div class="stock-chip"><input type="checkbox" checked><span class="len">9,000</span><span class="arr">▼</span><span class="inf">∞</span><span class="arr">▲</span></div>
+        <div class="stock-chip"><input type="checkbox" checked><span class="len">10,000</span><span class="arr">▼</span><span class="inf">∞</span><span class="arr">▲</span></div>
+        <div class="stock-chip"><input type="checkbox" checked><span class="len">11,000</span><span class="arr">▼</span><span class="inf">∞</span><span class="arr">▲</span></div>
+      </div>
+      <div class="pop-note">☑ 対象　右=上限本数</div>
+    </div>
+
+    <!-- 手持ち残材 -->
+    <div class="pop-sec">
+      <div class="pop-sec-hd">手持ち残材</div>
+      <div class="zairyo-add">
+        <div class="zairyo-badge">在庫 <b>1本</b></div>
+        <div class="zairyo-row">
+          <select class="zairyo-select"><option>在庫から追加する残材を選択</option></select>
+          <button class="zairyo-add-btn">追加</button>
+        </div>
+      </div>
+      <div class="zairyo-use">
+        <div class="zairyo-use-hd">計算に使う残材</div>
+        <div class="zairyo-use-body">在庫から選択した残材がここに表示されます</div>
+      </div>
+    </div>
+
+    <!-- 工区を入力する -->
+    <div class="pop-toggle">
+      <div>
+        <div class="pop-toggle-ttl">工区を入力する</div>
+        <div class="pop-toggle-sub">チェックで部材リストに工区欄が表示されます</div>
+      </div>
+      <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
