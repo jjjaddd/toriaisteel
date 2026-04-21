@@ -728,44 +728,39 @@ function wRenderRows() {
     if (r.paintAmount !== null) sumPaint += r.paintAmount;
 
     var memoTitle = _esc(r.memo || '');
-    var m2Cell = '<td style="' + _tdR + 'color:#111111;font-weight:700;' + (_wOpts.m2 ? '' : 'display:none;') + '">' + _wFmt(r.m2Total, 2) + '</td>';
-    var co2Disp = _wOpts.co2 ? '' : 'display:none;';
-    var co2Cell = '<td style="' + _tdR + co2Disp + 'color:#2d6a2d;font-weight:700">' +
+    var m2Cell = '<td class="w-r w-kg-total" style="' + (_wOpts.m2 ? '' : 'display:none;') + '">' + _wFmt(r.m2Total, 2) + '</td>';
+    var co2Cell = '<td class="w-r" style="color:#2d6a2d;font-weight:700;' + (_wOpts.co2 ? '' : 'display:none;') + '">' +
       (r.kgTotal * CO2_FACTOR).toFixed(1) + '</td>';
-    var amtDisp = _wOpts.price ? '' : 'display:none;';
     var amtCell = r.amount !== null
-      ? '<td style="' + _tdR + amtDisp + 'color:#111111;font-weight:700">' + _wFmt(r.amount, 0) +
-        '<br><span style="font-size:9px;color:#aaa;font-weight:400">@' + r.price + '円/kg</span></td>'
-      : '<td style="' + _tdR + amtDisp + 'color:#ccc">—</td>';
-    var paintDisp = _wOpts.paint ? '' : 'display:none;';
+      ? '<td class="w-r w-kg-total" style="' + (_wOpts.price ? '' : 'display:none;') + '">' + _wFmt(r.amount, 0) +
+        '<span class="w-sub">@' + r.price + '円/kg</span></td>'
+      : '<td class="w-r" style="color:#ccc;' + (_wOpts.price ? '' : 'display:none;') + '">—</td>';
     var paintAmtCell = r.paintAmount !== null
-      ? '<td style="' + _tdR + paintDisp + 'color:#111111;font-weight:700">' + _wFmt(r.paintAmount, 0) +
-        '<br><span style="font-size:9px;color:#aaa;font-weight:400">@' + r.paintPrice + '円/m²</span></td>'
-      : '<td style="' + _tdR + paintDisp + 'color:#ccc">—</td>';
-    var rowBg = (_wEditIdx === i) ? 'background:#fffde7;' : (i % 2 === 1 ? 'background:#fafafa;' : '');
+      ? '<td class="w-r w-kg-total" style="' + (_wOpts.paint ? '' : 'display:none;') + '">' + _wFmt(r.paintAmount, 0) +
+        '<span class="w-sub">@' + r.paintPrice + '円/m²</span></td>'
+      : '<td class="w-r" style="color:#ccc;' + (_wOpts.paint ? '' : 'display:none;') + '">—</td>';
 
-    var isSelected = _wSelected.indexOf(i) !== -1;
-    var selBg = isSelected ? 'background:#fef9c3;' : '';
+    var trClasses = [];
+    if (_wEditIdx === i) trClasses.push('w-editing');
+    if (_wSelected.indexOf(i) !== -1) trClasses.push('w-sel');
+    var trClass = trClasses.length ? ' class="' + trClasses.join(' ') + '"' : '';
     return (
-      '<tr style="border-bottom:1px solid #f0f0f6;' + rowBg + selBg + 'cursor:pointer;" onclick="wRowClick(event,' + i + ')" title="クリックで編集 / Shift+クリックで範囲選択">' +
-      '<td style="' + _tdL + 'color:#8888a8;font-size:11px">' + (i + 1) + '</td>' +
-      '<td style="padding:7px 10px;font-size:11px;color:#5a5a78;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;' +
-        (_wOpts.name ? '' : 'display:none') + '" title="' + memoTitle + '">' +
+      '<tr' + trClass + ' onclick="wRowClick(event,' + i + ')" title="クリックで編集 / Shift+クリックで範囲選択">' +
+      '<td class="w-l w-n">' + String(i + 1).padStart(2, '0') + '</td>' +
+      '<td class="w-l w-memo" style="' + (_wOpts.name ? '' : 'display:none') + '" title="' + memoTitle + '">' +
         _esc(r.memo || '—') +
       '</td>' +
-      '<td style="' + _tdL + '">' + _esc(r.kind) + '</td>' +
-      '<td style="' + _tdL + 'font-weight:600">' + _esc(r.spec) + '</td>' +
-      '<td style="' + _tdR + '">' + r.len.toLocaleString() + '</td>' +
-      '<td style="' + _tdR + '">' + r.qty.toLocaleString() + '</td>' +
-      '<td style="' + _tdR + '">' + _wFmtKg(r.kg1) + '</td>' +
-      '<td style="' + _tdR + 'color:#111111;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
+      '<td class="w-l"><span class="w-kind-chip">' + _esc(r.kind) + '</span><span class="w-spec-text">' + _esc(r.spec) + '</span></td>' +
+      '<td class="w-r">' + r.len.toLocaleString() + '</td>' +
+      '<td class="w-r">' + r.qty.toLocaleString() + '</td>' +
+      '<td class="w-r">' + _wFmtKg(r.kg1) + '</td>' +
+      '<td class="w-r w-kg-total">' + _wFmtKg(r.kgTotal) + '</td>' +
       co2Cell +
       m2Cell +
       amtCell +
       paintAmtCell +
       '<td style="padding:4px 8px;text-align:center">' +
-        '<button onclick="event.stopPropagation();wDeleteRow(' + i + ')" ' +
-          'class="hist-del-btn" title="削除">削除</button>' +
+        '<button onclick="event.stopPropagation();wDeleteRow(' + i + ')" class="w-del-x" title="削除">✕</button>' +
       '</td>' +
       '</tr>'
     );
@@ -773,32 +768,34 @@ function wRenderRows() {
 
   var totalAmtCell = _wOpts.price
     ? (anyPrice
-        ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumAmt, 0) + '</td>'
-        : '<td style="' + _tdR + 'color:#ccc">—</td>')
+        ? '<td class="w-r w-total-emph">' + _wFmt(sumAmt, 0) + '</td>'
+        : '<td class="w-r" style="color:#ccc">—</td>')
     : '';
   var totalPaintCell = _wOpts.paint
     ? (anyPaintAmt
-        ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumPaint, 0) + '</td>'
-        : '<td style="' + _tdR + 'color:#ccc">—</td>')
+        ? '<td class="w-r w-total-emph">' + _wFmt(sumPaint, 0) + '</td>'
+        : '<td class="w-r" style="color:#ccc">—</td>')
     : '';
   var totalCo2Cell = _wOpts.co2
-    ? '<td style="' + _tdR + 'color:#2d6a2d;font-weight:800;font-size:13px">' + sumCo2.toFixed(1) + ' kg-CO2</td>'
+    ? '<td class="w-r w-total-emph" style="color:#2d6a2d">' + sumCo2.toFixed(1) + '</td>'
     : '';
   var totalM2Cell = _wOpts.m2
-    ? '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:13px">' + _wFmt(sumM2v, 2) + ' m²</td>'
+    ? '<td class="w-r w-total-emph">' + _wFmt(sumM2v, 2) + '</td>'
     : '';
   var nameCols = _wOpts.name ? 1 : 0;
 
   tfoot.innerHTML =
-    '<tr style="background:#f4f4fa;border-top:2px solid #e0e0ea">' +
-    '<td colspan="' + (5 + nameCols) + '" style="padding:10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#5a5a78">合　計</td>' +
-    '<td style="' + _tdR + 'color:#5a5a78">—</td>' +
-    '<td style="' + _tdR + 'color:#111111;font-weight:800;font-size:14px">' + _wFmtKg(sumKg) + ' kg</td>' +
+    '<tr>' +
+    '<td class="w-l" colspan="' + (3 + nameCols) + '">合計</td>' +
+    '<td class="w-r" style="color:#8a8a9e">—</td>' +
+    '<td class="w-r" style="color:#8a8a9e">—</td>' +
+    '<td class="w-r" style="color:#8a8a9e">—</td>' +
+    '<td class="w-r w-total-emph">' + _wFmtKg(sumKg) + '</td>' +
     totalCo2Cell +
     totalM2Cell +
     totalAmtCell +
     totalPaintCell +
-    '<td></td><td></td>' +
+    '<td></td>' +
     '</tr>';
 }
 
