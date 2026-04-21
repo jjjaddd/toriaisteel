@@ -1653,49 +1653,17 @@ function buildSelectorBar() {
   if (!bar) return;
   bar.innerHTML = '';
 
-  // ── 共通スタイル文字列 ────────────────────────────
-  var S_BAR   = 'display:flex;align-items:flex-end;gap:12px;margin-bottom:20px';
-  var S_COL   = 'display:flex;flex-direction:column;gap:5px';
-  var S_LBL   = 'font-size:10px;font-weight:700;color:#888;letter-spacing:.1em;text-transform:uppercase;font-family:inherit';
-  var S_SEL   = [
-    'width:auto', 'min-width:130px', 'height:42px', 'box-sizing:border-box',
-    'padding:0 32px 0 12px', 'border:1.5px solid #ccc', 'border-radius:8px',
-    'font-size:13px', 'font-weight:600', 'font-family:inherit',
-    'background-color:#fafafa', 'color:#111', 'cursor:pointer',
-    'appearance:none', '-webkit-appearance:none', 'outline:none'
-  ].join(';');
+  // Phase 1: 鋼種ドロップダウンは左サイドバーに移動。ここではサイズピッカーのみを描画。
+  var S_COL = 'display:flex;flex-direction:column;gap:5px;margin-bottom:20px';
+  var S_LBL = 'font-size:10px;font-weight:700;color:#888;letter-spacing:.1em;text-transform:uppercase;font-family:inherit';
 
-  // ── バー親 ────────────────────────────────────────
-  bar.style.cssText = S_BAR;
+  bar.style.cssText = '';
 
-  // ── 鋼種コラム ────────────────────────────────────
-  var kindCol = document.createElement('div');
-  kindCol.style.cssText = S_COL + ';flex-shrink:0';
-
-  var kindLbl = document.createElement('span');
-  kindLbl.textContent = '鋼種';
-  kindLbl.style.cssText = S_LBL;
-
-  var kindSel = document.createElement('select');
-  kindSel.id = 'dataKindSelect';
-  kindSel.style.cssText = S_SEL;
-  // 矢印を背景画像で追加（style.cssのbackground上書き回避のため別途設定）
-  kindSel.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'%3E%3Cpath fill=\'%23666\' d=\'M5 6L0 0h10z\'/%3E%3C/svg%3E")';
-  kindSel.style.backgroundRepeat = 'no-repeat';
-  kindSel.style.backgroundPosition = 'right 10px center';
-  kindSel.onchange = function() { dataSelectKind(this.value); };
-  kindSel.onmouseover = function() { this.style.backgroundColor = 'rgba(109,40,217,.06)'; };
-  kindSel.onmouseout  = function() { this.style.backgroundColor = '#fafafa'; };
-
-  kindCol.appendChild(kindLbl);
-  kindCol.appendChild(kindSel);
-
-  // ── サイズコラム ─────────────────────────────────
   var sizeCol = document.createElement('div');
-  sizeCol.style.cssText = S_COL + ';flex:1;min-width:0';
+  sizeCol.style.cssText = S_COL;
 
   var sizeLbl = document.createElement('span');
-  sizeLbl.textContent = 'サイズ';
+  sizeLbl.textContent = '規格を選択';
   sizeLbl.style.cssText = S_LBL;
 
   // サイズ行: [specPicker(flex:1)] gap [+ボタン(独立)]
@@ -1710,7 +1678,6 @@ function buildSelectorBar() {
   addBtn.type = 'button';
   addBtn.title = 'カスタム鋼材を追加';
   addBtn.textContent = '+';
-  // runスタイルのアクションボタン
   addBtn.style.cssText = [
     'width:42px', 'height:42px', 'flex-shrink:0',
     'background:#fff', 'color:#1a1a2e',
@@ -1736,12 +1703,12 @@ function buildSelectorBar() {
   sizeCol.appendChild(sizeLbl);
   sizeCol.appendChild(sizeRow);
 
-  bar.appendChild(kindCol);
   bar.appendChild(sizeCol);
 }
 
 function dataInit() {
   buildSelectorBar();          // セレクターバーをJSで完全生成
+  mountSidebarSearch();        // Phase 2: 左サイドバー検索ボックス
   renderDataKindTabs();        // 鋼種の選択肢を描画
   renderDataSpecPicker();      // サイズピッカーを描画
   renderDataSpec();
@@ -1758,15 +1725,154 @@ function dtCustomClose() {
   if (m) m.style.display = 'none';
 }
 
-/* 鋼種タブ描画 */
+/* 鋼種タブ描画
+ * Phase 1: 旧 <select id="dataKindSelect"> → 新 左サイドバー .dt-kind-list に置換
+ * 後方互換: 旧セレクタが存在する場合も念のため更新する
+ */
 function renderDataKindTabs() {
-  const sel = document.getElementById('dataKindSelect');
-  if (!sel) return;
-  const allKinds = getDataKindOrder();
-  sel.innerHTML = allKinds.map(function(k) {
-    var label = (SECTION_DATA[k] && SECTION_DATA[k].label) ? SECTION_DATA[k].label : k;
-    return '<option value="' + k + '"' + (k === _dataKind ? ' selected' : '') + '>' + label + '</option>';
-  }).join('');
+  renderKindSidebar();
+
+  // 旧 select を使っていた箇所の後方互換（存在しなければno-op）
+  var legacySel = document.getElementById('dataKindSelect');
+  if (legacySel) {
+    var allKindsLegacy = getDataKindOrder();
+    legacySel.innerHTML = allKindsLegacy.map(function(k) {
+      var label = (SECTION_DATA[k] && SECTION_DATA[k].label) ? SECTION_DATA[k].label : k;
+      return '<option value="' + k + '"' + (k === _dataKind ? ' selected' : '') + '>' + label + '</option>';
+    }).join('');
+  }
+}
+
+/* 左サイドバー: 鋼材カテゴリ一覧を描画 */
+function renderKindSidebar() {
+  var list = document.getElementById('dtKindList');
+  if (!list) return;
+
+  var kinds = getDataKindOrder();
+  var query = normalizeDataSpecText(window._dtSidebarQuery || '');
+
+  var htmlParts = [];
+  kinds.forEach(function(k) {
+    var data = SECTION_DATA[k];
+    if (!data) return;
+    var label = data.label || k;
+    var count = Array.isArray(data.specs) ? data.specs.length : 0;
+
+    if (query) {
+      // カテゴリ名 or 鋼種キー or 配下のspec名のいずれかにヒットすれば表示
+      var hay = [
+        normalizeDataSpecText(label),
+        normalizeDataSpecText(k),
+        normalizeDataSpecText(data.jis || ''),
+        normalizeDataSpecText(data.jisSub || '')
+      ].join('|');
+      var hit = hay.indexOf(query) >= 0;
+      if (!hit && Array.isArray(data.specs)) {
+        hit = data.specs.some(function(s) {
+          return normalizeDataSpecText(s.name || '').indexOf(query) >= 0;
+        });
+      }
+      if (!hit) return;
+    }
+
+    var active = (k === _dataKind) ? ' active' : '';
+    htmlParts.push(
+      '<button type="button" class="dt-kind-item' + active + '" data-kind="' + k + '">' +
+        '<span class="dt-kind-name">' + label + '</span>' +
+        '<span class="dt-kind-count">' + count + '</span>' +
+      '</button>'
+    );
+  });
+
+  if (!htmlParts.length) {
+    list.innerHTML = '<div class="dt-kind-empty">該当なし</div>';
+  } else {
+    list.innerHTML = htmlParts.join('');
+  }
+
+  // クリックで選択
+  Array.prototype.forEach.call(list.querySelectorAll('.dt-kind-item'), function(btn) {
+    btn.onclick = function() {
+      var k = this.getAttribute('data-kind');
+      if (k) dataSelectKind(k);
+    };
+  });
+
+  // カスタム規格件数更新
+  updateCustomCount();
+}
+
+/* 左サイドバー: 検索ボックスをマウント（初期化時に一度だけ） */
+function mountSidebarSearch() {
+  var slot = document.getElementById('dtSbSearch');
+  if (!slot || slot.dataset.mounted === '1') return;
+  slot.dataset.mounted = '1';
+
+  slot.innerHTML =
+    '<div class="dt-sb-search">' +
+      '<span class="dt-sb-search-ico" aria-hidden="true">' +
+        '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+          '<circle cx="7" cy="7" r="5"/><path d="M14 14l-3.5-3.5"/>' +
+        '</svg>' +
+      '</span>' +
+      '<input id="dtSbSearchInput" type="text" autocomplete="off" ' +
+        'placeholder="カテゴリを検索" aria-label="鋼材カテゴリを検索">' +
+      '<button type="button" class="dt-sb-search-clear" id="dtSbSearchClear" aria-label="クリア" hidden>×</button>' +
+    '</div>';
+
+  var input = document.getElementById('dtSbSearchInput');
+  var clear = document.getElementById('dtSbSearchClear');
+  if (!input) return;
+
+  input.oninput = function() {
+    window._dtSidebarQuery = this.value || '';
+    if (clear) clear.hidden = !this.value;
+    renderKindSidebar();
+  };
+  input.onkeydown = function(e) {
+    if (e.key === 'Escape') {
+      this.value = '';
+      window._dtSidebarQuery = '';
+      if (clear) clear.hidden = true;
+      renderKindSidebar();
+      this.blur();
+    } else if (e.key === 'Enter') {
+      // 先頭の候補があれば選択
+      var first = document.querySelector('#dtKindList .dt-kind-item');
+      if (first) {
+        var k = first.getAttribute('data-kind');
+        if (k) dataSelectKind(k);
+      }
+    }
+  };
+  if (clear) {
+    clear.onclick = function() {
+      input.value = '';
+      window._dtSidebarQuery = '';
+      this.hidden = true;
+      renderKindSidebar();
+      input.focus();
+    };
+  }
+}
+
+function updateCustomCount() {
+  var el = document.getElementById('dtCustomCount');
+  if (!el) return;
+  var n = 0;
+  try {
+    if (typeof getCustomSteelList === 'function') {
+      var arr = getCustomSteelList();
+      if (Array.isArray(arr)) n = arr.length;
+    } else {
+      // fallback: localStorage スキャン
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && key.indexOf('custom_steel_') === 0) n++;
+      }
+    }
+  } catch(e) {}
+  el.textContent = n;
 }
 
 /* 鋼種選択 */
@@ -1965,7 +2071,7 @@ function renderDataSpec() {
     const W = spec.W || spec.w || null;
     const S = (typeof wGetPaintPerM === 'function') ? wGetPaintPerM(kindData.label, spec.name) : null;
     infoEl.innerHTML =
-      '<div class="dt-kind-label">' + kindData.label + '  ' + kindData.jis + '</div>' +
+      '<div class="dt-kind-label">' + kindData.label + ' <span class="dt-kind-sep">/</span> ' + kindData.jis + '</div>' +
       '<div class="dt-spec-name">' + spec.name + '</div>' +
       '<div class="dt-meta">' +
         (W != null ? '<span><span class="dt-meta-val">' + W + '</span> kg/m</span>' : '') +

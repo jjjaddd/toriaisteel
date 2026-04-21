@@ -68,9 +68,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=ui14">
+<link rel="stylesheet" href="style.css?v=ui24">
 <link rel="stylesheet" href="toriai-theme.css?v=ui6">
-<link rel="stylesheet" href="data-tab.css?v=1">
+<link rel="stylesheet" href="data-tab.css?v=2">
 </head>
 <body>
 <h1 style="display:none">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
@@ -97,7 +97,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
-          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.0</span></span>
+          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.1</span></span>
           <span class="hm-version-arrow">›</span>
         </button>
       </div>
@@ -687,7 +687,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         </div>
       </section>
       <button id="wAddBtn" onclick="wAddRow()" class="run" style="margin-top:8px">
-        ＋ リストに追加
+        ＋ リストに追加 <span class="arr">→</span>
       </button>
       <button id="wCancelBtn" onclick="wCancelEdit()" class="sm-btn" style="width:100%;margin-top:4px;padding:7px;display:none;color:#8888a8">
         キャンセル
@@ -705,13 +705,26 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2 2"/></svg>
         <p style="font-size:13px">左の入力欄で設定して「リストに追加」を押してください</p>
       </div>
-      <div id="wTableWrap" style="display:none;overflow-x:auto">
+      <div id="wTopBar" class="w-topbar" style="display:none">
+        <div id="wCrumb" class="w-crumb">
+          <span class="w-crumb-root">重量計算</span>
+          <span class="w-crumb-sep">/</span>
+          <span class="w-crumb-cur">一覧</span>
+          <span class="w-crumb-count" id="wCrumbCount">(0件)</span>
+        </div>
+        <div id="wActionBar" class="w-actions">
+          <button type="button" class="w-act-btn" onclick="wExportCsv()">CSV出力</button>
+          <button type="button" class="w-act-btn w-act-primary" onclick="wPrint()">重量計算書</button>
+        </div>
+      </div>
+      <div id="wTableWrap" class="w-card" style="display:none;overflow-x:auto">
         <table id="wTable" class="w-table">
           <thead>
             <tr>
               <th class="w-l">#</th>
               <th id="wThName" class="w-l" style="display:none">部材名</th>
-              <th class="w-l">種類 / 規格</th>
+              <th class="w-l">種類</th>
+              <th class="w-l">規格</th>
               <th class="w-r">長さ (mm)</th>
               <th class="w-r">本数</th>
               <th class="w-r">1本重量 (kg)</th>
@@ -733,37 +746,69 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
 <!-- データページ -->
 <div id="dpp" class="pg">
-  <div id="dtPage">
+  <div id="dtLayout" class="dt-layout">
 
-    <!-- セレクターバー: JS で生成 (data.js buildSelectorBar) -->
-    <div id="dtSelectors"></div>
+    <!-- ─── 左サイドバー: 鋼材カテゴリ ─── -->
+    <aside id="dtSidebar" class="dt-sb">
+      <div class="dt-sb-head">
+        <span class="dt-sb-title">鋼材カテゴリ</span>
+      </div>
+      <!-- Phase 2 で検索ボックスが入る -->
+      <div id="dtSbSearch" class="dt-sb-search-slot"></div>
+      <!-- カテゴリリスト (data.js renderKindSidebar) -->
+      <div id="dtKindList" class="dt-kind-list"></div>
 
-    <!-- ヘッダー -->
-    <div id="dtHeader"></div>
+      <div class="dt-sb-divider"></div>
 
-    <!-- 定尺 -->
-    <div id="dtStdArea" style="display:none">
-      <div class="dt-sec">定尺</div>
-      <div id="dtStdChips"></div>
-    </div>
+      <div class="dt-sb-head">
+        <span class="dt-sb-title dt-sb-title-sub">ユーザー</span>
+      </div>
+      <div id="dtCustomList" class="dt-custom-list">
+        <button type="button" class="dt-custom-item" onclick="dtCustomOpen()">
+          <span class="dt-custom-name">カスタム規格</span>
+          <span class="dt-custom-count" id="dtCustomCount">0</span>
+        </button>
+      </div>
+    </aside>
 
-    <!-- メイン: 左=情報 右=図 -->
-    <div id="dtMain">
-      <div id="dtInfoCol">
-        <div class="dt-sec">断面寸法</div>
-        <div class="dt-dim-grid" id="dataDimGrid"></div>
-        <button id="dataPerfToggle"
-          onclick="var w=document.getElementById('dataPerfWrap');var o=w.style.display==='none';w.style.display=o?'block':'none';this.textContent=o?'断面性能 ▲':'断面性能 ▼'">断面性能 ▼</button>
-        <div id="dataPerfWrap" style="display:none">
-          <div class="dt-dim-grid" id="dataPerfGrid"></div>
+    <!-- ─── 右メインペイン ─── -->
+    <main id="dtMainPane" class="dt-main-pane">
+
+      <!-- ヘッダー (パンくず / タイトル / メタ) -->
+      <div id="dtHeader"></div>
+
+      <!-- 規格を選択 (サイズピッカー＋カスタム追加ボタン) -->
+      <div id="dtSelectors"></div>
+
+      <!-- メイン: 左=情報 右=図 -->
+      <div id="dtMain">
+        <div id="dtInfoCol">
+
+          <!-- 流通定尺 (Phase 3 で断面寸法の上に固定) -->
+          <div id="dtStdArea" style="display:none">
+            <div class="dt-sec">流通定尺</div>
+            <div id="dtStdChips"></div>
+          </div>
+
+          <div class="dt-sec">断面寸法</div>
+          <div class="dt-dim-grid" id="dataDimGrid"></div>
+
+          <button id="dataPerfToggle"
+            onclick="var w=document.getElementById('dataPerfWrap');var o=w.style.display==='none';w.style.display=o?'block':'none';this.textContent=o?'断面性能 ▲':'断面性能 ▼'">断面性能 ▼</button>
+          <div id="dataPerfWrap" style="display:none">
+            <div class="dt-dim-grid" id="dataPerfGrid"></div>
+          </div>
+          <div id="dataExtraInfo"></div>
         </div>
-        <div id="dataExtraInfo"></div>
-        <div id="dataNoteArea" style="display:none"></div>
+
+        <div id="dtFigCol">
+          <div id="dataSVGWrap"></div>
+          <!-- メモ (Phase 3 で断面図の下に配置) -->
+          <div id="dataNoteArea" style="display:none"></div>
+        </div>
       </div>
-      <div id="dtFigCol">
-        <div id="dataSVGWrap"></div>
-      </div>
-    </div>
+
+    </main>
 
   </div>
 </div>
@@ -811,13 +856,13 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   </div>
 </div>
 
-  <script src="storage.js?v=ui14"></script>
-  <script src="calc.js?v=ui14"></script>
-  <script src="utils.js?v=ui14"></script>
-  <script src="main.js?v=ui14"></script>
-  <script src="final-overrides.js?v=ui14"></script>
-  <script src="weight.js?v=ui14"></script>
-  <script src="data.js?v=ui14"></script>
+  <script src="storage.js?v=ui24"></script>
+  <script src="calc.js?v=ui24"></script>
+  <script src="utils.js?v=ui24"></script>
+  <script src="main.js?v=ui24"></script>
+  <script src="final-overrides.js?v=ui24"></script>
+  <script src="weight.js?v=ui24"></script>
+  <script src="data.js?v=ui24"></script>
 
 <!-- カートモーダル -->
 <div id="cartModal" onclick="if(event.target===this)closeCartModal()">
@@ -892,9 +937,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1e0c6bf1-9e00-4c1b-9913-b5f34f04bae1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-client.js?v=ui14"></script>
-<script src="supabase-sync.js?v=ui14"></script>
-<script src="custom-materials.js?v=ui14"></script>
+<script src="supabase-client.js?v=ui24"></script>
+<script src="supabase-sync.js?v=ui24"></script>
+<script src="custom-materials.js?v=ui24"></script>
 <!-- 更新履歴モーダル -->
 <div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">
   <div class="changelog-card">

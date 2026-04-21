@@ -418,19 +418,20 @@ html[data-theme="dark"] .sm-btn { border-color: var(--line) !important; color: v
 html[data-theme="dark"] .sm-btn:hover { border-color: var(--ink) !important; color: var(--ink) !important; }
 
 /* ── 14. Run button ─────────────────────────────────────────── */
+/* style.css の .run（黒背景/ホバーで薄紫 #d8d4ff）に統一。変数ではなく明示色で合わせる */
 .run {
-  background: var(--bg) !important;
-  color: var(--ink) !important;
-  border: 1.5px solid var(--line) !important;
+  background: #1a1a2e !important;
+  color: #ffffff !important;
+  border: 1.5px solid #1a1a2e !important;
 }
 .run:hover {
-  background: var(--hp) !important;
-  border-color: var(--line) !important;
-  color: var(--ink) !important;
+  background: #d8d4ff !important;
+  border-color: #c4b5fd !important;
+  color: #1a1a2e !important;
   box-shadow: none !important;
 }
-html[data-theme="dark"] .run { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
-html[data-theme="dark"] .run:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .run { background: #1a1a2e !important; border-color: #1a1a2e !important; color: #ffffff !important; }
+html[data-theme="dark"] .run:hover { background: #d8d4ff !important; border-color: #c4b5fd !important; color: #1a1a2e !important; }
 
 /* ── 15. Result cards ───────────────────────────────────────── */
 .ph { background: var(--bg) !important; border-color: var(--line) !important; }

@@ -1830,6 +1830,17 @@ function clearParts() {
 // date は YYYY-MM-DD、changes は 1 行 1 項目で短く。
 var TORIAI_CHANGELOG = [
   {
+    version: 'v1.0.1',
+    date: '2026-04-21',
+    changes: [
+      '取り合いタブ 入力エリアを縦一列に刷新、詳細設定は右下の歯車ボタンからポップアップ表示',
+      '部材リストのデフォルトを15行に拡張、01〜15のゼロパディング表示',
+      '重量タブ 明細UIを刷新（ブレッドクラム・CSV出力／重量計算書ボタン・合計金額行）',
+      '重量タブ 重量計算書の印刷時に未選択カラムを出力しないよう修正',
+      '計算を実行する／＋リストに追加／メモ送信／お問い合わせ送信 ボタンをデフォルト黒・ホバー薄紫に統一'
+    ]
+  },
+  {
     version: 'v1.0.0',
     date: '2026-04-19',
     changes: [
@@ -3643,7 +3654,7 @@ function getRemnants() {
 }
 
 function normalizeInterfaceChrome() {
-  document.title = 'TORIAI';
+  document.title = 'TORIAIー鋼材取り合い計算ツールー';
   var head = document.querySelector('.remnant-head');
   if (head) {
     var addBtn = head.querySelector('.rem-add-btn');
