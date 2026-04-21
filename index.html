@@ -67,8 +67,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <meta name="description" content="TORIAIはバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。H形鋼・山形鋼・角鋼など主要鋼材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="style.css?v=ui24">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css?v=ui25">
 <link rel="stylesheet" href="toriai-theme.css?v=ui6">
 <link rel="stylesheet" href="data-tab.css?v=2">
 </head>
@@ -97,8 +97,11 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
-          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.1</span></span>
+          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.2</span></span>
           <span class="hm-version-arrow">›</span>
+        </button>
+        <button class="hm-row" type="button" onclick="openCalcOnboarding()">
+          <span class="hm-txt">使い方ガイド</span>
         </button>
       </div>
     </div>
@@ -856,13 +859,13 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   </div>
 </div>
 
-  <script src="storage.js?v=ui24"></script>
-  <script src="calc.js?v=ui24"></script>
-  <script src="utils.js?v=ui24"></script>
-  <script src="main.js?v=ui24"></script>
-  <script src="final-overrides.js?v=ui24"></script>
-  <script src="weight.js?v=ui24"></script>
-  <script src="data.js?v=ui24"></script>
+  <script src="storage.js?v=ui25"></script>
+  <script src="calc.js?v=ui25"></script>
+  <script src="utils.js?v=ui25"></script>
+  <script src="main.js?v=ui25"></script>
+  <script src="final-overrides.js?v=ui25"></script>
+  <script src="weight.js?v=ui25"></script>
+  <script src="data.js?v=ui25"></script>
 
 <!-- カートモーダル -->
 <div id="cartModal" onclick="if(event.target===this)closeCartModal()">
@@ -937,9 +940,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1e0c6bf1-9e00-4c1b-9913-b5f34f04bae1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-client.js?v=ui24"></script>
-<script src="supabase-sync.js?v=ui24"></script>
-<script src="custom-materials.js?v=ui24"></script>
+<script src="supabase-client.js?v=ui25"></script>
+<script src="supabase-sync.js?v=ui25"></script>
+<script src="custom-materials.js?v=ui25"></script>
 <!-- 更新履歴モーダル -->
 <div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">
   <div class="changelog-card">
@@ -948,6 +951,60 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
       <button type="button" class="changelog-close" onclick="closeChangelog()" aria-label="閉じる">✕</button>
     </div>
     <div id="changelogBody" class="changelog-body"></div>
+  </div>
+</div>
+
+<!-- 使い方オンボーディング -->
+<div id="calcOnboardingModal" class="onboarding-modal">
+  <div class="onboarding-card" role="dialog" aria-modal="true" aria-labelledby="calcOnboardingTitle">
+    <div class="onboarding-body">
+      <section class="onboarding-page is-active" data-page="0">
+        <div class="onboarding-page-no">01</div>
+        <div class="onboarding-page-kicker">Main Flow</div>
+        <h3 class="onboarding-page-title">TORIAIとは</h3>
+        <p class="onboarding-page-text">
+          TORIAIは 欲しい部材の長さと数量を入れると、どの母材を何本使えばよいかを自動で最適化します。
+        </p>
+      </section>
+      <section class="onboarding-page" data-page="1">
+        <div class="onboarding-page-no">02</div>
+        <div class="onboarding-page-kicker">Input</div>
+        <h3 class="onboarding-page-title">取り合い</h3>
+        <p class="onboarding-page-text">
+          鋼材種類・規格を選び、長さと数量を入力して実行します。設定ボタンでは刃厚、端部ロス、在庫定尺の選択なども調整できます。
+        </p>
+      </section>
+      <section class="onboarding-page" data-page="2">
+        <div class="onboarding-page-no">03</div>
+        <div class="onboarding-page-kicker">Weight</div>
+        <h3 class="onboarding-page-title">重量計算</h3>
+        <p class="onboarding-page-text">
+          重量、金額、塗装面積をまとめて確認できます。見積りや一覧出力をしたいときに使います。
+        </p>
+      </section>
+      <section class="onboarding-page" data-page="3">
+        <div class="onboarding-page-no">04</div>
+        <div class="onboarding-page-kicker">Data</div>
+        <h3 class="onboarding-page-title">データ</h3>
+        <p class="onboarding-page-text">
+          鋼材データを確認するページです。定尺の追加や管理、カスタム規格の確認にも使えます。
+        </p>
+      </section>
+      <section class="onboarding-page" data-page="4">
+        <div class="onboarding-page-no">05</div>
+        <div class="onboarding-page-kicker">History & Stock</div>
+        <h3 class="onboarding-page-title">履歴・在庫</h3>
+        <p class="onboarding-page-text">
+          過去の結果や残材在庫を見直せます。残材を使った切断や、前の作業の再利用に便利です。
+        </p>
+      </section>
+    </div>
+    <div class="onboarding-hint">右側を押すと進む / 左側を押すと戻る</div>
+    <div class="onboarding-hit onboarding-hit-left" onclick="moveCalcOnboarding(-1)" aria-hidden="true"></div>
+    <div class="onboarding-hit onboarding-hit-right" onclick="moveCalcOnboarding(1)" aria-hidden="true"></div>
+    <div class="onboarding-actions" id="onboardingActions">
+      <button type="button" class="onboarding-primary" onclick="startCalcFromOnboarding()">TORIAIを開く</button>
+    </div>
   </div>
 </div>
 

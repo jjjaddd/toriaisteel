@@ -635,6 +635,8 @@ function init() {
     cmdSelect({ kind: firstKind, spec: STEEL[firstKind][0][0], kgm: STEEL[firstKind][0][1] });
     document.getElementById('cmdInput').value = '';
   }
+
+  showCalcOnboardingIfNeeded();
 }
 
 function buildPartRows(count) {
@@ -1830,6 +1832,15 @@ function clearParts() {
 // date は YYYY-MM-DD、changes は 1 行 1 項目で短く。
 var TORIAI_CHANGELOG = [
   {
+    version: 'v1.0.2',
+    date: '2026-04-21',
+    changes: [
+      '取り合い中心の使い方オンボーディングを追加し、更新後に全ユーザーへ自動表示',
+      '鋼材種類・規格選択、長さ・数量入力、Ctrl+Enter 実行、最適母材数とカット候補の見方を案内',
+      '重量計算・データ・履歴在庫タブの役割も簡易ガイドに追記'
+    ]
+  },
+  {
     version: 'v1.0.1',
     date: '2026-04-21',
     changes: [
@@ -1852,6 +1863,12 @@ var TORIAI_CHANGELOG = [
     ]
   }
 ];
+var TORIAI_ONBOARDING_KEY = 'toriai_calc_onboarding_seen_version';
+var TORIAI_ONBOARDING_VERSION = TORIAI_CHANGELOG[0].version;
+var _calcOnboardingPage = 0;
+var _calcOnboardingCompleted = false;
+var _calcOnboardingForced = false;
+var _calcOnboardingTotal = 5;
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, function(c){
@@ -1888,6 +1905,72 @@ function closeChangelog() {
   if (modal) modal.classList.remove('show');
 }
 
+function hasSeenCalcOnboarding() {
+  try {
+    return (localStorage.getItem(TORIAI_ONBOARDING_KEY) || '') === TORIAI_ONBOARDING_VERSION;
+  } catch (e) {
+    return false;
+  }
+}
+
+function markCalcOnboardingSeen() {
+  try {
+    localStorage.setItem(TORIAI_ONBOARDING_KEY, TORIAI_ONBOARDING_VERSION);
+  } catch (e) {}
+}
+
+function renderCalcOnboarding() {
+  var pages = document.querySelectorAll('#calcOnboardingModal .onboarding-page');
+  var actions = document.getElementById('onboardingActions');
+  Array.prototype.forEach.call(pages, function(page, idx) {
+    page.classList.toggle('is-active', idx === _calcOnboardingPage);
+  });
+  if (actions) actions.classList.toggle('is-complete', _calcOnboardingPage === _calcOnboardingTotal - 1);
+}
+
+function openCalcOnboarding(forceLocked) {
+  var modal = document.getElementById('calcOnboardingModal');
+  if (!modal) return;
+  _calcOnboardingPage = 0;
+  _calcOnboardingCompleted = hasSeenCalcOnboarding();
+  _calcOnboardingForced = !!forceLocked && !_calcOnboardingCompleted;
+  renderCalcOnboarding();
+  modal.classList.add('show');
+  closeHeaderMenu();
+}
+
+function closeCalcOnboarding() {
+  if (_calcOnboardingForced && !_calcOnboardingCompleted) return;
+  var modal = document.getElementById('calcOnboardingModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function moveCalcOnboarding(step) {
+  var next = _calcOnboardingPage + step;
+  if (next < 0) next = 0;
+  if (next > _calcOnboardingTotal - 1) next = _calcOnboardingTotal - 1;
+  if (next === _calcOnboardingPage) return;
+  _calcOnboardingPage = next;
+  if (_calcOnboardingPage === _calcOnboardingTotal - 1 && !_calcOnboardingCompleted) {
+    _calcOnboardingCompleted = true;
+    _calcOnboardingForced = false;
+    markCalcOnboardingSeen();
+  }
+  renderCalcOnboarding();
+}
+
+function startCalcFromOnboarding() {
+  closeCalcOnboarding();
+  goPage('c');
+}
+
+function showCalcOnboardingIfNeeded() {
+  if (hasSeenCalcOnboarding()) return;
+  setTimeout(function() {
+    openCalcOnboarding(true);
+  }, 280);
+}
+
 function toggleHeaderMenu() {
   var btn = document.getElementById('hamBtn');
   var menu = document.getElementById('hamMenu');
@@ -1913,7 +1996,17 @@ function closeHeaderMenu() {
 }
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') { closeHeaderMenu(); closeChangelog(); }
+  var onboardingOpen = document.getElementById('calcOnboardingModal') &&
+    document.getElementById('calcOnboardingModal').classList.contains('show');
+  if (e.key === 'Escape') { closeHeaderMenu(); closeChangelog(); closeCalcOnboarding(); }
+  if (onboardingOpen && e.key === 'ArrowRight') {
+    e.preventDefault();
+    moveCalcOnboarding(1);
+  }
+  if (onboardingOpen && e.key === 'ArrowLeft') {
+    e.preventDefault();
+    moveCalcOnboarding(-1);
+  }
 });
 
 // ── 初期化 ──────────────────────────────────────────────
