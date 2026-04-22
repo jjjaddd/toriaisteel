@@ -110,7 +110,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
 <!-- CALC PAGE -->
 <div id="cp" class="pg">
-<div class="layout">
+<div class="layout" id="pageCalcLayout">
 
 <aside class="sb">
     <section style="margin-bottom:16px">
@@ -119,11 +119,11 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
       </div>
       <div id="steelBody" style="display:block">
         <div style="position:relative" id="cmdPaletteWrap">
-          <div style="display:flex;gap:6px;align-items:center">
+          <div class="calc-steel-row">
             <button
               type="button"
               onclick="cmdOpenBrowse()"
-              style="flex-shrink:0;width:34px;height:34px;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;font-family:inherit"
+              class="calc-browse-btn"
               onmouseover="this.style.background='#faf5ff'"
               onmouseout="this.style.background='#f8f8fc'"
             >🔍</button>
@@ -135,7 +135,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
               oninput="cmdFilter()"
               onkeydown="cmdKey(event)"
               onfocus="this.select()"
-              style="flex:1;box-sizing:border-box;background:#f8f8fc;border:1.5px solid #eee;border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;transition:.15s;"
+              class="calc-steel-input"
             >
           </div>
           <div id="cmdDropdown"
@@ -979,41 +979,21 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
       </div>
     </div>
 
-    <div class="cart-modal-body">
+    <div class="cart-modal-body" id="cartModalBody">
 
       <!-- 取り合いセクション -->
       <div class="cart-section" id="cartSectionCut">
-        <div class="cart-section-title">✂ 取り合い</div>
+        <div class="cart-section-title">取り合い候補</div>
         <div id="cartCutList"></div>
-        <div class="cart-section-actions">
+        <div class="cart-actions-grid">
           <button class="cart-action-btn cart-action-primary" id="cartCutPrintBtn"
                   onclick="cartPrintCutting()">切断指示書を印刷</button>
-        </div>
-        <div class="cart-copy-row">
-          <span class="cart-copy-label">コピー:</span>
-          <button class="cart-copy-btn" id="cartCopyCutResultBtn"
-                  onclick="cartCopyCutResult()">計算結果</button>
-          <button class="cart-copy-btn" id="cartCopyCutStockBtn"
-                  onclick="cartCopyCutStock()">使用予定の母材</button>
-        </div>
-      </div>
-
-      <!-- 重量セクション -->
-      <div class="cart-section" id="cartSectionWeight">
-        <div class="cart-section-title">⚖ 重量計算</div>
-        <div id="cartWeightList"></div>
-        <div class="cart-section-actions">
-          <button class="cart-action-btn cart-action-primary" id="cartWeightPrintBtn"
-                  onclick="cartPrintWeight()">🖨 重量計算書を印刷</button>
-          <button class="cart-action-btn" id="cartWeightCsvBtn"
-                  onclick="cartExportWeightCsv()">CSV出力</button>
-        </div>
-        <div class="cart-copy-row">
-          <span class="cart-copy-label">コピー:</span>
-          <button class="cart-copy-btn" id="cartCopyAllBtn"
-                  onclick="cartCopyPreview('all')">すべてをコピー</button>
-          <button class="cart-copy-btn" id="cartCopyPartsBtn"
-                  onclick="cartCopyPreview('parts-simple')">部材のみ</button>
+          <button class="cart-action-btn" id="cartCutWeightBtn"
+                  onclick="cartSendToWeightTab()">重量タブで計算</button>
+          <button class="cart-action-btn" id="cartCutPdfBtn"
+                  onclick="cartSaveCuttingPdf()">PDF保存</button>
+          <button class="cart-action-btn" id="cartCutCopyBtn"
+                  onclick="cartCopyCutShort()">コピー</button>
         </div>
       </div>
 
@@ -1095,7 +1075,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         </p>
       </section>
     </div>
-    <div class="onboarding-hint">右側を押すと進む / 左側を押すと戻る</div>
+    <div class="onboarding-hint">左側を押すと戻る / 右側を押すと進む</div>
     <div class="onboarding-hit onboarding-hit-left" onclick="moveCalcOnboarding(-1)" aria-hidden="true"></div>
     <div class="onboarding-hit onboarding-hit-right" onclick="moveCalcOnboarding(1)" aria-hidden="true"></div>
     <div class="onboarding-actions" id="onboardingActions">

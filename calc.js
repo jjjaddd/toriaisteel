@@ -589,7 +589,6 @@ function runCalc() {
   var endLoss = parseInt(document.getElementById('endloss').value) || 75;
   var kgm     = parseFloat(document.getElementById('kgm').value) || 0;
   var minValidLen = parseInt(document.getElementById('minRemnantLen') ? document.getElementById('minRemnantLen').value : 500) || 500;
-
   var stocks = [];
   STD.forEach(function(sl, i) {
     if (!document.getElementById('sc' + i).checked) return;

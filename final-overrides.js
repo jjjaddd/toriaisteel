@@ -527,51 +527,61 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
   };
 
   buildCutSourceLabel = function(slLen) {
-    return isStdStockLength(slLen)
-      ? slLen.toLocaleString() + 'mm 定尺'
-      : '残材 L=' + slLen.toLocaleString() + 'mm';
+    var safeLen = parseInt(slLen, 10) || 0;
+    if (!safeLen) return '母材未設定';
+    return isStdStockLength(safeLen)
+      ? safeLen.toLocaleString() + 'mm 定尺'
+      : '残材 L=' + safeLen.toLocaleString() + 'mm';
   };
 
   buildPrintBarHtml = function(bars, sl, endLoss) {
     if (!bars || !bars.length) return '';
-    var grouped = {};
-    bars.forEach(function(bar) {
-      var key = (bar.pat || []).slice().sort(function(a,b){return b-a;}).join(',') + '|' + (bar.loss || 0);
-      if (!grouped[key]) grouped[key] = { bar: bar, cnt: 0 };
-      grouped[key].cnt++;
-    });
     var endHalf = (endLoss || 150) / 2;
-    var sourceLabel = buildCutSourceLabel(sl);
-    var isRemnant = typeof isStdStockLength === 'function' && !isStdStockLength(sl);
     var html = '';
-    Object.keys(grouped).forEach(function(key) {
-      var g = grouped[key];
-      var bar = g.bar;
-      var patSummary = typeof formatPatternSummary === 'function'
-        ? formatPatternSummary(bar.pat)
-        : (bar.pat || []).join(' + ');
-      html += '<div class="bar-block">';
-      html += '<div class="bar-head">'
-        + '<span style="font-weight:700;font-size:10px">' + sourceLabel + '</span>'
-        + '<span class="cnt-badge">× ' + g.cnt + 'セット</span>'
-        + (isRemnant ? '<span class="source-chip">残材より</span>' : '')
-        + '</div>';
-      html += '<div class="bar-pat">= ' + patSummary + (bar.loss > 0 ? ' / 端材 ' + bar.loss.toLocaleString() + 'mm' : '') + '</div>';
-      html += '<div class="bar-track">';
-      html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-      // buildDisplaySegments で5本以上は「細材×N本」にまとめる（計算結果表示と同じ）
-      var segments = typeof buildDisplaySegments === 'function'
-        ? buildDisplaySegments(bar.pat || [])
-        : (bar.pat || []).map(function(len) { return { total: len, label: len.toLocaleString() + 'mm' }; });
-      segments.forEach(function(seg, idx) {
-        if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
-        html += '<div class="b-piece" style="flex:' + seg.total + '">' + (seg.total >= 250 ? '<span>' + seg.label + '</span>' : '') + '</div>';
+    var groupsByStock = {};
+    bars.forEach(function(bar) {
+      var slKey = parseInt((bar && bar.sl) || sl, 10) || 0;
+      if (!groupsByStock[slKey]) groupsByStock[slKey] = [];
+      groupsByStock[slKey].push(bar);
+    });
+    Object.keys(groupsByStock).forEach(function(stockKey) {
+      var slKey = parseInt(stockKey, 10) || 0;
+      var grouped = {};
+      groupsByStock[stockKey].forEach(function(bar) {
+        var key = (bar.pat || []).slice().sort(function(a,b){return b-a;}).join(',') + '|' + (bar.loss || 0);
+        if (!grouped[key]) grouped[key] = { bar: bar, cnt: 0 };
+        grouped[key].cnt++;
       });
-      if (bar.loss > 0) {
-        html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + bar.loss.toLocaleString() + '</div>';
-      }
-      html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
-      html += '</div></div>';
+      var sourceLabel = buildCutSourceLabel(slKey);
+      var isRemnant = typeof isStdStockLength === 'function' && slKey > 0 && !isStdStockLength(slKey);
+      Object.keys(grouped).forEach(function(key) {
+        var g = grouped[key];
+        var bar = g.bar;
+        var patSummary = typeof formatPatternSummary === 'function'
+          ? formatPatternSummary(bar.pat)
+          : (bar.pat || []).join(' + ');
+        html += '<div class="bar-block">';
+        html += '<div class="bar-head">'
+          + '<span style="font-weight:700;font-size:10px">' + sourceLabel + '</span>'
+          + '<span class="cnt-badge">× ' + g.cnt + 'セット</span>'
+          + (isRemnant ? '<span class="source-chip">残材より</span>' : '')
+          + '</div>';
+        html += '<div class="bar-pat">= ' + patSummary + (bar.loss > 0 ? ' / 端材 ' + bar.loss.toLocaleString() + 'mm' : '') + '</div>';
+        html += '<div class="bar-track">';
+        html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+        var segments = typeof buildDisplaySegments === 'function'
+          ? buildDisplaySegments(bar.pat || [])
+          : (bar.pat || []).map(function(len) { return { total: len, label: Number(len).toLocaleString() + 'mm' }; });
+        segments.forEach(function(seg, idx) {
+          if (idx > 0) html += '<div class="bar-cutline" aria-hidden="true"></div>';
+          html += '<div class="b-piece" style="flex:' + seg.total + '">' + (seg.total >= 250 ? '<span>' + seg.label + '</span>' : '') + '</div>';
+        });
+        if (bar.loss > 0) {
+          html += '<div class="' + (bar.loss >= 500 ? 'b-rem' : 'b-loss') + '" style="flex:' + bar.loss + '">' + bar.loss.toLocaleString() + '</div>';
+        }
+        html += '<div class="b-end" style="flex:' + endHalf + '"></div>';
+        html += '</div></div>';
+      });
     });
     return html;
   };
@@ -970,6 +980,11 @@ showHistPreview = function(id) {
   var modal = document.getElementById('histPreviewModal');
   var body = document.getElementById('histPreviewBody');
   if (!modal || !body) return;
+  if (h.type === 'cut_project' && h.project) {
+    body.innerHTML = h.project.printHtml || '<div style="padding:20px;color:#aaa;text-align:center">データがありません</div>';
+    modal.style.display = 'flex';
+    return;
+  }
   var r = h.result || {};
   var job = { client: h.client || '', name: h.name || '', deadline: h.deadline || '', worker: h.worker || '' };
   var spec = h.spec || '';
@@ -1604,6 +1619,25 @@ renderInventoryPage = function() {
             '<span class="hi-tag">' + rowCount + '行</span>' +
             '<span class="hi-tag" style="font-weight:700;color:#1a1a2e">' + kgStr + '</span>' +
             (amtStr ? '<span class="hi-tag">' + amtStr + '</span>' : '') +
+          '</div>' +
+        '</div>';
+      }
+      if (h.type === 'cut_project' && h.project) {
+        var sectionCount = (h.project.sections || []).length;
+        var projectClient = h.client || '顧客未設定';
+        return '<div class="hi-card" onclick="showHistPreview(' + h.id + ')">' +
+          '<div class="hi-card-top">' +
+            '<div class="hi-card-client">' + escapeHtml(projectClient) + '</div>' +
+            '<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0">' +
+              '<div class="hi-card-date">' + escapeHtml(h.dateLabel || '') + '</div>' +
+              '<button onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')" class="hist-del-btn">削除</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="hi-tags">' +
+            '<span class="hi-tag hi-tag-kind">物件</span>' +
+            '<span class="hi-tag">' + sectionCount + '鋼材</span>' +
+            '<span class="hi-tag">工事: ' + escapeHtml(h.name || '-') + '</span>' +
+            '<span class="hi-tag">納期: ' + escapeHtml(h.deadline || '-') + '</span>' +
           '</div>' +
         '</div>';
       }

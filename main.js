@@ -545,6 +545,7 @@ document.addEventListener('keydown', function(e) {
 function goPage(p) {
   document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('show'); });
   document.body.classList.toggle('page-contact', p === 'contact');
+  document.body.classList.toggle('page-calc-active', p === 'c');
   // ナビ全リセット
   ['na','nhi','nw','nd','nco'].forEach(function(id){
     var el = document.getElementById(id);
@@ -1339,6 +1340,24 @@ function _renderHistRow(h) {
       '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
     '</div>';
   }
+  if (h.type === 'cut_project' && h.project) {
+    var sectionCount = (h.project.sections || []).length;
+    return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
+      '<div class="hist-row-main">' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+          '<span class="hist-type-badge hist-type-badge--cut">✂ 物件</span>' +
+          '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
+          '<span class="hist-name">' + (h.name || '') + '</span>' +
+        '</div>' +
+        '<div class="hist-meta">' +
+          '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
+          '<span class="hist-rem">鋼材: ' + sectionCount + '件</span>' +
+          '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+    '</div>';
+  }
   var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
   return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
     '<div class="hist-row-main">' +
@@ -1440,6 +1459,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
   var rp = document.getElementById('rp');
   while (rp.firstChild) rp.removeChild(rp.firstChild);
   var yieldBest = yieldCard1 || (allDP && allDP.length ? allDP[0] : null);
+  var currentJob = typeof getJobInfo === 'function' ? getJobInfo() : {};
 
   // ── 作業指示書ヘッダー（印刷時のみ表示）──
   var blade2 = parseInt(document.getElementById('blade').value) || 3;
@@ -1490,7 +1510,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
     var remOnlyDiag = '';
     var rgo = {};
     remnantBars.forEach(function(rb){ var k=rb.sl; if(!rgo[k]) rgo[k]=[]; rgo[k].push(rb); });
-    Object.keys(rgo).sort(function(a,b){return b-a;}).forEach(function(sl){
+    sortStockLengthsForDisplay(Object.keys(rgo).map(Number)).forEach(function(sl){
       remOnlyDiag += buildCutDiagram(rgo[sl], parseInt(sl), '残材 ' + parseInt(sl).toLocaleString() + 'mm');
     });
     // 端材リスト（残材の loss > 0 のもの）
@@ -1505,7 +1525,12 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
       : '<span style="font-size:11px;color:#8888a8">なし</span>';
 
     var remOnlyCardId = 'card_remonly_' + Date.now();
-    var remOnlyDiagId = 'diag_remonly';
+    rp.insertAdjacentHTML('beforeend', buildCalcProjectToolbar({
+      customer: currentJob.client,
+      projectName: currentJob.name,
+      deadline: currentJob.deadline,
+      memo: currentJob.memo
+    }));
     remOnlySec.innerHTML =
       '<div class="res-hd"><div class="res-ttl">手持ち残材リスト</div></div>' +
       '<div class="cc yield-card r1" id="' + remOnlyCardId + '">' +
@@ -1514,16 +1539,16 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           '<div class="cc-stats">' +
             '<div class="cs"><div class="cl">残材本数</div><div class="cv">' + remnantBars.length + ' 本</div></div>' +
           '</div>' +
-'<div class="cc-btns"><button class="cc-btn-add" id="add_' + remOnlyCardId + '" onclick="cartAdd(\'' + remOnlyCardId + '\',this)">＋ 追加</button></div>' +
+'<div class="cc-btns">' + buildCardActionButtons(remOnlyCardId, true) + '</div>' +
         '</div>' +
         '<div class="rem-section rem-strip">' +
           '<div class="rem-strip-label">端材リスト</div>' +
           '<div class="rem-strip-pills">' + remEndHtml + '</div>' +
         '</div>' +
-        '<button class="diag-toggle" onclick="toggleDiag(\'' + remOnlyDiagId + '\',this)">✂ 切断図を表示 ▼</button>' +
-        '<div id="' + remOnlyDiagId + '" style="display:none">' + remOnlyDiag + '</div>' +
+        remOnlyDiag +
       '</div>';
     rp.appendChild(remOnlySec);
+    updateCartBadge();
     return;
   }
 
@@ -1532,6 +1557,14 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
     var yieldSec = mk('div', 'an');
     // No.1：歩留まり最大、No.2：カット数考慮型（存在する場合のみ）
     var yieldCards = [yieldCard1].filter(Boolean);
+    if (yieldCards.length) {
+      rp.insertAdjacentHTML('beforeend', buildCalcProjectToolbar({
+        customer: currentJob.client,
+        projectName: currentJob.name,
+        deadline: currentJob.deadline,
+        memo: currentJob.memo
+      }));
+    }
     var yieldCardHtmls = yieldCards.map(function(yb, yi) {
       // bars を定尺ごとにグループ化（BnB混在定尺対応）
       var allBarsY = yb.bars || yb.bA || [];
@@ -1570,27 +1603,25 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
       if (effectiveRemnantBars.length) {
         var rgy2 = {};
         effectiveRemnantBars.forEach(function(rb){ var k=rb.sl; if(!rgy2[k]) rgy2[k]=[]; rgy2[k].push(rb); });
-        Object.keys(rgy2).forEach(function(sl){ yDiag2 += buildCutDiagram(rgy2[sl], parseInt(sl), '残材 ' + parseInt(sl).toLocaleString() + 'mm'); });
+        sortStockLengthsForDisplay(Object.keys(rgy2).map(Number)).forEach(function(sl){ yDiag2 += buildCutDiagram(rgy2[sl], parseInt(sl), '残材 ' + parseInt(sl).toLocaleString() + 'mm'); });
       }
       sortedSlsY.forEach(function(sl){
         // 残材は上の block で出しているのでスキップ（二重描画防止）
         if (typeof isStdStockLength === 'function' && !isStdStockLength(sl)) return;
         yDiag2 += buildCutDiagram(slGroupsY[sl], sl, sl.toLocaleString() + 'mm 定尺');
       });
-      var yDiagId2 = 'diag_yield_' + yi;
       var yCardId2 = 'card_yield_' + yi;
+      var yDetailId2 = 'detail_yield_' + yi;
+
+      var yieldRemHtml = effectiveRemnantBars.length
+        ? buildRemHtmlFromRemnants(extractRemnantsFromBars(effectiveRemnantBars))
+        : '<span style="font-size:11px;color:#8888a8">なし</span>';
 
       // 残材分を加算した集計値（BUG-FIX 2026-04）
-      var remBarKg = effectiveRemnantBars.reduce(function(s, b){ return s + ((b.sl || 0) / 1000) * kgm; }, 0);
-      var remLossKg = effectiveRemnantBars.reduce(function(s, b){ return s + ((b.loss || 0) / 1000) * kgm; }, 0);
       var remUsable = effectiveRemnantBars.reduce(function(s, b){ return s + (b.sl || 0); }, 0);
       var remPieceLen = effectiveRemnantBars.reduce(function(s, b){
         return s + ((b.pat || []).reduce(function(a, p){ return a + p; }, 0));
       }, 0);
-
-      var effBarCount = allBarsY.length + effectiveRemnantBars.length;
-      var effBarKg = (yb.barKg || 0) + remBarKg;
-      var effLossKg = (yb.lossKg || 0) + remLossKg;
 
       // 歩留まりも残材を分母に含めて再計算
       var stockUsable = allBarsY.reduce(function(s, b){ return s + (b.sl || yb.slA || 0); }, 0);
@@ -1609,14 +1640,18 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           '<div class="cc-stats" style="margin-left:auto">' +
             '<div class="cs"><div class="cl">歩留まり</div><div class="cv">' + yld2 + ' %</div></div>' +
             '<div class="cs"><div class="cl">カット数</div><div class="cv">' + (yb.chg || '—') + ' 回</div></div>' +
-            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + jisRoundKg(effBarKg) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + jisRoundKg(effLossKg) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + effBarCount + ' 本</div></div>' +
           '</div>' +
-'<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + yCardId2 + '" onclick="cartAdd(\'' + yCardId2 + '\',this)">＋ 追加</button>' + '</div>' +
+'<div class="cc-btns">' + buildCardActionButtons(yCardId2, true) + '</div>' +
         '</div>' +
-        '<div class="cc-pat"><div class="pgrid">' + yPatHtml + '</div></div>' +
-        (yDiag2 ? '<button class="diag-toggle" onclick="toggleDiag(&quot;' + yDiagId2 + '&quot;,this)">✂ 切断図を表示 ▼</button><div id="' + yDiagId2 + '" style="display:none">' + yDiag2 + '</div>' : '') +
+        yDiag2 +
+        '<div class="rem-section rem-strip">' +
+          '<div class="rem-strip-label">端材リスト</div>' +
+          '<div class="rem-strip-pills">' + yieldRemHtml + '</div>' +
+        '</div>' +
+        '<button class="detail-toggle" type="button" onclick="toggleCardDetail(\'' + yDetailId2 + '\',this)">詳細を表示 ▼</button>' +
+        '<div class="cc-detail-body" id="' + yDetailId2 + '">' +
+          '<div class="cc-pat"><div class="pgrid">' + yPatHtml + '</div></div>' +
+        '</div>' +
       '</div>';
     }).join('');
 
@@ -1681,6 +1716,15 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
       }
     });
 
+    if (!yieldBest && displayPats.length) {
+      rp.insertAdjacentHTML('beforeend', buildCalcProjectToolbar({
+        customer: currentJob.client,
+        projectName: currentJob.name,
+        deadline: currentJob.deadline,
+        memo: currentJob.memo
+      }));
+    }
+
     function buildPatCard(pat) {
       var cfg = PAT_CFG[pat.label] || { color:'var(--g2)', bg:'', icon:'', sub:'' };
       // 実際の歩留まり率で sub ラベルを上書き
@@ -1699,7 +1743,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
       }
       var m = pat.metrics;
       var isRec = pat.label === 'C';
-      var diagId = 'diag_pat_' + pat.label + '_' + Date.now();
+      var detailId = 'detail_pat_' + pat.label + '_' + Date.now();
 
       // 切断図（定尺別グループ、同一パターン数の多い順）
       var diagHtml = '';
@@ -1775,21 +1819,20 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
             (remnantBars && remnantBars.length ? '<span style="margin-left:6px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(34,211,238,.18);border:1px solid var(--cy);color:var(--cy);vertical-align:middle">残材消費</span>' : '') +
           '</div>' +
           '<div class="cc-stats" style="margin-left:auto">' +
-            '<div class="cs"><div class="cl">同一パターン</div><div class="cv">' + m.samePatternCount + ' 本</div></div>' +
             '<div class="cs"><div class="cl">歩留まり</div><div class="cv">' + m.yieldPct.toFixed(1) + ' %</div></div>' +
             '<div class="cs"><div class="cl">カット数</div><div class="cv">' + m.totalCuts + ' 回</div></div>' +
-            '<div class="cs"><div class="cl">母材重量</div><div class="cv">' + jisRoundKg(m.barKg||0) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">ロス重量</div><div class="cv">' + jisRoundKg(m.lossKg||0) + ' kg</div></div>' +
-            '<div class="cs"><div class="cl">使用本数</div><div class="cv">' + m.barCount + ' 本</div></div>' +
           '</div>' +
-'<div class="cc-btns">' + '<button class="cc-btn-add" id="add_' + cardId2 + '" onclick="cartAdd(\'' + cardId2 + '\',this)">＋ 追加</button>' + '</div>' +
+'<div class="cc-btns">' + buildCardActionButtons(cardId2, true) + '</div>' +
         '</div>' +
-        '<div class="cc-pat"><div class="pgrid">' + patDetailHtml + '</div></div>' +
+        diagHtml +
         '<div class="rem-section rem-strip">' +
           '<div class="rem-strip-label">端材リスト</div>' +
           '<div class="rem-strip-pills">' + remHtml + '</div>' +
         '</div>' +
-        (diagHtml ? '<button class="diag-toggle" onclick="toggleDiag(\'' + diagId + '\',this)">✂ 切断図を表示 ▼</button><div id="' + diagId + '" style="display:none">' + diagHtml + '</div>' : '') +
+        '<button class="detail-toggle" type="button" onclick="toggleCardDetail(\'' + detailId + '\',this)">詳細を表示 ▼</button>' +
+        '<div class="cc-detail-body" id="' + detailId + '">' +
+          '<div class="cc-pat"><div class="pgrid">' + patDetailHtml + '</div></div>' +
+        '</div>' +
       '</div>';
     }
 
@@ -1803,6 +1846,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
       '<div style="display:flex;flex-direction:column;gap:12px">' + patGrid + '</div>';
     rp.appendChild(patSec);
   }
+  updateCartBadge();
 }
 
 function toggleDiag(id, btn) {
@@ -2275,16 +2319,31 @@ function buildPrintPages(job, sections) {
 }
 
 /** 印刷ウィンドウを開いて印刷 */
-function openPrintWindow(html) {
+function openOutputWindow(html, opts) {
+  opts = opts || {};
+  var title = opts.title || '作業指示書';
   var win = window.open('', '_blank', 'width=1050,height=750');
+  if (!win) return null;
   win.document.write(
-    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>作業指示書</title>' +
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + title + '</title>' +
     '<style>' + PRINT_CSS + '</style></head>' +
     '<body>' + html + '</body></html>'
   );
   win.document.close();
   win.focus();
-  setTimeout(function(){ win.print(); win.close(); }, 700);
+  if (opts.print) {
+    if (opts.closeAfterPrint) {
+      win.onafterprint = function() {
+        try { win.close(); } catch (e) {}
+      };
+    }
+    setTimeout(function(){ win.print(); }, 700);
+  }
+  return win;
+}
+
+function openPrintWindow(html) {
+  openOutputWindow(html, { title: '作業指示書', print: true, closeAfterPrint: true });
 }
 
 // ── 初期化 ──────────────────────────────────────────────
@@ -2843,15 +2902,238 @@ function addRemnant(seed) {
 
 function updateCartBadge() {
   var cart = getCart();
-  var badge = document.getElementById('cartBadge');
-  if (!badge) return;
   var cutN = cart.filter(function(x) { return !x.data.isWeight; }).length;
-  var weightN = cart.filter(function(x) { return x.data.isWeight; }).length;
-  var total = cart.length;
-  badge.textContent = total === 0 ? '0件'
-    : (cutN > 0 && weightN > 0) ? '取' + cutN + ' 重' + weightN
-    : total + '件';
-  badge.classList.toggle('empty', total === 0);
+  var badges = [
+    document.getElementById('cartBadge'),
+    document.getElementById('calcCartBadge')
+  ].filter(Boolean);
+  badges.forEach(function(badge) {
+    var count = cutN;
+    badge.textContent = 'カート ' + count + '件';
+    badge.classList.toggle('empty', count === 0);
+  });
+  document.body.classList.toggle('has-calc-cart', cutN > 0 && !!document.getElementById('calcCartBadge'));
+}
+
+function formatCalcToolbarField(value) {
+  var text = String(value == null ? '' : value).trim();
+  return text || '記載なし';
+}
+
+function buildCalcProjectToolbar(summary) {
+  summary = summary || {};
+  return '<div class="calc-result-toolbar">' +
+    '<div class="calc-result-toolbar-main">' +
+      '<div class="calc-result-cell">' +
+        '<div class="calc-result-cell-label">タイトル</div>' +
+        '<div class="calc-result-title">作業情報</div>' +
+      '</div>' +
+      '<div class="calc-result-cell">' +
+        '<div class="calc-result-cell-label">顧客情報</div>' +
+        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.customer)) + '</div>' +
+      '</div>' +
+      '<div class="calc-result-cell">' +
+        '<div class="calc-result-cell-label">工事名</div>' +
+        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.projectName)) + '</div>' +
+      '</div>' +
+      '<div class="calc-result-cell">' +
+        '<div class="calc-result-cell-label">納期</div>' +
+        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.deadline)) + '</div>' +
+      '</div>' +
+      '<div class="calc-result-cell">' +
+        '<div class="calc-result-cell-label">メモ</div>' +
+        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.memo)) + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<button id="calcCartBadge" class="cart-badge calc-toolbar-cart empty" data-cart-scope="cut" onclick="openCartModal()">カート 0件</button>' +
+  '</div>';
+}
+
+function getCutCartItems() {
+  return getCart().filter(function(item) {
+    return !(item && item.data && item.data.isWeight);
+  });
+}
+
+function getStatValueFromHtml(statsHtml, label) {
+  if (!statsHtml) return '';
+  var wrap = document.createElement('div');
+  wrap.innerHTML = statsHtml;
+  var stat = Array.from(wrap.querySelectorAll('.cs')).find(function(node) {
+    var labelNode = node.querySelector('.cl');
+    return labelNode && (labelNode.textContent || '').trim() === label;
+  });
+  var valueNode = stat && stat.querySelector('.cv');
+  return valueNode ? (valueNode.textContent || '').trim() : '';
+}
+
+function getPieceSummaryFromBars(bars) {
+  var sumMap = {};
+  (bars || []).forEach(function(bar) {
+    (bar.pat || []).forEach(function(len) {
+      var num = parseInt(len, 10) || 0;
+      if (!num) return;
+      sumMap[num] = (sumMap[num] || 0) + 1;
+    });
+  });
+  return sumMap;
+}
+
+function getRemTagsFromHtml(remHtml) {
+  if (!remHtml) return [];
+  var wrap = document.createElement('div');
+  wrap.innerHTML = remHtml;
+  return Array.from(wrap.querySelectorAll('span')).map(function(el) {
+    return (el.textContent || '').trim();
+  }).filter(function(text) {
+    return text && text !== 'なし';
+  });
+}
+
+function collectCartCutSections(cart) {
+  cart = cart || getCutCartItems();
+  return cart.map(function(item, index) {
+    var data = item.data || {};
+    var bars = Array.isArray(data.bars) && data.bars.length
+      ? data.bars.slice()
+      : parseBarsFromDiagHtml(data.diagHtml || '', 0, data.endLoss || 150);
+    var stockLengths = sortStockLengthsForDisplay(
+      bars.map(function(bar) { return parseInt(bar.sl, 10) || 0; })
+        .filter(Boolean)
+        .filter(function(v, i, arr) { return arr.indexOf(v) === i; })
+    );
+    var barHtml = '';
+    stockLengths.forEach(function(sl) {
+      barHtml += buildPrintBarHtml(
+        bars.filter(function(bar) { return (parseInt(bar.sl, 10) || 0) === sl; }),
+        sl,
+        data.endLoss || 150
+      );
+    });
+    return {
+      idx: index + 1,
+      itemId: item.id,
+      title: data.title || '',
+      kind: data.kind || '',
+      spec: data.spec || '',
+      statsHtml: data.statsHtml || '',
+      motherSummary: data.motherSummary || '',
+      bars: bars,
+      sumMap: getPieceSummaryFromBars(bars),
+      remTags: getRemTagsFromHtml(data.remHtml),
+      barHtml: barHtml
+    };
+  });
+}
+
+function buildCartCutPrintHtml(cart) {
+  cart = cart || getCutCartItems();
+  if (!cart.length) return '';
+  var first = cart[0].data || {};
+  return buildPrintPages(first.job || {}, collectCartCutSections(cart));
+}
+
+function buildProjectHistoryPayload(cart) {
+  cart = cart || getCutCartItems();
+  if (!cart.length) return null;
+  var first = cart[0].data || {};
+  var job = first.job || {};
+  var sections = collectCartCutSections(cart);
+  var kinds = [];
+  var specs = [];
+  sections.forEach(function(section) {
+    if (section.kind && kinds.indexOf(section.kind) < 0) kinds.push(section.kind);
+    if (section.spec && specs.indexOf(section.spec) < 0) specs.push(section.spec);
+  });
+  return {
+    job: {
+      client: job.client || '',
+      name: job.name || '',
+      deadline: job.deadline || '',
+      worker: job.worker || ''
+    },
+    kind: kinds.join(' / '),
+    spec: specs.join(' / '),
+    sections: sections.map(function(section) {
+      return {
+        idx: section.idx,
+        title: section.title || '',
+        kind: section.kind || '',
+        spec: section.spec || '',
+        motherSummary: section.motherSummary || '',
+        sumMap: Object.assign({}, section.sumMap),
+        remTags: (section.remTags || []).slice(),
+        bars: JSON.parse(JSON.stringify(section.bars || [])),
+        statsHtml: section.statsHtml || ''
+      };
+    }),
+    cartItemIds: cart.map(function(item) { return item.id; }),
+    printHtml: buildPrintPages(job, sections)
+  };
+}
+
+function saveProjectCutHistory(cart, outputType) {
+  var payload = buildProjectHistoryPayload(cart);
+  if (!payload) return null;
+  var signature = JSON.stringify([
+    payload.cartItemIds.slice().sort(),
+    payload.kind,
+    payload.spec
+  ]);
+  if (window._lastProjectHistorySignature === signature) return null;
+  window._lastProjectHistorySignature = signature;
+  var hist = getCutHistory();
+  var entry = {
+    id: Date.now(),
+    type: 'cut_project',
+    date: new Date().toISOString(),
+    dateLabel: new Date().toLocaleDateString('ja-JP'),
+    client: payload.job.client,
+    name: payload.job.name,
+    deadline: payload.job.deadline,
+    worker: payload.job.worker,
+    kind: payload.kind,
+    spec: payload.spec,
+    outputType: outputType || 'print',
+    project: payload
+  };
+  hist.unshift(entry);
+  try { localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist)); } catch (e) {}
+  if (typeof sbUpsert === 'function') sbUpsert('cut_history', hist);
+  return entry;
+}
+
+function showCartCutPreview(html) {
+  if (!html) {
+    var cart = getCutCartItems();
+    if (!cart.length) { alert('取り合いがカートにありません。'); return; }
+    html = buildCartCutPrintHtml(cart);
+  }
+  if (!html) { alert('作業指示書プレビューを生成できませんでした。'); return; }
+  var modal = document.getElementById('histPreviewModal');
+  var body = document.getElementById('histPreviewBody');
+  if (!modal || !body) return;
+  body.innerHTML = html;
+  closeCartModal();
+  modal.style.display = 'flex';
+}
+
+function buildCardActionButtons(cardId, includeAdd) {
+  var html = '';
+  if (includeAdd) {
+    html += '<button class="cc-btn-add" id="add_' + cardId + '" onclick="cartAdd(\'' + cardId + '\',this)">＋ 追加</button>';
+  }
+  html += '<button class="cc-btn-mini" type="button" onclick="printCard(\'' + cardId + '\')" aria-label="印刷">🖨</button>';
+  return html;
+}
+
+function toggleCardDetail(id, btn) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var open = el.classList.contains('open');
+  el.classList.toggle('open', !open);
+  btn.textContent = open ? '詳細を表示 ▼' : '詳細を閉じる ▲';
+  btn.classList.toggle('open', !open);
 }
 
 function formatPatternSummary(pattern) {
@@ -2932,12 +3214,7 @@ function buildPrintBarHtml(bars, sl, endLoss) {
     if (!groupsByStock[slKey]) groupsByStock[slKey] = [];
     groupsByStock[slKey].push(bar);
   });
-  var slKeys = Object.keys(groupsByStock).map(Number).sort(function(a, b) {
-    var aRem = !isStdStockLength(a);
-    var bRem = !isStdStockLength(b);
-    if (aRem !== bRem) return aRem ? -1 : 1;
-    return b - a;
-  });
+  var slKeys = sortStockLengthsForDisplay(Object.keys(groupsByStock).map(Number));
   var html = '';
   slKeys.forEach(function(slKey) {
     var grouped = {};
@@ -3221,69 +3498,39 @@ function updateInventoryUseButton() {
   };
 
   renderCartModal = function() {
-    var cart = getCart();
-
-    var cutItems = cart.filter(function(x) { return !x.data.isWeight; });
-    var weightItems = cart.filter(function(x) { return x.data.isWeight; });
+    var cutItems = getCutCartItems();
 
     var cutList = document.getElementById('cartCutList');
     var cutPrintBtn = document.getElementById('cartCutPrintBtn');
+    var cutWeightBtn = document.getElementById('cartCutWeightBtn');
+    var cutPdfBtn = document.getElementById('cartCutPdfBtn');
+    var cutCopyBtn = document.getElementById('cartCutCopyBtn');
+    var countEl = document.getElementById('cartModalCount');
     if (cutList) {
       if (cutItems.length === 0) {
         cutList.innerHTML = '<div class="cart-empty-msg">追加された取り合いはありません</div>';
       } else {
         cutList.innerHTML = cutItems.map(function(item) {
           var d = item.data;
-          return '<div class="cart-item">' +
+          return '<div class="cart-item" onclick="showCartCutPreview(buildCartCutPrintHtml([getCutCartItems().filter(function(x){ return x.id === \'' + item.id + '\'; })[0]]))">' +
             '<div style="flex:1;min-width:0">' +
               '<div class="cart-item-title">' +
-                (d.isYield ? '歩留まり最大' : '取り合いパターン') + ' — ' + d.title +
+                [d.kind || '', d.spec || ''].filter(Boolean).join('　') +
               '</div>' +
               '<div class="cart-item-sub">' +
-                (d.spec || '') + '　' + ((d.job && d.job.client) || '') + '　' + ((d.job && d.job.name) || '') +
+                '使う母材: ' + (d.motherSummary || '記載なし') +
               '</div>' +
             '</div>' +
-            '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">✕</button>' +
+            '<button class="cart-item-del" onclick="event.stopPropagation();cartRemoveItem(\'' + item.id + '\')">✕</button>' +
           '</div>';
         }).join('');
       }
       if (cutPrintBtn) cutPrintBtn.disabled = cutItems.length === 0;
+      if (cutWeightBtn) cutWeightBtn.disabled = cutItems.length === 0;
+      if (cutPdfBtn) cutPdfBtn.disabled = cutItems.length === 0;
+      if (cutCopyBtn) cutCopyBtn.disabled = cutItems.length === 0;
     }
-
-    var weightList = document.getElementById('cartWeightList');
-    var weightPrintBtn = document.getElementById('cartWeightPrintBtn');
-    var weightCsvBtn = document.getElementById('cartWeightCsvBtn');
-    if (weightList) {
-      if (weightItems.length === 0) {
-        weightList.innerHTML = '<div class="cart-empty-msg">追加された重量リストはありません</div>';
-      } else {
-        weightList.innerHTML = weightItems.map(function(item) {
-          var d = item.data;
-          return '<div class="cart-item">' +
-            '<div style="flex:1;min-width:0">' +
-              '<div class="cart-item-title">重量計算リスト — ' + d.title + '</div>' +
-              '<div class="cart-item-sub">' +
-                d.rows.length + '行　' +
-                (typeof _wFmtKg === 'function' ? _wFmtKg(d.sumKg) : d.sumKg.toFixed(1)) + ' kg' +
-                (d.anyPrice ? '　概算 ' + Number(d.sumAmt).toLocaleString() + ' 円' : '') +
-              '</div>' +
-            '</div>' +
-            '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">✕</button>' +
-          '</div>';
-        }).join('');
-      }
-      if (weightPrintBtn) weightPrintBtn.disabled = weightItems.length === 0;
-      if (weightCsvBtn) weightCsvBtn.disabled = weightItems.length === 0;
-      ['cartCopyAllBtn', 'cartCopyPartsBtn'].forEach(function(id) {
-        var b = document.getElementById(id);
-        if (b) b.disabled = weightItems.length === 0;
-      });
-    }
-
-    ['cartCopyCutResultBtn', 'cartCopyCutStockBtn'].forEach(function(id) {
-      var b = document.getElementById(id);
-      if (b) b.disabled = cutItems.length === 0;
-    });
+    if (countEl) countEl.textContent = cutItems.length ? ('取り合い ' + cutItems.length + '件') : '';
 
     updateCartBadge();
   };
@@ -3308,7 +3555,7 @@ function sortStockLengthsForDisplay(lengths) {
     var aRem = !isStdStockLength(a);
     var bRem = !isStdStockLength(b);
     if (aRem !== bRem) return aRem ? -1 : 1;
-    return b - a;
+    return a - b;
   });
 }
 
@@ -3342,6 +3589,10 @@ function cartAdd(cardId, btn) {
   var diagHtml = '';
   card.querySelectorAll('[id^="diag_"]').forEach(function(d) { diagHtml += d.innerHTML; });
   var endLoss = parseInt(((document.getElementById('endloss') || {}).value), 10) || 150;
+  var currentKind = '';
+  if (typeof getCurrentKind === 'function') currentKind = getCurrentKind() || '';
+  if (!currentKind && typeof curKind !== 'undefined') currentKind = curKind || '';
+  if (!currentKind && window && typeof window.curKind !== 'undefined') currentKind = window.curKind || '';
   var data = {
     cardId: cardId,
     title: title,
@@ -3349,7 +3600,7 @@ function cartAdd(cardId, btn) {
     isPat: !card.closest('.yield-card, .yield-best'),
     job: getJobInfo(),
     spec: (document.getElementById('spec') || {}).value || '',
-    kind: typeof getCurrentKind === 'function' ? getCurrentKind() : '',
+    kind: currentKind,
     statsHtml: statsEl ? statsEl.innerHTML : '',
     patHtml: patEl ? patEl.innerHTML : '',
     diagHtml: diagHtml,
@@ -3367,52 +3618,17 @@ function cartAdd(cardId, btn) {
 }
 
 function cartPrintCutting() {
-  var cart = getCart().filter(function(x) { return !x.data.isWeight; });
+  var cart = getCutCartItems();
   if (!cart.length) { alert('取り合いがカートにありません。'); return; }
-  var job = cart[0].data.job || {};
-  var sections = [];
-  cart.forEach(function(item, ci) {
-    var d = item.data || {};
-    var patDiv = document.createElement('div');
-    patDiv.innerHTML = d.patHtml || '';
-    var sumMap = {};
-    patDiv.querySelectorAll('.pc-row').forEach(function(row) {
-      var mul = parseInt(((row.querySelector('.px') || {}).textContent || '').replace(/[^\d]/g, ''), 10) || 1;
-      var text = ((row.querySelector('.pp') || {}).textContent || '');
-      // 全角「＋」と半角「+」両方で分割する
-      text.split(/[+＋]/).forEach(function(part) {
-        var m = part.match(/([\d,]+)\s*[×x]\s*(\d+)/i) || part.match(/([\d,]+)/);
-        if (!m) return;
-        var len = parseInt(m[1].replace(/,/g, ''), 10);
-        var qty = m[2] ? parseInt(m[2], 10) : 1;
-        if (len) sumMap[len] = (sumMap[len] || 0) + qty * mul;
-      });
-    });
-    var remTags = [];
-    if (d.remHtml) {
-      var rd = document.createElement('div');
-      rd.innerHTML = d.remHtml;
-      rd.querySelectorAll('span').forEach(function(s) {
-        var t = (s.textContent || '').trim();
-        if (t && t !== 'なし') remTags.push(t);
-      });
-    }
-    var bars = Array.isArray(d.bars) && d.bars.length ? d.bars : parseBarsFromDiagHtml(d.diagHtml || '', 0, d.endLoss || 150);
-    var barHtml = '';
-    sortStockLengthsForDisplay(bars.map(function(bar) { return bar.sl || 0; }).filter(Boolean).filter(function(v, i, a) { return a.indexOf(v) === i; }))
-      .forEach(function(slKey) {
-        barHtml += buildPrintBarHtml(bars.filter(function(bar) { return (bar.sl || 0) === slKey; }), slKey, d.endLoss || 150);
-      });
-    sections.push({
-      idx: ci + 1,
-      spec: d.spec || '',
-      motherSummary: d.motherSummary || '',
-      sumMap: sumMap,
-      remTags: remTags,
-      barHtml: barHtml
-    });
-  });
-  openPrintWindow(buildPrintPages(job, sections));
+  var html = buildCartCutPrintHtml(cart);
+  if (!html) { alert('印刷データを生成できませんでした。'); return; }
+  saveProjectCutHistory(cart, 'print');
+  closeCartModal();
+  var win = openOutputWindow(html, { title: '作業指示書', print: true, closeAfterPrint: true });
+  if (!win) {
+    showCartCutPreview(html);
+    alert('印刷ウィンドウを開けなかったため、プレビューを表示しました。');
+  }
 
   // 在庫消費: カート内の各カードについて残材在庫を消費
   (function consumeCartInventory() {
@@ -3449,10 +3665,9 @@ function cartPrintCutting() {
     });
   })();
 
-  saveCart(getCart().filter(function(x) { return x.data.isWeight; }));
+  saveCart(getCart().filter(function(x) { return x && x.data && x.data.isWeight; }));
   updateCartBadge();
   renderCartModal();
-  closeCartModal();
   document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
     var cardId = btn.id.replace('add_', '');
     var stillInCart = getCart().some(function(x) { return x.data.cardId === cardId; });
@@ -3462,6 +3677,175 @@ function cartPrintCutting() {
       btn.disabled = false;
     }
   });
+}
+
+function cartSaveCuttingPdf() {
+  var cart = getCutCartItems();
+  if (!cart.length) { alert('取り合いがカートにありません。'); return; }
+  var html = buildCartCutPrintHtml(cart);
+  if (!html) { alert('PDF保存用データを生成できませんでした。'); return; }
+  saveProjectCutHistory(cart, 'pdf');
+  closeCartModal();
+  var win = openOutputWindow(html, {
+    title: '作業指示書_PDF',
+    print: true,
+    closeAfterPrint: false
+  });
+  if (!win) {
+    showCartCutPreview(html);
+    alert('PDF保存用のウィンドウを開けなかったため、プレビューを表示しました。右上の印刷からPDF保存してください。');
+  }
+}
+
+function getWeightKgmForSpec(kind, spec) {
+  if (typeof getSteelRowsForKind === 'function') {
+    var rows = getSteelRowsForKind(kind) || [];
+    var hit = rows.find(function(row) { return row[0] === spec; });
+    if (hit) return Number(hit[1]) || 0;
+  }
+  if (typeof STEEL === 'object' && STEEL && Array.isArray(STEEL[kind])) {
+    var hit2 = STEEL[kind].find(function(row) { return row[0] === spec; });
+    if (hit2) return Number(hit2[1]) || 0;
+  }
+  return 0;
+}
+
+function buildWeightRowsFromCutCart(cart) {
+  var grouped = {};
+  (cart || []).forEach(function(item) {
+    var data = item.data || {};
+    var resolvedKind = data.kind || (data.job && data.job.kind) || '';
+    if (!resolvedKind && typeof curKind !== 'undefined') resolvedKind = curKind || '';
+    var bars = Array.isArray(data.bars) && data.bars.length
+      ? data.bars
+      : parseBarsFromDiagHtml(data.diagHtml || '', 0, data.endLoss || 150);
+    if (!bars.length && data.motherSummary) {
+      String(data.motherSummary).split(/[+＋]/).forEach(function(part) {
+        var match = part.match(/([\d,]+)\s*mm?\s*[×x]\s*(\d+)/i) || part.match(/([\d,]+)\s*[×x]\s*(\d+)/i);
+        if (!match) return;
+        var sl = parseInt((match[1] || '0').replace(/,/g, ''), 10) || 0;
+        var qty = parseInt(match[2] || '0', 10) || 0;
+        for (var i = 0; i < qty; i++) bars.push({ sl: sl, pat: [], loss: 0 });
+      });
+    }
+    bars.forEach(function(bar) {
+      var sl = parseInt(bar && bar.sl, 10) || 0;
+      if (!sl) return;
+      var key = [resolvedKind, data.spec || '', sl].join('::');
+      if (!grouped[key]) {
+        grouped[key] = { kind: resolvedKind, spec: data.spec || '', len: sl, qty: 0 };
+      }
+      grouped[key].qty += 1;
+    });
+  });
+  return Object.keys(grouped).map(function(key) {
+    var item = grouped[key];
+    var kgm = getWeightKgmForSpec(item.kind, item.spec);
+    var kg1 = typeof jisRound === 'function' ? jisRound(kgm * item.len / 1000, 1) : Math.round(kgm * item.len / 100) / 10;
+    var ppm = typeof wGetPaintPerM === 'function' ? wGetPaintPerM(item.kind, item.spec) : 0;
+    var m2_1 = ppm * item.len / 1000;
+    return {
+      kind: item.kind,
+      spec: item.spec,
+      memo: '取り合い母材',
+      len: item.len,
+      qty: item.qty,
+      kgm: kgm,
+      kg1: kg1,
+      kgTotal: kg1 * item.qty,
+      m2_1: m2_1,
+      m2Total: m2_1 * item.qty,
+      price: 0,
+      amount: null,
+      paintPrice: 0,
+      paintAmount: null
+    };
+  }).sort(function(a, b) {
+    if (a.kind !== b.kind) return String(a.kind).localeCompare(String(b.kind), 'ja');
+    if (a.spec !== b.spec) return String(a.spec).localeCompare(String(b.spec), 'ja');
+    return b.len - a.len;
+  });
+}
+
+function cartSendToWeightTab() {
+  var cart = getCutCartItems();
+  if (!cart.length) { alert('取り合いがカートにありません。'); return; }
+  var rows = buildWeightRowsFromCutCart(cart);
+  if (!rows.length) { alert('重量タブに渡せる母材データがありません。'); return; }
+  var job = (cart[0].data && cart[0].data.job) || {};
+  if (typeof wRecallFromHistory === 'function') {
+    wRecallFromHistory(rows, { price: false, name: false, rev: false, paint: false, m2: false, co2: false }, {
+      client: job.client || '',
+      name: job.name || ''
+    });
+  }
+  if (typeof goPage === 'function') goPage('w');
+  setTimeout(function() {
+    if (typeof wRecallFromHistory === 'function') {
+      wRecallFromHistory(rows, { price: false, name: false, rev: false, paint: false, m2: false, co2: false }, {
+        client: job.client || '',
+        name: job.name || ''
+      });
+    }
+  }, 0);
+  closeCartModal();
+}
+
+function buildCartShortCopyText() {
+  var cart = getCutCartItems();
+  if (!cart.length) return '';
+  var first = cart[0].data || {};
+  var job = first.job || {};
+  var lines = [
+    '顧客情報: ' + formatCalcToolbarField(job.client),
+    '工事名: ' + formatCalcToolbarField(job.name),
+    '納期: ' + formatCalcToolbarField(job.deadline)
+  ];
+  collectCartCutSections(cart).forEach(function(section, index) {
+    var cutSummary = Object.keys(section.sumMap).map(Number).sort(function(a, b) { return b - a; }).map(function(len) {
+      return len.toLocaleString() + 'mm×' + section.sumMap[len];
+    }).join(' / ');
+    lines.push(
+      (index + 1) + '. ' + [section.kind, section.spec].filter(Boolean).join(' '),
+      '使用母材: ' + (section.motherSummary || '記載なし'),
+      '本数: ' + (getStatValueFromHtml(section.statsHtml, '使用本数') || '記載なし'),
+      '歩留まり: ' + (getStatValueFromHtml(section.statsHtml, '歩留まり') || '記載なし'),
+      'カット内容: ' + (cutSummary || '記載なし')
+    );
+  });
+  return lines.join('\n');
+}
+
+function cartCopyCutShort() {
+  var text = buildCartShortCopyText();
+  if (!text) { alert('取り合いがカートにありません。'); return; }
+  function finishCopy() {
+    closeCartModal();
+    alert('共有用テキストをコピーしました。');
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(finishCopy).catch(function() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      finishCopy();
+    });
+    return;
+  }
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  finishCopy();
 }
 
 function cartPrintWeight() {
