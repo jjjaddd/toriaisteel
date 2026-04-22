@@ -425,13 +425,13 @@ html[data-theme="dark"] .sm-btn:hover { border-color: var(--ink) !important; col
   border: 1.5px solid #1a1a2e !important;
 }
 .run:hover {
-  background: #d8d4ff !important;
-  border-color: #c4b5fd !important;
+  background: #f8fbff !important;
+  border-color: #e5e7eb !important;
   color: #1a1a2e !important;
   box-shadow: none !important;
 }
 html[data-theme="dark"] .run { background: #1a1a2e !important; border-color: #1a1a2e !important; color: #ffffff !important; }
-html[data-theme="dark"] .run:hover { background: #d8d4ff !important; border-color: #c4b5fd !important; color: #1a1a2e !important; }
+html[data-theme="dark"] .run:hover { background: #f8fbff !important; border-color: #e5e7eb !important; color: #1a1a2e !important; }
 
 /* ── 15. Result cards ───────────────────────────────────────── */
 .ph { background: var(--bg) !important; border-color: var(--line) !important; }
@@ -1036,33 +1036,47 @@ html[data-theme="dark"] #dataSpecInput:hover, html[data-theme="dark"] #dataSpecI
 html[data-theme="dark"] .dp-page { background: var(--bg) !important; }
 
 /* ── 22. Contact page ───────────────────────────────────────── */
-#cop, #contactp { background: var(--bg) !important; }
-.contact-card { background: var(--bg) !important; border: 1px solid var(--line) !important; box-shadow: 0 4px 20px rgba(0,0,0,.04) !important; }
-.contact-title { color: var(--ink) !important; }
-.contact-lead { color: var(--ink2) !important; }
-.contact-field label { color: var(--ink2) !important; }
-.contact-field input, .contact-field select, .contact-field textarea {
-  background: var(--bg) !important;
-  border: 1px solid var(--line) !important;
-  color: var(--ink) !important;
+#cop, #contactp { background:#ffffff !important; }
+#cop .contact-card {
+  background:#ffffff !important;
+  border:1px solid #000 !important;
+  box-shadow:0 0 0 2px #ffffff, inset 0 0 0 1px #000 !important;
 }
-.contact-field input:hover, .contact-field select:hover, .contact-field textarea:hover,
-.contact-field input:focus, .contact-field select:focus, .contact-field textarea:focus {
-  background: var(--hp) !important;
-  border-color: var(--line) !important;
-  outline: none !important;
+#cop .contact-card-title{
+  background:#ffffff !important;
+  color:#1a1a2e !important;
+  border:2px solid #1a1a2e !important;
+  box-shadow:none !important;
+  font-weight:700 !important;
 }
-#cop input:hover, #cop input:focus,
-#cop select:hover, #cop select:focus,
-#cop textarea:hover, #cop textarea:focus {
-  background: var(--hp) !important;
-  border-color: var(--line) !important;
-  outline: none !important;
-  box-shadow: none !important;
+#cop .contact-title,
+#cop .contact-lead,
+#cop .contact-kicker,
+#cop .contact-card-title,
+#cop .contact-field label,
+#cop .contact-info-row,
+#cop .contact-info-row span,
+#cop .contact-info-row strong,
+#cop .contact-faq-q,
+#cop .contact-faq-item p { color:#1a1a2e !important; }
+#cop .contact-field input,
+#cop .contact-field select,
+#cop .contact-field textarea {
+  background:#ffffff !important;
+  border:2px solid #000 !important;
+  color:#1a1a2e !important;
+  box-shadow:none !important;
 }
-#contactSubject { color: var(--ink) !important; }
-#contactSubject option { background: var(--bg) !important; color: var(--ink) !important; }
-.contact-pen-label { color: var(--ink) !important; }
+#cop .contact-field input:hover, #cop .contact-field select:hover, #cop .contact-field textarea:hover,
+#cop .contact-field input:focus, #cop .contact-field select:focus, #cop .contact-field textarea:focus,
+#cop input:hover, #cop input:focus, #cop select:hover, #cop select:focus, #cop textarea:hover, #cop textarea:focus {
+  background:#ffffff !important;
+  border-color:#000 !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+#contactSubject, #contactCategory { color:#1a1a2e !important; }
+#contactSubject option, #contactCategory option { background:#ffffff !important; color:#1a1a2e !important; }
 /* Submit button: default white, hover light purple */
 #feedbackSubmitBtn {
   background: var(--bg) !important;
@@ -1535,15 +1549,19 @@ html[data-theme="dark"] .cs-wrap--data .cs-option:hover { background: var(--hb) 
 .contact-destination { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink2) !important; }
 
 html[data-theme="dark"] #cop,
-html[data-theme="dark"] #contactp { background: var(--bg) !important; }
-html[data-theme="dark"] .contact-card { background: var(--bg2) !important; border-color: var(--line) !important; }
-html[data-theme="dark"] .contact-title { color: var(--ink) !important; }
+html[data-theme="dark"] #contactp { background:#050505 !important; }
+html[data-theme="dark"] #cop .contact-card {
+  background:#000 !important;
+  border-color:#000 !important;
+  box-shadow:0 0 0 2px #fff, inset 0 0 0 2px #fff !important;
+}
+html[data-theme="dark"] .contact-title { color:#fff !important; }
 html[data-theme="dark"] .contact-field input,
 html[data-theme="dark"] .contact-field select,
 html[data-theme="dark"] .contact-field textarea {
-  background: var(--bg2) !important;
-  border-color: var(--line) !important;
-  color: var(--ink) !important;
+  background:#000 !important;
+  border-color:#000 !important;
+  color:#fff !important;
 }
 html[data-theme="dark"] .contact-field input:focus,
 html[data-theme="dark"] .contact-field textarea:focus {

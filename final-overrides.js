@@ -1391,6 +1391,7 @@ renderInventoryPage = function() {
 })();
 
 (function injectContactPage() {
+  return;
   function ensureContactNav() {
     var nav = document.querySelector('header nav');
     if (!nav || document.getElementById('ncontact') || document.getElementById('nc')) return;
@@ -2074,4 +2075,3 @@ function extractRemnantsFromCard(cardId) {
     bind();
   }
 })();
-

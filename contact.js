@@ -1,10 +1,31 @@
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbzdy3iDrtieC8qcpkMejASM1y1tAMVA1LeXstAYC6bOCyCcVpYzlcgwqJzAXD2RaP-h/exec';
 
 function getContactFormPayload() {
+  var name = ((document.getElementById('contactName') || {}).value || '').trim();
+  var company = ((document.getElementById('contactCompany') || {}).value || '').trim();
+  var email = ((document.getElementById('contactEmail') || {}).value || '').trim();
+  var category = ((document.getElementById('contactCategory') || {}).value || '').trim();
+  var message = ((document.getElementById('contactMessage') || {}).value || '').trim();
+
+  var subjectParts = [];
+  if (category) subjectParts.push('[' + category + ']');
+  if (company) subjectParts.push(company);
+  if (name) subjectParts.push(name);
+
+  var messageLines = [];
+  if (email) messageLines.push('メールアドレス: ' + email);
+  if (company) messageLines.push('会社名: ' + company);
+  if (category) messageLines.push('お問い合わせ種別: ' + category);
+  if (messageLines.length) messageLines.push('');
+  if (message) messageLines.push(message);
+
   return {
-    name: ((document.getElementById('contactName') || {}).value || '').trim(),
-    subject: ((document.getElementById('contactSubject') || {}).value || '').trim(),
-    message: ((document.getElementById('contactMessage') || {}).value || '').trim()
+    name: name,
+    email: email,
+    company: company,
+    category: category,
+    subject: subjectParts.join(' '),
+    message: messageLines.join('\n')
   };
 }
 
@@ -15,36 +36,36 @@ function showContactStatus(msg, type) {
   el.style.display = 'block';
 
   if (type === 'success') {
-    el.style.background = '#f0fdf4';
-    el.style.border = '1px solid #86efac';
-    el.style.color = '#15803d';
+    el.style.background = '#0b0b0b';
+    el.style.border = '2px solid #18c964';
+    el.style.color = '#d5ffe6';
     return;
   }
   if (type === 'error') {
-    el.style.background = '#fff1f2';
-    el.style.border = '1px solid #fca5a5';
-    el.style.color = '#b91c1c';
+    el.style.background = '#0b0b0b';
+    el.style.border = '2px solid #ff6467';
+    el.style.color = '#ffe1e1';
     return;
   }
 
-  el.style.background = '#f8f8fc';
-  el.style.border = '1px solid #e0e0ea';
-  el.style.color = '#5a5a78';
+  el.style.background = '#0b0b0b';
+  el.style.border = '2px solid #ffffff';
+  el.style.color = '#ffffff';
 }
 
 function setContactSubmitting(isSubmitting) {
   var submitBtn = document.getElementById('contactSubmitBtn');
   if (!submitBtn) return;
   submitBtn.disabled = !!isSubmitting;
-  submitBtn.textContent = isSubmitting ? '送信中...' : '送信する';
+  submitBtn.innerHTML = isSubmitting ? '送信中...' : '送信する <span class="arr">→</span>';
 }
 
 function submitContactForm(event) {
   if (event) event.preventDefault();
 
   var payload = getContactFormPayload();
-  if (!payload.name || !payload.subject || !payload.message) {
-    showContactStatus('すべての項目を入力してください。', 'error');
+  if (!payload.name || !payload.category || !payload.subject || !payload.message) {
+    showContactStatus('ニックネーム、お問い合わせ種別、お問い合わせ内容を入力してください。', 'error');
     return;
   }
   if (!GAS_URL || GAS_URL === 'YOUR_GAS_URL_HERE') {
@@ -65,7 +86,7 @@ function submitContactForm(event) {
   var timeout = setTimeout(function() {
     cleanup();
     setContactSubmitting(false);
-    showContactStatus('送信に失敗しました。Apps Script の再デプロイ状態をご確認ください。', 'error');
+    showContactStatus('送信に失敗しました。時間をおいてもう一度お試しください。', 'error');
   }, 12000);
 
   window[callbackName] = function(result) {
@@ -76,7 +97,7 @@ function submitContactForm(event) {
       showContactStatus('送信に失敗しました。もう一度お試しください。', 'error');
       return;
     }
-    showContactStatus('送信しました。ご意見ありがとうございます。', 'success');
+    showContactStatus('送信しました。ご連絡ありがとうございます。', 'success');
     var form = document.getElementById('contactForm');
     if (form) form.reset();
   };
@@ -95,35 +116,7 @@ function submitContactForm(event) {
     clearTimeout(timeout);
     cleanup();
     setContactSubmitting(false);
-    showContactStatus('送信に失敗しました。接続状態をご確認ください。', 'error');
+    showContactStatus('送信に失敗しました。通信状態をご確認ください。', 'error');
   };
   document.body.appendChild(script);
 }
-
-(function styleContactUi() {
-  function applyStyle() {
-    var btn = document.getElementById('contactSubmitBtn');
-    if (btn) {
-      btn.style.background = '#ffffff';
-      btn.style.color = '#1a1a2e';
-      btn.style.border = '1px solid #d4d4dc';
-      btn.style.borderRadius = '10px';
-      btn.style.fontWeight = '700';
-      btn.style.boxShadow = 'none';
-    }
-
-    var penLabel = document.querySelector('.contact-pen-label');
-    if (penLabel) {
-      penLabel.style.fontFamily = "'Space Grotesk','Noto Sans JP',sans-serif";
-      penLabel.style.fontWeight = '800';
-      penLabel.style.letterSpacing = '.08em';
-      penLabel.style.color = '#1a1a2e';
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyStyle, { once: true });
-  } else {
-    applyStyle();
-  }
-})();
