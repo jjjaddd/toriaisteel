@@ -1832,6 +1832,9 @@ function dataSelectKind(kind) {
   _dataKind = kind;
   _dataSpecIdx = 0;
   _dtSpecQuery = '';   // カテゴリを変えたら 規格を選択 の検索をリセット
+  _dtStdBulkMode = false; // 鋼種切替で一括モードは解除
+  var bulkCb = document.getElementById('dtStdBulkCb');
+  if (bulkCb) bulkCb.checked = false;
   renderDataKindTabs();
   renderDataSpecPicker();
   renderDataSpec();
@@ -2318,7 +2321,9 @@ function renderDataSpec() {
     }
   }
 
-  // 断面性能グリッド（デフォルト折りたたみ、HTML側で is-collapsed クラス制御）
+  // 断面性能グリッド（規格切替えのたびに必ず折りたたみ状態へ戻す）
+  const perfWrap = document.getElementById('dataPerfWrap');
+  if (perfWrap) perfWrap.classList.add('is-collapsed');
   const perfEl = document.getElementById('dataPerfGrid');
   if (perfEl) {
     var _p = function(label, value, unit) {
@@ -2387,13 +2392,37 @@ function _stdKeyCandidates(kind, spec) {
   return keys;
 }
 
+function _getKindExcludeList(kind) {
+  var dataKind = getDataKindByCalcName(kind);
+  var entry = STEEL_DB[dataKind] || {};
+  if (entry.defaultStockPolicy && Array.isArray(entry.defaultStockPolicy.exclude)) {
+    return entry.defaultStockPolicy.exclude.slice();
+  }
+  var policy = (DEFAULT_STOCK_DB.byKind || {})[dataKind];
+  if (policy && Array.isArray(policy.exclude)) return policy.exclude.slice();
+  return [];
+}
+
 function getKindSTD(kind, spec) {
   var dataKind = getDataKindByCalcName(kind);
+  var excludes = _getKindExcludeList(kind);
   var keys = _stdKeyCandidates(kind, spec);
   for (var i = 0; i < keys.length; i++) {
     try {
       var stored = localStorage.getItem(keys[i]);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        var arr = JSON.parse(stored);
+        if (Array.isArray(arr) && excludes.length) {
+          var filtered = arr.filter(function(l) { return excludes.indexOf(l) === -1; });
+          if (filtered.length !== arr.length) {
+            try {
+              keys.forEach(function(k) { localStorage.setItem(k, JSON.stringify(filtered)); });
+            } catch(e) {}
+            return filtered;
+          }
+        }
+        return arr;
+      }
     } catch(e) {}
   }
   return getDefaultStockLengths(dataKind, spec);
@@ -2407,6 +2436,25 @@ function saveKindSTD(kind, lengths, spec) {
   if (typeof onSpec === 'function') onSpec();
 }
 
+var _dtStdBulkMode = false;
+
+function dpStdToggleBulk(on) {
+  _dtStdBulkMode = !!on;
+  var area = document.getElementById('dtStdArea');
+  if (area) area.classList.toggle('is-bulk', _dtStdBulkMode);
+  var meta = document.getElementById('dtStdMeta');
+  if (meta) {
+    meta.textContent = _dtStdBulkMode ? 'この鋼種の全規格に反映' : 'JIS標準 + 工場長尺';
+  }
+}
+
+function _dtKindSpecNames(kind) {
+  var dataKind = (typeof getDataKindByCalcName === 'function') ? getDataKindByCalcName(kind) : kind;
+  var entry = SECTION_DATA[dataKind];
+  if (!entry || !Array.isArray(entry.specs)) return [];
+  return entry.specs.map(function(s) { return s.name; });
+}
+
 function renderDataStdChips(kind, spec) {
   var area  = document.getElementById('dtStdArea');
   var chips = document.getElementById('dtStdChips');
@@ -2414,6 +2462,9 @@ function renderDataStdChips(kind, spec) {
   if (!spec) { area.style.display = 'none'; return; }
   var lengths = getKindSTD(kind, spec);
   area.style.display = 'block';
+  area.classList.toggle('is-bulk', !!_dtStdBulkMode);
+  var bulkCb = document.getElementById('dtStdBulkCb');
+  if (bulkCb) bulkCb.checked = !!_dtStdBulkMode;
   var ke = kind.replace(/'/g, "\\'");
   var se = spec.replace(/'/g, "\\'");
   var chipsHtml = lengths.map(function(len) {
@@ -2433,6 +2484,22 @@ function renderDataStdChips(kind, spec) {
 }
 
 function dpStdRemove(kind, spec, len) {
+  if (_dtStdBulkMode) {
+    var names = _dtKindSpecNames(kind);
+    if (!names.length) names = [spec];
+    var ok = confirm('この鋼種のすべての規格（' + names.length + '件）から ' +
+                     (len >= 1000 ? (len / 1000) + 'm' : len + 'mm') +
+                     ' を削除しますか？');
+    if (!ok) return;
+    var excludes = _getKindExcludeList(kind);
+    names.forEach(function(s) {
+      var cur = getKindSTD(kind, s).filter(function(l) { return l !== len; });
+      if (excludes.length) cur = cur.filter(function(l) { return excludes.indexOf(l) === -1; });
+      saveKindSTD(kind, cur, s);
+    });
+    renderDataStdChips(kind, spec);
+    return;
+  }
   var lengths = getKindSTD(kind, spec).filter(function(l) { return l !== len; });
   saveKindSTD(kind, lengths, spec);
   renderDataStdChips(kind, spec);
@@ -2443,6 +2510,25 @@ function dpStdAdd(kind, spec) {
   if (!input) return;
   var len = parseInt(input.value);
   if (!len || len < 500) { alert('500mm以上の数値を入力してください'); return; }
+  if (_dtStdBulkMode) {
+    var names = _dtKindSpecNames(kind);
+    if (!names.length) names = [spec];
+    var ok = confirm('この鋼種のすべての規格（' + names.length + '件）に ' +
+                     (len >= 1000 ? (len / 1000) + 'm' : len + 'mm') +
+                     ' を追加しますか？');
+    if (!ok) { input.value = ''; return; }
+    names.forEach(function(s) {
+      var cur = getKindSTD(kind, s);
+      if (cur.indexOf(len) === -1) {
+        cur.push(len);
+        cur.sort(function(a, b) { return a - b; });
+        saveKindSTD(kind, cur, s);
+      }
+    });
+    input.value = '';
+    renderDataStdChips(kind, spec);
+    return;
+  }
   var lengths = getKindSTD(kind, spec);
   if (lengths.indexOf(len) === -1) {
     lengths.push(len);

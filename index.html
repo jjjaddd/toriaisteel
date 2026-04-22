@@ -70,7 +70,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="style.css?v=ui27">
 <link rel="stylesheet" href="toriai-theme.css?v=ui27">
-<link rel="stylesheet" href="data-tab.css?v=7">
+<link rel="stylesheet" href="data-tab.css?v=8">
 </head>
 <body>
 <h1 style="display:none">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
@@ -868,6 +868,10 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         <!-- 流通定尺 (断面寸法の上) -->
         <div class="dim-section" id="dtStdArea" style="display:none">
           <h3>流通定尺 <span class="ico" id="dtStdMeta">JIS標準 + 工場長尺</span></h3>
+          <label class="stock-bulk" title="チェックを入れると、この鋼種の全規格に同じ定尺を一括適用します">
+            <input type="checkbox" id="dtStdBulkCb" onchange="dpStdToggleBulk(this.checked)">
+            <span>この鋼種の全規格に一括適用</span>
+          </label>
           <div class="stock-list" id="dtStdChips"></div>
         </div>
 
@@ -956,7 +960,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   <script src="main.js?v=ui27"></script>
   <script src="final-overrides.js?v=ui27"></script>
   <script src="weight.js?v=ui27"></script>
-  <script src="data.js?v=ui38"></script>
+  <script src="data.js?v=ui39"></script>
   <script src="contact.js?v=ui27"></script>
 
 <!-- カートモーダル -->

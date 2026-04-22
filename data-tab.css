@@ -105,7 +105,7 @@
 }
 .data-sb-item.on {
   background: var(--ac-soft);
-  color: var(--ac);
+  color: var(--ink);
 }
 .data-sb-item .cnt {
   font-size: 10px;
@@ -115,7 +115,7 @@
   flex-shrink: 0;
   margin-left: 8px;
 }
-.data-sb-item.on .cnt { color: var(--ac); }
+.data-sb-item.on .cnt { color: var(--ink-3); }
 
 /* サイドバー 検索ボックス (Phase 2) */
 .dt-sb-search {
@@ -488,6 +488,40 @@
 /* ============================================================
    流通定尺: stock-list / stock-chip
    ============================================================ */
+.stock-bulk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 10px;
+  padding: 4px 10px 4px 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .12s, color .12s, background .12s;
+}
+.stock-bulk:hover { border-color: var(--ac-border); color: var(--ink); }
+.stock-bulk input[type="checkbox"] {
+  width: 13px; height: 13px;
+  accent-color: var(--ac);
+  cursor: pointer;
+  margin: 0;
+}
+.dim-section.is-bulk .stock-bulk {
+  background: var(--ac-soft);
+  border-color: var(--ac-border);
+  color: var(--ink);
+}
+.dim-section.is-bulk .stock-chip {
+  border-color: var(--ac-border);
+  box-shadow: 0 0 0 1px var(--ac-border) inset;
+}
+.dim-section.is-bulk .stock-add { border-style: solid; border-color: var(--ac-border); }
+
 .stock-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
