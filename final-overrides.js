@@ -721,7 +721,7 @@ function buildPurchaseMailto(summary, cart) {
   lines.push('');
   lines.push('よろしくお願いいたします。');
   var subject = '';
-  return 'mailto:konoshima@inoue-kouzai.co.jp?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+  return 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
 }
 
 function buildPurchaseGmailUrl(summary, cart) {
