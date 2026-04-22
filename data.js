@@ -1651,59 +1651,11 @@ function normalizeDataSpecText(value) {
 function buildSelectorBar() {
   var bar = document.getElementById('dtSelectors');
   if (!bar) return;
-  bar.innerHTML = '';
-
-  // Phase 1: 鋼種ドロップダウンは左サイドバーに移動。ここではサイズピッカーのみを描画。
-  var S_COL = 'display:flex;flex-direction:column;gap:5px;margin-bottom:20px';
-  var S_LBL = 'font-size:10px;font-weight:700;color:#888;letter-spacing:.1em;text-transform:uppercase;font-family:inherit';
-
+  // ラベル("規格を選択")は index.html の eyebrow 側で出しているのでここでは出さない。
+  // +ボタンもチップバー末尾の .dt-spec-add で出すのでここでは付けない。
+  // renderDataSpecPicker() が中身を書き込むための空スロットだけ用意する。
   bar.style.cssText = '';
-
-  var sizeCol = document.createElement('div');
-  sizeCol.style.cssText = S_COL;
-
-  var sizeLbl = document.createElement('span');
-  sizeLbl.textContent = '規格を選択';
-  sizeLbl.style.cssText = S_LBL;
-
-  // サイズ行: [specPicker(flex:1)] gap [+ボタン(独立)]
-  var sizeRow = document.createElement('div');
-  sizeRow.style.cssText = 'display:flex;align-items:stretch;gap:8px;height:42px';
-
-  var specPicker = document.createElement('div');
-  specPicker.id = 'dataSpecPicker';
-  specPicker.style.cssText = 'flex:1;min-width:0';
-
-  var addBtn = document.createElement('button');
-  addBtn.type = 'button';
-  addBtn.title = 'カスタム鋼材を追加';
-  addBtn.textContent = '+';
-  addBtn.style.cssText = [
-    'width:42px', 'height:42px', 'flex-shrink:0',
-    'background:#fff', 'color:#1a1a2e',
-    'border:1.5px solid #d4d4dc', 'border-radius:8px',
-    'font-size:22px', 'font-weight:300',
-    'cursor:pointer', 'font-family:inherit',
-    'display:flex', 'align-items:center', 'justify-content:center',
-    'box-sizing:border-box', 'transition:background .15s,border-color .15s'
-  ].join(';');
-  addBtn.onmouseover = function() {
-    this.style.background = 'rgba(109,40,217,.08)';
-    this.style.borderColor = '#ccc';
-  };
-  addBtn.onmouseout = function() {
-    this.style.background = '#fff';
-    this.style.borderColor = '#d4d4dc';
-  };
-  addBtn.onclick = function() { if (typeof dtCustomOpen === 'function') dtCustomOpen(); };
-
-  sizeRow.appendChild(specPicker);
-  sizeRow.appendChild(addBtn);
-
-  sizeCol.appendChild(sizeLbl);
-  sizeCol.appendChild(sizeRow);
-
-  bar.appendChild(sizeCol);
+  bar.innerHTML = '<div id="dataSpecPicker"></div>';
 }
 
 function dataInit() {
@@ -1775,11 +1727,11 @@ function renderKindSidebar() {
       if (!hit) return;
     }
 
-    var active = (k === _dataKind) ? ' active' : '';
+    var active = (k === _dataKind) ? ' on' : '';
     htmlParts.push(
-      '<button type="button" class="dt-kind-item' + active + '" data-kind="' + k + '">' +
-        '<span class="dt-kind-name">' + label + '</span>' +
-        '<span class="dt-kind-count">' + count + '</span>' +
+      '<button type="button" class="data-sb-item' + active + '" data-kind="' + k + '">' +
+        '<span>' + label + '</span>' +
+        '<span class="cnt">' + count + '</span>' +
       '</button>'
     );
   });
@@ -1791,7 +1743,7 @@ function renderKindSidebar() {
   }
 
   // クリックで選択
-  Array.prototype.forEach.call(list.querySelectorAll('.dt-kind-item'), function(btn) {
+  Array.prototype.forEach.call(list.querySelectorAll('.data-sb-item[data-kind]'), function(btn) {
     btn.onclick = function() {
       var k = this.getAttribute('data-kind');
       if (k) dataSelectKind(k);
@@ -1879,83 +1831,211 @@ function updateCustomCount() {
 function dataSelectKind(kind) {
   _dataKind = kind;
   _dataSpecIdx = 0;
+  _dtSpecQuery = '';   // カテゴリを変えたら 規格を選択 の検索をリセット
   renderDataKindTabs();
   renderDataSpecPicker();
   renderDataSpec();
 }
+
+/* Phase 4: 検索 + 1行横スクロール + ドラッグスワイプ + ホイール横スクロール */
+var _dtSpecQuery = '';
 
 function renderDataSpecPicker() {
   const wrap = document.getElementById('dataSpecPicker');
   const kindData = SECTION_DATA[_dataKind];
   if (!wrap || !kindData) return;
 
-  var IS = {
-    wrap:  'position:relative;width:100%',
-    row:   'display:flex;height:42px;align-items:stretch',
-    input: 'flex:1;min-width:0;height:42px;box-sizing:border-box;padding:0 14px;' +
-           'border:1.5px solid #ccc;border-radius:8px;' +
-           'font-size:13px;font-weight:600;font-family:inherit;' +
-           'background:#fafafa;color:#111;outline:none',
-    dd:    'display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;' +
-           'background:#fff;border:1.5px solid #ccc;border-radius:8px;' +
-           'box-shadow:0 6px 20px rgba(0,0,0,.12);max-height:280px;overflow-y:auto;z-index:500'
-  };
-  wrap.innerHTML =
-    '<div style="' + IS.wrap + '">' +
-      '<div style="' + IS.row + '">' +
-        '<input id="dataSpecInput" type="text" autocomplete="off" placeholder="規格を検索" style="' + IS.input + '">' +
-      '</div>' +
-      '<div id="dataSpecDropdown" class="data-spec-dropdown" style="' + IS.dd + '"></div>' +
-    '</div>';
+  // まだ wrap の中身が空 or 骨組みがなければ骨組みを作る（検索入力は値を保持したいので都度作らない）
+  var shell = wrap.querySelector('.data-specs-wrap');
+  if (!shell) {
+    wrap.innerHTML =
+      '<div class="data-specs-wrap">' +
+        '<div class="data-specs-search">' +
+          '<span class="ico" aria-hidden="true">' +
+            '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+              '<circle cx="7" cy="7" r="5"/><path d="M14 14l-3.5-3.5"/>' +
+            '</svg>' +
+          '</span>' +
+          '<input id="dtSpecSearchInput" type="text" autocomplete="off" ' +
+            'placeholder="規格を検索（部分一致）" aria-label="規格を検索">' +
+          '<button type="button" class="clear" id="dtSpecSearchClear" aria-label="クリア" hidden>×</button>' +
+        '</div>' +
+        '<div class="data-specs-scroll">' +
+          '<div class="data-specs-bar" id="dataSpecBar"></div>' +
+        '</div>' +
+      '</div>';
+    _bindDataSpecSearch();
+    _bindDataSpecDragScroll();
+  }
 
-  const input = document.getElementById('dataSpecInput');
-  const spec = kindData.specs[_dataSpecIdx];
-  if (input && spec) input.value = spec.name;
+  // 入力状態を維持しつつチップを描画
+  var input = document.getElementById('dtSpecSearchInput');
+  if (input && input.value !== _dtSpecQuery) input.value = _dtSpecQuery;
+  var clear = document.getElementById('dtSpecSearchClear');
+  if (clear) clear.hidden = !_dtSpecQuery;
 
-  if (input) {
-    input.onmouseover = function() { this.style.backgroundColor = 'rgba(109,40,217,.06)'; };
-    input.onmouseout  = function() { if (document.activeElement !== this) this.style.backgroundColor = '#fafafa'; };
-    input.onfocus = function() { this.style.backgroundColor = '#fff'; };
-    input.onclick = function(e) {
-      e.stopPropagation();
-      renderDataSpecDropdownList(getSortedSpecsForKind(_dataKind));
-      toggleDataSpecDropdown(true);
-    };
-    input.oninput = function() {
-      filterDataSpecOptions(this.value);
-      toggleDataSpecDropdown(true);
-    };
-    input.onkeydown = function(e) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        toggleDataSpecDropdown(true);
-        var first = document.querySelector('#dataSpecDropdown .data-spec-option');
-        if (first) first.focus();
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (_dataSpecFiltered.length === 1) {
-          selectDataSpec(_dataSpecFiltered[0].index, _dataSpecFiltered[0].kind);
-        } else {
-          toggleDataSpecDropdown(true);
-        }
-      } else if (e.key === 'Escape') {
-        closeDataSpecDropdown();
+  _renderDataSpecChips();
+}
+
+/* 検索クエリで絞り込んだチップ列を再描画 */
+function _renderDataSpecChips() {
+  var kindData = SECTION_DATA[_dataKind];
+  var bar = document.getElementById('dataSpecBar');
+  if (!bar || !kindData) return;
+
+  var specs = Array.isArray(kindData.specs) ? kindData.specs : [];
+  var q = (typeof normalizeDataSpecText === 'function')
+    ? normalizeDataSpecText(_dtSpecQuery || '')
+    : (_dtSpecQuery || '').toLowerCase();
+
+  var kEsc = _dataKind.replace(/'/g, "\\'");
+  var html = '';
+  var hit = 0;
+  specs.forEach(function(s, i) {
+    if (q) {
+      var nm = (typeof normalizeDataSpecText === 'function')
+        ? normalizeDataSpecText(s.name || '')
+        : String(s.name || '').toLowerCase();
+      if (nm.indexOf(q) < 0) return;
+    }
+    hit++;
+    var active = (i === _dataSpecIdx) ? ' on' : '';
+    var nameEsc = String(s.name).replace(/"/g, '&quot;');
+    html += '<button type="button" class="data-spec-chip' + active + '" ' +
+      'data-index="' + i + '" ' +
+      'onclick="selectDataSpec(' + i + ",'" + kEsc + "'" + ')">' +
+      nameEsc + '</button>';
+  });
+  if (!hit) {
+    html = '<span class="data-specs-empty">該当なし</span>';
+  }
+  // + カスタム追加ボタン（常時末尾）
+  html += '<button type="button" class="dt-spec-add" title="カスタム規格を追加" onclick="dtCustomOpen()">+</button>';
+  bar.innerHTML = html;
+
+  // 選択中チップを可視領域へ
+  try {
+    var onEl = bar.querySelector('.data-spec-chip.on');
+    if (onEl) {
+      var barRect = bar.getBoundingClientRect();
+      var chipRect = onEl.getBoundingClientRect();
+      if (chipRect.left < barRect.left || chipRect.right > barRect.right) {
+        bar.scrollLeft += (chipRect.left - barRect.left) - (barRect.width - chipRect.width) / 2;
       }
+    }
+  } catch(e) {}
+}
+
+/* 検索ボックスのイベントを1回だけバインド */
+function _bindDataSpecSearch() {
+  var input = document.getElementById('dtSpecSearchInput');
+  var clear = document.getElementById('dtSpecSearchClear');
+  if (!input) return;
+  input.oninput = function() {
+    _dtSpecQuery = this.value || '';
+    if (clear) clear.hidden = !this.value;
+    _renderDataSpecChips();
+  };
+  input.onkeydown = function(e) {
+    if (e.key === 'Escape') {
+      this.value = '';
+      _dtSpecQuery = '';
+      if (clear) clear.hidden = true;
+      _renderDataSpecChips();
+      this.blur();
+    } else if (e.key === 'Enter') {
+      // 絞り込み結果の最初のチップを選択
+      var bar = document.getElementById('dataSpecBar');
+      var first = bar && bar.querySelector('.data-spec-chip');
+      if (first) {
+        var idx = parseInt(first.getAttribute('data-index'), 10);
+        if (!isNaN(idx)) selectDataSpec(idx, _dataKind);
+      }
+    }
+  };
+  if (clear) {
+    clear.onclick = function() {
+      input.value = '';
+      _dtSpecQuery = '';
+      this.hidden = true;
+      _renderDataSpecChips();
+      input.focus();
     };
   }
+}
 
-  const dropdown = document.getElementById('dataSpecDropdown');
-  if (dropdown) {
-    dropdown.onclick = function(e) {
-      var option = e.target.closest('.data-spec-option');
-      if (!option) return;
-      var index = parseInt(option.getAttribute('data-index'), 10);
-      var kind = option.getAttribute('data-kind') || _dataKind;
-      if (!isNaN(index)) selectDataSpec(index, kind);
-    };
-  }
+/* マウスドラッグ / ホイール横スクロール をバインド */
+function _bindDataSpecDragScroll() {
+  var bar = document.getElementById('dataSpecBar');
+  if (!bar) return;
 
-  closeDataSpecDropdown();
+  var down = false;
+  var dragging = false;
+  var startX = 0;
+  var startScroll = 0;
+  var moved = 0;
+  var pid = null;
+  var DRAG_THRESHOLD = 5;
+
+  bar.addEventListener('pointerdown', function(e) {
+    if (e.button !== 0) return;
+    down = true;
+    dragging = false;
+    moved = 0;
+    startX = e.clientX;
+    startScroll = bar.scrollLeft;
+    pid = e.pointerId;
+    // ここでは capture しない — 実際にドラッグ開始した時だけ capture する
+  });
+
+  bar.addEventListener('pointermove', function(e) {
+    if (!down) return;
+    var dx = e.clientX - startX;
+    var abs = Math.abs(dx);
+    if (abs > moved) moved = abs;
+    if (!dragging && moved > DRAG_THRESHOLD) {
+      dragging = true;
+      bar.classList.add('dragging');
+      try { bar.setPointerCapture(pid); } catch(_){}
+    }
+    if (dragging) {
+      bar.scrollLeft = startScroll - dx;
+      e.preventDefault();
+    }
+  });
+
+  var endDrag = function(e) {
+    if (!down) return;
+    down = false;
+    try { if (pid != null) bar.releasePointerCapture(pid); } catch(_){}
+    pid = null;
+    if (dragging) {
+      // 遅延で dragging を解除、直後の click を suppress できるようにする
+      setTimeout(function() {
+        bar.classList.remove('dragging');
+        dragging = false;
+      }, 0);
+    }
+  };
+  bar.addEventListener('pointerup', endDrag);
+  bar.addEventListener('pointercancel', endDrag);
+
+  // ドラッグした時だけ直後の click を無効化（通常クリックは素通し）
+  bar.addEventListener('click', function(e) {
+    if (dragging) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, true);
+
+  // ホイール: 縦→横に変換（横スクロール可能な時だけ発動）
+  bar.addEventListener('wheel', function(e) {
+    if (e.deltaY === 0) return;
+    if (bar.scrollWidth > bar.clientWidth + 1) {
+      bar.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive: false });
 }
 
 function toggleDataSpecDropdown(forceOpen) {
@@ -2065,20 +2145,42 @@ function renderDataSpec() {
   const spec = kindData.specs[_dataSpecIdx];
   if (!spec) return;
 
-  // ヘッダー（規格名 + W + 塗装面積）
+  // ヘッダー（eyebrow: カテゴリ、h1: 規格名、subtitle: JIS）
   const infoEl = document.getElementById('dtHeader');
+  const W = spec.W || spec.w || null;
+  const S = (typeof wGetPaintPerM === 'function') ? wGetPaintPerM(kindData.label, spec.name) : null;
   if (infoEl) {
-    const W = spec.W || spec.w || null;
-    const S = (typeof wGetPaintPerM === 'function') ? wGetPaintPerM(kindData.label, spec.name) : null;
+    var subParts = [];
+    if (kindData.jis) subParts.push(kindData.jis);
+    if (W != null) subParts.push('W = ' + W + ' kg/m');
+    if (S != null) subParts.push('塗装 ' + S + ' m²/m');
     infoEl.innerHTML =
-      '<div class="dt-kind-label">' + kindData.label + ' <span class="dt-kind-sep">/</span> ' + kindData.jis + '</div>' +
-      '<div class="dt-spec-name">' + spec.name + '</div>' +
-      '<div class="dt-meta">' +
-        (W != null ? '<span><span class="dt-meta-val">' + W + '</span> kg/m</span>' : '') +
-        (W != null && S ? '<span class="dt-meta-div"></span>' : '') +
-        (S ? '<span>塗装 <span class="dt-meta-val">' + S + '</span> m²/m</span>' : '') +
-      '</div>';
+      '<span class="eyebrow">' + kindData.label + '</span>' +
+      '<h1>' + spec.name + '</h1>' +
+      '<div class="subtitle">' + subParts.join('  ·  ') + '</div>';
   }
+
+  // 断面形状パネル下部の JIS 表記
+  var figJis = document.getElementById('dtFigJis');
+  if (figJis) {
+    figJis.textContent = kindData.jis || '';
+  }
+
+  // 断面寸法セクションの .ico 部に断面積・単位質量を表示
+  var dimMeta = document.getElementById('dtDimMeta');
+  if (dimMeta) {
+    var areaVal = (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE')
+      ? spec.A
+      : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'C_LIGHT' || kindData.type === 'BCR') ? spec.Asec : spec.Ac);
+    var metaParts = [];
+    if (areaVal != null) metaParts.push('A = ' + areaVal + ' cm²');
+    if (W != null) metaParts.push('W = ' + W + ' kg/m');
+    dimMeta.textContent = metaParts.join(' · ');
+  }
+
+  // 流通定尺セクションの .ico 部を既定値に
+  var stdMeta = document.getElementById('dtStdMeta');
+  if (stdMeta) stdMeta.textContent = 'JIS標準 + 工場長尺';
 
   // 定尺チップ（規格ごとに管理）
   renderDataStdChips(_dataKind, spec.name);
@@ -2116,187 +2218,152 @@ function renderDataSpec() {
   // 断面寸法グリッド
   const dimEl = document.getElementById('dataDimGrid');
   if (dimEl) {
+    // helper: 新マークアップ .dim > .dim-l + .dim-v[value<span class="unit">unit</span>]
+    var _d = function(label, value, unit) {
+      var u = unit ? '<span class="unit">' + unit + '</span>' : '';
+      return '<div class="dim"><div class="dim-l">' + label + '</div>' +
+             '<div class="dim-v">' + value + u + '</div></div>';
+    };
     if (kindData.type === 'H') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t1（ウェブ）</div><div class="dt-dim-val">${spec.t1} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t2（フランジ）</div><div class="dt-dim-val">${spec.t2} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r（フィレット）</div><div class="dt-dim-val">${spec.r} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>`;
+      dimEl.innerHTML =
+        _d('H', spec.H, 'mm') +
+        _d('B', spec.B, 'mm') +
+        _d('t1（ウェブ）', spec.t1, 'mm') +
+        _d('t2（フランジ）', spec.t2, 'mm') +
+        _d('r（フィレット）', spec.r, 'mm') +
+        _d('断面積 A', spec.Ac, 'cm²');
     } else if (kindData.type === 'C' || kindData.type === 'I') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t1（ウェブ）</div><div class="dt-dim-val">${spec.t1} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t2（フランジ）</div><div class="dt-dim-val">${spec.t2} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>`;
+      dimEl.innerHTML =
+        _d('H', spec.H, 'mm') +
+        _d('B', spec.B, 'mm') +
+        _d('t1（ウェブ）', spec.t1, 'mm') +
+        _d('t2（フランジ）', spec.t2, 'mm') +
+        _d('r1（根元）', spec.r1, 'mm') +
+        _d('r2（先端）', spec.r2, 'mm');
     } else if (kindData.type === 'C_LIGHT') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">A</div><div class="dt-dim-val">${spec.A} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B（リップ）</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t</div><div class="dt-dim-val">${spec.t} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.Asec} cm²</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>`;
+      dimEl.innerHTML =
+        _d('H', spec.H, 'mm') +
+        _d('A', spec.A, 'mm') +
+        _d('B（リップ）', spec.B, 'mm') +
+        _d('t', spec.t, 'mm') +
+        _d('断面積 A', spec.Asec, 'cm²') +
+        _d('単位質量 W', spec.W, 'kg/m');
     } else if (kindData.type === 'L') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">A = B</div><div class="dt-dim-val">${spec.A} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t（肉厚）</div><div class="dt-dim-val">${spec.t} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 Ac</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Cx = Cy</div><div class="dt-dim-val">${spec.Cx} cm</div></div>`;
+      dimEl.innerHTML =
+        _d('A = B', spec.A, 'mm') +
+        _d('t（肉厚）', spec.t, 'mm') +
+        _d('r1（根元）', spec.r1, 'mm') +
+        _d('r2（先端）', spec.r2, 'mm') +
+        _d('断面積 Ac', spec.Ac, 'cm²') +
+        _d('Cx = Cy', spec.Cx, 'cm');
     } else if (kindData.type === 'LU') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">A（長辺）</div><div class="dt-dim-val">${spec.A} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B（短辺）</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t（板厚）</div><div class="dt-dim-val">${spec.t} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 Ac</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">A 方向</div><div class="dt-dim-val">${spec.Cx} cm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B 方向</div><div class="dt-dim-val">${spec.Cy} cm</div></div>`;
+      dimEl.innerHTML =
+        _d('A（長辺）', spec.A, 'mm') +
+        _d('B（短辺）', spec.B, 'mm') +
+        _d('t（板厚）', spec.t, 'mm') +
+        _d('r1（根元）', spec.r1, 'mm') +
+        _d('r2（先端）', spec.r2, 'mm') +
+        _d('断面積 Ac', spec.Ac, 'cm²') +
+        _d('A 方向', spec.Cx, 'cm') +
+        _d('B 方向', spec.Cy, 'cm');
     } else if (kindData.type === 'LUT') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">A（長辺）</div><div class="dt-dim-val">${spec.A} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B（短辺）</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t1（長辺板厚）</div><div class="dt-dim-val">${spec.t1} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t2（短辺板厚）</div><div class="dt-dim-val">${spec.t2} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r1（根元）</div><div class="dt-dim-val">${spec.r1} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r2（先端）</div><div class="dt-dim-val">${spec.r2} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 Ac</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">A 方向</div><div class="dt-dim-val">${spec.Cx} cm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B 方向</div><div class="dt-dim-val">${spec.Cy} cm</div></div>`;
+      dimEl.innerHTML =
+        _d('A（長辺）', spec.A, 'mm') +
+        _d('B（短辺）', spec.B, 'mm') +
+        _d('t1（長辺板厚）', spec.t1, 'mm') +
+        _d('t2（短辺板厚）', spec.t2, 'mm') +
+        _d('r1（根元）', spec.r1, 'mm') +
+        _d('r2（先端）', spec.r2, 'mm') +
+        _d('断面積 Ac', spec.Ac, 'cm²') +
+        _d('A 方向', spec.Cx, 'cm') +
+        _d('B 方向', spec.Cy, 'cm');
     } else if (kindData.type === 'FL') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">厚さ t</div><div class="dt-dim-val">${spec.t} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">幅 B</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積</div><div class="dt-dim-val">${spec.Ac} cm²</div></div>
-      `;
+      dimEl.innerHTML =
+        _d('厚さ t', spec.t, 'mm') +
+        _d('幅 B', spec.B, 'mm') +
+        _d('断面積', spec.Ac, 'cm²');
     } else if (kindData.type === 'RB') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">直径 D</div><div class="dt-dim-val">${spec.D} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.A} cm²</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>
-      `;
+      dimEl.innerHTML =
+        _d('直径 D', spec.D, 'mm') +
+        _d('断面積 A', spec.A, 'cm²') +
+        _d('単位質量 W', spec.W, 'kg/m');
     } else if (kindData.type === 'SB') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">一辺 a</div><div class="dt-dim-val">${spec.a} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.A} cm²</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>
-      `;
+      dimEl.innerHTML =
+        _d('一辺 a', spec.a, 'mm') +
+        _d('断面積 A', spec.A, 'cm²') +
+        _d('単位質量 W', spec.W, 'kg/m');
     } else if (kindData.type === 'PIPE') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">呼び径</div><div class="dt-dim-val">${spec.name}</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">inch</div><div class="dt-dim-val">${spec.inch}</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">外径 D</div><div class="dt-dim-val">${spec.D} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">内径 d</div><div class="dt-dim-val">${spec.d} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">厚さ t</div><div class="dt-dim-val">${spec.t} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.A} cm²</div></div>
-      `;
+      dimEl.innerHTML =
+        _d('呼び径', spec.name, '') +
+        _d('inch', spec.inch, '') +
+        _d('外径 D', spec.D, 'mm') +
+        _d('内径 d', spec.d, 'mm') +
+        _d('厚さ t', spec.t, 'mm') +
+        _d('断面積 A', spec.A, 'cm²');
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">A</div><div class="dt-dim-val">${spec.A} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t</div><div class="dt-dim-val">${spec.t} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">断面積 A</div><div class="dt-dim-val">${spec.Asec} cm²</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">単位質量 W</div><div class="dt-dim-val">${spec.W} kg/m</div></div>
-      `;
+      dimEl.innerHTML =
+        _d('A', spec.A, 'mm') +
+        _d('B', spec.B, 'mm') +
+        _d('t', spec.t, 'mm') +
+        _d('断面積 A', spec.Asec, 'cm²') +
+        _d('単位質量 W', spec.W, 'kg/m');
     } else if (kindData.type === 'BCR') {
-      dimEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">H</div><div class="dt-dim-val">${spec.H} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">B</div><div class="dt-dim-val">${spec.B} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t</div><div class="dt-dim-val">${spec.t} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">r</div><div class="dt-dim-val">${spec.r} mm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">t/r</div><div class="dt-dim-val">${spec.Ht}</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">ランク</div><div class="dt-dim-val">${spec.rank}</div></div>
-      `;
+      dimEl.innerHTML =
+        _d('H', spec.H, 'mm') +
+        _d('B', spec.B, 'mm') +
+        _d('t', spec.t, 'mm') +
+        _d('r', spec.r, 'mm') +
+        _d('t/r', spec.Ht, '') +
+        _d('ランク', spec.rank, '');
     }
   }
 
-  // 断面性能グリッド（デフォルト非表示）
-  const perfToggle = document.getElementById('dataPerfToggle');
-  if (perfToggle) { perfToggle.textContent = '断面性能を表示 ▼'; }
-  const perfWrap = document.getElementById('dataPerfWrap');
-  if (perfWrap) perfWrap.style.display = 'none';
+  // 断面性能グリッド（デフォルト折りたたみ、HTML側で is-collapsed クラス制御）
   const perfEl = document.getElementById('dataPerfGrid');
   if (perfEl) {
+    var _p = function(label, value, unit) {
+      var u = unit ? '<span class="unit">' + unit + '</span>' : '';
+      return '<div class="dim"><div class="dim-l">' + label + '</div>' +
+             '<div class="dim-v">' + value + u + '</div></div>';
+    };
     if (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE') {
-      perfEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">I</div><div class="dt-dim-val">${spec.I} cm⁴</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Z</div><div class="dt-dim-val">${spec.Z} cm³</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">i</div><div class="dt-dim-val">${spec.i} cm</div></div>
-      `;
+      perfEl.innerHTML =
+        _p('I', spec.I, 'cm⁴') +
+        _p('Z', spec.Z, 'cm³') +
+        _p('i', spec.i, 'cm');
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
-      perfEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Ix</div><div class="dt-dim-val">${spec.Ix} cm⁴</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Iy</div><div class="dt-dim-val">${spec.Iy != null ? spec.Iy : spec.Ix} cm⁴</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zx</div><div class="dt-dim-val">${spec.Zx} cm³</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zy</div><div class="dt-dim-val">${spec.Zy != null ? spec.Zy : spec.Zx} cm³</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">ix</div><div class="dt-dim-val">${spec.ix} cm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">iy</div><div class="dt-dim-val">${spec.iy != null ? spec.iy : spec.ix} cm</div></div>`;
+      perfEl.innerHTML =
+        _p('Ix', spec.Ix, 'cm⁴') +
+        _p('Iy', spec.Iy != null ? spec.Iy : spec.Ix, 'cm⁴') +
+        _p('Zx', spec.Zx, 'cm³') +
+        _p('Zy', spec.Zy != null ? spec.Zy : spec.Zx, 'cm³') +
+        _p('ix', spec.ix, 'cm') +
+        _p('iy', spec.iy != null ? spec.iy : spec.ix, 'cm');
     } else if (kindData.type === 'BCR') {
-      perfEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">I</div><div class="dt-dim-val">${spec.I} cm⁴</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Z</div><div class="dt-dim-val">${spec.Z} cm³</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zp</div><div class="dt-dim-val">${spec.Zp} cm³</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">i</div><div class="dt-dim-val">${spec.i} cm</div></div>
-      `;
+      perfEl.innerHTML =
+        _p('I', spec.I, 'cm⁴') +
+        _p('Z', spec.Z, 'cm³') +
+        _p('Zp', spec.Zp, 'cm³') +
+        _p('i', spec.i, 'cm');
     } else {
-      perfEl.innerHTML = `
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Ix</div><div class="dt-dim-val">${spec.Ix} cm⁴</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Iy</div><div class="dt-dim-val">${spec.Iy} cm⁴</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zx</div><div class="dt-dim-val">${spec.Zx} cm³</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">Zy</div><div class="dt-dim-val">${spec.Zy} cm³</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">ix</div><div class="dt-dim-val">${spec.ix} cm</div></div>
-        <div class="dt-dim-cell"><div class="dt-dim-lbl">iy</div><div class="dt-dim-val">${spec.iy} cm</div></div>`;
+      perfEl.innerHTML =
+        _p('Ix', spec.Ix, 'cm⁴') +
+        _p('Iy', spec.Iy, 'cm⁴') +
+        _p('Zx', spec.Zx, 'cm³') +
+        _p('Zy', spec.Zy, 'cm³') +
+        _p('ix', spec.ix, 'cm') +
+        _p('iy', spec.iy, 'cm');
     }
   }
 
+  // 単位重量の計算式 / 塗装面積 は削除済（ユーザー指示）
   const extraEl = document.getElementById('dataExtraInfo');
   if (extraEl) {
-    const weightArea = (kindData.type === 'RB' || kindData.type === 'SB' || kindData.type === 'PIPE')
-      ? spec.A
-      : ((kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'C_LIGHT' || kindData.type === 'BCR') ? spec.Asec : spec.Ac);
-    const calcW = calcUnitWeightFromArea(weightArea);
-    const S = (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT')
-      ? calcLAnglePaintAreaPerMeter(spec)
-      : (kindData.type === 'RB')
-          ? calcRoundBarPaintAreaPerMeter(spec)
-      : (kindData.type === 'SB')
-          ? calcSquareBarPaintAreaPerMeter(spec)
-      : (kindData.type === 'PIPE')
-          ? calcPipePaintAreaPerMeter(spec)
-      : (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'BCR')
-          ? calcSquarePipePaintAreaPerMeter(spec)
-      : (kindData.type === 'C_LIGHT')
-          ? calcLightCChannelPaintAreaPerMeter(spec)
-      : (kindData.type === 'H' || kindData.type === 'I')
-          ? calcHPaintAreaPerMeter(spec)
-          : (kindData.type === 'C' ? calcChannelPaintAreaPerMeter(spec) : null);
-
-    var rowStyle = 'display:grid;grid-template-columns:150px 1fr;align-items:baseline;' +
-                   'padding:9px 0;border-bottom:1px solid #eee;font-size:13px;color:#555';
-    var lblStyle = 'font-size:13px;color:#555';
-    var valStyle = 'font-size:13px;font-weight:700;color:#111;white-space:nowrap';
-    extraEl.innerHTML =
-      '<div style="' + rowStyle + ';margin-top:12px">' +
-        '<span style="' + lblStyle + '">単位重量の計算式</span>' +
-        '<span style="' + valStyle + '">' + weightArea + ' × 0.785 = ' + calcW + ' kg/m</span>' +
-      '</div>' +
-      (S !== null
-        ? '<div style="' + rowStyle + '">' +
-            '<span style="' + lblStyle + '">塗装面積（参考）</span>' +
-            '<span style="' + valStyle + '">' + S + ' m²/m</span>' +
-          '</div>'
-        : '');
+    extraEl.innerHTML = '';
+    extraEl.style.display = 'none';
   }
 
-  const input = document.getElementById('dataSpecInput');
-  if (input) input.value = spec.name;
-  filterDataSpecOptions('');
+  // チップバーの選択状態を更新（renderDataSpecPicker は selectDataSpec で再描画される）
 
   // 殴り書きメモ表示
   renderDataNote(spec.name);
@@ -2350,12 +2417,16 @@ function renderDataStdChips(kind, spec) {
   var ke = kind.replace(/'/g, "\\'");
   var se = spec.replace(/'/g, "\\'");
   var chipsHtml = lengths.map(function(len) {
-    var label = len >= 1000 ? (len / 1000) + 'm' : len + 'mm';
-    return '<span class="dt-chip">' + label +
-      '<button class="dt-chip-x" onclick="dpStdRemove(\'' + ke + '\',\'' + se + '\',' + len + ')">x</button></span>';
+    var val, unit;
+    if (len >= 1000) { val = (len / 1000); unit = 'm'; }
+    else             { val = len;            unit = 'mm'; }
+    return '<span class="stock-chip">' +
+      val + '<span class="unit">' + unit + '</span>' +
+      '<button class="stock-x" title="削除" onclick="dpStdRemove(\'' + ke + '\',\'' + se + '\',' + len + ')">×</button>' +
+      '</span>';
   }).join('');
   chips.innerHTML = chipsHtml +
-    '<span class="dt-chip-add">' +
+    '<span class="stock-add">' +
       '<input id="dpStdInput" type="number" placeholder="mm" min="500" step="500">' +
       '<button onclick="dpStdAdd(\'' + ke + '\',\'' + se + '\')">+ 追加</button>' +
     '</span>';
