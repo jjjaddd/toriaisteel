@@ -6,7 +6,7 @@
  */
 
 // ── アプリ状態 ─────────────────────────────────────────
-var ROWS         = 15;   // 部材リスト初期行数
+var ROWS         = 13;   // 部材リスト初期行数
 var curKind      = 'H形鋼';
 
 // ── 行選択（Ctrl+A / Delete） ────────────────────────────
@@ -670,6 +670,8 @@ function init() {
   if (firstKind && STEEL[firstKind] && STEEL[firstKind][0]) {
     cmdSelect({ kind: firstKind, spec: STEEL[firstKind][0][0], kgm: STEEL[firstKind][0][1] });
     document.getElementById('cmdInput').value = '';
+    var initKgm = document.getElementById('cmdKgm');
+    if (initKgm) initKgm.textContent = '';
   }
 
   showCalcOnboardingIfNeeded();
@@ -866,6 +868,8 @@ function cmdFilter() {
   var raw = (input.value || '').trim();
   var q = raw.toLowerCase();
   if (!q) {
+    var kgmDisp = document.getElementById('cmdKgm');
+    if (kgmDisp) kgmDisp.textContent = '';
     dd.style.display = 'none';
     return;
   }
@@ -1021,12 +1025,15 @@ function cmdKey(e) {
 function onSpec() {
   updateInvDropdown();
   var spec = document.getElementById('spec').value;
+  var cmdInput = document.getElementById('cmdInput');
   var row = (typeof getSteelRow === 'function')
     ? getSteelRow(curKind, spec)
     : (STEEL[curKind] || []).find(function(r) { return r[0] === spec; });
   if (row) {
     document.getElementById('kgm').value = row[1];
   }
+  var kgmDisp = document.getElementById('cmdKgm');
+  if (kgmDisp) kgmDisp.textContent = (cmdInput && (cmdInput.value || '').trim()) ? (row ? row[1] + ' kg/m' : '') : '';
   updKg();
   buildInventoryDropdown();
   rebuildStkList();
@@ -1926,8 +1933,8 @@ function resetCalcResultPlaceholder() {
   ph.className = 'ph';
   ph.id = 'ph';
   ph.innerHTML =
-    '<p>設定・部材を入力して「計算を実行する」を押してください</p>' +
-    '<small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>';
+    '<p>鋼材を選択し長さ、数量を入力して「計算を実行する」を押してください</p>' +
+    '<small>右下設定マークから刃厚・端部ロス・使用する定尺を設定できます。</small>';
   rp.appendChild(ph);
 }
 
@@ -1982,6 +1989,8 @@ function clearParts() {
   var firstKind = Object.keys(STEEL)[0];
   if (firstKind && STEEL[firstKind] && STEEL[firstKind][0]) {
     cmdSelect({ kind: firstKind, spec: STEEL[firstKind][0][0], kgm: STEEL[firstKind][0][1] });
+    if (cmdInputEl) cmdInputEl.value = '';
+    if (cmdKgmEl) cmdKgmEl.textContent = '';
   } else {
     updKg();
   }
@@ -1993,6 +2002,16 @@ function clearParts() {
 // 新しいバージョンを出すときは、この配列の先頭に追記するだけ。
 // date は YYYY-MM-DD、changes は 1 行 1 項目で短く。
 var TORIAI_CHANGELOG = [
+  {
+    version: 'v1.0.4',
+    date: '2026-04-24',
+    changes: [
+      '取り合いタブの工区列幅、13行表示、kg/m表示条件、初期プレースホルダー文言を調整',
+      '重量計算タブに印刷タイトル機能を追加し、結果画面でも印刷タイトルを確認できるよう改善',
+      'データタブの規格選択ホバー色を薄紫に統一し、断面性能カードの開閉表示を整理',
+      'お問い合わせタブの見出し線とカード枠の見え方を調整し、タイトルまわりの表示崩れを修正'
+    ]
+  },
   {
     version: 'v1.0.3',
     date: '2026-04-24',

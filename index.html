@@ -68,8 +68,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=ui27">
-<link rel="stylesheet" href="toriai-theme.css?v=ui27">
+<link rel="stylesheet" href="style.css?v=ui29">
+<link rel="stylesheet" href="toriai-theme.css?v=ui29">
 <link rel="stylesheet" href="data-tab.css?v=8">
 </head>
 <body>
@@ -100,7 +100,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
-          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.3</span></span>
+<span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.4</span></span>
           <span class="hm-version-arrow">›</span>
         </button>
       </div>
@@ -194,8 +194,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 </div>
 <main class="mn" id="rp">
   <div class="ph" id="ph">
-    <p>設定・部材を入力して「計算を実行する」を押してください</p>
-    <small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>
+    <p>鋼材を選択し長さ、数量を入力して「計算を実行する」を押してください</p>
+    <small>右下設定マークから刃厚・端部ロス・使用する定尺を設定できます。</small>
   </div>
 </main>
 </div>
@@ -484,7 +484,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
               <div class="contact-info-row"><span>受付時間</span><strong>平日 9:00 - 18:00</strong></div>
               <div class="contact-info-row"><span>通常返信</span><strong>2営業日以内</strong></div>
               <div class="contact-info-row"><span>緊急</span><strong>support.toriai@gmail.com</strong></div>
-              <div class="contact-info-row"><span>バージョン</span><strong>v1.0.3</strong></div>
+<div class="contact-info-row"><span>バージョン</span><strong>v1.0.4</strong></div>
             </div>
           </section>
 
@@ -742,7 +742,15 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <button class="w-opt-chip" id="wChip_paint" onclick="wToggleOpt('paint')">塗装単価</button>
           <button class="w-opt-chip" id="wChip_m2" onclick="wToggleOpt('m2')">塗装面積</button>
           <button class="w-opt-chip" id="wChip_co2" onclick="wToggleOpt('co2')">CO₂</button>
+          <button class="w-opt-chip" id="wChip_title" onclick="wToggleOpt('title')">タイトル</button>
           <button class="w-opt-chip" id="wChip_rev" onclick="wToggleOpt('rev')">⇄ 逆算</button>
+        </div>
+
+        <div id="wPanel_title" style="display:none">
+          <div class="field" style="margin-top:6px">
+            <label>印刷タイトル</label>
+            <input type="text" id="wDocTitle" placeholder="例：見積依頼書 / 見積書 / 発注書" maxlength="24" tabindex="-1" oninput="wSaveDocTitle()">
+          </div>
         </div>
 
         <div id="wPanel_price" style="display:none">
@@ -803,11 +811,14 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         <p style="font-size:13px">左の入力欄で設定して「リストに追加」を押してください</p>
       </div>
       <div id="wTopBar" class="w-topbar" style="display:none">
-        <div id="wCrumb" class="w-crumb">
-          <span class="w-crumb-root">重量計算</span>
-          <span class="w-crumb-sep">/</span>
-          <span class="w-crumb-cur">一覧</span>
-          <span class="w-crumb-count" id="wCrumbCount">(0件)</span>
+        <div class="w-topbar-main">
+          <div id="wCrumb" class="w-crumb">
+            <span class="w-crumb-root">重量計算</span>
+            <span class="w-crumb-sep">/</span>
+            <span class="w-crumb-cur">一覧</span>
+            <span class="w-crumb-count" id="wCrumbCount">(0件)</span>
+          </div>
+          <div id="wDocTitleText" class="w-doc-title-text" style="display:none">印刷タイトル　重量リスト</div>
         </div>
         <div id="wActionBar" class="w-actions">
           <button type="button" class="w-act-btn" onclick="wExportCsv()">CSV出力</button>
@@ -966,12 +977,12 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   </div>
 </div>
 
-  <script src="storage.js?v=ui27"></script>
-  <script src="calc.js?v=ui27"></script>
-  <script src="utils.js?v=ui27"></script>
-  <script src="main.js?v=ui27"></script>
+<script src="storage.js?v=ui27"></script>
+<script src="calc.js?v=ui27"></script>
+<script src="utils.js?v=ui27"></script>
+<script src="main.js?v=ui29"></script>
   <script src="final-overrides.js?v=ui28"></script>
-  <script src="weight.js?v=ui27"></script>
+<script src="weight.js?v=ui29"></script>
   <script src="data.js?v=ui39"></script>
   <script src="contact.js?v=ui27"></script>
 

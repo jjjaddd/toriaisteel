@@ -155,8 +155,8 @@ input[type=checkbox]{width:13px;height:13px;accent-color:#d8ccff;cursor:pointer;
 .pt-hd span{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5a5a78;padding:0 8px}
 .pt-row{display:grid;grid-template-columns:28px 1fr 60px 76px;border-bottom:1px solid #f0f0f4;align-items:center}
 /* 工区カラム有効時 */
-.pt-wrap.kuiku-on .pt-hd{grid-template-columns:28px 1fr 60px 76px 76px}
-.pt-wrap.kuiku-on .pt-row{grid-template-columns:28px 1fr 60px 76px 76px}
+.pt-wrap.kuiku-on .pt-hd{grid-template-columns:28px minmax(0,1fr) 48px 58px 52px}
+.pt-wrap.kuiku-on .pt-row{grid-template-columns:28px minmax(0,1fr) 48px 58px 52px}
 #ptHdKuiku{text-align:center}
 .pt-row input[id^="pz"]{text-align:center;font-size:11px}
 .pt-row:last-child{border-bottom:none}
@@ -1896,7 +1896,7 @@ body.page-contact .guide-pixel-btn:hover{
   border:2px solid #000;
   border-radius:0;
   box-shadow:0 0 0 2px #fff, inset 0 0 0 2px #fff;
-  padding:18px 18px;
+  padding:28px 18px 18px;
   min-height:0;
   overflow:visible;
 }
@@ -1908,17 +1908,27 @@ body.page-contact .guide-pixel-btn:hover{
   pointer-events:none;
 }
 .contact-card-title{
-  display:inline-block;
+  position:absolute;
+  top:0;
+  left:18px;
+  transform:translateY(-50%);
+  display:inline-flex;
+  align-items:center;
   font-family:'Press Start 2P','DotGothic16','Noto Sans JP',monospace;
   font-size:12px;
   line-height:1.9;
   font-weight:700;
   color:#fff;
-  margin-bottom:22px;
-  padding:8px 14px;
-  background:#000;
-  border:2px solid #000;
-  box-shadow:0 0 0 2px #fff, inset 0 0 0 2px #fff;
+  margin:0;
+  padding:0 8px;
+  background:#fff;
+  border:none;
+  box-shadow:none;
+  z-index:2;
+}
+.contact-card-title::before,
+.contact-card-title::after{
+  content:none;
 }
 .contact-title{
   font-family:'Press Start 2P','DotGothic16','Noto Sans JP',monospace;
@@ -4512,8 +4522,25 @@ html[data-theme="dark"] .contact-pen-l
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:12px;
   margin-bottom:12px;
   min-height:36px;
+}
+
+.w-topbar-main{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
+}
+.w-doc-title-text{
+  color:#1a1a2e;
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 /* ブレッドクラム（重量計算 / 一覧 (N件)） */

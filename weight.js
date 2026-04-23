@@ -23,6 +23,10 @@ var _wJobClient = (function() {
   try { return localStorage.getItem('wJobClient') || ''; }
   catch (e) { return ''; }
 })();
+var _wDocTitle = (function() {
+  try { return localStorage.getItem('wDocTitle') || ''; }
+  catch (e) { return ''; }
+})();
 
 // コマンドパレット
 var _wCmdAll = [];
@@ -122,6 +126,8 @@ function wInit() {
         label: firstKind + ' ' + _wSpecName(firstSpec)
       });
       cmdInput.value = '';
+      var cmdKgm = document.getElementById('wCmdKgm');
+      if (cmdKgm) cmdKgm.textContent = '';
       cmdInput.placeholder = 'H100 / F9 / RB32';
     }
   }
@@ -137,12 +143,14 @@ function wInit() {
   if (wci) wci.value = _wJobClient;
   var wni = document.getElementById('wJobNameInput');
   if (wni) wni.value = _wJobName;
+  var wdt = document.getElementById('wDocTitle');
+  if (wdt) wdt.value = _wDocTitle;
 }
 
 // ── Enter フロー ──────────────────────────────────────────────
 function wNextOptOrAdd(from) {
-  var order    = ['price', 'name'];
-  var fieldMap = { price: 'wPrice', name: 'wMemo' };
+  var order    = ['price', 'name', 'title'];
+  var fieldMap = { price: 'wPrice', name: 'wMemo', title: 'wDocTitle' };
   var startIdx = (from === 'qty') ? 0 : order.indexOf(from) + 1;
   for (var i = startIdx; i < order.length; i++) {
     var opt = order[i];
@@ -249,7 +257,7 @@ function wToggleOpt(opt) {
 
   if (_wOpts[opt]) {
     // チップ ON → その欄にフォーカス
-    var focusMap = { price:'wPrice', name:'wMemo', paint:'wPaintPrice', rev:'wRevKg' };
+    var focusMap = { price:'wPrice', name:'wMemo', paint:'wPaintPrice', title:'wDocTitle', rev:'wRevKg' };
     var focusId  = focusMap[opt];
     if (focusId) {
       setTimeout(function() {
@@ -329,6 +337,9 @@ function wOnSpec() {
   var kgm  = hit ? Number(hit[1]) : 0;
   kgmEl.value = kgm > 0 ? String(kgm) : '';
   if (kgmValEl) kgmValEl.textContent = kgm > 0 ? kgm + ' kg/m' : '';
+  var cmdInput = document.getElementById('wCmdInput');
+  var kgmDisp = document.getElementById('wCmdKgm');
+  if (kgmDisp) kgmDisp.textContent = (cmdInput && (cmdInput.value || '').trim()) ? (kgm > 0 ? kgm + ' kg/m' : '') : '';
   wPreview();
 }
 
@@ -357,6 +368,17 @@ function wPreview() {
   var qtyEl = document.getElementById('wQty');
   if (!kgmEl || !lenEl || !qtyEl) return;
   // （プレビュー表示：必要に応じて拡張可能）
+}
+
+function wSaveDocTitle() {
+  var el = document.getElementById('wDocTitle');
+  _wDocTitle = el ? String(el.value || '').trim() : '';
+  try { localStorage.setItem('wDocTitle', _wDocTitle); } catch (e) {}
+  wRenderRows();
+}
+
+function wGetPrintTitle() {
+  return _wDocTitle || '重量リスト';
 }
 
 // ── 行追加・編集 ───────────────────────────────────────────────
@@ -459,7 +481,7 @@ function wEditRow(idx) {
   var cmdInput = document.getElementById('wCmdInput');
   var kgmDisp  = document.getElementById('wCmdKgm');
   if (cmdInput) cmdInput.value = r.kind + '　' + r.spec;
-  if (kgmDisp)  kgmDisp.textContent = r.kgm ? r.kgm + ' kg/m' : '';
+  if (kgmDisp)  kgmDisp.textContent = (cmdInput && (cmdInput.value || '').trim() && r.kgm) ? (r.kgm + ' kg/m') : '';
 
   var lenEl = document.getElementById('wLen');
   var qtyEl = document.getElementById('wQty');
@@ -695,11 +717,13 @@ function wRenderRows() {
 
   var topBar    = document.getElementById('wTopBar');
   var crumbCnt  = document.getElementById('wCrumbCount');
+  var titleText = document.getElementById('wDocTitleText');
 
   if (_wRows.length === 0) {
     empty.style.display = 'flex';
     tableWrap.style.display = 'none';
     if (topBar)  topBar.style.display  = 'none';
+    if (titleText) titleText.style.display = 'none';
     if (cartBtn) cartBtn.style.display = 'none';
     if (mainHd)  mainHd.style.display  = 'none';
     return;
@@ -708,6 +732,10 @@ function wRenderRows() {
   empty.style.display = 'none';
   tableWrap.style.display = 'block';
   if (topBar)   topBar.style.display   = 'flex';
+  if (titleText) {
+    titleText.textContent = '印刷タイトル　' + wGetPrintTitle();
+    titleText.style.display = '';
+  }
   if (crumbCnt) crumbCnt.textContent = '(' + _wRows.length + '件)';
   if (cartBtn) cartBtn.style.display = '';
   if (mainHd)  mainHd.style.display  = 'flex';
@@ -883,7 +911,8 @@ function wSaveCalc() {
     rows: JSON.parse(JSON.stringify(_wRows)),
     opts: JSON.parse(JSON.stringify(_wOpts)),
     jobName: _wJobName,
-    jobClient: _wJobClient
+    jobClient: _wJobClient,
+    docTitle: _wDocTitle
   };
   _wSavedCalcs.unshift(rec);
   if (_wSavedCalcs.length > 20) _wSavedCalcs.pop();
@@ -908,7 +937,8 @@ function wSaveJobInfo() {
 function wGetJobForHistory() {
   return {
     client: _wJobClient || '',
-    name:   _wJobName   || ''
+    name:   _wJobName   || '',
+    docTitle: _wDocTitle || ''
   };
 }
 
@@ -919,9 +949,11 @@ function wLoadCalc(id) {
   _wRows = JSON.parse(JSON.stringify(rec.rows));
   _wJobName = (rec.jobName || '').trim();
   _wJobClient = (rec.jobClient || '').trim();
+  _wDocTitle = (rec.docTitle || '').trim();
   try {
     localStorage.setItem('wJobName',   _wJobName);
     localStorage.setItem('wJobClient', _wJobClient);
+    localStorage.setItem('wDocTitle', _wDocTitle);
   } catch (e) {}
   Object.keys(rec.opts || {}).forEach(function(key) {
     if (_wOpts[key] !== rec.opts[key]) wToggleOpt(key);
@@ -931,6 +963,8 @@ function wLoadCalc(id) {
   if (wci) wci.value = _wJobClient;
   var wni = document.getElementById('wJobNameInput');
   if (wni) wni.value = _wJobName;
+  var wdt = document.getElementById('wDocTitle');
+  if (wdt) wdt.value = _wDocTitle;
   wRenderRows();
 }
 
@@ -950,7 +984,13 @@ function wRecallFromHistory(rows, opts, job) {
     _wJobName = job.name;
     try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
   }
+  if (job && job.docTitle) {
+    _wDocTitle = job.docTitle;
+    try { localStorage.setItem('wDocTitle', _wDocTitle); } catch (e) {}
+  }
   _wCartAdded = false;
+  var wdt = document.getElementById('wDocTitle');
+  if (wdt) wdt.value = _wDocTitle;
   wRenderRows();
 }
 
@@ -1302,7 +1342,12 @@ function wCmdFilter() {
   var dd    = document.getElementById('wCmdDropdown');
   if (!input || !dd) return;
   var q = input.value.trim().toLowerCase();
-  if (!q) { dd.style.display = 'none'; return; }
+  if (!q) {
+    var kgmDisp = document.getElementById('wCmdKgm');
+    if (kgmDisp) kgmDisp.textContent = '';
+    dd.style.display = 'none';
+    return;
+  }
   var kindFilter = null;
   for (var pi = 0; pi < W_PREFIX_MAP.length; pi++) {
     var pm = W_PREFIX_MAP[pi];
@@ -1364,7 +1409,7 @@ function wCmdSelect(it) {
   if (kgmEl)    kgmEl.value         = String(it.kgm);
   if (kgmValEl) kgmValEl.textContent = it.kgm + ' kg/m';
   if (input)    input.value         = it.kind + '　' + it.spec;
-  if (kgmDisp)  kgmDisp.textContent = it.kgm + ' kg/m';
+  if (kgmDisp)  kgmDisp.textContent = (input && (input.value || '').trim()) ? (it.kgm + ' kg/m') : '';
   if (dd)       dd.style.display    = 'none';
   _wCmdIdx = -1;
   document.removeEventListener('click', wCmdOutside);
@@ -1411,4 +1456,93 @@ function wCmdKey(e) {
     items[_wCmdIdx].classList.add('cmd-focus');
     items[_wCmdIdx].scrollIntoView({ block: 'nearest' });
   }
+}
+
+// 最新版の印刷処理
+function wPrint() {
+  if (_wRows.length === 0) { alert('リストが空です。'); return; }
+  if (typeof saveWeightHistory === 'function') {
+    saveWeightHistory(
+      JSON.parse(JSON.stringify(_wRows)),
+      JSON.parse(JSON.stringify(_wOpts)),
+      wGetJobForHistory()
+    );
+  }
+
+  var CO2_FACTOR = 2.1;
+  var optName  = !!_wOpts.name;
+  var optCo2   = !!_wOpts.co2;
+  var optM2    = !!_wOpts.m2;
+  var optPrice = !!_wOpts.price;
+  var optPaint = !!_wOpts.paint;
+  var printTitle = _esc(wGetPrintTitle());
+
+  var sumKg = 0, sumAmt = 0, sumPaint = 0, sumCo2 = 0, sumM2 = 0;
+  var rows = _wRows.map(function(r, i) {
+    sumKg += r.kgTotal;
+    sumCo2 += r.kgTotal * CO2_FACTOR;
+    sumM2 += (r.m2Total || 0);
+    if (r.amount !== null) sumAmt += r.amount;
+    if (r.paintAmount !== null) sumPaint += r.paintAmount;
+    var memoStr = r.memo ? _esc(r.memo) : '—';
+    return '<tr>' +
+      '<td style="text-align:center">' + (i + 1) + '</td>' +
+      (optName ? '<td>' + memoStr + '</td>' : '') +
+      '<td>' + _esc(r.kind) + '</td>' +
+      '<td>' + _esc(r.spec) + '</td>' +
+      '<td style="text-align:right">' + r.len.toLocaleString() + '</td>' +
+      '<td style="text-align:right">' + r.qty + '</td>' +
+      '<td style="text-align:right;font-weight:700">' + _wFmtKg(r.kgTotal) + '</td>' +
+      (optCo2   ? '<td style="text-align:right">' + (r.kgTotal * CO2_FACTOR).toFixed(1) + ' kg-CO₂</td>' : '') +
+      (optM2    ? '<td style="text-align:right">' + _wFmt(r.m2Total || 0, 2) + '</td>' : '') +
+      (optPrice ? (r.amount !== null
+        ? '<td style="text-align:right">' + _wFmt(r.amount, 0) + '<br><small>@' + r.price + '円/kg</small></td>'
+        : '<td style="text-align:center;color:#ccc">—</td>') : '') +
+      (optPaint ? (r.paintAmount !== null
+        ? '<td style="text-align:right">' + _wFmt(r.paintAmount, 0) + '<br><small>@' + r.paintPrice + '円/m²</small></td>'
+        : '<td style="text-align:center;color:#ccc">—</td>') : '') +
+      '</tr>';
+  }).join('');
+
+  var jobHeader = '';
+  if (_wJobClient || _wJobName) {
+    jobHeader = '<p style="margin:0 0 6px;font-size:11px;color:#555">' +
+      (_wJobClient ? '顧客名: ' + _esc(_wJobClient) + '　' : '') +
+      (_wJobName   ? '工事名: ' + _esc(_wJobName)   : '') +
+      '</p>';
+  }
+
+  var footLeadCols = 5 + (optName ? 1 : 0);
+  var html = '<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>' + printTitle + '</title>' +
+    '<style>*{box-sizing:border-box}body{font-family:sans-serif;font-size:11px;padding:16px}' +
+    'h2{font-size:13px;margin-bottom:4px}' +
+    'table{border-collapse:collapse;width:100%}' +
+    'th,td{border:1px solid #ddd;padding:5px 8px}' +
+    'th{background:#f4f4fa;font-size:10px;font-weight:600}' +
+    'tfoot td{font-weight:700;background:#f8f8fc}' +
+    'small{color:#aaa}' +
+    '@media print{body{padding:0}}' +
+    '</style></head><body>' +
+    '<h2>' + printTitle + '</h2>' + jobHeader +
+    '<table><thead><tr>' +
+    '<th>#</th>' +
+    (optName  ? '<th>部材名</th>' : '') +
+    '<th>種類</th><th>規格</th>' +
+    '<th>長さ(mm)</th><th>本数</th><th>合計重量(kg)</th>' +
+    (optCo2   ? '<th>CO₂(kg-CO₂)</th>' : '') +
+    (optM2    ? '<th>塗装面積(m²)</th>' : '') +
+    (optPrice ? '<th>概算金額(円)</th>' : '') +
+    (optPaint ? '<th>塗装金額(円)</th>' : '') +
+    '</tr></thead><tbody>' + rows + '</tbody>' +
+    '<tfoot><tr>' +
+    '<td colspan="' + footLeadCols + '" style="text-align:right">合　計</td>' +
+    '<td style="text-align:right">' + _wFmtKg(sumKg) + ' kg</td>' +
+    (optCo2   ? '<td style="text-align:right">' + sumCo2.toFixed(1) + ' kg-CO₂</td>' : '') +
+    (optM2    ? '<td style="text-align:right">' + _wFmt(sumM2, 2) + '</td>' : '') +
+    (optPrice ? '<td style="text-align:right">' + (sumAmt   > 0 ? _wFmt(sumAmt, 0) + ' 円' : '—') + '</td>' : '') +
+    (optPaint ? '<td style="text-align:right">' + (sumPaint > 0 ? _wFmt(sumPaint, 0) + ' 円' : '—') + '</td>' : '') +
+    '</tr></tfoot></table></body></html>';
+
+  var w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); setTimeout(function(){ w.print(); }, 300); }
 }
