@@ -2323,8 +2323,19 @@ function renderDataSpec() {
 
   // 断面性能グリッド（規格切替えのたびに必ず折りたたみ状態へ戻す）
   const perfWrap = document.getElementById('dataPerfWrap');
-  if (perfWrap) perfWrap.classList.add('is-collapsed');
+  const perfToggle = document.getElementById('dataPerfToggle');
+  const perfAction = document.getElementById('dataPerfAction');
+  if (perfWrap) {
+    perfWrap.classList.add('is-collapsed');
+    perfWrap.setAttribute('data-collapsed', 'true');
+  }
+  if (perfToggle) perfToggle.setAttribute('aria-expanded', 'false');
+  if (perfAction) perfAction.textContent = '開く';
   const perfEl = document.getElementById('dataPerfGrid');
+  if (perfEl) {
+    perfEl.hidden = true;
+    perfEl.style.display = 'none';
+  }
   if (perfEl) {
     var _p = function(label, value, unit) {
       var u = unit ? '<span class="unit">' + unit + '</span>' : '';
@@ -2372,6 +2383,20 @@ function renderDataSpec() {
 
   // 殴り書きメモ表示
   renderDataNote(spec.name);
+}
+
+function toggleDataPerfSection() {
+  var perfWrap = document.getElementById('dataPerfWrap');
+  var perfEl = document.getElementById('dataPerfGrid');
+  var perfToggle = document.getElementById('dataPerfToggle');
+  var perfAction = document.getElementById('dataPerfAction');
+  if (!perfWrap || !perfEl) return;
+  var collapsed = perfWrap.classList.toggle('is-collapsed');
+  perfWrap.setAttribute('data-collapsed', collapsed ? 'true' : 'false');
+  if (perfToggle) perfToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  if (perfAction) perfAction.textContent = collapsed ? '開く' : '閉じる';
+  perfEl.hidden = collapsed;
+  perfEl.style.display = collapsed ? 'none' : 'grid';
 }
 
 // ── 定尺チップ（鋼種ごと・ユーザー編集可能） ─────────────────

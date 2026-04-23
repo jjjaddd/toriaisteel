@@ -530,7 +530,7 @@ function buildSinglePrintHtml(job, spec, payload, endLoss) {
     var safeLen = parseInt(slLen, 10) || 0;
     if (!safeLen) return '母材未設定';
     return isStdStockLength(safeLen)
-      ? safeLen.toLocaleString() + 'mm 定尺'
+      ? safeLen.toLocaleString() + 'mm'
       : '残材 L=' + safeLen.toLocaleString() + 'mm';
   };
 
@@ -1539,6 +1539,23 @@ renderInventoryPage = function() {
 })();
 
 (function enforceHistoryNewestFirst() {
+  function historyContainsKind(entry, kind) {
+    if (!kind || !entry) return true;
+    if (entry.kind === kind) return true;
+    if (entry.project) {
+      if (typeof entry.project.kind === 'string') {
+        var parts = entry.project.kind.split('/').map(function(v) { return v.trim(); });
+        if (parts.indexOf(kind) >= 0) return true;
+      }
+      if (Array.isArray(entry.project.sections)) {
+        return entry.project.sections.some(function(section) {
+          return section && section.kind === kind;
+        });
+      }
+    }
+    return false;
+  }
+
   renderHistory = function() {
     var cont = document.getElementById('histList');
     var empty = document.getElementById('histEmpty');
@@ -1563,7 +1580,7 @@ renderInventoryPage = function() {
     if (fdf && !chipFrom) hist = hist.filter(function(h) { return parseDateValue(h.date) >= parseDateValue(fdf); });
     if (fdt && !chipTo)   hist = hist.filter(function(h) { return parseDateValue(h.date) <= parseDateValue(fdt); });
     if (fs) hist = hist.filter(function(h) { return (h.spec || '') === fs; });
-    if (fk) hist = hist.filter(function(h) { return (h.kind || '') === fk; });
+    if (fk) hist = hist.filter(function(h) { return historyContainsKind(h, fk); });
     if (keyword) hist = hist.filter(function(h) { return [h.client, h.name, h.spec, h.kind, h.worker].join(' ').toLowerCase().indexOf(keyword) >= 0; });
 
     // 種別フィルター
@@ -1594,6 +1611,9 @@ renderInventoryPage = function() {
     var countLabel = document.getElementById('hiCountLabel');
     if (countLabel) countLabel.textContent = hist.length.toLocaleString() + '件';
 
+    cont.style.display = 'flex';
+    cont.style.flexDirection = 'column';
+    cont.style.gap = '14px';
     cont.innerHTML = pageData.items.map(function(h) {
       var isWeight = h.type === 'weight';
       if (isWeight) {
@@ -1602,7 +1622,7 @@ renderInventoryPage = function() {
         var amtStr  = w.sumAmt != null ? '概算 ' + Math.round(w.sumAmt).toLocaleString() + ' 円' : '';
         var rowCount = (w.rows || []).length;
         var clientLabel = h.client || '';
-        return '<div class="hi-card hi-card--weight" onclick="showWeightHistPreview(' + h.id + ')">' +
+        return '<div class="hi-card hi-card--weight" style="background:#fff;border:1px solid #d9dde6;border-radius:18px;padding:18px 18px;box-shadow:0 12px 28px rgba(17,17,17,.08);margin:0;" onclick="showWeightHistPreview(' + h.id + ')">' +
           '<div class="hi-card-top">' +
             '<div style="display:flex;align-items:center;gap:6px">' +
               '<span class="hi-tag hi-tag-weight">⚖ 重量</span>' +
@@ -1625,7 +1645,7 @@ renderInventoryPage = function() {
       if (h.type === 'cut_project' && h.project) {
         var sectionCount = (h.project.sections || []).length;
         var projectClient = h.client || '顧客未設定';
-        return '<div class="hi-card" onclick="showHistPreview(' + h.id + ')">' +
+        return '<div class="hi-card" style="background:#fff;border:1px solid #d9dde6;border-radius:18px;padding:18px 18px;box-shadow:0 12px 28px rgba(17,17,17,.08);margin:0;" onclick="showHistPreview(' + h.id + ')">' +
           '<div class="hi-card-top">' +
             '<div class="hi-card-client">' + escapeHtml(projectClient) + '</div>' +
             '<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0">' +
@@ -1645,7 +1665,7 @@ renderInventoryPage = function() {
       var remCount   = h.result && h.result.remnants ? h.result.remnants.length : 0;
       var specLabel  = h.spec   || '規格未設定';
       var clientLabel = h.client || '顧客未設定';
-      return '<div class="hi-card" onclick="showHistPreview(' + h.id + ')">' +
+      return '<div class="hi-card" style="background:#fff;border:1px solid #d9dde6;border-radius:18px;padding:18px 18px;box-shadow:0 12px 28px rgba(17,17,17,.08);margin:0;" onclick="showHistPreview(' + h.id + ')">' +
         '<div class="hi-card-top">' +
           '<div class="hi-card-client">' + escapeHtml(clientLabel) + '</div>' +
           '<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0">' +

@@ -2177,6 +2177,47 @@ html[data-theme="dark"] .cc *[style*="color: #1a1a2e"] {
 html[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg2) !important; }
 html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--ink3) !important; }
 
+/* History Panel hard overrides */
+#hip #hiPanelH,
+#hip #hiPanelH .hi-panel-layout,
+#hip #hiPanelH .hi-sb-main {
+  background: #f5f5f7 !important;
+}
+
+#hip #hiPanelH .hi-panel-layout {
+  background: linear-gradient(90deg, #ffffff 0 280px, #f5f5f7 280px 100%) !important;
+}
+
+#hip #hiPanelH #histList {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+
+#hip #hiPanelH .hist-row,
+#hip #hiPanelH .hist-job-group,
+#hip #hiPanelH .hist-job-body,
+#hip #hiPanelH .hist-job-hd {
+  background: #ffffff !important;
+}
+
+#hip #hiPanelH .hist-row,
+#hip #hiPanelH .hist-job-group {
+  border: 1px solid #d9dde6 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 28px rgba(17,17,17,.08) !important;
+}
+
+#hip #hiPanelH .hist-row {
+  padding: 20px 18px !important;
+  margin-bottom: 0 !important;
+}
+
+#hip #hiPanelH .hist-row:hover,
+#hip #hiPanelH .hist-job-hd:hover {
+  background: #ffffff !important;
+}
+
 /* ══════════════════════════════════════════════════════════════
    § 35  COMPONENT NORMALIZATION
    ─ ボタン・入力・カードを統一ルールに揃える ─

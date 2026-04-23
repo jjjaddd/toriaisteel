@@ -79,12 +79,13 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   <div class="logo" onclick="goPage('c')" style="cursor:pointer">
     <img class="logo-image" src="logo-toriai-outline-3d-black-transparent.svg" alt="TORIAI">
   </div>
-  <nav>
-    <a id="na" class="" onclick="goPage(&#39;c&#39;)">取り合い</a>
-    <a id="nw" onclick="goPage(&#39;w&#39;)">重量計算</a>
-    <a id="nd" onclick="goPage('data')">データ</a>
-    <a id="nhi" onclick="goPage(&#39;hi&#39;);hiSwitch(&#39;h&#39;)" class="active">履歴・在庫</a>
-    <a id="nco" onclick="goPage('contact')">お問い合わせ</a>
+  <nav aria-label="ページ切替">
+    <a id="na" class="active" href="javascript:void(0)" onclick="goPage('c')">取り合い</a>
+    <a id="nw" href="javascript:void(0)" onclick="goPage('w')">重量計算</a>
+    <a id="nd" href="javascript:void(0)" onclick="goPage('data')">データ</a>
+    <a id="ninv" href="javascript:void(0)" onclick="goPage('inv')">在庫</a>
+    <a id="nhist" href="javascript:void(0)" onclick="goPage('hist')">履歴</a>
+    <a id="nco" href="javascript:void(0)" onclick="goPage('contact')">お問い合わせ</a>
   </nav>
   <div class="hdr-right">
     <button id="guideBtn" class="guide-pixel-btn" type="button" onclick="openCalcOnboarding()" aria-label="使い方ガイド">？</button>
@@ -99,7 +100,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
-          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.2</span></span>
+          <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.3</span></span>
           <span class="hm-version-arrow">›</span>
         </button>
       </div>
@@ -109,7 +110,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <div class="ham-overlay" id="ddOverlay" onclick="closeHeaderMenu()"></div>
 
 <!-- CALC PAGE -->
-<div id="cp" class="pg">
+<div id="cp" class="pg show">
 <div class="layout" id="pageCalcLayout">
 
 <aside class="sb">
@@ -193,7 +194,6 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 </div>
 <main class="mn" id="rp">
   <div class="ph" id="ph">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".25"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg>
     <p>設定・部材を入力して「計算を実行する」を押してください</p>
     <small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>
   </div>
@@ -204,8 +204,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
 <!-- HISTORY PAGE / 切断履歴 -->
 <!-- 履歴・在庫統合ページ -->
-<div id="hip" class="pg show">
-  <div class="hi-tabs">
+<div id="hip" class="pg">
+  <div class="hi-tabs" style="display:none">
     <div class="hi-tab hi-tab-active" id="hiTabH" onclick="hiSwitch(&#39;h&#39;)">作業履歴</div>
     <div class="hi-tab" id="hiTabI" onclick="hiSwitch(&#39;i&#39;)">残材在庫</div>
   </div>
@@ -268,10 +268,6 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
               <label>期間（終了）</label>
               <input type="date" id="hsDateTo" oninput="historyPage=1;renderHistory()">
             </div>
-            <div class="hi-df hi-df--full">
-              <label>鋼材規格</label>
-              <select id="hsSt" onchange="historyPage=1;renderHistory()"><option value="">すべて</option></select>
-            </div>
           </div>
           <div class="hi-df-footer">
             <button onclick="clearHistSearch()">クリア</button>
@@ -287,7 +283,6 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
               <option value="date_desc">新しい順</option>
               <option value="date_asc">古い順</option>
               <option value="deadline_asc">納期が近い順</option>
-              <option value="spec_asc">規格順</option>
             </select>
           </div>
         </div>
@@ -322,6 +317,20 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
       <!-- ── Main ── -->
       <div class="hi-sb-main">
+
+        <div class="inv-head-row">
+          <div class="inv-summary-grid">
+            <div class="inv-summary-card">
+              <div class="inv-summary-label">在庫本数</div>
+              <div class="inv-summary-value" id="invSummaryCount">0本</div>
+            </div>
+            <div class="inv-summary-card">
+              <div class="inv-summary-label">合計重量</div>
+              <div class="inv-summary-value" id="invSummaryWeight">0.0 kg</div>
+            </div>
+          </div>
+          <button class="inv-add-open-btn" onclick="openInvAddModal()">＋ 残材を追加</button>
+        </div>
 
         <!-- Search toolbar -->
         <div class="hi-topbar">
@@ -366,7 +375,6 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
         <!-- List -->
         <div class="hi-list-area">
-          <button class="inv-add-open-btn" onclick="openInvAddModal()">＋ 手動で残材を追加</button>
           <div id="invListCont"></div>
           <div id="invPagination" class="pager"></div>
           <div id="invEmptyMsg" style="display:none;text-align:center;color:#aaa;padding:48px 0;font-size:13px">在庫がありません</div>
@@ -376,11 +384,11 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
     </div><!-- /hi-panel-layout -->
   </div>
 
-  <!-- ── 手動で残材を追加 モーダル ── -->
+  <!-- ── 残材を追加 モーダル ── -->
   <div id="invAddModal" class="inv-add-modal-overlay" onclick="if(event.target===this)closeInvAddModal()">
     <div class="inv-add-modal-box">
       <div class="inv-add-modal-hd">
-        <span>手動で残材を追加</span>
+        <span>残材を追加</span>
         <button class="inv-add-modal-close" onclick="closeInvAddModal()">✕</button>
       </div>
       <div class="inv-add-modal-body">
@@ -475,8 +483,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
             <div class="contact-info-list">
               <div class="contact-info-row"><span>受付時間</span><strong>平日 9:00 - 18:00</strong></div>
               <div class="contact-info-row"><span>通常返信</span><strong>2営業日以内</strong></div>
-              <div class="contact-info-row"><span>緊急</span><strong>support@toriai.app</strong></div>
-              <div class="contact-info-row"><span>バージョン</span><strong>v1.0.2</strong></div>
+              <div class="contact-info-row"><span>緊急</span><strong>support.toriai@gmail.com</strong></div>
+              <div class="contact-info-row"><span>バージョン</span><strong>v1.0.3</strong></div>
             </div>
           </section>
 
@@ -882,12 +890,16 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         </div>
 
         <!-- 断面性能 (デフォルト閉) -->
-        <div class="dim-section dt-collapsible is-collapsed" id="dataPerfWrap">
-          <h3 id="dataPerfToggle" class="dt-perf-toggle"
-            onclick="var s=document.getElementById('dataPerfWrap');s.classList.toggle('is-collapsed');">
-            断面性能 <span class="ico">参考値 <span class="dt-chev">▾</span></span>
+        <div class="dim-section dt-collapsible is-collapsed" id="dataPerfWrap" data-collapsed="true">
+          <h3 id="dataPerfToggle" class="dt-perf-toggle" onclick="toggleDataPerfSection()" aria-expanded="false">
+            <span class="dt-perf-title">断面性能</span>
+            <span class="ico dt-perf-meta">
+              <span class="dt-perf-note">参考値</span>
+              <span class="dt-perf-action" id="dataPerfAction">開く</span>
+              <span class="dt-chev">▾</span>
+            </span>
           </h3>
-          <div class="dim-grid" id="dataPerfGrid"></div>
+          <div class="dim-grid" id="dataPerfGrid" hidden></div>
         </div>
 
         <!-- 単位重量・塗装 等の補足 -->
@@ -958,7 +970,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   <script src="calc.js?v=ui27"></script>
   <script src="utils.js?v=ui27"></script>
   <script src="main.js?v=ui27"></script>
-  <script src="final-overrides.js?v=ui27"></script>
+  <script src="final-overrides.js?v=ui28"></script>
   <script src="weight.js?v=ui27"></script>
   <script src="data.js?v=ui39"></script>
   <script src="contact.js?v=ui27"></script>

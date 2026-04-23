@@ -247,14 +247,16 @@ function hiSwitch(tab) {
   var panI = document.getElementById('hiPanelI');
   if (panH) panH.style.display = showH ? 'block' : 'none';
   if (panI) panI.style.display = showH ? 'none' : 'block';
-  document.getElementById('hiTabH').classList.toggle('hi-tab-active', showH);
-  document.getElementById('hiTabI').classList.toggle('hi-tab-active', !showH);
+  var hiTabH = document.getElementById('hiTabH');
+  var hiTabI = document.getElementById('hiTabI');
+  if (hiTabH) hiTabH.classList.toggle('hi-tab-active', showH);
+  if (hiTabI) hiTabI.classList.toggle('hi-tab-active', !showH);
   // ナビもハイライト更新
-  ['na','nhi','nw','nd','nco'].forEach(function(id){
+  ['na','ninv','nhist','nw','nd','nco'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
-  var navEl = document.getElementById(showH ? 'nhi' : 'ninv');
+  var navEl = document.getElementById(showH ? 'nhist' : 'ninv');
   if (navEl) navEl.classList.add('active');
   if (showH) { buildHistSidebar(); buildHistSpecDropdown(); renderHistory(); }
   else { buildInvSidebar(); buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
@@ -303,7 +305,20 @@ function buildHistSidebar() {
   if (!cont) return;
   var hist = getCutHistory ? getCutHistory() : [];
   var kinds = [];
-  hist.forEach(function(h) { if (h.kind && kinds.indexOf(h.kind) < 0) kinds.push(h.kind); });
+  hist.forEach(function(h) {
+    if (h.kind) {
+      String(h.kind).split('/').forEach(function(part) {
+        var k = part.trim();
+        if (k && kinds.indexOf(k) < 0) kinds.push(k);
+      });
+    }
+    if (h.project && Array.isArray(h.project.sections)) {
+      h.project.sections.forEach(function(section) {
+        var k = section && section.kind ? String(section.kind).trim() : '';
+        if (k && kinds.indexOf(k) < 0) kinds.push(k);
+      });
+    }
+  });
   kinds.sort(function(a, b) { return a.localeCompare(b, 'ja'); });
   var currentKind = (document.getElementById('hsKind') || {}).value || '';
   cont.innerHTML = kinds.map(function(k) {
@@ -544,10 +559,17 @@ document.addEventListener('keydown', function(e) {
 
 function goPage(p) {
   document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('show'); });
+  document.body.classList.remove(
+    'sidebar-layout-active',
+    'page-calc-active',
+    'page-weight-active',
+    'page-data-active',
+    'page-history-active',
+    'page-contact-active'
+  );
   document.body.classList.toggle('page-contact', p === 'contact');
-  document.body.classList.toggle('page-calc-active', p === 'c');
   // ナビ全リセット
-  ['na','nhi','nw','nd','nco'].forEach(function(id){
+  ['na','ninv','nhist','nw','nd','nco'].forEach(function(id){
     var el = document.getElementById(id);
     if (el) el.classList.remove('active');
   });
@@ -589,10 +611,10 @@ function goPage(p) {
     if (nco) nco.classList.add('active');
   } else {
     var hip = document.getElementById('hip');
-    var nhi = document.getElementById('nhi');
     if (hip) hip.classList.add('show');
-    if (nhi) nhi.classList.add('active');
-    var showH = (p !== 'i');
+    var showH = (p === 'hist' || p === 'hi' || p === 'h');
+    var navHi = document.getElementById(showH ? 'nhist' : 'ninv');
+    if (navHi) navHi.classList.add('active');
     var hiPanelH = document.getElementById('hiPanelH');
     var hiPanelI = document.getElementById('hiPanelI');
     var hiTabH = document.getElementById('hiTabH');
@@ -602,7 +624,17 @@ function goPage(p) {
     if (hiTabH) hiTabH.classList.toggle('hi-tab-active', showH);
     if (hiTabI) hiTabI.classList.toggle('hi-tab-active', !showH);
     if (showH) { buildHistSidebar(); buildHistSpecDropdown(); renderHistory(); }
-    else { buildInvSidebar(); buildInvFilterKind(); buildInvAddKind(); renderInventoryPage(); }
+    else {
+      buildInvSidebar();
+      buildInvFilterKind();
+      buildInvAddKind();
+      renderInventoryPage();
+      setTimeout(function() {
+        if (typeof updateInventorySummary === 'function' && typeof getInventory === 'function') {
+          updateInventorySummary(getInventory());
+        }
+      }, 0);
+    }
   }
 }
 
@@ -1303,19 +1335,32 @@ function buildJobDatalist() {
 function buildHistSpecDropdown() {
   var sel = document.getElementById('hsSt');
   if (!sel) return;
-  var hist = getCutHistory();
-  var specs = [];
-  hist.forEach(function(h){ if(h.spec && specs.indexOf(h.spec)<0) specs.push(h.spec); });
-  specs.sort();
-  var cur = sel.value;
-  sel.innerHTML = '<option value="">すべて</option>' +
-    specs.map(function(s){ return '<option value="'+s+'"'+(s===cur?' selected':'')+'>'+s+'</option>'; }).join('');
+  sel.innerHTML = '<option value="">すべて</option>';
+}
+
+function historyHasKind(h, kind) {
+  if (!kind || !h) return true;
+  if (h.kind === kind) return true;
+  if (h.project) {
+    if (typeof h.project.kind === 'string' && h.project.kind.split('/').map(function(v){ return v.trim(); }).indexOf(kind) >= 0) {
+      return true;
+    }
+    if (Array.isArray(h.project.sections)) {
+      return h.project.sections.some(function(section) {
+        return section && section.kind === kind;
+      });
+    }
+  }
+  return false;
 }
 
 // alias
 function renderInventory() { renderInventoryPage(); }
 
 // ── 履歴ページ描画 ──
+var HIST_CARD_INLINE_STYLE = 'background:#ffffff;border:1px solid #d9dde6;border-radius:18px;padding:20px 18px;box-shadow:0 12px 28px rgba(17,17,17,.08);margin:0;';
+var HIST_GROUP_INLINE_STYLE = 'background:#ffffff;border:1px solid #d9dde6;border-radius:18px;box-shadow:0 12px 28px rgba(17,17,17,.08);overflow:hidden;margin:0;';
+
 function _renderHistRow(h) {
   var isWeight = h.type === 'weight';
   if (isWeight) {
@@ -1323,56 +1368,68 @@ function _renderHistRow(h) {
     var kgStr = w.sumKg ? (Math.round(w.sumKg * 10) / 10).toLocaleString() + ' kg' : '—';
     var amtStr = w.sumAmt != null ? '概算 ' + Math.round(w.sumAmt).toLocaleString() + ' 円' : '';
     var rowCount = (w.rows || []).length;
-    return '<div class="hist-row hist-row--weight" onclick="recallWeightHistory(' + h.id + ')">' +
-      '<div class="hist-row-main">' +
-        '<div style="display:flex;align-items:center;gap:6px">' +
-          '<span class="hist-type-badge hist-type-badge--weight">⚖ 重量</span>' +
-          '<span class="hist-client">' + (h.client || '') + '</span>' +
-          '<span class="hist-name">' + (h.name || '') + '</span>' +
+    return '<div class="hist2-card hist2-card--weight" style="' + HIST_CARD_INLINE_STYLE + '" onclick="recallWeightHistory(' + h.id + ')">' +
+      '<div class="hist2-main">' +
+        '<div class="hist2-head">' +
+          '<span class="hist2-type hist2-type--weight">重量計算</span>' +
+          '<div class="hist2-title-group">' +
+            '<span class="hist2-client">' + (h.client || '顧客未設定') + '</span>' +
+            (h.name ? '<span class="hist2-name">' + h.name + '</span>' : '') +
+          '</div>' +
         '</div>' +
-        '<div class="hist-meta">' +
-          '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
-          '<span class="hist-rem">' + rowCount + '行</span>' +
-          '<span class="hist-rem" style="font-weight:700;color:#1a1a2e">' + kgStr + '</span>' +
-          (amtStr ? '<span class="hist-rem">' + amtStr + '</span>' : '') +
+        '<div class="hist2-meta">' +
+          '<span class="hist2-chip">' + rowCount + '行</span>' +
+          '<span class="hist2-chip hist2-chip--strong">' + kgStr + '</span>' +
+          (amtStr ? '<span class="hist2-chip">' + amtStr + '</span>' : '') +
         '</div>' +
       '</div>' +
-      '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+      '<div class="hist2-side">' +
+        '<span class="hist2-date">' + (h.dateLabel || '') + '</span>' +
+        '<button class="hist2-del" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+      '</div>' +
     '</div>';
   }
   if (h.type === 'cut_project' && h.project) {
     var sectionCount = (h.project.sections || []).length;
-    return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
-      '<div class="hist-row-main">' +
-        '<div style="display:flex;align-items:center;gap:6px">' +
-          '<span class="hist-type-badge hist-type-badge--cut">✂ 物件</span>' +
-          '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
-          '<span class="hist-name">' + (h.name || '') + '</span>' +
+    return '<div class="hist2-card" style="' + HIST_CARD_INLINE_STYLE + '" onclick="showHistPreview(' + h.id + ')">' +
+      '<div class="hist2-main">' +
+        '<div class="hist2-head">' +
+          '<span class="hist2-type hist2-type--cut">作業指示</span>' +
+          '<div class="hist2-title-group">' +
+            '<span class="hist2-client">' + (h.client || '顧客未設定') + '</span>' +
+            (h.name ? '<span class="hist2-name">' + h.name + '</span>' : '') +
+          '</div>' +
         '</div>' +
-        '<div class="hist-meta">' +
-          '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
-          '<span class="hist-rem">鋼材: ' + sectionCount + '件</span>' +
-          '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
+        '<div class="hist2-meta">' +
+          '<span class="hist2-chip">鋼材: ' + sectionCount + '件</span>' +
+          '<span class="hist2-chip">納期: ' + (h.deadline || '-') + '</span>' +
         '</div>' +
       '</div>' +
-      '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+      '<div class="hist2-side">' +
+        '<span class="hist2-date">' + (h.dateLabel || '') + '</span>' +
+        '<button class="hist2-del" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+      '</div>' +
     '</div>';
   }
   var remCount = h.result && h.result.remnants ? h.result.remnants.length : 0;
-  return '<div class="hist-row" onclick="showHistPreview(' + h.id + ')">' +
-    '<div class="hist-row-main">' +
-      '<div style="display:flex;align-items:center;gap:6px">' +
-        '<span class="hist-type-badge hist-type-badge--cut">✂ 取り合い</span>' +
-        '<span class="hist-client">' + (h.client || '案件未設定') + '</span>' +
-        '<span class="hist-name">' + (h.name || '') + '</span>' +
-      '</div>' +
-      '<div class="hist-meta">' +
-        '<span class="hist-rem">登録: ' + (h.dateLabel || '') + '</span>' +
-        '<span class="hist-rem">納期: ' + (h.deadline || '-') + '</span>' +
-        '<span class="hist-rem">端材: ' + remCount + '本</span>' +
+  return '<div class="hist2-card" style="' + HIST_CARD_INLINE_STYLE + '" onclick="showHistPreview(' + h.id + ')">' +
+    '<div class="hist2-main">' +
+        '<div class="hist2-head">' +
+          '<span class="hist2-type hist2-type--cut">取り合い</span>' +
+          '<div class="hist2-title-group">' +
+            '<span class="hist2-client">' + (h.client || '顧客未設定') + '</span>' +
+            (h.name ? '<span class="hist2-name">' + h.name + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="hist2-meta">' +
+        '<span class="hist2-chip">納期: ' + (h.deadline || '-') + '</span>' +
+        '<span class="hist2-chip">端材: ' + remCount + '本</span>' +
       '</div>' +
     '</div>' +
-    '<button class="hist-del-btn" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+    '<div class="hist2-side">' +
+      '<span class="hist2-date">' + (h.dateLabel || '') + '</span>' +
+      '<button class="hist2-del" onclick="event.stopPropagation();deleteCutHistory(' + h.id + ')">削除</button>' +
+    '</div>' +
   '</div>';
 }
 
@@ -1589,7 +1646,10 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           slGroupsY[sl].push(rb);
         });
       }
-      var sortedSlsY = Object.keys(slGroupsY).map(Number).sort(function(a,b){return b-a;});
+      var sortedSlsY = sortStockLengthsForDisplay(Object.keys(slGroupsY).map(Number));
+      var ySummaryText = sortedSlsY.map(function(sl) {
+        return sl.toLocaleString() + 'mm × ' + slGroupsY[sl].length;
+      }).join(' + ');
       var yPatHtml = '';
       sortedSlsY.forEach(function(sl, si){
         var barsInSl = slGroupsY[sl];
@@ -1634,7 +1694,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
 
       return '<div class="cc" id="' + yCardId2 + '" style="border:1.5px solid #d4d4dc">' +
         '<div class="cc-hd">' +
-          '<div class="cc-desc" style="color:#1a1a2e">' + yb.desc +
+          '<div class="cc-desc" style="color:#1a1a2e">' + ySummaryText +
             (effectiveRemnantBars.length ? '<span style="margin-left:8px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(34,211,238,.18);border:1px solid var(--cy);color:var(--cy);vertical-align:middle">残材消費</span>' : '') +
           '</div>' +
           '<div class="cc-stats" style="margin-left:auto">' +
@@ -1858,6 +1918,19 @@ function toggleDiag(id, btn) {
   btn.classList.toggle('open', !open);
 }
 
+function resetCalcResultPlaceholder() {
+  var rp = document.getElementById('rp');
+  if (!rp) return;
+  while (rp.firstChild) rp.removeChild(rp.firstChild);
+  var ph = document.createElement('div');
+  ph.className = 'ph';
+  ph.id = 'ph';
+  ph.innerHTML =
+    '<p>設定・部材を入力して「計算を実行する」を押してください</p>' +
+    '<small>刃厚・端部ロス・鋼材規格・定尺を確認してから実行</small>';
+  rp.appendChild(ph);
+}
+
 
 function clearParts() {
   if (!confirm('リストをクリアしますか？\n設定もリセットされます。')) return;
@@ -1913,6 +1986,7 @@ function clearParts() {
     updKg();
   }
   syncInventoryToRemnants();
+  resetCalcResultPlaceholder();
 }
 
 // ── 更新履歴 ──────────────────────────────────────────────
@@ -2126,7 +2200,7 @@ function renderCartModal() {
 
   if (!cart.length) {
     body.innerHTML = '<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">' +
-      'カートは空です。各カードの「＋ 追加」を押してください。</div>';
+      'カートは空です。各カードの「＋」を押してください。</div>';
     return;
   }
 
@@ -2159,7 +2233,7 @@ function cartRemoveItem(id) {
     var cardId = btn.id.replace('add_', '');
     var stillInCart = getCart().some(function(x){ return x.data.cardId === cardId; });
     if (!stillInCart) {
-      btn.textContent = '＋ 追加';
+      btn.textContent = '＋';
       btn.classList.remove('added');
       btn.disabled = false;
     }
@@ -2174,7 +2248,7 @@ function cartClearAll() {
   renderCartModal();
   // 全addボタンをリセット
   document.querySelectorAll('.cc-btn-add.added').forEach(function(btn) {
-    btn.textContent = '＋ 追加';
+    btn.textContent = '＋';
     btn.classList.remove('added');
     btn.disabled = false;
   });
@@ -2248,7 +2322,7 @@ function buildPrintSection(secIdx, secData) {
   // 左：切断リスト
   html += '<div class="sec-left">';
   html += '<div style="font-size:8px;font-weight:700;letter-spacing:.05em;margin-bottom:3px">切断リスト</div>';
-  var sortedLens = Object.keys(secData.sumMap).map(Number).sort(function(a,b){return b-a;});
+  var sortedLens = sortStockLengthsForDisplay(Object.keys(secData.sumMap).map(Number));
   if (sortedLens.length) {
     html += '<table class="cut-tbl"><tbody>';
     sortedLens.forEach(function(len) {
@@ -2447,6 +2521,7 @@ function renderInventoryPage() {
   var dateFrom = ((document.getElementById('invDateFrom') || {}).value || '');
   var sort = ((document.getElementById('invSort') || {}).value || 'date_desc');
   var inv = getInventory().slice();
+  updateInventorySummary(inv);
   if (kindF) inv = inv.filter(function(item) { return item.kind === kindF; });
   if (specF) inv = inv.filter(function(item) { return item.spec === specF; });
   if (keyword) inv = inv.filter(function(item) { return [item.spec, item.kind, item.company, item.note, item.len].join(' ').toLowerCase().indexOf(keyword) >= 0; });
@@ -2471,29 +2546,54 @@ function renderInventoryPage() {
   if (invCountLabel) invCountLabel.textContent = inv.length + '件';
   var pageData = paginateItems(inv, inventoryPage, INVENTORY_PAGE_SIZE);
   inventoryPage = pageData.page;
-  var groups = {};
-  pageData.items.forEach(function(item) {
-    var key = item.spec || item.kind || '未設定';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-  cont.innerHTML = Object.keys(groups).sort().map(function(spec) {
-    return '<div class="inv-card">' +
-      '<div class="inv-card-header"><span class="inv-spec-label">' + spec + '</span><span class="inv-count-badge">' + groups[spec].length + '本</span></div>' +
-      '<div class="inv-col-header"><span>寸法</span><span>長さ</span><span>会社名</span><span>メモ</span><span>登録日</span><span></span></div>' +
-      groups[spec].map(function(item) {
-        return '<div class="inv-row">' +
-          '<span class="inv-spec">' + (item.spec || item.kind || '') + '</span>' +
-          '<span class="inv-len">' + Number(item.len || 0).toLocaleString() + '<span class="inv-len-unit">mm</span></span>' +
+  cont.innerHTML =
+    '<div class="inv-table-card">' +
+      '<div class="inv-col-header inv-col-header--table">' +
+        '<span>#</span>' +
+        '<span>鋼材規格</span>' +
+        '<span>残材長</span>' +
+        '<span>本数</span>' +
+        '<span>登録日</span>' +
+        '<span>発生元</span>' +
+        '<span>メモ</span>' +
+        '<span></span>' +
+      '</div>' +
+      pageData.items.map(function(item, idx) {
+        var rowNo = ((inventoryPage - 1) * INVENTORY_PAGE_SIZE) + idx + 1;
+        return '<div class="inv-row inv-row--table">' +
+          '<span class="inv-no">' + String(rowNo).padStart(2, '0') + '</span>' +
+          '<span class="inv-spec-cell">' +
+            (item.kind ? '<span class="inv-kind-badge">' + item.kind + '</span>' : '') +
+            '<span class="inv-spec-main">' + (item.spec || item.kind || '未設定') + '</span>' +
+          '</span>' +
+          '<span class="inv-len inv-len--single">' + Number(item.len || 0).toLocaleString() + '<span class="inv-len-unit">mm</span></span>' +
+          '<span class="inv-qty inv-qty--plain">1本</span>' +
+          '<span class="inv-date">' + (item.addedDate || '-') + '</span>' +
           '<span class="inv-company">' + (item.company || '-') + '</span>' +
           '<span class="inv-note">' + (item.note || '-') + '</span>' +
-          '<span class="inv-date">' + (item.addedDate || '') + '</span>' +
-          '<button onclick="deleteInventoryItem(' + item.id + ')" class="inv-del-btn">削除</button>' +
+          '<span class="inv-action"><button onclick="deleteInventoryItem(' + item.id + ')" class="inv-del-btn inv-del-btn--quiet">削除</button></span>' +
         '</div>';
       }).join('') +
     '</div>';
-  }).join('');
   renderPager('invPagination', inventoryPage, pageData.totalPages, 'setInventoryPage');
+}
+
+function updateInventorySummary(inv) {
+  var items = Array.isArray(inv) ? inv : [];
+  var invSummaryCount = document.getElementById('invSummaryCount');
+  var invSummaryWeight = document.getElementById('invSummaryWeight');
+  if (!invSummaryCount && !invSummaryWeight) return;
+  var totalQty = items.reduce(function(sum, item) {
+    return sum + Math.max(1, parseInt(item && item.qty, 10) || 1);
+  }, 0);
+  var totalWeight = items.reduce(function(sum, item) {
+    var qty = Math.max(1, parseInt(item && item.qty, 10) || 1);
+    var len = parseInt(item && item.len, 10) || 0;
+    var kgm = typeof getWeightKgmForSpec === 'function' ? getWeightKgmForSpec(item && item.kind, item && item.spec) : 0;
+    return sum + ((len / 1000) * kgm * qty);
+  }, 0);
+  if (invSummaryCount) invSummaryCount.textContent = totalQty.toLocaleString() + '本';
+  if (invSummaryWeight) invSummaryWeight.textContent = (Math.round(totalWeight * 10) / 10).toLocaleString() + ' kg';
 }
 
 function renderHistory() {
@@ -2505,8 +2605,6 @@ function renderHistory() {
   var fn = (((document.getElementById('hsName') || {}).value) || '').toLowerCase();
   var fdf = ((document.getElementById('hsDateFrom') || {}).value || '');
   var fdt = ((document.getElementById('hsDateTo') || {}).value || '');
-  var fs = ((document.getElementById('hsSt') || {}).value || '');
-  var fk = ((document.getElementById('hsKind') || {}).value || '');
   var keyword = (((document.getElementById('hsKeyword') || {}).value) || '').toLowerCase();
   var sort = ((document.getElementById('hsSort') || {}).value || 'date_desc');
   if (fc) hist = hist.filter(function(h) { return (h.client || '').toLowerCase().indexOf(fc) >= 0; });
@@ -2517,8 +2615,7 @@ function renderHistory() {
   if (chipTo)   hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) <= chipTo;   });
   if (fdf && !chipFrom) hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) >= normDateStr(fdf); });
   if (fdt && !chipTo)   hist = hist.filter(function(h) { return normDateStr(h.dateLabel || h.date) <= normDateStr(fdt); });
-  if (fs) hist = hist.filter(function(h) { return (h.spec || '') === fs; });
-  if (fk) hist = hist.filter(function(h) { return (h.kind || '') === fk; });
+  if (fk) hist = hist.filter(function(h) { return historyHasKind(h, fk); });
   if (_histTypeFilter === 'cut')
     hist = hist.filter(function(h) { return !h.type || h.type === 'cut'; });
   if (_histTypeFilter === 'weight')
@@ -2527,7 +2624,6 @@ function renderHistory() {
   hist.sort(function(a, b) {
     if (sort === 'date_asc') return parseDateValue(a.date) - parseDateValue(b.date);
     if (sort === 'deadline_asc') return parseDateValue(a.deadline) - parseDateValue(b.deadline);
-    if (sort === 'spec_asc') return String(a.spec || '').localeCompare(String(b.spec || ''), 'ja');
     return parseDateValue(b.date) - parseDateValue(a.date);
   });
   if (!hist.length) {
@@ -2577,19 +2673,19 @@ function renderHistory() {
       var label = (g.client && g.name) ? g.client + '　' + g.name
         : (g.client || g.name || '案件未設定');
       var kgStr = g.sumKg > 0 ? (Math.round(g.sumKg * 10) / 10).toLocaleString() + ' kg' : '';
-      return '<div class="hist-job-group">' +
-        '<div class="hist-job-hd" onclick="this.parentElement.classList.toggle(\'open\')">' +
+      return '<div class="hist2-group" style="' + HIST_GROUP_INLINE_STYLE + '">' +
+        '<div class="hist2-group-hd" style="background:#ffffff;border-bottom:1px solid #eceff5;" onclick="this.parentElement.classList.toggle(\'open\')">' +
           '<div style="flex:1;min-width:0">' +
-            '<div class="hist-job-title">' + label + '</div>' +
-            '<div class="hist-job-meta">' +
+            '<div class="hist2-group-title">' + label + '</div>' +
+            '<div class="hist2-group-meta">' +
               (g.cutCount ? '<span>✂ 取り合い ' + g.cutCount + '件</span>' : '') +
               (g.weightCount ? '<span>⚖ 重量計算 ' + g.weightCount + '件</span>' : '') +
               (kgStr ? '<span style="font-weight:700;color:#1a1a2e">計 ' + kgStr + '</span>' : '') +
             '</div>' +
           '</div>' +
-          '<span class="hist-job-arrow">›</span>' +
+          '<span class="hist2-group-arrow">›</span>' +
         '</div>' +
-        '<div class="hist-job-body">' +
+        '<div class="hist2-group-body" style="background:#ffffff;padding:0 12px 12px;">' +
           g.items.map(function(h) {
             return _renderHistRow(h);
           }).join('') +
@@ -2597,6 +2693,9 @@ function renderHistory() {
       '</div>';
     }).join('');
   } else {
+    cont.style.display = 'flex';
+    cont.style.flexDirection = 'column';
+    cont.style.gap = '14px';
     cont.innerHTML = pageData.items.map(function(h) { return _renderHistRow(h); }).join('');
     renderPager('histPagination', historyPage, pageData.totalPages, 'setHistoryPage');
   }
@@ -2793,7 +2892,7 @@ function isStdStockLength(length) {
 }
 
 function buildCutSourceLabel(slLen) {
-  return isStdStockLength(slLen) ? slLen.toLocaleString() + 'mm 定尺' : '残材（L=' + slLen.toLocaleString() + 'mm）より切断';
+  return isStdStockLength(slLen) ? slLen.toLocaleString() + 'mm' : '残材（L=' + slLen.toLocaleString() + 'mm）より切断';
 }
 
 
@@ -2920,30 +3019,44 @@ function formatCalcToolbarField(value) {
   return text || '記載なし';
 }
 
+function syncCalcToolbarField(key, value) {
+  var map = {
+    customer: 'jobClient',
+    projectName: 'jobName',
+    deadline: 'jobDeadline',
+    memo: 'jobWorker'
+  };
+  var targetId = map[key];
+  if (!targetId) return;
+  var el = document.getElementById(targetId);
+  if (el) el.value = value || '';
+  if (typeof saveSettings === 'function') saveSettings();
+}
+
+function buildCalcToolbarInput(label, key, value, type) {
+  var safeValue = escapeHtml(value || '');
+  var safeLabel = escapeHtml(label);
+  var inputType = type || 'text';
+  var placeholder = safeLabel === '納期' ? '' : '記載なし';
+  return '<label class="calc-result-edit">' +
+    '<span class="calc-result-cell-label">' + safeLabel + '</span>' +
+    '<input class="calc-result-input" type="' + inputType + '" value="' + safeValue + '"' +
+      (placeholder ? ' placeholder="' + placeholder + '"' : '') +
+      ' oninput="syncCalcToolbarField(\'' + key + '\', this.value)">' +
+  '</label>';
+}
+
 function buildCalcProjectToolbar(summary) {
   summary = summary || {};
   return '<div class="calc-result-toolbar">' +
     '<div class="calc-result-toolbar-main">' +
       '<div class="calc-result-cell">' +
-        '<div class="calc-result-cell-label">タイトル</div>' +
         '<div class="calc-result-title">作業情報</div>' +
       '</div>' +
-      '<div class="calc-result-cell">' +
-        '<div class="calc-result-cell-label">顧客情報</div>' +
-        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.customer)) + '</div>' +
-      '</div>' +
-      '<div class="calc-result-cell">' +
-        '<div class="calc-result-cell-label">工事名</div>' +
-        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.projectName)) + '</div>' +
-      '</div>' +
-      '<div class="calc-result-cell">' +
-        '<div class="calc-result-cell-label">納期</div>' +
-        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.deadline)) + '</div>' +
-      '</div>' +
-      '<div class="calc-result-cell">' +
-        '<div class="calc-result-cell-label">メモ</div>' +
-        '<div class="calc-result-cell-value">' + escapeHtml(formatCalcToolbarField(summary.memo)) + '</div>' +
-      '</div>' +
+      buildCalcToolbarInput('顧客情報', 'customer', summary.customer, 'text') +
+      buildCalcToolbarInput('工事名', 'projectName', summary.projectName, 'text') +
+      buildCalcToolbarInput('納期', 'deadline', summary.deadline, 'date') +
+      buildCalcToolbarInput('メモ', 'memo', summary.memo, 'text') +
     '</div>' +
     '<button id="calcCartBadge" class="cart-badge calc-toolbar-cart empty" data-cart-scope="cut" onclick="openCartModal()">カート 0件</button>' +
   '</div>';
@@ -3121,7 +3234,7 @@ function showCartCutPreview(html) {
 function buildCardActionButtons(cardId, includeAdd) {
   var html = '';
   if (includeAdd) {
-    html += '<button class="cc-btn-add" id="add_' + cardId + '" onclick="cartAdd(\'' + cardId + '\',this)">＋ 追加</button>';
+    html += '<button class="cc-btn-add" id="add_' + cardId + '" onclick="cartAdd(\'' + cardId + '\',this)">＋</button>';
   }
   html += '<button class="cc-btn-mini" type="button" onclick="printCard(\'' + cardId + '\')" aria-label="印刷">🖨</button>';
   return html;
@@ -3672,7 +3785,7 @@ function cartPrintCutting() {
     var cardId = btn.id.replace('add_', '');
     var stillInCart = getCart().some(function(x) { return x.data.cardId === cardId; });
     if (!stillInCart) {
-      btn.textContent = '＋ 追加';
+      btn.textContent = '＋';
       btn.classList.remove('added');
       btn.disabled = false;
     }
