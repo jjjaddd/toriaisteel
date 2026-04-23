@@ -1,11 +1,19 @@
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbzdy3iDrtieC8qcpkMejASM1y1tAMVA1LeXstAYC6bOCyCcVpYzlcgwqJzAXD2RaP-h/exec';
 
 function getContactFormPayload() {
-  var name = ((document.getElementById('contactName') || {}).value || '').trim();
-  var company = ((document.getElementById('contactCompany') || {}).value || '').trim();
-  var email = ((document.getElementById('contactEmail') || {}).value || '').trim();
-  var category = ((document.getElementById('contactCategory') || {}).value || '').trim();
-  var message = ((document.getElementById('contactMessage') || {}).value || '').trim();
+  var validation = window.Toriai && window.Toriai.utils && window.Toriai.utils.validation;
+  var sanitize = validation && typeof validation.sanitizeFreeText === 'function'
+    ? validation.sanitizeFreeText
+    : function(value, maxLength) {
+        var text = value == null ? '' : String(value).trim();
+        return typeof maxLength === 'number' ? text.slice(0, maxLength) : text;
+      };
+
+  var name = sanitize((document.getElementById('contactName') || {}).value || '', 80);
+  var company = sanitize((document.getElementById('contactCompany') || {}).value || '', 120);
+  var email = sanitize((document.getElementById('contactEmail') || {}).value || '', 160);
+  var category = sanitize((document.getElementById('contactCategory') || {}).value || '', 80);
+  var message = sanitize((document.getElementById('contactMessage') || {}).value || '', 4000);
 
   var subjectParts = [];
   if (category) subjectParts.push('[' + category + ']');

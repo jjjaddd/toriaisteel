@@ -89,6 +89,13 @@ var STEEL_STD_EXCLUDE = {
   'H形鋼': [5500]
 };
 function getAvailableSTD(kind) {
+  var steelRegistry = window.Toriai && window.Toriai.data && window.Toriai.data.steel;
+  if (steelRegistry && typeof steelRegistry.getStockLengthsByType === 'function') {
+    var registryLengths = steelRegistry.getStockLengthsByType(kind, (document.getElementById('spec') || {}).value || '');
+    if (Array.isArray(registryLengths) && registryLengths.length) {
+      return registryLengths.slice();
+    }
+  }
   if (typeof getDefaultStockLengths === 'function') {
     return getDefaultStockLengths(kind, (document.getElementById('spec') || {}).value || '');
   }

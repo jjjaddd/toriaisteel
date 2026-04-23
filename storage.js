@@ -6,9 +6,12 @@
  */
 
 // ── ストレージキー ───────────────────────────────────────
-var LS_SETTINGS  = 'so_settings';
-var LS_REMNANTS  = 'so_remnants';
-var LS_HISTORY   = 'so_history';
+var _storageKeys = window.Toriai && window.Toriai.storage && window.Toriai.storage.keys ? window.Toriai.storage.keys : {};
+var _localStore = window.Toriai && window.Toriai.storage && window.Toriai.storage.localStore ? window.Toriai.storage.localStore : null;
+
+var LS_SETTINGS  = _storageKeys.settings || 'so_settings';
+var LS_REMNANTS  = _storageKeys.remnants || 'so_remnants';
+var LS_HISTORY   = _storageKeys.history || 'so_history';
 var LS_MAX_HIST  = 10;
 
 // ============================================================
@@ -32,10 +35,10 @@ var LS_MAX_HIST  = 10;
 // ============================================================
 // 切断履歴・残材在庫管理
 // ============================================================
-var LS_CUT_HIST = 'so_cut_hist_v2';
+var LS_CUT_HIST = _storageKeys.cutHistory || 'so_cut_hist_v2';
 var _lastCalcResult = null;  // 最後の計算結果を保持（印刷時自動登録用）
 var _lastAllDP = [], _lastPatA = null, _lastPatB = null;
-var LS_INVENTORY = 'so_inventory_v2';
+var LS_INVENTORY = _storageKeys.inventory || 'so_inventory_v2';
 var LS_MAX_CUT = 500;
 
 // ============================================================
@@ -128,15 +131,20 @@ function saveSettings() {
       obj.stockLengths.push(sl);
       obj.stocksByLength[String(sl)] = state;
     });
-    localStorage.setItem(LS_SETTINGS, JSON.stringify(obj));
+    if (_localStore && typeof _localStore.writeJson === 'function') _localStore.writeJson(LS_SETTINGS, obj);
+    else localStorage.setItem(LS_SETTINGS, JSON.stringify(obj));
   } catch(e) {}
 }
 
 function loadSettings() {
   try {
-    var raw = localStorage.getItem(LS_SETTINGS);
-    if (!raw) return;
-    var obj = JSON.parse(raw);
+    var obj = _localStore && typeof _localStore.readJson === 'function'
+      ? _localStore.readJson(LS_SETTINGS, null)
+      : (function() {
+          var raw = localStorage.getItem(LS_SETTINGS);
+          return raw ? JSON.parse(raw) : null;
+        })();
+    if (!obj) return;
     if (obj.blade)         document.getElementById('blade').value = obj.blade;
     if (obj.endloss)       document.getElementById('endloss').value = obj.endloss;
     if (obj.minRemnantLen) document.getElementById('minRemnantLen').value = obj.minRemnantLen;
@@ -183,16 +191,20 @@ function saveRemnants() {
       var l = parseInt(lEl.value), q = parseInt(qEl.value)||1;
       if (l > 0) list.push({l:l, q:q});
     }
-    localStorage.setItem(LS_REMNANTS, JSON.stringify(list));
+    if (_localStore && typeof _localStore.writeJson === 'function') _localStore.writeJson(LS_REMNANTS, list);
+    else localStorage.setItem(LS_REMNANTS, JSON.stringify(list));
     if (typeof sbUpsert === 'function') sbUpsert('remnants', list);
   } catch(e) {}
 }
 
 function loadRemnants() {
   try {
-    var raw = localStorage.getItem(LS_REMNANTS);
-    if (!raw) return;
-    var list = JSON.parse(raw);
+    var list = _localStore && typeof _localStore.readJson === 'function'
+      ? _localStore.readJson(LS_REMNANTS, [])
+      : (function() {
+          var raw = localStorage.getItem(LS_REMNANTS);
+          return raw ? JSON.parse(raw) : [];
+        })();
     if (!list.length) return;
     // 既存の空行を削除してロード
     document.getElementById('remnantList').innerHTML = '';

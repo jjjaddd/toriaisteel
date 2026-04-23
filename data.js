@@ -1172,6 +1172,14 @@ function getCalcEnabledKinds() {
 }
 
 function getDefaultStockLengths(kind, spec) {
+  var steelRegistry = window.Toriai && window.Toriai.data && window.Toriai.data.steel;
+  if (steelRegistry && typeof steelRegistry.getStockLengthsByType === 'function') {
+    var registryLengths = steelRegistry.getStockLengthsByType(kind, spec);
+    if (Array.isArray(registryLengths) && registryLengths.length) {
+      return registryLengths.slice();
+    }
+  }
+
   var entry = STEEL_DB[kind] || {};
   var specs = Array.isArray(entry.specs) ? entry.specs : [];
   var specEntry = specs.find(function(item) { return item.name === spec; }) || null;
@@ -2432,16 +2440,22 @@ function getKindSTD(kind, spec) {
   var dataKind = getDataKindByCalcName(kind);
   var excludes = _getKindExcludeList(kind);
   var keys = _stdKeyCandidates(kind, spec);
+  var storageApi = window.Toriai && window.Toriai.storage && window.Toriai.storage.localStore;
   for (var i = 0; i < keys.length; i++) {
     try {
-      var stored = localStorage.getItem(keys[i]);
+      var stored = storageApi && typeof storageApi.readText === 'function'
+        ? storageApi.readText(keys[i], null)
+        : localStorage.getItem(keys[i]);
       if (stored) {
         var arr = JSON.parse(stored);
         if (Array.isArray(arr) && excludes.length) {
           var filtered = arr.filter(function(l) { return excludes.indexOf(l) === -1; });
           if (filtered.length !== arr.length) {
             try {
-              keys.forEach(function(k) { localStorage.setItem(k, JSON.stringify(filtered)); });
+              keys.forEach(function(k) {
+                if (storageApi && typeof storageApi.writeJson === 'function') storageApi.writeJson(k, filtered);
+                else localStorage.setItem(k, JSON.stringify(filtered));
+              });
             } catch(e) {}
             return filtered;
           }
@@ -2454,8 +2468,12 @@ function getKindSTD(kind, spec) {
 }
 
 function saveKindSTD(kind, lengths, spec) {
+  var storageApi = window.Toriai && window.Toriai.storage && window.Toriai.storage.localStore;
   _stdKeyCandidates(kind, spec).forEach(function(key) {
-    try { localStorage.setItem(key, JSON.stringify(lengths)); } catch(e) {}
+    try {
+      if (storageApi && typeof storageApi.writeJson === 'function') storageApi.writeJson(key, lengths);
+      else localStorage.setItem(key, JSON.stringify(lengths));
+    } catch(e) {}
   });
   if (typeof rebuildStkList === 'function') rebuildStkList();
   if (typeof onSpec === 'function') onSpec();

@@ -558,6 +558,9 @@ document.addEventListener('keydown', function(e) {
 });
 
 function goPage(p) {
+  if (window.Toriai && window.Toriai.ui && window.Toriai.ui.pageState) {
+    window.Toriai.ui.pageState.setActivePage(p);
+  }
   document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('show'); });
   document.body.classList.remove(
     'sidebar-layout-active',
@@ -2062,6 +2065,10 @@ var _calcOnboardingForced = false;
 var _calcOnboardingTotal = 5;
 
 function escapeHtml(s) {
+  var htmlUtils = window.Toriai && window.Toriai.utils && window.Toriai.utils.html;
+  if (htmlUtils && typeof htmlUtils.escapeHtml === 'function') {
+    return htmlUtils.escapeHtml(s);
+  }
   return String(s).replace(/[&<>"']/g, function(c){
     return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
   });
@@ -3063,7 +3070,10 @@ function syncCalcToolbarField(key, value) {
 }
 
 function buildCalcToolbarInput(label, key, value, type) {
-  var safeValue = escapeHtml(value || '');
+  var htmlUtils = window.Toriai && window.Toriai.utils && window.Toriai.utils.html;
+  var safeValue = htmlUtils && typeof htmlUtils.escapeAttribute === 'function'
+    ? htmlUtils.escapeAttribute(value || '')
+    : escapeHtml(value || '');
   var safeLabel = escapeHtml(label);
   var inputType = type || 'text';
   var placeholder = safeLabel === '納期' ? '' : '記載なし';
