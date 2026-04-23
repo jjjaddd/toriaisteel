@@ -2019,6 +2019,7 @@ body.page-contact .guide-pixel-btn:hover{
 #cop textarea:focus{
   background:#000 !important;
   border:2px solid #000 !important;
+  border-radius:0 !important;
   box-shadow:0 0 0 2px #fff, inset 0 0 0 2px #fff !important;
   outline:none !important;
 }

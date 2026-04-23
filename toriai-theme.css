@@ -1065,6 +1065,7 @@ html[data-theme="dark"] .dp-page { background: var(--bg) !important; }
 #cop .contact-field textarea {
   background:#ffffff !important;
   border:2px solid #000 !important;
+  border-radius:0 !important;
   color:#1a1a2e !important;
   box-shadow:none !important;
 }
@@ -1073,6 +1074,7 @@ html[data-theme="dark"] .dp-page { background: var(--bg) !important; }
 #cop input:hover, #cop input:focus, #cop select:hover, #cop select:focus, #cop textarea:hover, #cop textarea:focus {
   background:#ffffff !important;
   border-color:#000 !important;
+  border-radius:0 !important;
   outline:none !important;
   box-shadow:none !important;
 }
