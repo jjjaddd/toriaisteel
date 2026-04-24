@@ -1710,6 +1710,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           '<div class="cc-stats" style="margin-left:auto">' +
             '<div class="cs"><div class="cl">歩留まり</div><div class="cv">' + yld2 + ' %</div></div>' +
             '<div class="cs"><div class="cl">カット数</div><div class="cv">' + (yb.chg || '—') + ' 回</div></div>' +
+            '<div class="cs"><div class="cl">母材合計重量</div><div class="cv">' + formatMaterialTotalWeightKg(yb.barKg) + '</div></div>' +
           '</div>' +
 '<div class="cc-btns">' + buildCardActionButtons(yCardId2, true) + '</div>' +
         '</div>' +
@@ -1891,6 +1892,7 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
           '<div class="cc-stats" style="margin-left:auto">' +
             '<div class="cs"><div class="cl">歩留まり</div><div class="cv">' + m.yieldPct.toFixed(1) + ' %</div></div>' +
             '<div class="cs"><div class="cl">カット数</div><div class="cv">' + m.totalCuts + ' 回</div></div>' +
+            '<div class="cs"><div class="cl">母材合計重量</div><div class="cv">' + formatMaterialTotalWeightKg(m.barKg) + '</div></div>' +
           '</div>' +
 '<div class="cc-btns">' + buildCardActionButtons(cardId2, true) + '</div>' +
         '</div>' +
@@ -2929,6 +2931,12 @@ function isStdStockLength(length) {
 
 function buildCutSourceLabel(slLen) {
   return isStdStockLength(slLen) ? slLen.toLocaleString() + 'mm' : '残材（L=' + slLen.toLocaleString() + 'mm）より切断';
+}
+
+function formatMaterialTotalWeightKg(value) {
+  var num = Number(value);
+  if (!isFinite(num) || num <= 0) return '—';
+  return (Math.round(num * 10) / 10).toLocaleString() + ' kg';
 }
 
 

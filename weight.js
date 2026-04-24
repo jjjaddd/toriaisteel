@@ -11,22 +11,14 @@ var _wEditIdx   = -1;
 var _wCartAdded = false;
 var _wSelected     = [];   // 一括編集用選択インデックス
 var _wLastClickIdx = -1;   // Shift範囲選択用・最後にクリックした行
-var _wSavedCalcs = (function() {
-  try { return JSON.parse(localStorage.getItem('wSavedCalcs') || '[]'); }
-  catch (e) { return []; }
-})();
-var _wJobName = (function() {
-  try { return localStorage.getItem('wJobName') || ''; }
-  catch (e) { return ''; }
-})();
-var _wJobClient = (function() {
-  try { return localStorage.getItem('wJobClient') || ''; }
-  catch (e) { return ''; }
-})();
-var _wDocTitle = (function() {
-  try { return localStorage.getItem('wDocTitle') || ''; }
-  catch (e) { return ''; }
-})();
+var _wStore = (window.Toriai && window.Toriai.storage && window.Toriai.storage.weightStore) || null;
+var _wPersistedState = _wStore && typeof _wStore.loadState === 'function'
+  ? _wStore.loadState()
+  : { savedCalcs: [], jobName: '', jobClient: '', docTitle: '', notes: {} };
+var _wSavedCalcs = Array.isArray(_wPersistedState.savedCalcs) ? _wPersistedState.savedCalcs : [];
+var _wJobName = _wPersistedState.jobName || '';
+var _wJobClient = _wPersistedState.jobClient || '';
+var _wDocTitle = _wPersistedState.docTitle || '';
 
 // コマンドパレット
 var _wCmdAll = [];
@@ -40,10 +32,16 @@ var _tdR = 'padding:8px 10px;text-align:right;white-space:nowrap;font-family:mon
 function _wSpecName(row) { return row[0]; }
 function _wSpecKgm(row)  { return row[1]; }
 function _wKinds() {
+  if (window.Toriai && window.Toriai.data && window.Toriai.data.steel && typeof window.Toriai.data.steel.getAllKinds === 'function') {
+    return window.Toriai.data.steel.getAllKinds();
+  }
   if (typeof getCalcEnabledKinds === 'function') return getCalcEnabledKinds();
   return Object.keys(STEEL || {});
 }
 function _wRowsByKind(kind) {
+  if (window.Toriai && window.Toriai.data && window.Toriai.data.steel && typeof window.Toriai.data.steel.getRowsByKind === 'function') {
+    return window.Toriai.data.steel.getRowsByKind(kind);
+  }
   if (typeof getSteelRowsForKind === 'function') return getSteelRowsForKind(kind);
   return Array.isArray(STEEL[kind]) ? STEEL[kind] : [];
 }
@@ -373,7 +371,11 @@ function wPreview() {
 function wSaveDocTitle() {
   var el = document.getElementById('wDocTitle');
   _wDocTitle = el ? String(el.value || '').trim() : '';
-  try { localStorage.setItem('wDocTitle', _wDocTitle); } catch (e) {}
+  if (_wStore && typeof _wStore.saveMeta === 'function') {
+    _wStore.saveMeta({ jobName: _wJobName, jobClient: _wJobClient, docTitle: _wDocTitle });
+  } else {
+    try { localStorage.setItem('wDocTitle', _wDocTitle); } catch (e) {}
+  }
   wRenderRows();
 }
 
@@ -631,11 +633,15 @@ function wApplyBulk() {
 }
 
 // ── 殴り書きノート ───────────────────────────────────────────────
-var _wNotes = (function() {
-  try { return JSON.parse(localStorage.getItem('toriai_wnotes') || '{}'); } catch(e) { return {}; }
-})();
+var _wNotes = (_wPersistedState && _wPersistedState.notes && typeof _wPersistedState.notes === 'object')
+  ? _wPersistedState.notes
+  : {};
 
 function wNoteSave(spec) {
+  if (_wStore && typeof _wStore.saveNotes === 'function') {
+    _wStore.saveNotes(_wNotes);
+    return;
+  }
   try { localStorage.setItem('toriai_wnotes', JSON.stringify(_wNotes)); } catch(e) {}
 }
 
@@ -916,7 +922,11 @@ function wSaveCalc() {
   };
   _wSavedCalcs.unshift(rec);
   if (_wSavedCalcs.length > 20) _wSavedCalcs.pop();
-  try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  if (_wStore && typeof _wStore.saveSavedCalcs === 'function') {
+    _wStore.saveSavedCalcs(_wSavedCalcs);
+  } else {
+    try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  }
   if (typeof sbUpsert === 'function') sbUpsert('weight_calcs', _wSavedCalcs);
   renderWSavedList();
   alert('「' + name + '」を保存しました。');
@@ -928,10 +938,14 @@ function wSaveJobInfo() {
   var nameEl   = document.getElementById('wJobNameInput');
   _wJobClient = clientEl ? clientEl.value : _wJobClient;
   _wJobName   = nameEl   ? nameEl.value   : _wJobName;
-  try {
-    localStorage.setItem('wJobClient', _wJobClient);
-    localStorage.setItem('wJobName',   _wJobName);
-  } catch (e) {}
+  if (_wStore && typeof _wStore.saveMeta === 'function') {
+    _wStore.saveMeta({ jobName: _wJobName, jobClient: _wJobClient, docTitle: _wDocTitle });
+  } else {
+    try {
+      localStorage.setItem('wJobClient', _wJobClient);
+      localStorage.setItem('wJobName',   _wJobName);
+    } catch (e) {}
+  }
 }
 
 function wGetJobForHistory() {
@@ -950,11 +964,15 @@ function wLoadCalc(id) {
   _wJobName = (rec.jobName || '').trim();
   _wJobClient = (rec.jobClient || '').trim();
   _wDocTitle = (rec.docTitle || '').trim();
-  try {
-    localStorage.setItem('wJobName',   _wJobName);
-    localStorage.setItem('wJobClient', _wJobClient);
-    localStorage.setItem('wDocTitle', _wDocTitle);
-  } catch (e) {}
+  if (_wStore && typeof _wStore.saveMeta === 'function') {
+    _wStore.saveMeta({ jobName: _wJobName, jobClient: _wJobClient, docTitle: _wDocTitle });
+  } else {
+    try {
+      localStorage.setItem('wJobName',   _wJobName);
+      localStorage.setItem('wJobClient', _wJobClient);
+      localStorage.setItem('wDocTitle', _wDocTitle);
+    } catch (e) {}
+  }
   Object.keys(rec.opts || {}).forEach(function(key) {
     if (_wOpts[key] !== rec.opts[key]) wToggleOpt(key);
   });
@@ -978,15 +996,25 @@ function wRecallFromHistory(rows, opts, job) {
   });
   if (job && job.client) {
     _wJobClient = job.client;
-    try { localStorage.setItem('wJobClient', _wJobClient); } catch (e) {}
   }
   if (job && job.name) {
     _wJobName = job.name;
-    try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
   }
   if (job && job.docTitle) {
     _wDocTitle = job.docTitle;
-    try { localStorage.setItem('wDocTitle', _wDocTitle); } catch (e) {}
+  }
+  if (_wStore && typeof _wStore.saveMeta === 'function') {
+    _wStore.saveMeta({ jobName: _wJobName, jobClient: _wJobClient, docTitle: _wDocTitle });
+  } else {
+    if (job && job.client) {
+      try { localStorage.setItem('wJobClient', _wJobClient); } catch (e) {}
+    }
+    if (job && job.name) {
+      try { localStorage.setItem('wJobName', _wJobName); } catch (e) {}
+    }
+    if (job && job.docTitle) {
+      try { localStorage.setItem('wDocTitle', _wDocTitle); } catch (e) {}
+    }
   }
   _wCartAdded = false;
   var wdt = document.getElementById('wDocTitle');
@@ -996,7 +1024,11 @@ function wRecallFromHistory(rows, opts, job) {
 
 function wDeleteSavedCalc(id) {
   _wSavedCalcs = _wSavedCalcs.filter(function(r) { return r.id !== id; });
-  try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  if (_wStore && typeof _wStore.saveSavedCalcs === 'function') {
+    _wStore.saveSavedCalcs(_wSavedCalcs);
+  } else {
+    try { localStorage.setItem('wSavedCalcs', JSON.stringify(_wSavedCalcs)); } catch (e) {}
+  }
   if (typeof sbUpsert === 'function') sbUpsert('weight_calcs', _wSavedCalcs);
   renderWSavedList();
 }

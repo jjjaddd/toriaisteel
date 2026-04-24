@@ -30,10 +30,33 @@
 
   function registerKind(config) {
     if (!config || !config.type) return;
+    var current = registry[config.type] || {
+      type: config.type,
+      stockLengths: [],
+      specStockLengths: {},
+      surfaces: []
+    };
+
+    var nextSpecStockLengths = Object.assign({}, current.specStockLengths);
+    if (config.specStockLengths && typeof config.specStockLengths === 'object') {
+      Object.keys(config.specStockLengths).forEach(function(key) {
+        var value = config.specStockLengths[key];
+        if (Array.isArray(value)) {
+          nextSpecStockLengths[key] = value.slice();
+        } else if (value && typeof value === 'object') {
+          nextSpecStockLengths[key] = {
+            include: Array.isArray(value.include) ? value.include.slice() : [],
+            exclude: Array.isArray(value.exclude) ? value.exclude.slice() : []
+          };
+        }
+      });
+    }
+
     registry[config.type] = {
       type: config.type,
-      stockLengths: Array.isArray(config.stockLengths) ? config.stockLengths.slice() : [],
-      surfaces: Array.isArray(config.surfaces) ? config.surfaces.slice() : []
+      stockLengths: Array.isArray(config.stockLengths) ? config.stockLengths.slice() : current.stockLengths.slice(),
+      specStockLengths: nextSpecStockLengths,
+      surfaces: Array.isArray(config.surfaces) ? config.surfaces.slice() : current.surfaces.slice()
     };
   }
 
@@ -63,6 +86,28 @@
       return spec.defaultStock.slice();
     }
     var entry = getKindConfig(kind);
+    if (entry && specName && entry.specStockLengths && entry.specStockLengths[specName]) {
+      var base = entry.stockLengths.length ? entry.stockLengths.slice() : [];
+      var specRule = entry.specStockLengths[specName];
+
+      if (Array.isArray(specRule)) {
+        return specRule.slice();
+      }
+
+      if (specRule && typeof specRule === 'object') {
+        if (Array.isArray(specRule.exclude) && specRule.exclude.length) {
+          base = base.filter(function(len) {
+            return specRule.exclude.indexOf(len) === -1;
+          });
+        }
+        if (Array.isArray(specRule.include) && specRule.include.length) {
+          specRule.include.forEach(function(len) {
+            if (base.indexOf(len) === -1) base.push(len);
+          });
+        }
+        return base.sort(function(a, b) { return a - b; });
+      }
+    }
     return entry && entry.stockLengths.length ? entry.stockLengths.slice() : [];
   }
 

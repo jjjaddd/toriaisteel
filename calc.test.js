@@ -4,7 +4,7 @@ const path = require('path');
 const vm = require('vm');
 
 function createSandbox() {
-  return {
+  const sandbox = {
     console,
     setTimeout,
     clearTimeout,
@@ -19,8 +19,8 @@ function createSandbox() {
     Blob: function(parts, opts) { this.parts = parts; this.opts = opts; },
     URL: { createObjectURL: function() { return ''; }, revokeObjectURL: function() {} },
     Worker: function() {},
-    self: {},
-    window: {},
+    self: null,
+    window: null,
     navigator: {},
     performance: { now: function() { return 0; } },
     location: { reload: function() {} },
@@ -56,6 +56,9 @@ function createSandbox() {
     hideCalcLoadingOverlay: function() {},
     showCalcLoadingOverlay: function() {}
   };
+  sandbox.window = sandbox;
+  sandbox.self = sandbox;
+  return sandbox;
 }
 
 function loadScriptIntoSandbox(filename, sandbox) {
@@ -66,6 +69,36 @@ function loadScriptIntoSandbox(filename, sandbox) {
 function runTests() {
   const sandbox = createSandbox();
   vm.createContext(sandbox);
+  [
+    'src/core/toriai-namespace.js',
+    'src/utils/validation.js',
+    'src/storage/keys.js',
+    'src/storage/local-store.js',
+    'src/storage/repositories.js',
+    'src/data/steel/registry.js',
+    'src/data/steel/hBeam/specs.js',
+    'src/data/steel/hBeam/stockLengths.js',
+    'src/data/steel/hBeam/specStockLengths.js',
+    'src/data/steel/equalAngle/specs.js',
+    'src/data/steel/equalAngle/stockLengths.js',
+    'src/data/steel/unequalAngle/specs.js',
+    'src/data/steel/unequalAngle/stockLengths.js',
+    'src/data/steel/unequalUnequalAngle/specs.js',
+    'src/data/steel/unequalUnequalAngle/stockLengths.js',
+    'src/data/steel/flatBar/stockLengths.js',
+    'src/data/steel/channel/stockLengths.js',
+    'src/data/steel/cShape/stockLengths.js',
+    'src/data/steel/lightChannel/stockLengths.js',
+    'src/data/steel/iBeam/stockLengths.js',
+    'src/data/steel/roundBar/stockLengths.js',
+    'src/data/steel/squareBar/stockLengths.js',
+    'src/data/steel/squarePipe/stockLengths.js',
+    'src/data/steel/smallSquarePipe/stockLengths.js',
+    'src/data/steel/bcr295/stockLengths.js',
+    'src/data/steel/pipe/stockLengths.js'
+  ].forEach(function(filename){
+    loadScriptIntoSandbox(filename, sandbox);
+  });
   loadScriptIntoSandbox('calc.js', sandbox);
   loadScriptIntoSandbox('data.js', sandbox);
 
