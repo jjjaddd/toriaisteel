@@ -18,4 +18,4 @@
   };
 
   global.Toriai = Toriai;
-})(window);
+})(typeof globalThis !== 'undefined' ? globalThis : (typeof self !== 'undefined' ? self : window));

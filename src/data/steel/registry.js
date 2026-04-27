@@ -7,31 +7,71 @@
 
   var registry = {};
   var aliases = {
-    '山形鋼': '等辺山形鋼',
-    '不等辺山形鋼': '不等辺山形鋼',
-    '不等辺不等厚山形鋼': '不等辺不等厚山形鋼',
-    'C形鋼': 'C形鋼',
-    '軽量溝形鋼': '軽量溝形鋼',
-    'H形鋼': 'H形鋼',
-    'I形鋼': 'I形鋼',
-    '平鋼': '平鋼',
-    '丸鋼': '丸鋼',
-    '角鋼': '角鋼',
-    '角パイプ': '角パイプ',
-    'スモール角パイプ': 'スモール角パイプ',
-    'SGP配管': 'SGP配管',
-    'BCR295': 'BCR295',
-    '溝形鋼': '溝形鋼'
+    '\u5c71\u5f62\u92fc': '\u7b49\u8fba\u5c71\u5f62\u92fc',
+    '\u7b49\u8fba\u5c71\u5f62\u92fc': '\u7b49\u8fba\u5c71\u5f62\u92fc',
+    '\u4e0d\u7b49\u8fba\u5c71\u5f62\u92fc': '\u4e0d\u7b49\u8fba\u5c71\u5f62\u92fc',
+    '\u4e0d\u7b49\u8fba\u4e0d\u7b49\u539a\u5c71\u5f62\u92fc': '\u4e0d\u7b49\u8fba\u4e0d\u7b49\u539a\u5c71\u5f62\u92fc',
+    'H\u5f62\u92fc': 'H\u5f62\u92fc',
+    'I\u5f62\u92fc': 'I\u5f62\u92fc',
+    '\u5e73\u92fc': '\u5e73\u92fc',
+    '\u4e38\u92fc': '\u4e38\u92fc',
+    '\u89d2\u92fc': '\u89d2\u92fc',
+    '\u6e9d\u5f62\u92fc': '\u6e9d\u5f62\u92fc',
+    'C\u5f62\u92fc': 'C\u5f62\u92fc',
+    'C\u5f62\u92fc\uff08\u30ea\u30c3\u30d7\u6e9d\u5f62\u92fc\uff09': 'C\u5f62\u92fc',
+    '\u8efd\u91cf\u6e9d\u5f62\u92fc': '\u8efd\u91cf\u6e9d\u5f62\u92fc',
+    '\u89d2\u30d1\u30a4\u30d7': '\u89d2\u30d1\u30a4\u30d7',
+    '\u30b9\u30e2\u30fc\u30eb\u89d2\u30d1\u30a4\u30d7': '\u30b9\u30e2\u30fc\u30eb\u89d2\u30d1\u30a4\u30d7',
+    '\u30b9\u30e2\u30fc\u30eb\u30fb\u30b9\u30fc\u30d1\u30fc\u89d2\u30d1\u30a4\u30d7': '\u30b9\u30e2\u30fc\u30eb\u89d2\u30d1\u30a4\u30d7',
+    'SGP\u914d\u7ba1': 'SGP\u914d\u7ba1',
+    '\u914d\u7ba1\u7528\u70ad\u7d20\u92fc\u92fc\u7ba1\uff08SGP\uff09': 'SGP\u914d\u7ba1',
+    'BCR295': 'BCR295'
   };
 
   function normalizeKind(kind) {
     return aliases[kind] || kind;
   }
 
+  function getSectionDataMap() {
+    return ns.data.steel._sectionData || global.SECTION_DATA || {};
+  }
+
+  function findSectionKey(kind) {
+    var sectionData = getSectionDataMap();
+    var raw = kind == null ? '' : String(kind);
+    var normalized = normalizeKind(raw);
+
+    if (Object.prototype.hasOwnProperty.call(sectionData, raw)) return raw;
+    if (Object.prototype.hasOwnProperty.call(sectionData, normalized)) return normalized;
+
+    var keys = Object.keys(sectionData);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      var entry = sectionData[key];
+      if (!entry || typeof entry !== 'object') continue;
+      if (entry.label === raw || entry.label === normalized) return key;
+      if (entry.calcKey === raw || entry.calcKey === normalized) return key;
+      if (entry.type === raw || entry.type === normalized) return key;
+    }
+    return null;
+  }
+
+  function cloneSpecRule(value) {
+    if (Array.isArray(value)) return value.slice();
+    if (value && typeof value === 'object') {
+      return {
+        include: Array.isArray(value.include) ? value.include.slice() : [],
+        exclude: Array.isArray(value.exclude) ? value.exclude.slice() : []
+      };
+    }
+    return null;
+  }
+
   function registerKind(config) {
     if (!config || !config.type) return;
-    var current = registry[config.type] || {
-      type: config.type,
+    var kind = normalizeKind(config.type);
+    var current = registry[kind] || {
+      type: kind,
       stockLengths: [],
       specStockLengths: {},
       surfaces: []
@@ -40,20 +80,13 @@
     var nextSpecStockLengths = Object.assign({}, current.specStockLengths);
     if (config.specStockLengths && typeof config.specStockLengths === 'object') {
       Object.keys(config.specStockLengths).forEach(function(key) {
-        var value = config.specStockLengths[key];
-        if (Array.isArray(value)) {
-          nextSpecStockLengths[key] = value.slice();
-        } else if (value && typeof value === 'object') {
-          nextSpecStockLengths[key] = {
-            include: Array.isArray(value.include) ? value.include.slice() : [],
-            exclude: Array.isArray(value.exclude) ? value.exclude.slice() : []
-          };
-        }
+        var cloned = cloneSpecRule(config.specStockLengths[key]);
+        if (cloned) nextSpecStockLengths[key] = cloned;
       });
     }
 
-    registry[config.type] = {
-      type: config.type,
+    registry[kind] = {
+      type: kind,
       stockLengths: Array.isArray(config.stockLengths) ? config.stockLengths.slice() : current.stockLengths.slice(),
       specStockLengths: nextSpecStockLengths,
       surfaces: Array.isArray(config.surfaces) ? config.surfaces.slice() : current.surfaces.slice()
@@ -65,8 +98,9 @@
   }
 
   function getSectionData(kind) {
-    var sectionData = global.SECTION_DATA || {};
-    return sectionData[normalizeKind(kind)] || null;
+    var sectionData = getSectionDataMap();
+    var foundKey = findSectionKey(kind);
+    return foundKey ? sectionData[foundKey] : null;
   }
 
   function getSpecsByType(kind) {
@@ -85,8 +119,11 @@
     if (spec && Array.isArray(spec.defaultStock) && spec.defaultStock.length) {
       return spec.defaultStock.slice();
     }
+
     var entry = getKindConfig(kind);
-    if (entry && specName && entry.specStockLengths && entry.specStockLengths[specName]) {
+    if (!entry) return [];
+
+    if (specName && entry.specStockLengths && entry.specStockLengths[specName]) {
       var base = entry.stockLengths.length ? entry.stockLengths.slice() : [];
       var specRule = entry.specStockLengths[specName];
 
@@ -108,12 +145,14 @@
         return base.sort(function(a, b) { return a - b; });
       }
     }
-    return entry && entry.stockLengths.length ? entry.stockLengths.slice() : [];
+
+    return entry.stockLengths.length ? entry.stockLengths.slice() : [];
   }
 
   ns.data.steel.registerKind = registerKind;
   ns.data.steel.getKindConfig = getKindConfig;
   ns.data.steel.getSectionData = getSectionData;
+  ns.data.steel.getSectionDataMap = getSectionDataMap;
   ns.data.steel.getSpecsByType = getSpecsByType;
   ns.data.steel.getSpecByName = getSpecByName;
   ns.data.steel.getStockLengthsByType = getStockLengthsByType;

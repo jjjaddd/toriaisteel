@@ -65,19 +65,24 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
 <meta name="description" content="TORIAIはバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。H形鋼・山形鋼・角鋼など主要鋼材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="manifest" href="src/assets/manifest.json">
+<link rel="apple-touch-icon" href="src/assets/icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=ui29">
-<link rel="stylesheet" href="toriai-theme.css?v=ui29">
-<link rel="stylesheet" href="data-tab.css?v=8">
+<link rel="stylesheet" href="src/styles/core.css?v=phase1">
+<link rel="stylesheet" href="src/styles/dataTabLayout.css?v=phase1">
+<link rel="stylesheet" href="src/styles/changelog.css?v=phase1">
+<link rel="stylesheet" href="src/styles/gearPopup.css?v=phase1">
+<link rel="stylesheet" href="src/styles/weightTable.css?v=phase1">
+<link rel="stylesheet" href="src/styles/overrideLayers.css?v=phase1">
+<link rel="stylesheet" href="src/styles/theme.css?v=ui29">
+<link rel="stylesheet" href="src/styles/dataTab.css?v=8">
 </head>
 <body>
 <h1 style="display:none">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
 
 <header>
   <div class="logo" onclick="goPage('c')" style="cursor:pointer">
-    <img class="logo-image" src="logo-toriai-outline-3d-black-transparent.svg" alt="TORIAI">
+    <img class="logo-image" src="src/assets/logo-toriai-outline-3d-black-transparent.svg" alt="TORIAI">
   </div>
   <nav aria-label="ページ切替">
     <a id="na" class="active" href="javascript:void(0)" onclick="goPage('c')">取り合い</a>
@@ -478,7 +483,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
         <aside class="contact-side">
           <section class="contact-card contact-card-info">
-            <div class="contact-card-title">お問い合わせ先情報</div>
+            <div class="contact-card-title">お問い合わせ先</div>
             <div class="contact-info-list">
               <div class="contact-info-row"><span>受付時間</span><strong>平日 9:00 - 18:00</strong></div>
               <div class="contact-info-row"><span>通常返信</span><strong>2営業日以内</strong></div>
@@ -986,8 +991,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/storage/local-store.js?v=phase1"></script>
 <script src="src/storage/repositories.js?v=phase1"></script>
 <script src="src/storage/weight-store.js?v=phase2"></script>
-<script src="src/data/steel/registry.js?v=phase1"></script>
-<script src="src/data/steel/index.js?v=phase2"></script>
+<script src="src/data/steel/registry.js?v=phase4"></script>
+<script src="src/data/steel/index.js?v=phase4"></script>
 <script src="src/data/steel/hBeam/specs.js?v=phase3"></script>
 <script src="src/data/steel/hBeam/stockLengths.js?v=phase1"></script>
 <script src="src/data/steel/hBeam/specStockLengths.js?v=phase2"></script>
@@ -997,29 +1002,110 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/data/steel/unequalAngle/stockLengths.js?v=phase1"></script>
 <script src="src/data/steel/unequalUnequalAngle/specs.js?v=phase3"></script>
 <script src="src/data/steel/unequalUnequalAngle/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/channel/specs.js?v=phase3"></script>
 <script src="src/data/steel/channel/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/cShape/specs.js?v=phase3"></script>
 <script src="src/data/steel/cShape/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/lightChannel/specs.js?v=phase3"></script>
 <script src="src/data/steel/lightChannel/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/iBeam/specs.js?v=phase3"></script>
 <script src="src/data/steel/iBeam/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/flatBar/specs.js?v=phase3"></script>
 <script src="src/data/steel/flatBar/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/roundBar/specs.js?v=phase3"></script>
 <script src="src/data/steel/roundBar/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/squareBar/specs.js?v=phase3"></script>
 <script src="src/data/steel/squareBar/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/pipe/specs.js?v=phase3"></script>
 <script src="src/data/steel/pipe/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/squarePipe/specs.js?v=phase3"></script>
 <script src="src/data/steel/squarePipe/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/smallSquarePipe/specs.js?v=phase3"></script>
 <script src="src/data/steel/smallSquarePipe/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/bcr295/specs.js?v=phase3"></script>
 <script src="src/data/steel/bcr295/stockLengths.js?v=phase1"></script>
+<script src="src/data/steel/stockHelpers.js?v=phase2"></script>
+<script src="src/ui/calc/resultState.js?v=phase1"></script>
+<script src="src/ui/calc/resultMeta.js?v=phase1"></script>
+<script src="src/ui/calc/inputState.js?v=phase1"></script>
+<script src="src/ui/calc/executionFlow.js?v=phase1"></script>
+<script src="src/ui/calc/specPanelBehavior.js?v=phase1"></script>
+<script src="src/ui/inventory/remnantSelection.js?v=phase1"></script>
+<script src="src/ui/inventory/page.js?v=phase1"></script>
+<script src="src/ui/cart/purchaseSection.js?v=phase1"></script>
+<script src="src/ui/cart/chromeCleanup.js?v=phase1"></script>
+<script src="src/ui/header/navOrder.js?v=phase1"></script>
+<script src="src/ui/contact/feedback.js?v=phase1"></script>
+<script src="src/ui/history/renderHistory.js?v=phase1"></script>
+<script src="src/ui/history/preview.js?v=phase1"></script>
 <script src="src/calculation/common/normalizeInput.js?v=phase1"></script>
 <script src="src/calculation/common/validateCalculationInput.js?v=phase1"></script>
 <script src="src/calculation/weight/calculateWeight.js?v=phase1"></script>
 <script src="src/calculation/weight/calculateTotalWeight.js?v=phase1"></script>
-<script src="storage.js?v=ui27"></script>
-<script src="calc.js?v=ui27"></script>
-<script src="utils.js?v=ui27"></script>
-<script src="main.js?v=ui29"></script>
-  <script src="final-overrides.js?v=ui28"></script>
-<script src="weight.js?v=ui29"></script>
-  <script src="data.js?v=ui39"></script>
-  <script src="contact.js?v=ui27"></script>
+<script src="src/calculation/yield/barMetrics.js?v=phase2"></script>
+<script src="src/calculation/yield/workerClient.js?v=phase1"></script>
+<script src="src/calculation/yield/patternPacking.js?v=phase1"></script>
+<script src="src/calculation/yield/repeatPlans.js?v=phase1"></script>
+<script src="src/calculation/yield/bundlePlan.js?v=phase1"></script>
+<script src="src/calculation/yield/calcCore.js?v=phase1"></script>
+<script src="src/services/storage/storageKeys.js?v=phase1"></script>
+<script src="src/services/storage/settingsStore.js?v=phase1"></script>
+<script src="src/services/storage/remnantsStore.js?v=phase1"></script>
+<script src="src/services/storage/piecesHistoryStore.js?v=phase1"></script>
+<script src="src/services/storage/inventoryStore.js?v=phase1"></script>
+<script src="src/services/storage/cutHistoryStore.js?v=phase1"></script>
+<script src="src/services/storage/cartStore.js?v=phase1"></script>
+<script src="src/services/storage/weightHistoryStore.js?v=phase1"></script>
+<script src="src/services/storage/importExportStore.js?v=phase1"></script>
+<script src="src/utils/jisRound.js?v=phase1"></script>
+<script src="src/utils/escapeHtml.js?v=phase1"></script>
+<script src="src/utils/dateUtils.js?v=phase1"></script>
+<script src="src/utils/uiHelpers.js?v=phase1"></script>
+<script src="src/calculation/section/paintArea.js?v=phase1"></script>
+<script src="src/data/sectionDefinitions.js?v=ui39"></script>
+<script src="src/features/dataTab/sectionSvg.js?v=phase1"></script>
+<script src="src/features/dataTab/state.js?v=phase1"></script>
+<script src="src/features/dataTab/init.js?v=phase1"></script>
+<script src="src/features/dataTab/kindSidebar.js?v=phase1"></script>
+<script src="src/features/dataTab/specPicker.js?v=phase1"></script>
+<script src="src/features/dataTab/renderSpec.js?v=phase1"></script>
+<script src="src/features/dataTab/stdLengths.js?v=phase1"></script>
+<script src="src/features/dataTab/notes.js?v=phase1"></script>
+<script src="src/calculation/orchestration.js?v=ui28"></script>
+<script src="src/ui/header/headerMenu.js?v=phase1"></script>
+<script src="src/features/gearPopup/gearPopup.js?v=phase1"></script>
+<script src="src/features/changelogModal/changelogModal.js?v=phase1"></script>
+<script src="src/features/calcOnboarding/calcOnboarding.js?v=phase1"></script>
+<script src="src/main.js?v=ui31"></script>
+<script src="src/features/calc/commandPalette.js?v=phase1"></script>
+<script src="src/features/calc/calcRender.js?v=phase1"></script>
+<script src="src/features/calc/clearParts.js?v=phase1"></script>
+<script src="src/features/calc/cardDisplay.js?v=phase1"></script>
+<script src="src/features/print/printPages.js?v=phase1"></script>
+<script src="src/features/print/printHeader.js?v=phase1"></script>
+<script src="src/features/print/buildPrintBarHtml.js?v=phase1"></script>
+<script src="src/features/materialStock/inventoryRender.js?v=phase1"></script>
+<script src="src/features/orderHistory/historyRender.js?v=phase1"></script>
+<script src="src/features/cart/cartModal.js?v=phase1"></script>
+<script src="src/features/cart/cartFlow.js?v=phase1"></script>
+<script src="src/features/cart/cartActions.js?v=phase1"></script>
+<script src="src/features/cart/cartCopy.js?v=phase1"></script>
+<script src="src/ui/calc/specPanelInit.js?v=phase1"></script>
+<script src="src/ui/history/historyInit.js?v=phase1"></script>
+<script src="src/ui/history/printPayload.js?v=phase1"></script>
+<script src="src/ui/calc/cardRemnantHydration.js?v=phase1"></script>
+<script src="src/ui/history/printCard.js?v=phase1"></script>
+<script src="src/compat/legacyGlobals.js?v=phase1"></script>
+<script src="src/features/weight/state.js?v=phase1"></script>
+<script src="src/features/weight/init.js?v=phase1"></script>
+<script src="src/features/weight/undoOptions.js?v=phase1"></script>
+<script src="src/features/weight/kindSpecPreview.js?v=phase1"></script>
+<script src="src/features/weight/rowOps.js?v=phase1"></script>
+<script src="src/features/weight/render.js?v=phase1"></script>
+<script src="src/features/weight/saveLoad.js?v=phase1"></script>
+<script src="src/features/weight/commandPalette.js?v=phase1"></script>
+<script src="src/features/weight/printCart.js?v=phase1"></script>
+<script src="src/features/contact/contactPage.js?v=ui28"></script>
 
 <!-- カートモーダル -->
 <div id="cartModal" onclick="if(event.target===this)closeCartModal()">
@@ -1075,10 +1161,10 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1e0c6bf1-9e00-4c1b-9913-b5f34f04bae1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="src/services/public-config.js?v=phase1"></script>
-<script src="src/services/supabase-gateway.js?v=phase1"></script>
-<script src="supabase-client.js?v=ui27"></script>
-<script src="supabase-sync.js?v=ui27"></script>
-<script src="custom-materials.js?v=ui27"></script>
+<script src="src/services/supabase/gateway.js?v=phase1"></script>
+<script src="src/services/supabase/client.js?v=ui27"></script>
+<script src="src/services/supabase/sync.js?v=ui27"></script>
+<script src="src/features/customMaterials/customMaterials.js?v=ui27"></script>
 <!-- 更新履歴モーダル -->
 <div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">
   <div class="changelog-card">

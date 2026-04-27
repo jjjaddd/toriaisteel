@@ -1,0 +1,342 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   データタブ 新レイアウト (案B)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.dp-selector-bar {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.dp-selector-item { display: flex; flex-direction: column; gap: 5px; }
+.dp-selector-grow { flex: 1; min-width: 200px; }
+.dp-selector-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* 2カラムグリッド */
+.dp-content-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 32px;
+}
+@media (max-width: 860px) {
+  .dp-content-grid { grid-template-columns: 1fr; }
+}
+
+/* 左: 情報カラム */
+.dp-info-col { display: flex; flex-direction: column; gap: 0; }
+
+/* 規格名エリア */
+#dataSpecInfo .dp-spec-headline {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -.02em;
+  margin-bottom: 4px;
+}
+#dataSpecInfo .dp-spec-meta {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 2px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#dataSpecInfo .dp-spec-meta strong { font-weight: 700; color: #111; }
+#dataSpecInfo .dp-badge-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+#dataSpecInfo .dp-kind-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 1.5px solid #ccc;
+  border-radius: 4px;
+  color: #444;
+  background: #f5f5f5;
+  letter-spacing: .04em;
+}
+#dataSpecInfo .dp-jis-tag {
+  font-size: 10px;
+  color: #888;
+  padding: 2px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+/* セクション見出し */
+.dp-sec-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #666;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid #111;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+/* 断面性能トグルボタン */
+.dp-toggle-btn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 8px 12px;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  text-align: left;
+  font-family: inherit;
+  letter-spacing: .04em;
+  transition: background .12s;
+}
+.dp-toggle-btn:hover { background: #ebebeb; }
+
+/* 定尺チップ */
+.dp-std-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.dp-std-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  cursor: default;
+}
+.dp-std-chip button {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.dp-std-chip button:hover { color: #e00; }
+.dp-std-add-form {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-top: 4px;
+}
+.dp-std-add-form input {
+  width: 72px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+}
+.dp-std-add-form button {
+  padding: 4px 10px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* 右: 図カラム */
+.dp-fig-col {
+  position: sticky;
+  top: 80px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+}
+.dp-svg-wrap svg { max-width: 100%; height: auto; }
+
+/* extraInfo */
+#dataExtraInfo { margin-top: 14px; }
+.dp-extra-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  color: #555;
+}
+.dp-extra-row:last-child { border-bottom: none; }
+.dp-extra-row strong { font-weight: 700; color: #111; font-size: 13px; }
+
+/* カスタム鋼材ブロック */
+.dp-custom-block {
+  border-top: 1.5px solid #111;
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+/* メモエリア */
+#dataNoteArea {
+  border-top: 1.5px solid #111;
+  padding-top: 14px;
+  margin-top: 14px;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   データタブ 案A (dp2-*)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.dp2-page{max-width:1000px;margin:0 auto;padding:24px 20px 48px}
+
+/* セレクターバー */
+.dp2-sel-bar{display:flex;gap:12px;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap}
+.dp2-sel-item{display:flex;flex-direction:column;gap:5px}
+.dp2-sel-grow{flex:1;min-width:200px}
+.dp2-sel-label{font-size:10px;font-weight:700;color:#888;letter-spacing:.08em;text-transform:uppercase}
+.dp2-kind-sel{padding:9px 32px 9px 12px;border:1.5px solid #ccc;border-radius:8px;font-size:13px;font-weight:600;background:#fafafa;cursor:pointer;outline:none;font-family:inherit;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23666' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.dp2-kind-sel:hover{border-color:#888}
+
+/* ヘッダー */
+.dp2-header{padding-bottom:20px;border-bottom:1.5px solid #111;margin-bottom:20px}
+.dp2-hd-kind{font-size:11px;font-weight:700;color:#888;letter-spacing:.1em;margin-bottom:8px}
+.dp2-hd-name{font-size:28px;font-weight:800;letter-spacing:-.02em;color:#111;line-height:1.1;margin-bottom:10px}
+.dp2-hd-meta{display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;font-size:14px;color:#555}
+.dp2-hd-meta strong{font-size:18px;font-weight:800;color:#111}
+.dp2-hd-divider{width:1px;height:16px;background:#ccc;flex-shrink:0}
+
+/* 定尺チップ */
+#dataStdArea{margin-bottom:24px}
+.dp2-sec-lbl{font-size:10px;font-weight:700;color:#666;letter-spacing:.08em;text-transform:uppercase;border-bottom:1.5px solid #111;padding-bottom:4px;margin-bottom:10px}
+.dp2-std-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.dp2-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:#f4f4f4;border:1px solid #ccc;border-radius:4px;font-size:12px;font-weight:600;color:#333}
+.dp2-chip-x{background:none;border:none;font-size:10px;color:#aaa;cursor:pointer;padding:0;line-height:1;font-weight:700}
+.dp2-chip-x:hover{color:#c00}
+.dp2-chip-add{display:inline-flex;align-items:center;gap:4px}
+.dp2-chip-add input{width:68px;padding:5px 7px;border:1px solid #ccc;border-radius:4px;font-size:12px;font-family:inherit}
+.dp2-chip-add button{padding:5px 10px;background:#333;color:#fff;border:none;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* ボディ 2カラム */
+.dp2-body{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+@media(max-width:760px){.dp2-body{grid-template-columns:1fr}}
+
+/* 左: 情報 */
+.dp2-info-col{}
+.dp2-dim-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#ddd;border:1px solid #ddd;border-radius:8px;overflow:hidden;margin-bottom:14px}
+.dp2-dim-cell{background:#fff;padding:10px 12px;text-align:center}
+.dp2-dim-cell .dp2-lbl{font-size:10px;color:#888;margin-bottom:3px;font-weight:600}
+.dp2-dim-cell .dp2-val{font-size:14px;font-weight:700;color:#111}
+.dp2-toggle-btn{width:100%;padding:9px 12px;background:#f4f4f4;border:1.5px solid #ccc;border-radius:6px;font-size:11px;font-weight:700;color:#444;text-align:left;cursor:pointer;font-family:inherit;letter-spacing:.04em;margin-bottom:4px}
+.dp2-toggle-btn:hover{background:#ebebeb}
+.dp2-extra-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid #eee;font-size:12px;color:#666}
+.dp2-extra-row:last-child{border-bottom:none}
+.dp2-extra-row strong{font-weight:700;color:#111;font-size:13px}
+#dataExtraInfo{margin-top:14px}
+#dataNoteArea{margin-top:20px;border-top:1.5px solid #111;padding-top:16px}
+.dp2-note-lbl{font-size:10px;font-weight:700;color:#666;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.dp2-note-list{background:#f8f8f8;border-radius:6px;padding:10px;font-size:12px;color:#888;min-height:48px;margin-bottom:8px;max-height:160px;overflow-y:auto}
+.dp2-note-item{background:#fff;border-radius:4px;padding:7px 10px;margin-bottom:5px;border:1px solid #eee}
+.dp2-note-ts{font-size:10px;color:#aaa;margin-bottom:2px}
+.dp2-note-text{font-size:12px;color:#333}
+.dp2-note-form{display:flex;gap:6px}
+.dp2-note-form textarea{flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:12px;resize:none;font-family:inherit;height:56px}
+.dp2-note-form button{background:#333;color:#fff;border:none;border-radius:6px;padding:0 16px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+
+/* 右: 図 */
+.dp2-fig-col{position:sticky;top:80px;border:1.5px solid #ccc;border-radius:10px;padding:24px;display:flex;align-items:center;justify-content:center;background:#fff;min-height:280px}
+.dp2-fig-col svg{max-width:100%;height:auto}
+
+/* カスタム鋼材 */
+.dp2-custom-section{margin-top:40px;border-top:1.5px solid #111;padding-top:16px}
+
+/* ━━━ dp2 補正・強制適用 ━━━ */
+#dpp .dp2-page { max-width:1000px; margin:0 auto; padding:24px 20px 48px; }
+
+/* ヘッダー強制 */
+#dpp #dataSpecInfo { padding-bottom:18px; border-bottom:1.5px solid #111; margin-bottom:18px; }
+#dpp .dp2-hd-kind { font-size:11px; font-weight:700; color:#888; letter-spacing:.1em; display:block; margin-bottom:6px; }
+#dpp .dp2-hd-name { font-size:26px; font-weight:800; letter-spacing:-.02em; color:#111; display:block; line-height:1.1; margin-bottom:8px; }
+#dpp .dp2-hd-meta { display:flex; gap:16px; align-items:baseline; font-size:13px; color:#666; }
+#dpp .dp2-hd-meta strong { font-size:17px; font-weight:800; color:#111; }
+
+/* 定尺エリア */
+#dpp #dataStdArea { margin-bottom:20px; }
+#dpp .dp2-sec-lbl { font-size:10px !important; font-weight:700 !important; color:#666 !important; letter-spacing:.08em; text-transform:uppercase; border-bottom:1.5px solid #111 !important; padding-bottom:4px; margin-bottom:10px; display:block; }
+#dpp .dp2-std-chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+#dpp .dp2-chip { display:inline-flex; align-items:center; gap:4px; padding:4px 9px; background:#f4f4f4; border:1px solid #ccc; border-radius:4px; font-size:12px; font-weight:600; color:#333; }
+#dpp .dp2-chip-x { background:none; border:none; font-size:9px; color:#999; cursor:pointer; padding:0; line-height:1; margin-left:2px; }
+#dpp .dp2-chip-x:hover { color:#c00; }
+#dpp .dp2-chip-add { display:inline-flex; align-items:center; gap:5px; }
+#dpp .dp2-chip-add input { width:70px; padding:4px 7px; border:1px solid #ccc; border-radius:4px; font-size:12px; font-family:inherit; }
+#dpp .dp2-chip-add button { padding:4px 10px; background:#333; color:#fff; border:none; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+/* ボディ 2カラム */
+#dpp .dp2-body { display:grid; grid-template-columns:1fr 440px; gap:28px; align-items:start; }
+@media (max-width:860px) { #dpp .dp2-body { grid-template-columns:1fr; } }
+
+/* 断面寸法グリッド */
+#dpp .dp2-dim-grid { display:grid !important; grid-template-columns:repeat(3,1fr) !important; gap:0; border:1.5px solid #ccc; border-radius:8px; overflow:hidden; margin-bottom:14px; }
+#dpp .dp2-dim-cell { background:#fff; padding:10px 12px; text-align:center; border-right:1px solid #e8e8e8; border-bottom:1px solid #e8e8e8; }
+#dpp .dp2-dim-cell:nth-child(3n) { border-right:none; }
+#dpp .dp2-dim-cell:nth-last-child(-n+3) { border-bottom:none; }
+#dpp .dp2-lbl { font-size:10px; font-weight:600; color:#888; margin-bottom:4px; display:block; }
+#dpp .dp2-val { font-size:15px; font-weight:700; color:#111; display:block; }
+
+/* 断面性能トグル */
+#dpp .dp2-toggle-btn { display:block !important; width:100%; padding:9px 12px; background:#f4f4f4; border:1.5px solid #ccc; border-radius:6px; font-size:11px; font-weight:700; color:#444; text-align:left; cursor:pointer; font-family:inherit; letter-spacing:.04em; margin-bottom:4px; }
+#dpp #dataPerfWrap .dp2-dim-grid { margin-top:8px; }
+
+/* extra rows */
+#dpp #dataExtraInfo { margin-top:14px; }
+#dpp .dp2-extra-row { display:flex !important; justify-content:space-between; align-items:baseline; padding:9px 0; border-bottom:1px solid #eee; font-size:12px; color:#666; }
+#dpp .dp2-extra-row:last-child { border-bottom:none; }
+#dpp .dp2-extra-row strong { font-weight:700; color:#111; font-size:13px; }
+
+/* メモ */
+#dpp #dataNoteArea { display:block; margin-top:20px; border-top:1.5px solid #111; padding-top:16px; }
+#dpp .dp2-note-lbl { font-size:10px; font-weight:700; color:#666; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; display:block; }
+#dpp .dp2-note-list { background:#f8f8f8; border-radius:6px; padding:10px; min-height:44px; margin-bottom:8px; max-height:150px; overflow-y:auto; }
+#dpp .dp2-note-item { background:#fff; border:1px solid #eee; border-radius:4px; padding:7px 10px; margin-bottom:5px; }
+#dpp .dp2-note-ts { font-size:10px; color:#aaa; margin-bottom:2px; }
+#dpp .dp2-note-text { font-size:12px; color:#333; }
+#dpp .dp2-note-form { display:flex; gap:6px; }
+#dpp .dp2-note-form textarea { flex:1; padding:8px; border:1.5px solid #ccc; border-radius:6px; font-size:12px; resize:none; font-family:inherit; height:52px; outline:none; }
+#dpp .dp2-note-form textarea:focus { border-color:#555; }
+#dpp .dp2-note-form button { background:#333; color:#fff; border:none; border-radius:6px; padding:0 16px; font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; }
+
+/* 断面図コラム */
+#dpp .dp2-fig-col { position:sticky; top:80px; border:1.5px solid #ccc; border-radius:10px; padding:20px; display:flex; align-items:center; justify-content:center; background:#fff; min-height:260px; }
+#dpp #dataSVGWrap svg { max-width:100%; height:auto; display:block; }
+
+/* カスタム鋼材 */
+#dpp .dp2-custom-section { margin-top:36px; padding-top:16px; border-top:1.5px solid #111; }
+
+/* セレクターバー */
+#dpp .dp2-sel-bar { display:flex; gap:12px; align-items:flex-end; margin-bottom:24px; flex-wrap:wrap; }
+#dpp .dp2-sel-item { display:flex; flex-direction:column; gap:5px; }
+#dpp .dp2-sel-grow { flex:1; min-width:180px; }
+#dpp .dp2-sel-label { font-size:10px; font-weight:700; color:#888; letter-spacing:.08em; text-transform:uppercase; }
+

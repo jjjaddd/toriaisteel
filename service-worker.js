@@ -1,14 +1,27 @@
-const CACHE_NAME = 'steel-optimizer-v76';
+const CACHE_NAME = 'steel-optimizer-v82';
 const ASSETS = [
   '/',
   '/index.html',
-  '/style.css',
-  '/toriai-theme.css',
-  '/storage.js',
-  '/calc.js',
-  '/main.js',
-  '/worker.js',
-  '/manifest.json',
+  '/src/styles/core.css',
+  '/src/styles/dataTabLayout.css',
+  '/src/styles/changelog.css',
+  '/src/styles/gearPopup.css',
+  '/src/styles/weightTable.css',
+  '/src/styles/overrideLayers.css',
+  '/src/styles/theme.css',
+  '/src/services/storage/storageKeys.js',
+  '/src/services/storage/settingsStore.js',
+  '/src/services/storage/remnantsStore.js',
+  '/src/services/storage/piecesHistoryStore.js',
+  '/src/services/storage/inventoryStore.js',
+  '/src/services/storage/cutHistoryStore.js',
+  '/src/services/storage/cartStore.js',
+  '/src/services/storage/weightHistoryStore.js',
+  '/src/services/storage/importExportStore.js',
+  '/src/calculation/orchestration.js',
+  '/src/main.js',
+  '/src/calculation/workers/yieldWorker.js',
+  '/src/assets/manifest.json',
 ];
 
 self.addEventListener('install', function(e) {
