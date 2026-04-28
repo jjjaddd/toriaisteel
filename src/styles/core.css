@@ -2570,6 +2570,11 @@ body.page-contact .guide-pixel-btn:hover{
   cursor: not-allowed;
 }
 
+/* カートが空のときはアクションボタンを隠す */
+.cart-section--empty .cart-actions-grid {
+  display: none;
+}
+
 .cart-modal-count {
   font-size: 11px;
   color: #888;

@@ -13,15 +13,28 @@ function closeCartModal() {
 function renderCartModal() {
   var cart = getCart();
   var body = document.getElementById('cartModalBody');
-  if (!body) return;
+  var cutList = document.getElementById('cartCutList');
+  var cutSection = document.getElementById('cartSectionCut');
+  if (!body || !cutList) return;
+
+  // 件数バッジ
+  var countEl = document.getElementById('cartModalCount');
+  if (countEl) countEl.textContent = cart.length ? cart.length + '件' : '';
+
+  // 既存の材料手配セクションは毎回作り直す
+  var existingPurchase = document.getElementById('cartPurchaseSection');
+  if (existingPurchase) existingPurchase.remove();
 
   if (!cart.length) {
-    body.innerHTML = '<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">' +
+    cutList.innerHTML = '<div style="padding:32px;text-align:center;color:#aaa;font-size:13px">' +
       'カートは空です。各カードの「＋」を押してください。</div>';
+    if (cutSection) cutSection.classList.add('cart-section--empty');
     return;
   }
+  if (cutSection) cutSection.classList.remove('cart-section--empty');
 
-  body.innerHTML = cart.map(function(item) {
+  // カート項目リスト
+  cutList.innerHTML = cart.map(function(item) {
     var d = item.data;
     return '<div class="cart-item">' +
       '<div style="flex:1;min-width:0">' +
@@ -37,10 +50,8 @@ function renderCartModal() {
     '</div>';
   }).join('');
 
-  // 材料手配セクション（旧 src/ui/cart/cartModalDecorations.js から統合）
+  // 材料手配セクション（cartSectionCut の後ろに追加）
   var summary = typeof getCartPurchaseSummary === 'function' ? getCartPurchaseSummary(cart) : [];
-  var existing = document.getElementById('cartPurchaseSection');
-  if (existing) existing.remove();
   var section = document.createElement('div');
   section.id = 'cartPurchaseSection';
   section.className = 'cart-purchase-section';
