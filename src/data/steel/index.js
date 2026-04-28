@@ -114,6 +114,18 @@
     return base;
   }
 
+  function compareSpecRowsByName(a, b) {
+    var an = String((a && a[0]) || '').match(/[\d.]+/g) || [];
+    var bn = String((b && b[0]) || '').match(/[\d.]+/g) || [];
+    var len = Math.max(an.length, bn.length);
+    for (var i = 0; i < len; i++) {
+      var av = an[i] == null ? -Infinity : parseFloat(an[i]);
+      var bv = bn[i] == null ? -Infinity : parseFloat(bn[i]);
+      if (av !== bv) return av - bv;
+    }
+    return String((a && a[0]) || '').localeCompare(String((b && b[0]) || ''), 'ja');
+  }
+
   function getRowsByKind(kind) {
     var rows = [];
     var seen = {};
@@ -128,6 +140,10 @@
       seen[spec.name] = true;
     });
 
+    // サイズ順にソート（spec.js の追加順がバラついていても、寸法数値順で並ぶ）
+    rows.sort(compareSpecRowsByName);
+
+    // カスタム鋼材は末尾に追加
     getCustomMaterialRows(kind).forEach(function(item) {
       if (!item || !item.spec || !(Number(item.kgm) > 0) || seen[item.spec]) return;
       rows.push([item.spec, Number(item.kgm), true]);

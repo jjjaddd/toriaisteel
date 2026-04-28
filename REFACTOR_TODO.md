@@ -214,7 +214,12 @@
   - [x] **Wave 7-D2**: 計算結果 render + 切断図描画 (`calcRender.js` / `clearParts.js` / `cardDisplay.js`) を `src/features/calc/` へ（663 行削減）
   - [x] **Wave 7-E**: 印刷組み立て (`printPages.js` / `printHeader.js` / `buildPrintBarHtml.js`) を `src/features/print/` へ（181 行削減）
   - **累計**: main.js 4676 → 2141 行（**54%、2535 行削減**）／171 → 90 関数
-  - [ ] **Wave 7-F**: 残った関連 90 関数 (history/inventory の細かい補助、calc 補助、init helpers 等) を順次切り出し、最終的に `src/main.js` を init + 接続だけに縮小
+  - [x] **Wave 7-F1**: calc 12 ファイル + UI 2 ファイル抽出（`steelCatalog.js` / `specStockInput.js` / `calcResultActions.js` / `stockControls.js` / `cutFlow.js` / `manualRemnants.js` / `calcToolbar.js` / `calcUtils.js` + `inventoryRemnantState.js` / `inventoryRemnantRows.js` + `toast.js` / `sectionToggle.js`）。962 行抽出
+  - [x] **Wave 7-F2**: 履歴・在庫サイドバー → `src/features/historyInventory/sidebar.js`（323 行抽出）
+  - [x] **Wave 7-F3**: `inventoryDropdowns.js` (83 行) + `historyRows.js` (128 行) を `src/features/materialStock/` / `src/features/orderHistory/` へ
+  - [x] **Wave 7-F4**: `partsTable.js` (283 行) + `pageNav.js` (113 行) + `interfaceChrome.js` (53 行) + `customSelect.js` (137 行) を `src/features/calc/` / `src/ui/` へ
+  - **最終結果**: main.js **4676 → 61 行（98.7% 削減、4615 行除去）／171 → 1 関数（init() のみ、`confirmCutDone` から呼ばれる reset 関数）**
+  - [ ] init() を `src/features/calc/calcInit.js` 等に移して main.js を完全に空にする — 後続候補
 
 ### Wave 8: assets / manifest
 - [x] `manifest.json` → `src/assets/manifest.json`（`scope: "/"` を追加）
