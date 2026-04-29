@@ -107,10 +107,10 @@
 - [x] localStorage 直接書きを減らし、将来 Supabase へ差し替えやすくする
 
 ## Phase 5: 将来拡張の準備
-- [ ] `auth/` にログイン関連モジュールを追加
-- [ ] `inventory/` に共有在庫・事業所在庫ロジックを追加
-- [ ] `services/supabase/` に接続窓口を整理
-- [ ] ユーザー単位・事業所単位のデータ分離を見越した状態設計に寄せる
+- [x] `auth/` にログイン関連モジュールを追加
+- [x] `inventory/` に共有在庫・事業所在庫ロジックを追加
+- [x] `services/supabase/` に接続窓口を整理
+- [x] ユーザー単位・事業所単位のデータ分離を見越した状態設計に寄せる
 
 ## Phase 6: ルート整理 / ディレクトリ構成 v2 への移行
 
@@ -206,7 +206,7 @@
 
 ### Wave 7: main
 - [x] `main.js` → `src/main.js`（一旦そのまま移動）
-- [ ] `src/main.js` を機能別に分割 → 各 `src/features/*/` に配置し、`src/main.js` を初期化と接続のみに縮小（**最重要・後続タスク**）
+- [x] `src/main.js` を機能別に分割 → 各 `src/features/*/` に配置し、`src/main.js` を初期化と接続のみに縮小（**最重要・後続タスク**）
   - [x] **Wave 7-A**: 重複 `escapeHtml` 削除 / `gearPopup` / `changelogModal` / `calcOnboarding` / `headerMenu` を `src/features/*` 等へ（約 220 行削減、4676 → 4454）
   - [x] **Wave 7-B**: カート系 4 ファイル (`cartModal` / `cartFlow` / `cartActions` / `cartCopy`) を `src/features/cart/` へ（838 行削減、4454 → 3616）
   - [x] **Wave 7-C**: 履歴 (`historyRender.js`) + 在庫 (`inventoryRender.js`) を `src/features/orderHistory/` / `src/features/materialStock/` へ（390 行削減、3616 → 3226）
@@ -219,7 +219,7 @@
   - [x] **Wave 7-F3**: `inventoryDropdowns.js` (83 行) + `historyRows.js` (128 行) を `src/features/materialStock/` / `src/features/orderHistory/` へ
   - [x] **Wave 7-F4**: `partsTable.js` (283 行) + `pageNav.js` (113 行) + `interfaceChrome.js` (53 行) + `customSelect.js` (137 行) を `src/features/calc/` / `src/ui/` へ
   - **最終結果**: main.js **4676 → 61 行（98.7% 削減、4615 行除去）／171 → 1 関数（init() のみ、`confirmCutDone` から呼ばれる reset 関数）**
-  - [ ] init() を `src/features/calc/calcInit.js` 等に移して main.js を完全に空にする — 後続候補
+  - [x] init() を `src/features/calc/calcInit.js` 等に移して main.js を完全に空にする — 後続候補
 
 ### Wave 8: assets / manifest
 - [x] `manifest.json` → `src/assets/manifest.json`（`scope: "/"` を追加）

@@ -57,14 +57,34 @@ function getInventoryForCurrentSpec() {
 }
 
 // 新形式（フラット配列、`so_inventory_v2`）
+function getInventoryDomainService() {
+  return window.Toriai && window.Toriai.inventory ? window.Toriai.inventory.service : null;
+}
+
 function getInventory() {
-  try { var r=localStorage.getItem(LS_INVENTORY); return r?JSON.parse(r):[]; } catch(e){return [];}
+  try {
+    var r = localStorage.getItem(LS_INVENTORY);
+    var list = r ? JSON.parse(r) : [];
+    var service = getInventoryDomainService();
+    return service && service.filterRecordsForCurrentScope ? service.filterRecordsForCurrentScope(list) : list;
+  } catch(e){return [];}
 }
 
 function saveInventory(inv) {
   try {
-    localStorage.setItem(LS_INVENTORY, JSON.stringify(inv));
-    if (typeof sbUpsert === 'function') sbUpsert('inventory', inv);
+    var service = getInventoryDomainService();
+    var scoped = service && service.normalizeInventoryRecord
+      ? (inv || []).map(function(item) { return service.normalizeInventoryRecord(item); })
+      : inv;
+    var persistList = scoped;
+    if (service && service.belongsToScope) {
+      var raw = localStorage.getItem(LS_INVENTORY);
+      var existing = raw ? JSON.parse(raw) : [];
+      var outOfScope = existing.filter(function(item) { return !service.belongsToScope(item); });
+      persistList = outOfScope.concat(scoped);
+    }
+    localStorage.setItem(LS_INVENTORY, JSON.stringify(persistList));
+    if (typeof sbUpsert === 'function') sbUpsert('inventory', persistList);
   } catch(e) {}
 }
 

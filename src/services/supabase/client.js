@@ -12,6 +12,6 @@ var SUPABASE_KEY = _publicConfig.supabaseAnonKey || '';
 var supabaseClient = window.Toriai &&
   window.Toriai.services &&
   window.Toriai.services.supabase &&
-  typeof window.Toriai.services.supabase.createClient === 'function'
-  ? window.Toriai.services.supabase.createClient()
+  typeof window.Toriai.services.supabase.getClient === 'function'
+  ? window.Toriai.services.supabase.getClient()
   : null;
