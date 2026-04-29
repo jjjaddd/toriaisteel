@@ -92,7 +92,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="stylesheet" href="src/styles/themeDarkSupplement.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themePolish.css?v=ui29">
 <link rel="stylesheet" href="src/styles/dataTab.css?v=8">
-<link rel="stylesheet" href="src/styles/authUi.css?v=phase1">
+<link rel="stylesheet" href="src/styles/authUi.css?v=phase4">
 </head>
 <body>
 <h1 style="display:none">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
@@ -124,6 +124,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         </button>
         <button class="hm-row" type="button" onclick="openUsageGuideExternal()">
           <span class="hm-txt">使い方</span>
+        </button>
+        <button id="authMenuBtn" class="hm-row" type="button" onclick="openAuthMenuAction(); closeHeaderMenu()">
+          <span class="hm-txt">ログイン</span>
         </button>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
 <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.5</span></span>
@@ -672,7 +675,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
                 <select id="invSelect" style="flex:1;font-size:11px;background:#f8f8f8;border:1px solid #e0e0e0;color:#111111;border-radius:6px;padding:4px 6px">
                   <option value="">── 在庫から残材に追加 ──</option>
                 </select>
-                <button id="invUseBtn" onclick="addFromInventory()" style="font-size:11px;padding:5px 10px;background:transparent;color:#111111;border:1.5px solid #d0d0d0;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
+                <button id="invUseBtn" type="button" style="font-size:11px;padding:5px 10px;background:transparent;color:#111111;border:1.5px solid #d0d0d0;border-radius:8px;cursor:pointer;font-weight:700;white-space:nowrap;font-family:inherit;transition:all .15s">＋ 計算に使う</button>
               </div>
             </div>
             <div class="remnant-area">
@@ -1100,7 +1103,6 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/features/changelogModal/changelogModal.js?v=phase1"></script>
 <script src="src/features/calcOnboarding/calcOnboarding.js?v=phase1"></script>
 <script src="src/features/calc/appState.js?v=phase1"></script>
-<script src="src/main.js?v=ui31"></script>
 <script src="src/features/calc/calcInit.js?v=phase1"></script>
 <script src="src/features/calc/partsTable.js?v=phase1"></script>
 <script src="src/ui/pageNav.js?v=phase1"></script>
@@ -1208,11 +1210,11 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/services/supabase/gateway.js?v=phase1"></script>
 <script src="src/services/supabase/client.js?v=ui27"></script>
 <script src="src/services/supabase/sync.js?v=ui27"></script>
-<script src="src/services/supabase/authService.js?v=phase1"></script>
-<script src="src/services/supabase/orgService.js?v=phase1"></script>
-<script src="src/services/supabase/orgStorage.js?v=phase1"></script>
-<script src="src/features/auth/authUi.js?v=phase1"></script>
-<script src="src/features/auth/authBoot.js?v=phase1"></script>
+<script src="src/services/supabase/authService.js?v=phase3"></script>
+<script src="src/services/supabase/orgService.js?v=phase2"></script>
+<script src="src/services/supabase/orgStorage.js?v=phase2"></script>
+<script src="src/features/auth/authUi.js?v=phase4"></script>
+<script src="src/features/auth/authBoot.js?v=phase4"></script>
 <script src="src/features/customMaterials/customMaterials.js?v=ui27"></script>
 <!-- 更新履歴モーダル -->
 <div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">

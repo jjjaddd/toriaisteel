@@ -5,3 +5,23 @@ pack_capacity_out.txt
 *.log
 .DS_Store
 Thumbs.db
+
+# === 世界一プロジェクト 秘匿エリア（リポジトリには出さない） ===
+# Column Generation 本体（差別化の核）
+src/calculation/yield/columnGeneration.js
+
+# 実顧客データ
+benchmark/realCases.js
+
+# 戦略・実装ドキュメント
+benchmark/COMPETITORS.md
+benchmark/DESIGN_V3.md
+benchmark/PHASE4_SKETCH.md
+benchmark/PRESERVATION_CONTRACT.md
+benchmark/PROGRESS.md
+benchmark/REPORT.md
+benchmark/UNIQUE_STRENGTHS.md
+TODO.md
+
+# Supabase Edge Function 一式（CG はサーバーで動かす）
+supabase/

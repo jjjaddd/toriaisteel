@@ -5,7 +5,8 @@ importScripts(
   'src/calculation/yield/patternPacking.js?v=phase2',
   'src/calculation/yield/repeatPlans.js?v=phase2',
   'src/calculation/yield/bundlePlan.js?v=phase2',
-  'src/calculation/yield/calcCore.js?v=phase2'
+  'src/calculation/yield/calcCore.js?v=phase2',
+  'src/calculation/yield/algorithmV2.js?v=phase2'
 );
 
 (function(global) {
@@ -20,7 +21,7 @@ importScripts(
     return;
   }
 
-  function calcYield(blade, endLoss, kgm, stocks, pieces, remnants, minValidLen) {
+  function calcYield(blade, endLoss, kgm, stocks, pieces, remnants, minValidLen, mode) {
     var coreResult = ns.calcCore({
       blade: blade,
       endLoss: endLoss,
@@ -28,7 +29,8 @@ importScripts(
       stocks: stocks,
       pieces: pieces,
       remnants: remnants,
-      minValidLen: minValidLen
+      minValidLen: minValidLen,
+      mode: mode  // Phase 2-1: 'normal' | 'deep'
     }) || {};
 
     return {
@@ -48,7 +50,7 @@ importScripts(
     try {
       var result;
       if (data.mode === 'yield') {
-        result = calcYield(data.blade, data.endLoss, data.kgm, data.stocks, data.pieces, data.remnants, data.minValidLen);
+        result = calcYield(data.blade, data.endLoss, data.kgm, data.stocks, data.pieces, data.remnants, data.minValidLen, data.calcMode);
       } else if (data.mode === 'patA') {
         if (typeof ns.resetDpCache === 'function') ns.resetDpCache();
         result = { patA: ns.calcPatternA(data.pieces, data.stocks, data.blade, data.endLoss, data.kgm) };
@@ -65,7 +67,8 @@ importScripts(
           stocks: data.stocks,
           pieces: data.pieces,
           remnants: data.remnants,
-          minValidLen: data.minValidLen
+          minValidLen: data.minValidLen,
+          mode: data.calcMode  // Phase 2-1
         });
       }
       self.postMessage({ ok: true, result: result, mode: data.mode });
