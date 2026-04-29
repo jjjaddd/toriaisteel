@@ -23,3 +23,10 @@ function closeHeaderMenu() {
   if (menu) menu.classList.remove('show');
   if (overlay) overlay.classList.remove('show');
 }
+
+function openUsageGuideExternal() {
+  var url = 'https://note.com/tender_kiwi2595/n/n1555f0856d9d?app_launch=false';
+  if (!confirm('外部サイト（note）に移動します。よろしいですか？')) return;
+  closeHeaderMenu();
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
