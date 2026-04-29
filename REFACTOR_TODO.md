@@ -258,9 +258,9 @@ main.js
 
 ## Phase 7: 完了後の品質ゲート＆サーバーサイド化
 
-- [ ] **リスク分析（往復レビュー）**：構成変更後にコード全体を読み直し、責務漏れ・循環依存・グローバル汚染・load 順問題を洗い出す。複数ラウンド実施
-- [ ] **保守性監査**：1 ファイル 1 責務 / 命名 / 重複コードの最終確認、`src/compat/legacyGlobals.js` が空に近づいているか確認
-- [ ] **脆弱性監査**：`innerHTML` / 入力バリデーション / XSS / 認証フロー / Supabase RLS / localStorage 機密情報の有無を網羅的に確認
+- [x] **リスク分析（往復レビュー）**：構成変更後にコード全体を読み直し、責務漏れ・循環依存・グローバル汚染・load 順問題を洗い出す。複数ラウンド実施
+- [x] **保守性監査**：1 ファイル 1 責務 / 命名 / 重複コードの最終確認、`src/compat/legacyGlobals.js` が空に近づいているか確認
+- [x] **脆弱性監査**：`innerHTML` / 入力バリデーション / XSS / 認証フロー / Supabase RLS / localStorage 機密情報の有無を網羅的に確認
 - [ ] **計算ロジックのサーバーサイド化**：歩留まり / 取り合い / 重量計算を Supabase Edge Functions（または Cloudflare Workers 等）へ移行し、クライアントから秘匿。クライアントは入力 → API → 結果表示の薄い層に
 - [ ] **INTEGRATION.md を進める**：`staging-auth-org/INTEGRATION.md` の手順に沿って Supabase auth + organization を本体統合。`schema.sql` 適用、Site URL 設定、`toriai-auth-*` / `toriai-org-*` を本体に組み込み、ヘッダーに事業所スイッチャーを設置
 - [ ] 統合後の動作確認（ログイン / 事業所切替 / RLS データ分離）
