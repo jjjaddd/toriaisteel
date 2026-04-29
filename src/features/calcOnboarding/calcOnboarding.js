@@ -27,10 +27,14 @@ function markCalcOnboardingSeen() {
 function renderCalcOnboarding() {
   var pages = document.querySelectorAll('#calcOnboardingModal .onboarding-page');
   var actions = document.getElementById('onboardingActions');
+  var prev = document.getElementById('onboardingPrev');
+  var next = document.getElementById('onboardingNext');
   Array.prototype.forEach.call(pages, function(page, idx) {
     page.classList.toggle('is-active', idx === _calcOnboardingPage);
   });
   if (actions) actions.classList.toggle('is-complete', _calcOnboardingPage === _calcOnboardingTotal - 1);
+  if (prev) prev.hidden = _calcOnboardingPage === 0;
+  if (next) next.hidden = _calcOnboardingPage === _calcOnboardingTotal - 1;
 }
 
 function openCalcOnboarding(forceLocked) {
@@ -70,10 +74,9 @@ function startCalcFromOnboarding() {
 }
 
 function showCalcOnboardingIfNeeded() {
-  if (hasSeenCalcOnboarding()) return;
-  setTimeout(function() {
-    openCalcOnboarding(true);
-  }, 280);
+  if (typeof showChangelogIfNeeded === 'function') {
+    showChangelogIfNeeded();
+  }
 }
 
 // モーダル群（onboarding / changelog / header menu）の共通 keyboard ハンドラ

@@ -4,6 +4,16 @@
 
 var TORIAI_CHANGELOG = [
   {
+    version: 'v1.0.5',
+    date: '2026-04-29',
+    changes: [
+      'ハンバーガーメニューに「使い方」を追加し、note のガイドを外部サイト確認つきで開けるようにしました',
+      '更新後の自動表示を、使い方オンボーディングから更新履歴に変更しました',
+      '使い方オンボーディングの左右操作を、枠の左下・右下に表示される三角ボタンへ変更しました',
+      'CSS分割、保存層、断面性能 parser、フェーズ6までのリファクタリングを進めました'
+    ]
+  },
+  {
     version: 'v1.0.4',
     date: '2026-04-24',
     changes: [
@@ -56,6 +66,23 @@ var TORIAI_CHANGELOG = [
   }
 ];
 
+var TORIAI_CHANGELOG_KEY = 'toriai_changelog_seen_version';
+var TORIAI_CHANGELOG_VERSION = TORIAI_CHANGELOG[0] ? TORIAI_CHANGELOG[0].version : '';
+
+function hasSeenChangelog() {
+  try {
+    return (localStorage.getItem(TORIAI_CHANGELOG_KEY) || '') === TORIAI_CHANGELOG_VERSION;
+  } catch (e) {
+    return false;
+  }
+}
+
+function markChangelogSeen() {
+  try {
+    localStorage.setItem(TORIAI_CHANGELOG_KEY, TORIAI_CHANGELOG_VERSION);
+  } catch (e) {}
+}
+
 function renderChangelog() {
   var body = document.getElementById('changelogBody');
   if (!body) return;
@@ -77,10 +104,18 @@ function openChangelog() {
   renderChangelog();
   var modal = document.getElementById('changelogModal');
   if (modal) modal.classList.add('show');
+  markChangelogSeen();
   if (typeof closeHeaderMenu === 'function') closeHeaderMenu();
 }
 
 function closeChangelog() {
   var modal = document.getElementById('changelogModal');
   if (modal) modal.classList.remove('show');
+}
+
+function showChangelogIfNeeded() {
+  if (hasSeenChangelog()) return;
+  setTimeout(function() {
+    openChangelog();
+  }, 280);
 }

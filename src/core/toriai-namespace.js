@@ -4,7 +4,7 @@
   if (global.Toriai) return;
 
   var Toriai = {
-    version: 'v1.0.4',
+    version: 'v1.0.5',
     ui: {},
     calculation: {},
     data: {

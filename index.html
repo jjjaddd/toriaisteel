@@ -124,7 +124,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <span class="hm-txt">使い方</span>
         </button>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
-<span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.4</span></span>
+<span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.5</span></span>
           <span class="hm-version-arrow">›</span>
         </button>
       </div>
@@ -507,7 +507,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
               <div class="contact-info-row"><span>受付時間</span><strong>平日 9:00 - 18:00</strong></div>
               <div class="contact-info-row"><span>通常返信</span><strong>2営業日以内</strong></div>
               <div class="contact-info-row"><span>緊急</span><strong>support.toriai@gmail.com</strong></div>
-<div class="contact-info-row"><span>バージョン</span><strong>v1.0.4</strong></div>
+<div class="contact-info-row"><span>バージョン</span><strong>v1.0.5</strong></div>
             </div>
           </section>
 
@@ -1264,9 +1264,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
       </section>
 
     </div>
-    <div class="onboarding-hint">左側を押すと戻る / 右側を押すと進む</div>
-    <div class="onboarding-hit onboarding-hit-left" onclick="moveCalcOnboarding(-1)" aria-hidden="true"></div>
-    <div class="onboarding-hit onboarding-hit-right" onclick="moveCalcOnboarding(1)" aria-hidden="true"></div>
+    <button type="button" id="onboardingPrev" class="onboarding-nav onboarding-nav-left" onclick="moveCalcOnboarding(-1)" aria-label="前へ">◀</button>
+    <button type="button" id="onboardingNext" class="onboarding-nav onboarding-nav-right" onclick="moveCalcOnboarding(1)" aria-label="次へ">▶</button>
     <div class="onboarding-actions" id="onboardingActions">
       <button type="button" class="onboarding-primary" onclick="startCalcFromOnboarding()">TORIAIを開く</button>
     </div>
