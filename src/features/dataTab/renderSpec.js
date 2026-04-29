@@ -99,7 +99,7 @@ function renderDataSpec() {
         _d('B', spec.B, 'mm') +
         _d('t1（ウェブ）', spec.t1, 'mm') +
         _d('t2（フランジ）', spec.t2, 'mm') +
-        _d('r（フィレット）', spec.r, 'mm') +
+        (spec.r != null ? _d('r（フィレット）', spec.r, 'mm') : '') +
         _d('断面積 A', spec.Ac, 'cm²');
     } else if (kindData.type === 'C' || kindData.type === 'I') {
       dimEl.innerHTML =
@@ -121,31 +121,31 @@ function renderDataSpec() {
       dimEl.innerHTML =
         _d('A = B', spec.A, 'mm') +
         _d('t（肉厚）', spec.t, 'mm') +
-        _d('r1（根元）', spec.r1, 'mm') +
-        _d('r2（先端）', spec.r2, 'mm') +
-        _d('断面積 Ac', spec.Ac, 'cm²') +
-        _d('Cx = Cy', spec.Cx, 'cm');
+        (spec.r1 != null ? _d('r1（根元）', spec.r1, 'mm') : '') +
+        (spec.r2 != null ? _d('r2（先端）', spec.r2, 'mm') : '') +
+        (spec.Ac != null ? _d('断面積 Ac', spec.Ac, 'cm²') : '') +
+        (spec.Cx != null ? _d('Cx = Cy', spec.Cx, 'cm') : '');
     } else if (kindData.type === 'LU') {
       dimEl.innerHTML =
         _d('A（長辺）', spec.A, 'mm') +
         _d('B（短辺）', spec.B, 'mm') +
         _d('t（板厚）', spec.t, 'mm') +
-        _d('r1（根元）', spec.r1, 'mm') +
-        _d('r2（先端）', spec.r2, 'mm') +
-        _d('断面積 Ac', spec.Ac, 'cm²') +
-        _d('A 方向', spec.Cx, 'cm') +
-        _d('B 方向', spec.Cy, 'cm');
+        (spec.r1 != null ? _d('r1（根元）', spec.r1, 'mm') : '') +
+        (spec.r2 != null ? _d('r2（先端）', spec.r2, 'mm') : '') +
+        (spec.Ac != null ? _d('断面積 Ac', spec.Ac, 'cm²') : '') +
+        (spec.Cx != null ? _d('A 方向', spec.Cx, 'cm') : '') +
+        (spec.Cy != null ? _d('B 方向', spec.Cy, 'cm') : '');
     } else if (kindData.type === 'LUT') {
       dimEl.innerHTML =
         _d('A（長辺）', spec.A, 'mm') +
         _d('B（短辺）', spec.B, 'mm') +
         _d('t1（長辺板厚）', spec.t1, 'mm') +
         _d('t2（短辺板厚）', spec.t2, 'mm') +
-        _d('r1（根元）', spec.r1, 'mm') +
-        _d('r2（先端）', spec.r2, 'mm') +
-        _d('断面積 Ac', spec.Ac, 'cm²') +
-        _d('A 方向', spec.Cx, 'cm') +
-        _d('B 方向', spec.Cy, 'cm');
+        (spec.r1 != null ? _d('r1（根元）', spec.r1, 'mm') : '') +
+        (spec.r2 != null ? _d('r2（先端）', spec.r2, 'mm') : '') +
+        (spec.Ac != null ? _d('断面積 Ac', spec.Ac, 'cm²') : '') +
+        (spec.Cx != null ? _d('A 方向', spec.Cx, 'cm') : '') +
+        (spec.Cy != null ? _d('B 方向', spec.Cy, 'cm') : '');
     } else if (kindData.type === 'FL') {
       dimEl.innerHTML =
         _d('厚さ t', spec.t, 'mm') +

@@ -51,12 +51,35 @@ function drawCChannelSVG(H, B, L, t, viewW, viewH) {
    全フィレット sweep=0（凹フィレット）
 */
 function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
-  const margin = 36;
-  const sc = Math.min((viewW - margin*2)/B, (viewH - margin*2)/H);
-  const h=H*sc, b=B*sc, w=t1*sc, f=t2*sc, rr=r*sc;
-  const cx=viewW/2, cy=viewH/2;
-  const fl=cx-b/2, fr=cx+b/2, wl=cx-w/2, wr=cx+w/2;
-  const uft=cy-h/2, ufb=uft+f, lft=cy+h/2-f, lfb=cy+h/2;
+  const hasR = r !== null && r !== undefined && r !== '';
+  H = Number(H || 0);
+  B = Number(B || 0);
+  t1 = Number(t1 || 0);
+  t2 = Number(t2 || 0);
+  r = Number(r || 0);
+
+  const margin = { left: 116, top: 48, right: 136, bottom: 118 };
+  const sc = Math.min(
+    (viewW - margin.left - margin.right) / Math.max(B, 1),
+    (viewH - margin.top - margin.bottom) / Math.max(H, 1)
+  );
+  const h = H * sc;
+  const b = B * sc;
+  const w = Math.max(2.5, t1 * sc);
+  const f = Math.max(4, t2 * sc);
+  const rr = Math.max(0.01, Math.min(r * sc, Math.min((b - w) / 2, (h - f * 2) / 2) * 0.42));
+  const x0 = margin.left + (viewW - margin.left - margin.right - b) / 2;
+  const y0 = margin.top + (viewH - margin.top - margin.bottom - h) / 2;
+  const fl = x0;
+  const fr = x0 + b;
+  const cx = x0 + b / 2;
+  const cy = y0 + h / 2;
+  const wl = cx - w / 2;
+  const wr = cx + w / 2;
+  const uft = y0;
+  const ufb = y0 + f;
+  const lft = y0 + h - f;
+  const lfb = y0 + h;
 
   const path=[
     `M ${fl} ${uft}`,`L ${fr} ${uft}`,`L ${fr} ${ufb}`,
@@ -69,33 +92,71 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
     `L ${fl} ${ufb}`,`Z`
   ].join(' ');
 
-  const lx=fl-20, by=lfb+18;
-  const rHigh=`<path d="M ${wr+rr} ${ufb} A ${rr} ${rr} 0 0 0 ${wr} ${ufb+rr}" fill="none" stroke="#888888" stroke-width="${Math.max(1.5,rr*0.3)}"/>`;
-  const rLx=wr+rr+14, rLy=ufb+rr/2;
-  const rLine=`<circle cx="${wr+rr}" cy="${ufb+rr}" r="2" fill="#888888"/>
-    <line x1="${wr+rr}" y1="${ufb+rr}" x2="${rLx-2}" y2="${rLy}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${rLx+1}" y="${rLy}" font-size="14" font-weight="700" fill="#555555" dominant-baseline="middle">r=${r}</text>`;
-  const dimH=`<line x1="${lx}" y1="${uft}" x2="${lx}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
-    <line x1="${lx-4}" y1="${uft}" x2="${lx+4}" y2="${uft}" stroke="#555555" stroke-width="1"/>
-    <line x1="${lx-4}" y1="${lfb}" x2="${lx+4}" y2="${lfb}" stroke="#555555" stroke-width="1"/>
-    <text x="${lx-5}" y="${cy}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90,${lx-5},${cy})">H=${H}</text>`;
-  const dimB=`<line x1="${fl}" y1="${by}" x2="${fr}" y2="${by}" stroke="#555555" stroke-width="1"/>
-    <line x1="${fl}" y1="${by-4}" x2="${fl}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <line x1="${fr}" y1="${by-4}" x2="${fr}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${by+10}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">B=${B}</text>`;
-  const dimT1=`<line x1="${wl}" y1="${cy}" x2="${wr}" y2="${cy}" stroke="#555555" stroke-width="1"/>
-    <line x1="${wl}" y1="${cy-4}" x2="${wl}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
-    <line x1="${wr}" y1="${cy-4}" x2="${wr}" y2="${cy+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${wr+5}" y="${cy}" font-size="12" fill="#555555" dominant-baseline="middle">t1=${t1}</text>`;
-  const tx2=fr+16;
-  const dimT2=`<line x1="${tx2}" y1="${uft}" x2="${tx2}" y2="${ufb}" stroke="#555555" stroke-width="1"/>
-    <line x1="${tx2-3}" y1="${uft}" x2="${tx2+3}" y2="${uft}" stroke="#555555" stroke-width="1"/>
-    <line x1="${tx2-3}" y1="${ufb}" x2="${tx2+3}" y2="${ufb}" stroke="#555555" stroke-width="1"/>
-    <text x="${tx2+4}" y="${(uft+ufb)/2}" font-size="12" fill="#555555" dominant-baseline="middle">t2=${t2}</text>`;
+  const dimLeftX = fl - 56;
+  const dimBottomY = lfb + 50;
+  const t1Inset = Math.min(4, Math.max(1.5, w * 0.22));
+  const t2Inset = Math.min(4, Math.max(1.5, f * 0.22));
+  const t1LabelX = Math.min(viewW - 80, wr + 86);
+  const t2DimX = Math.min(viewW - 110, fr + 46);
+  const t2LabelX = Math.min(viewW - 66, t2DimX + 34);
+  const rPointX = wr + rr * 0.72;
+  const rPointY = ufb + rr * 0.72;
+  const rLabelX = Math.min(viewW - 72, Math.max(fr + 28, rPointX + 88));
+  const rLabelY = Math.min(viewH - 86, rPointY + 44);
+  const rAnno = hasR ? `
+    <path class="dt-hbeam-guide" d="M ${rPointX} ${rPointY} L ${rLabelX - 14} ${rLabelY - 8}"/>
+    <text class="dt-hbeam-sub" x="${rLabelX}" y="${rLabelY + 14}">r=${r}</text>` : '';
+  const dim = '#1f2937';
+  const guide = '#111111';
+  const text = '#111111';
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"/>
-    ${dimH}${dimB}${dimT1}${dimT2}
+    <defs>
+      <marker id="dtHBeamArrowEnd" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtHBeamArrowStart" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto">
+        <path d="M9,0 L0,4.5 L9,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtHBeamSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtHBeamSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-hbeam-shape { fill: #ffffff; stroke: #111111; stroke-width: 2.1; stroke-linejoin: round; }
+        .dt-hbeam-guide { stroke: ${guide}; stroke-width: 1.25; fill: none; }
+        .dt-hbeam-dim { stroke: ${dim}; stroke-width: 1.6; fill: none; marker-start: url(#dtHBeamArrowStart); marker-end: url(#dtHBeamArrowEnd); }
+        .dt-hbeam-thickness { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtHBeamSmallArrowStart); marker-end: url(#dtHBeamSmallArrowEnd); }
+        .dt-hbeam-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${text}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-hbeam-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+    <path class="dt-hbeam-shape" d="${path}"/>
+
+    <line class="dt-hbeam-guide" x1="${dimLeftX - 13}" y1="${uft}" x2="${dimLeftX + 13}" y2="${uft}"/>
+    <line class="dt-hbeam-guide" x1="${dimLeftX - 13}" y1="${lfb}" x2="${dimLeftX + 13}" y2="${lfb}"/>
+    <line class="dt-hbeam-dim" x1="${dimLeftX}" y1="${uft + 12}" x2="${dimLeftX}" y2="${lfb - 12}"/>
+    <text class="dt-hbeam-label" x="${dimLeftX - 22}" y="${cy}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${cy})">H=${H}</text>
+
+    <line class="dt-hbeam-guide" x1="${fl}" y1="${dimBottomY - 13}" x2="${fl}" y2="${dimBottomY + 13}"/>
+    <line class="dt-hbeam-guide" x1="${fr}" y1="${dimBottomY - 13}" x2="${fr}" y2="${dimBottomY + 13}"/>
+    <line class="dt-hbeam-dim" x1="${fl + 12}" y1="${dimBottomY}" x2="${fr - 12}" y2="${dimBottomY}"/>
+    <text class="dt-hbeam-label" x="${cx}" y="${dimBottomY + 28}" text-anchor="middle">B=${B}</text>
+
+    <line class="dt-hbeam-guide" x1="${wl}" y1="${cy - 28}" x2="${wl}" y2="${cy + 28}"/>
+    <line class="dt-hbeam-guide" x1="${wr}" y1="${cy - 28}" x2="${wr}" y2="${cy + 28}"/>
+    <line class="dt-hbeam-thickness" x1="${wl + t1Inset}" y1="${cy}" x2="${wr - t1Inset}" y2="${cy}"/>
+    <line class="dt-hbeam-guide" x1="${wr + 14}" y1="${cy}" x2="${t1LabelX - 14}" y2="${cy}"/>
+    <text class="dt-hbeam-sub" x="${t1LabelX}" y="${cy + 6}">t1=${t1}</text>
+
+    <line class="dt-hbeam-guide" x1="${t2DimX - 18}" y1="${uft}" x2="${t2DimX + 18}" y2="${uft}"/>
+    <line class="dt-hbeam-guide" x1="${t2DimX - 18}" y1="${ufb}" x2="${t2DimX + 18}" y2="${ufb}"/>
+    <line class="dt-hbeam-thickness" x1="${t2DimX}" y1="${uft + t2Inset}" x2="${t2DimX}" y2="${ufb - t2Inset}"/>
+    <text class="dt-hbeam-sub" x="${t2LabelX}" y="${(uft + ufb) / 2 + 6}">t2=${t2}</text>
+
+    ${rAnno}
   </svg>`;
 }
 
@@ -106,19 +167,28 @@ function drawHBeamSVG(H, B, t1, t2, r, viewW, viewH) {
    ※ r2 は leg先端の「内側2角のみ」に適用（外側は直角）
 */
 function drawLAngleSVG(spec, viewW, viewH) {
+  const hasR1 = spec.r1 !== null && spec.r1 !== undefined && spec.r1 !== '';
+  const hasR2 = spec.r2 !== null && spec.r2 !== undefined && spec.r2 !== '';
   const A = Number(spec.A || 0);
   const B = Number(spec.B || 0);
   const tWeb = Number(spec.t1 || spec.t || 0);
   const tFlange = Number(spec.t2 || spec.t || 0);
   const r1 = Number(spec.r1 || 0);
   const r2 = Number(spec.r2 || 0);
-  const mL = 42, mT = 20, mR = 52, mB = 28;
-  const sc = Math.min((viewW - mL - mR) / B, (viewH - mT - mB) / A);
-  const Ap = A * sc, Bp = B * sc;
-  const tWebP = tWeb * sc, tFlangeP = tFlange * sc;
-  const r1p = Math.max(1, r1 * sc);
-  const r2p = Math.max(0.5, Math.min(r2 * sc, Math.min(tWebP, tFlangeP) * 0.45));
-  const ox = mL, oyt = mT, oyb = mT + Ap;
+  const margin = { left: 112, top: 58, right: 150, bottom: 118 };
+  const sc = Math.min(
+    (viewW - margin.left - margin.right) / Math.max(B, 1),
+    (viewH - margin.top - margin.bottom) / Math.max(A, 1)
+  );
+  const Ap = A * sc;
+  const Bp = B * sc;
+  const tWebP = Math.max(3.5, tWeb * sc);
+  const tFlangeP = Math.max(3.5, tFlange * sc);
+  const r1p = Math.max(0.01, Math.min(r1 * sc, Math.min(tWebP, tFlangeP) * 0.75));
+  const r2p = Math.max(0.01, Math.min(r2 * sc, Math.min(tWebP, tFlangeP) * 0.42));
+  const ox = margin.left + (viewW - margin.left - margin.right - Bp) / 2;
+  const oyt = margin.top + (viewH - margin.top - margin.bottom - Ap) / 2;
+  const oyb = oyt + Ap;
 
   const path = [
     `M ${ox} ${oyb}`,
@@ -133,45 +203,82 @@ function drawLAngleSVG(spec, viewW, viewH) {
     `L ${ox} ${oyb}`, `Z`
   ].join(' ');
 
-  const ax = ox - 14, myY = (oyt + oyb) / 2;
-  const dimA = `<line x1="${ax}" y1="${oyt}" x2="${ax}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
-    <line x1="${ax-4}" y1="${oyt}" x2="${ax+4}" y2="${oyt}" stroke="#555555" stroke-width="1"/>
-    <line x1="${ax-4}" y1="${oyb}" x2="${ax+4}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
-    <text x="${ax-5}" y="${myY}" font-size="14" font-weight="700" fill="#111111"
-      text-anchor="middle" dominant-baseline="middle"
-      transform="rotate(-90,${ax-5},${myY})">A=${A}</text>`;
-  const by = oyb + 14;
-  const dimB = `<line x1="${ox}" y1="${by}" x2="${ox+Bp}" y2="${by}" stroke="#555555" stroke-width="1"/>
-    <line x1="${ox}" y1="${by-4}" x2="${ox}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <line x1="${ox+Bp}" y1="${by-4}" x2="${ox+Bp}" y2="${by+4}" stroke="#555555" stroke-width="1"/>
-    <text x="${ox+Bp/2}" y="${by+10}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">B=${B}</text>`;
-  const tx = ox + Bp + 6;
-  const dimT = `<line x1="${tx}" y1="${oyb-tFlangeP}" x2="${tx}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
-    <line x1="${tx-3}" y1="${oyb-tFlangeP}" x2="${tx+3}" y2="${oyb-tFlangeP}" stroke="#555555" stroke-width="1"/>
-    <line x1="${tx-3}" y1="${oyb}" x2="${tx+3}" y2="${oyb}" stroke="#555555" stroke-width="1"/>
-    <text x="${tx+4}" y="${oyb-tFlangeP/2}" font-size="12" fill="#555555" dominant-baseline="middle">${spec.t1 ? `t2=${tFlange}` : `t=${tFlange}`}</text>`;
-
-  const r1sw = Math.max(1.5, r1p * 0.3);
-  const r1High = `<path d="M ${ox+tWebP} ${oyb-tFlangeP-r1p} A ${r1p} ${r1p} 0 0 0 ${ox+tWebP+r1p} ${oyb-tFlangeP}"
-    fill="none" stroke="#888888" stroke-width="${r1sw}"/>`;
-  const r1dx = ox + tWebP + r1p, r1dy = oyb - tFlangeP - r1p;
-  const r1lx = r1dx + 14, r1ly = r1dy - 10;
-  const r1Anno = `<circle cx="${r1dx}" cy="${r1dy}" r="2" fill="#888888"/>
-    <line x1="${r1dx}" y1="${r1dy}" x2="${r1lx-2}" y2="${r1ly}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${r1lx+1}" y="${r1ly}" font-size="14" font-weight="700" fill="#555555" dominant-baseline="middle">r1=${r1}</text>`;
-
-  const r2sw = Math.max(1.5, r2p * 0.4);
-  const r2High = `<path d="M ${ox+tWebP-r2p} ${oyt} A ${r2p} ${r2p} 0 0 1 ${ox+tWebP} ${oyt+r2p}"
-    fill="none" stroke="#888888" stroke-width="${r2sw}"/>`;
-  const r2dx = ox + tWebP, r2dy = oyt;
-  const r2lx = r2dx + r2p + 14, r2ly = r2dy - 2;
-  const r2Anno = `<circle cx="${r2dx}" cy="${r2dy}" r="2" fill="#888888"/>
-    <line x1="${r2dx}" y1="${r2dy}" x2="${r2lx-2}" y2="${r2ly}" stroke="#888888" stroke-width="1" stroke-dasharray="3,2"/>
-    <text x="${r2lx+1}" y="${r2ly}" font-size="14" font-weight="700" fill="#555555" dominant-baseline="middle">r2=${r2}</text>`;
+  const midY = (oyt + oyb) / 2;
+  const dimLeftX = ox - 50;
+  const dimBottomY = oyb + 50;
+  const tFlangeDimX = ox + Bp + 34;
+  const tWebDimY = Math.max(34, oyt - 18);
+  const tWebLabelY = Math.max(18, tWebDimY - 28);
+  const tLabel = spec.t1 ? `t2=${tFlange}` : `t=${tFlange}`;
+  const tWebLabel = spec.t1 ? `t1=${tWeb}` : `t=${tWeb}`;
+  const tInsetWeb = Math.min(4, Math.max(1.5, tWebP * 0.22));
+  const tInsetFlange = Math.min(4, Math.max(1.5, tFlangeP * 0.22));
+  const r1PointX = ox + tWebP + r1p * 0.7;
+  const r1PointY = oyb - tFlangeP - r1p * 0.7;
+  const r1LabelX = Math.min(viewW - 70, r1PointX + 88);
+  const r1LabelY = Math.max(36, r1PointY - 48);
+  const r2PointX = ox + tWebP - r2p * 0.35;
+  const r2PointY = oyt + r2p * 0.35;
+  const r2LabelX = Math.min(viewW - 70, r2PointX + 82);
+  const r2LabelY = Math.max(32, r2PointY - 34);
+  const r1Anno = hasR1 ? `
+    <path class="dt-angle-guide" d="M ${r1PointX} ${r1PointY} L ${r1LabelX - 14} ${r1LabelY + 8}"/>
+    <text class="dt-angle-sub" x="${r1LabelX}" y="${r1LabelY + 14}">r1=${r1}</text>` : '';
+  const r2Anno = hasR2 ? `
+    <path class="dt-angle-guide" d="M ${r2PointX} ${r2PointY} L ${r2LabelX - 14} ${r2LabelY + 8}"/>
+    <text class="dt-angle-sub" x="${r2LabelX}" y="${r2LabelY + 14}">r2=${r2}</text>` : '';
+  const dim = '#1f2937';
+  const guide = '#111111';
+  const text = '#111111';
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="1.5" stroke-linejoin="miter"/>
-    ${r1Anno}${r2Anno}${dimA}${dimB}${dimT}
+    <defs>
+      <marker id="dtAngleArrowEnd" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtAngleArrowStart" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto">
+        <path d="M9,0 L0,4.5 L9,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtAngleSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtAngleSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-angle-shape { fill: #ffffff; stroke: #111111; stroke-width: 2.1; stroke-linejoin: round; }
+        .dt-angle-guide { stroke: ${guide}; stroke-width: 1.25; fill: none; }
+        .dt-angle-dim { stroke: ${dim}; stroke-width: 1.6; fill: none; marker-start: url(#dtAngleArrowStart); marker-end: url(#dtAngleArrowEnd); }
+        .dt-angle-thickness { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtAngleSmallArrowStart); marker-end: url(#dtAngleSmallArrowEnd); }
+        .dt-angle-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${text}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-angle-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+    <path class="dt-angle-shape" d="${path}"/>
+
+    <line class="dt-angle-guide" x1="${dimLeftX - 13}" y1="${oyt}" x2="${dimLeftX + 13}" y2="${oyt}"/>
+    <line class="dt-angle-guide" x1="${dimLeftX - 13}" y1="${oyb}" x2="${dimLeftX + 13}" y2="${oyb}"/>
+    <line class="dt-angle-dim" x1="${dimLeftX}" y1="${oyt + 12}" x2="${dimLeftX}" y2="${oyb - 12}"/>
+    <text class="dt-angle-label" x="${dimLeftX - 22}" y="${midY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${midY})">A=${A}</text>
+
+    <line class="dt-angle-guide" x1="${ox}" y1="${dimBottomY - 13}" x2="${ox}" y2="${dimBottomY + 13}"/>
+    <line class="dt-angle-guide" x1="${ox + Bp}" y1="${dimBottomY - 13}" x2="${ox + Bp}" y2="${dimBottomY + 13}"/>
+    <line class="dt-angle-dim" x1="${ox + 12}" y1="${dimBottomY}" x2="${ox + Bp - 12}" y2="${dimBottomY}"/>
+    <text class="dt-angle-label" x="${ox + Bp / 2}" y="${dimBottomY + 28}" text-anchor="middle">B=${B}</text>
+
+    <line class="dt-angle-guide" x1="${ox}" y1="${tWebDimY - 17}" x2="${ox}" y2="${tWebDimY + 17}"/>
+    <line class="dt-angle-guide" x1="${ox + tWebP}" y1="${tWebDimY - 17}" x2="${ox + tWebP}" y2="${tWebDimY + 17}"/>
+    <line class="dt-angle-guide" x1="${ox}" y1="${tWebDimY + 16}" x2="${ox}" y2="${oyt}"/>
+    <line class="dt-angle-guide" x1="${ox + tWebP}" y1="${tWebDimY + 16}" x2="${ox + tWebP}" y2="${oyt}"/>
+    <line class="dt-angle-thickness" x1="${ox + tInsetWeb}" y1="${tWebDimY}" x2="${ox + tWebP - tInsetWeb}" y2="${tWebDimY}"/>
+    <text class="dt-angle-sub" x="${ox + tWebP / 2}" y="${tWebLabelY}" text-anchor="middle">${tWebLabel}</text>
+
+    <line class="dt-angle-guide" x1="${tFlangeDimX - 17}" y1="${oyb - tFlangeP}" x2="${tFlangeDimX + 17}" y2="${oyb - tFlangeP}"/>
+    <line class="dt-angle-guide" x1="${tFlangeDimX - 17}" y1="${oyb}" x2="${tFlangeDimX + 17}" y2="${oyb}"/>
+    <line class="dt-angle-thickness" x1="${tFlangeDimX}" y1="${oyb - tFlangeP + tInsetFlange}" x2="${tFlangeDimX}" y2="${oyb - tInsetFlange}"/>
+    <text class="dt-angle-sub" x="${Math.min(viewW - 70, tFlangeDimX + 30)}" y="${oyb - tFlangeP / 2 + 6}">${tLabel}</text>
+
+    ${r1Anno}${r2Anno}
   </svg>`;
 }
 
@@ -428,16 +535,41 @@ function drawPipeSVG(D, d, viewW, viewH) {
 }
 
 function drawSquareBarSVG(a, viewW, viewH) {
-  const margin = 42;
-  const scale = (Math.min(viewW, viewH) - margin * 2) / a;
-  const size = a * scale;
-  const x = (viewW - size) / 2;
-  const y = (viewH - size) / 2;
+  const margin = { left: 92, top: 54, right: 72, bottom: 108 };
+  const maxSize = Math.min(viewW - margin.left - margin.right, viewH - margin.top - margin.bottom);
+  const size = maxSize * 0.82;
+  const x = (viewW - size) / 2 + 10;
+  const y = margin.top + (viewH - margin.top - margin.bottom - size) / 2;
+  const dimBottomY = y + size + 48;
+  const dimLeftX = x - 44;
+  const midY = y + size / 2;
+  const dim = '#111111';
+
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <rect x="${x}" y="${y}" width="${size}" height="${size}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
-    <line x1="${x}" y1="${y + size + 18}" x2="${x + size}" y2="${y + size + 18}" stroke="#555555" stroke-width="1"/>
-    <line x1="${x}" y1="${y + size + 14}" x2="${x}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
-    <line x1="${x + size}" y1="${y + size + 14}" x2="${x + size}" y2="${y + size + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${viewW / 2}" y="${y + size + 32}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">a=${a}</text>
+    <defs>
+      <marker id="dtSquareArrowEnd" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtSquareArrowStart" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto">
+        <path d="M8,0 L0,4 L8,8 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-square-shape { fill: #ffffff; stroke: ${dim}; stroke-width: 2.3; stroke-linejoin: miter; }
+        .dt-square-guide { stroke: ${dim}; stroke-width: 1.25; fill: none; }
+        .dt-square-dim { stroke: ${dim}; stroke-width: 1.55; fill: none; marker-start: url(#dtSquareArrowStart); marker-end: url(#dtSquareArrowEnd); }
+        .dt-square-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${dim}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+      </style>
+    </defs>
+    <rect class="dt-square-shape" x="${x}" y="${y}" width="${size}" height="${size}"/>
+
+    <line class="dt-square-guide" x1="${x}" y1="${dimBottomY - 14}" x2="${x}" y2="${dimBottomY + 14}"/>
+    <line class="dt-square-guide" x1="${x + size}" y1="${dimBottomY - 14}" x2="${x + size}" y2="${dimBottomY + 14}"/>
+    <line class="dt-square-dim" x1="${x + 12}" y1="${dimBottomY}" x2="${x + size - 12}" y2="${dimBottomY}"/>
+    <text class="dt-square-label" x="${x + size / 2}" y="${dimBottomY + 30}" text-anchor="middle">a=${a}</text>
+
+    <line class="dt-square-guide" x1="${dimLeftX - 14}" y1="${y}" x2="${dimLeftX + 14}" y2="${y}"/>
+    <line class="dt-square-guide" x1="${dimLeftX - 14}" y1="${y + size}" x2="${dimLeftX + 14}" y2="${y + size}"/>
+    <line class="dt-square-dim" x1="${dimLeftX}" y1="${y + 12}" x2="${dimLeftX}" y2="${y + size - 12}"/>
+    <text class="dt-square-label" x="${dimLeftX - 22}" y="${midY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${midY})">a=${a}</text>
   </svg>`;
 }
