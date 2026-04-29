@@ -70,12 +70,12 @@
   global.addEventListener('online', _drain);
   global.addEventListener('toriai:active-org-changed', _drain);
 
-  // ── inventory ───────────────────────────────────────────
+  // ── org_inventory ───────────────────────────────────────
   // items = [{ id?, spec, kind, length_mm, qty, note, project_id? }, ...]
   function _saveInventory(orgId, items) {
     var c = _client();
     // 方式: org 全体で置き換える（シンプル。差分同期は Phase B 後半）
-    return c.from('inventory').delete().eq('org_id', orgId).then(function() {
+    return c.from('org_inventory').delete().eq('org_id', orgId).then(function() {
       if (!items || !items.length) return { data: [] };
       var rows = items.map(function(it) {
         return {
@@ -88,7 +88,7 @@
           project_id: it.project_id || null
         };
       });
-      return c.from('inventory').insert(rows);
+      return c.from('org_inventory').insert(rows);
     }).then(function(res) {
       if (res && res.error) throw res.error;
       return true;
@@ -107,7 +107,7 @@
   function loadInventory() {
     var orgId = _activeOrg(); var c = _client();
     if (!orgId || !c) return Promise.resolve([]);
-    return c.from('inventory')
+    return c.from('org_inventory')
       .select('id, spec, kind, length_mm, qty, note, project_id, updated_at')
       .eq('org_id', orgId)
       .order('updated_at', { ascending: false })
@@ -117,10 +117,10 @@
       });
   }
 
-  // ── remnants ────────────────────────────────────────────
+  // ── org_remnants ────────────────────────────────────────
   function _saveRemnants(orgId, items) {
     var c = _client();
-    return c.from('remnants').delete().eq('org_id', orgId).then(function() {
+    return c.from('org_remnants').delete().eq('org_id', orgId).then(function() {
       if (!items || !items.length) return { data: [] };
       var rows = items.map(function(it) {
         return {
@@ -133,7 +133,7 @@
           note: it.note || null
         };
       });
-      return c.from('remnants').insert(rows);
+      return c.from('org_remnants').insert(rows);
     }).then(function(res) {
       if (res && res.error) throw res.error;
       return true;
@@ -152,7 +152,7 @@
   function loadRemnants() {
     var orgId = _activeOrg(); var c = _client();
     if (!orgId || !c) return Promise.resolve([]);
-    return c.from('remnants')
+    return c.from('org_remnants')
       .select('id, spec, kind, length_mm, qty, source_project_id, note, updated_at')
       .eq('org_id', orgId)
       .order('updated_at', { ascending: false })
@@ -169,7 +169,7 @@
     var shared = !!(opts && opts.shared);
     // owner_user_id は個人保管のときに使う
     return ns.auth.getUser().then(function(user) {
-      return c.from('custom_materials').delete()
+      return c.from('org_custom_materials').delete()
         .eq('org_id', orgId).eq('shared', shared)
         .match(shared ? {} : { owner_user_id: user ? user.id : null })
         .then(function() {
@@ -185,7 +185,7 @@
               shared: shared
             };
           });
-          return c.from('custom_materials').insert(rows);
+          return c.from('org_custom_materials').insert(rows);
         });
     }).then(function(res) {
       if (res && res.error) throw res.error;
@@ -205,7 +205,7 @@
   function loadCustomMaterials() {
     var orgId = _activeOrg(); var c = _client();
     if (!orgId || !c) return Promise.resolve([]);
-    return c.from('custom_materials')
+    return c.from('org_custom_materials')
       .select('id, kind, spec, dims, weight_per_m, shared, owner_user_id, updated_at')
       .eq('org_id', orgId)
       .then(function(res) {
@@ -218,7 +218,7 @@
   // map: { 'kind:spec': [3500,4000,...] }
   function _saveCustomStockLengths(orgId, map) {
     var c = _client();
-    return c.from('custom_stock_lengths').delete().eq('org_id', orgId).then(function() {
+    return c.from('org_custom_stock_lengths').delete().eq('org_id', orgId).then(function() {
       var rows = [];
       Object.keys(map || {}).forEach(function(key) {
         var parts = String(key).split(':');
@@ -230,7 +230,7 @@
         });
       });
       if (!rows.length) return { data: [] };
-      return c.from('custom_stock_lengths').insert(rows);
+      return c.from('org_custom_stock_lengths').insert(rows);
     }).then(function(res) {
       if (res && res.error) throw res.error;
       return true;
@@ -249,7 +249,7 @@
   function loadCustomStockLengths() {
     var orgId = _activeOrg(); var c = _client();
     if (!orgId || !c) return Promise.resolve({});
-    return c.from('custom_stock_lengths')
+    return c.from('org_custom_stock_lengths')
       .select('kind, spec, lengths')
       .eq('org_id', orgId)
       .then(function(res) {

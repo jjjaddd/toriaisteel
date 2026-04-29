@@ -5,10 +5,34 @@
 -- 既に device_id ベースのテーブル (cut_history / inventory / remnants ...
 -- custom_materials / weight_calcs / weight_history) がある場合、
 -- それらはこのスキーマとは別物として並走させる（移行期間中のみ）。
+-- 事業所共有版は既存名と衝突しないよう `org_` 接頭辞を付ける。
 -- ============================================================
 
 -- ── 拡張 ─────────────────────────────────────────────────────
 create extension if not exists "pgcrypto";
+
+-- ── 既存 device_id テーブルの復旧 ───────────────────────────
+-- 初回実行で既存テーブル名に衝突して止まった場合、旧テーブル側の RLS だけ
+-- 有効化済みになっている可能性がある。org_id を持たない旧テーブルだけ戻す。
+do $$
+begin
+  if to_regclass('public.inventory') is not null
+     and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'inventory' and column_name = 'org_id') then
+    alter table public.inventory disable row level security;
+  end if;
+  if to_regclass('public.remnants') is not null
+     and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'remnants' and column_name = 'org_id') then
+    alter table public.remnants disable row level security;
+  end if;
+  if to_regclass('public.custom_materials') is not null
+     and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'custom_materials' and column_name = 'org_id') then
+    alter table public.custom_materials disable row level security;
+  end if;
+  if to_regclass('public.weight_calcs') is not null
+     and not exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'weight_calcs' and column_name = 'org_id') then
+    alter table public.weight_calcs disable row level security;
+  end if;
+end $$;
 
 -- ── プロファイル（auth.users と 1:1） ────────────────────────
 create table if not exists profiles (
@@ -93,33 +117,34 @@ create table if not exists project_assignees (
 );
 
 -- ── 在庫（事業所共有） ──────────────────────────────────────
-create table if not exists inventory (
+create table if not exists org_inventory (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations(id) on delete cascade,
-  kind text not null,
-  spec text not null,
+  kind text,
+  spec text,
   length_mm int,
-  quantity int not null default 0,
+  qty int not null default 0,
+  project_id uuid references projects(id) on delete set null,
   note text,
   updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
-create index if not exists idx_inventory_org on inventory(org_id);
+create index if not exists idx_org_inventory_org on org_inventory(org_id);
 
 -- ── 残材（事業所共有） ──────────────────────────────────────
-create table if not exists remnants (
+create table if not exists org_remnants (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations(id) on delete cascade,
-  kind text not null,
-  spec text not null,
+  kind text,
+  spec text,
   length_mm int,
-  quantity int not null default 1,
+  qty int not null default 1,
   source_project_id uuid references projects(id) on delete set null,
   note text,
   updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
-create index if not exists idx_remnants_org on remnants(org_id);
+create index if not exists idx_org_remnants_org on org_remnants(org_id);
 
 -- ── 切断計画（案件スコープ） ───────────────────────────────
 create table if not exists cut_plans (
@@ -132,7 +157,7 @@ create table if not exists cut_plans (
 create index if not exists idx_cut_plans_project on cut_plans(project_id);
 
 -- ── 重量計算の保存（個人 + optional 案件） ─────────────────
-create table if not exists weight_calcs (
+create table if not exists org_weight_calcs (
   id uuid primary key default gen_random_uuid(),
   org_id uuid references organizations(id) on delete cascade,
   project_id uuid references projects(id) on delete set null,
@@ -141,25 +166,30 @@ create table if not exists weight_calcs (
   updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
-create index if not exists idx_weight_calcs_user on weight_calcs(user_id);
+create index if not exists idx_org_weight_calcs_user on org_weight_calcs(user_id);
 
 -- ── カスタム鋼材（事業所共有） ─────────────────────────────
-create table if not exists custom_materials (
+create table if not exists org_custom_materials (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations(id) on delete cascade,
-  kind text not null,
-  spec text not null,
-  kgm numeric,
+  owner_user_id uuid references auth.users(id) on delete cascade,
+  kind text,
+  spec text,
+  dims jsonb,
+  weight_per_m numeric,
+  shared boolean not null default false,
+  updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
 
 -- ── カスタム定尺（事業所共有） ─────────────────────────────
-create table if not exists custom_stock_lengths (
+create table if not exists org_custom_stock_lengths (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations(id) on delete cascade,
-  kind text not null,
+  kind text,
   spec text,                              -- null なら鋼種全体、指定なら規格単位
   lengths int[] not null,
+  updated_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
 
@@ -191,12 +221,12 @@ alter table org_members enable row level security;
 alter table invitations enable row level security;
 alter table projects enable row level security;
 alter table project_assignees enable row level security;
-alter table inventory enable row level security;
-alter table remnants enable row level security;
+alter table org_inventory enable row level security;
+alter table org_remnants enable row level security;
 alter table cut_plans enable row level security;
-alter table weight_calcs enable row level security;
-alter table custom_materials enable row level security;
-alter table custom_stock_lengths enable row level security;
+alter table org_weight_calcs enable row level security;
+alter table org_custom_materials enable row level security;
+alter table org_custom_stock_lengths enable row level security;
 
 -- ── profiles : 自分の行だけ読める／更新できる ────────────
 drop policy if exists "profile self select" on profiles;
@@ -287,12 +317,12 @@ create policy "pa all by project owner or org owner" on project_assignees
     )
   );
 
--- ── inventory / remnants : 事業所メンバーは全 CRUD ───────
-drop policy if exists "inv all" on inventory;
-create policy "inv all" on inventory
+-- ── org_inventory / org_remnants : 事業所メンバーは全 CRUD ───────
+drop policy if exists "org inv all" on org_inventory;
+create policy "org inv all" on org_inventory
   for all using (is_org_member(org_id)) with check (is_org_member(org_id));
-drop policy if exists "rem all" on remnants;
-create policy "rem all" on remnants
+drop policy if exists "org rem all" on org_remnants;
+create policy "org rem all" on org_remnants
   for all using (is_org_member(org_id)) with check (is_org_member(org_id));
 
 -- ── cut_plans : 親 project のアクセス権に依存 ──────────
@@ -306,17 +336,17 @@ create policy "cp all" on cut_plans
     )
   );
 
--- ── weight_calcs : 本人スコープ ───────────────────────────
-drop policy if exists "wc all" on weight_calcs;
-create policy "wc all" on weight_calcs
+-- ── org_weight_calcs : 本人スコープ ───────────────────────────
+drop policy if exists "org wc all" on org_weight_calcs;
+create policy "org wc all" on org_weight_calcs
   for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
--- ── custom_materials / custom_stock_lengths : 事業所共有 ──
-drop policy if exists "cm all" on custom_materials;
-create policy "cm all" on custom_materials
+-- ── org_custom_materials / org_custom_stock_lengths : 事業所共有 ──
+drop policy if exists "org cm all" on org_custom_materials;
+create policy "org cm all" on org_custom_materials
   for all using (is_org_member(org_id)) with check (is_org_member(org_id));
-drop policy if exists "csl all" on custom_stock_lengths;
-create policy "csl all" on custom_stock_lengths
+drop policy if exists "org csl all" on org_custom_stock_lengths;
+create policy "org csl all" on org_custom_stock_lengths
   for all using (is_org_member(org_id)) with check (is_org_member(org_id));
 
 -- ============================================================
