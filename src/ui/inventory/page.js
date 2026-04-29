@@ -109,7 +109,7 @@
     ns.updateInventoryGroupNote(groupKey, input ? input.value : '');
   };
 
-  // renderInventoryPage は src/main.js に統合済み（旧 wrapper パターン解体）
+  // renderInventoryPage 本体は materialStock/inventoryRender.js に集約済み。
 
   ns.initializeOverrides = function initializeOverrides() {
     function bind() {

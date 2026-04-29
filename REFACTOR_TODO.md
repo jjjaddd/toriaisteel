@@ -265,6 +265,18 @@ main.js
 - [ ] **INTEGRATION.md を進める**：`staging-auth-org/INTEGRATION.md` の手順に沿って Supabase auth + organization を本体統合。`schema.sql` 適用、Site URL 設定、`toriai-auth-*` / `toriai-org-*` を本体に組み込み、ヘッダーに事業所スイッチャーを設置
 - [ ] 統合後の動作確認（ログイン / 事業所切替 / RLS データ分離）
 
+## Phase 8: 最後の 5% 仕上げ
+
+- [x] `src/main.js` の読み込みを完全撤去（`init()` は `src/features/calc/calcInit.js` に移設済み）
+- [ ] `src/compat/legacyGlobals.js` の残ブリッジをさらに削減（計算V2 / benchmark には触らない）
+- [ ] `index.html` の inline handler を高リスク箇所からイベントリスナー化
+  - [x] 在庫追加ボタン `#invUseBtn` の `onclick` を削除し、既存の初期化バインドに一本化
+- [ ] 参照のない実行ファイル / stale コメント / 古い引継ぎ記述を整理
+  - [x] 有料化までログイン導線を非表示化（ハンバーガーメニューから `ログイン` を撤去）
+  - [x] 有料化まで事業所スイッチャー / ヘッダーログイン導線を auth boot 側で無効化
+- [ ] `service-worker.js` の precache と実ロードファイルの差分を最終確認
+- [x] `node --check` と既存 Jest の確認（Claude の計算改修領域は混ぜない）
+
 ## 直近の優先順
 1. `src/features/` 構成の素地作り（空ディレクトリ + 1 機能だけ移植して骨格確認）
 2. `src/ui/*` の wrapper パターンを解体し、`main.js` / `storage.js` を直接修正する形へ移行

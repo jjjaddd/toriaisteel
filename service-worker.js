@@ -1,4 +1,4 @@
-const CACHE_NAME = 'steel-optimizer-v88';
+const CACHE_NAME = 'steel-optimizer-v94';
 const ASSETS = [
   '/',
   '/index.html',
@@ -51,7 +51,6 @@ const ASSETS = [
   '/src/features/calc/cardRemnants.js',
   '/src/features/auth/authUi.js',
   '/src/features/auth/authBoot.js',
-  '/src/main.js',
   '/src/calculation/workers/yieldWorker.js',
   '/src/assets/manifest.json',
 ];

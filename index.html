@@ -110,7 +110,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
     <a id="nco" href="javascript:void(0)" onclick="goPage('contact')">お問い合わせ</a>
   </nav>
   <div class="hdr-right">
-    <div id="toriaiOrgSwitcher"></div>
+    <div id="toriaiOrgSwitcher" hidden style="display:none"></div>
     <button id="guideBtn" class="guide-pixel-btn" type="button" onclick="openCalcOnboarding()" aria-label="使い方ガイド">？</button>
     <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">カート 0件</button>
     <button id="hamBtn" class="ham-btn" type="button" onclick="toggleHeaderMenu()" aria-label="設定メニュー" aria-expanded="false">☰</button>
@@ -124,9 +124,6 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         </button>
         <button class="hm-row" type="button" onclick="openUsageGuideExternal()">
           <span class="hm-txt">使い方</span>
-        </button>
-        <button id="authMenuBtn" class="hm-row" type="button" onclick="openAuthMenuAction(); closeHeaderMenu()">
-          <span class="hm-txt">ログイン</span>
         </button>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
 <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.5</span></span>
