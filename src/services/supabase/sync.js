@@ -26,11 +26,8 @@ function sbReady() {
 // ── テーブル→localStorageキー マッピング ──────────────────────
 var SB_TABLE_MAP = {
   cut_history:       'so_cut_hist_v2',
-  inventory:         'so_inventory_v2',
-  remnants:          'so_remnants',
   weight_history:    'so_history',
-  weight_calcs:      'wSavedCalcs',
-  custom_materials:  'toriai_custom_materials'
+  weight_calcs:      'wSavedCalcs'
 };
 
 // ── Supabaseへ書き込み（非同期・fire-and-forget） ─────────────

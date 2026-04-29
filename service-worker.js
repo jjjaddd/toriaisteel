@@ -1,4 +1,4 @@
-const CACHE_NAME = 'steel-optimizer-v87';
+const CACHE_NAME = 'steel-optimizer-v88';
 const ASSETS = [
   '/',
   '/index.html',
@@ -25,12 +25,16 @@ const ASSETS = [
   '/src/styles/themeCartSettings.css',
   '/src/styles/themeDarkSupplement.css',
   '/src/styles/themePolish.css',
+  '/src/styles/authUi.css',
   '/src/auth/session.js',
   '/src/inventory/inventory-service.js',
   '/src/services/public-config.js',
   '/src/services/supabase/gateway.js',
   '/src/services/supabase/client.js',
   '/src/services/supabase/sync.js',
+  '/src/services/supabase/authService.js',
+  '/src/services/supabase/orgService.js',
+  '/src/services/supabase/orgStorage.js',
   '/src/services/storage/storageKeys.js',
   '/src/services/storage/settingsStore.js',
   '/src/services/storage/remnantsStore.js',
@@ -45,6 +49,8 @@ const ASSETS = [
   '/src/features/calc/appState.js',
   '/src/features/calc/calcInit.js',
   '/src/features/calc/cardRemnants.js',
+  '/src/features/auth/authUi.js',
+  '/src/features/auth/authBoot.js',
   '/src/main.js',
   '/src/calculation/workers/yieldWorker.js',
   '/src/assets/manifest.json',

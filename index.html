@@ -92,6 +92,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="stylesheet" href="src/styles/themeDarkSupplement.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themePolish.css?v=ui29">
 <link rel="stylesheet" href="src/styles/dataTab.css?v=8">
+<link rel="stylesheet" href="src/styles/authUi.css?v=phase1">
 </head>
 <body>
 <h1 style="display:none">鋼材取り合い計算ツール｜バンドソー歩留まり計算・切断計画・重量計算・残材管理【TORIAI】</h1>
@@ -109,6 +110,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
     <a id="nco" href="javascript:void(0)" onclick="goPage('contact')">お問い合わせ</a>
   </nav>
   <div class="hdr-right">
+    <div id="toriaiOrgSwitcher"></div>
     <button id="guideBtn" class="guide-pixel-btn" type="button" onclick="openCalcOnboarding()" aria-label="使い方ガイド">？</button>
     <button id="cartBadge" class="cart-badge empty" onclick="openCartModal()">カート 0件</button>
     <button id="hamBtn" class="ham-btn" type="button" onclick="toggleHeaderMenu()" aria-label="設定メニュー" aria-expanded="false">☰</button>
@@ -1206,6 +1208,11 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/services/supabase/gateway.js?v=phase1"></script>
 <script src="src/services/supabase/client.js?v=ui27"></script>
 <script src="src/services/supabase/sync.js?v=ui27"></script>
+<script src="src/services/supabase/authService.js?v=phase1"></script>
+<script src="src/services/supabase/orgService.js?v=phase1"></script>
+<script src="src/services/supabase/orgStorage.js?v=phase1"></script>
+<script src="src/features/auth/authUi.js?v=phase1"></script>
+<script src="src/features/auth/authBoot.js?v=phase1"></script>
 <script src="src/features/customMaterials/customMaterials.js?v=ui27"></script>
 <!-- 更新履歴モーダル -->
 <div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">

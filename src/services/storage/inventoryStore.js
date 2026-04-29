@@ -61,6 +61,28 @@ function getInventoryDomainService() {
   return window.Toriai && window.Toriai.inventory ? window.Toriai.inventory.service : null;
 }
 
+function getOrgStorageApi() {
+  var ns = window.Toriai || {};
+  if (!ns.orgStorage || !ns.org || typeof ns.org.getActiveOrgId !== 'function') return null;
+  return ns.org.getActiveOrgId() ? ns.orgStorage : null;
+}
+
+function toOrgInventoryRows(items) {
+  return (items || []).map(function(item) {
+    var length = item && item.length_mm != null ? item.length_mm : item && item.len;
+    return {
+      spec: item && item.spec ? item.spec : null,
+      kind: item && item.kind ? item.kind : null,
+      length_mm: Number(length) || 0,
+      qty: item && item.qty != null ? Number(item.qty) || 0 : 1,
+      note: item && (item.note || item.label || item.company) ? (item.note || item.label || item.company) : '',
+      project_id: item && item.project_id ? item.project_id : null
+    };
+  }).filter(function(item) {
+    return item.length_mm > 0 && item.qty > 0;
+  });
+}
+
 function getInventory() {
   try {
     var r = localStorage.getItem(LS_INVENTORY);
@@ -84,7 +106,10 @@ function saveInventory(inv) {
       persistList = outOfScope.concat(scoped);
     }
     localStorage.setItem(LS_INVENTORY, JSON.stringify(persistList));
-    if (typeof sbUpsert === 'function') sbUpsert('inventory', persistList);
+    var orgStorage = getOrgStorageApi();
+    if (orgStorage && typeof orgStorage.saveInventory === 'function') {
+      orgStorage.saveInventory(toOrgInventoryRows(scoped));
+    }
   } catch(e) {}
 }
 
