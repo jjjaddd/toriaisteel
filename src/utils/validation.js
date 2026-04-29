@@ -18,6 +18,15 @@
     return num;
   }
 
+  function parseIntegerInRange(value, min, max, fallback) {
+    if (value == null || String(value).trim() === '') return fallback;
+    var num = Number(value);
+    if (!Number.isInteger(num)) return fallback;
+    if (typeof min === 'number' && num < min) return min;
+    if (typeof max === 'number' && num > max) return max;
+    return num;
+  }
+
   function sanitizeFreeText(value, maxLength) {
     var text = value == null ? '' : String(value).trim();
     if (typeof maxLength === 'number' && maxLength > 0) {
@@ -38,6 +47,7 @@
   ns.utils.validation = {
     clampNumber: clampNumber,
     parsePositiveInteger: parsePositiveInteger,
+    parseIntegerInRange: parseIntegerInRange,
     sanitizeFreeText: sanitizeFreeText,
     isNonEmptyString: isNonEmptyString,
     normalizeLengthMm: normalizeLengthMm

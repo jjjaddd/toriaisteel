@@ -1,9 +1,27 @@
+function getInventoryValidationApi() {
+  return window.Toriai && window.Toriai.utils && window.Toriai.utils.validation
+    ? window.Toriai.utils.validation
+    : null;
+}
+
+function getInventoryUiApi() {
+  return window.Toriai && window.Toriai.ui ? window.Toriai.ui.inventory : null;
+}
+
+function appendInventoryOption(selectEl, value, label) {
+  var option = document.createElement('option');
+  option.value = value;
+  option.textContent = label == null ? value : label;
+  selectEl.appendChild(option);
+}
+
 function buildInvFilterKind() {
   var sel = document.getElementById('invFilterKind');
   if (!sel) return;
   var kinds = getAppSteelKinds();
-  sel.innerHTML = '<option value="">すべて</option>' +
-    kinds.map(function(k){ return '<option value="'+k+'">'+k+'</option>'; }).join('');
+  sel.innerHTML = '';
+  appendInventoryOption(sel, '', 'すべて');
+  kinds.forEach(function(k){ appendInventoryOption(sel, k, k); });
   buildInvFilterSpec();
 }
 
@@ -16,8 +34,9 @@ function buildInvFilterSpec() {
   // 在庫にある規格も追加
   var inv = getInventory();
   inv.forEach(function(x){ if(x.spec && specs.indexOf(x.spec)<0) specs.push(x.spec); });
-  specSel.innerHTML = '<option value="">すべて</option>' +
-    specs.map(function(s){ return '<option value="'+s+'">'+s+'</option>'; }).join('');
+  specSel.innerHTML = '';
+  appendInventoryOption(specSel, '', 'すべて');
+  specs.forEach(function(s){ appendInventoryOption(specSel, s, s); });
   renderInventoryPage();
 }
 
@@ -52,12 +71,17 @@ function buildInvAddSpec() {
 }
 
 function manualAddInventory() {
+  var validation = getInventoryValidationApi();
   var kind    = (document.getElementById('invAddKind')||{}).value||'';
   var spec    = (document.getElementById('invAddSpec')||{}).value||'';
-  var len     = parseInt((document.getElementById('invAddLen')||{}).value)||0;
-  var qty     = parseInt((document.getElementById('invAddQty')||{}).value)||1;
-  var company = (document.getElementById('invAddCompany')||{}).value||'';
-  var note    = (document.getElementById('invAddNote')||{}).value||'';
+  var lenValue = (document.getElementById('invAddLen')||{}).value;
+  var qtyValue = (document.getElementById('invAddQty')||{}).value;
+  var len = validation ? validation.parseIntegerInRange(lenValue, 1, 1000000, 0) : (parseInt(lenValue, 10) || 0);
+  var qty = validation ? validation.parseIntegerInRange(qtyValue, 1, 999, 1) : (parseInt(qtyValue, 10) || 1);
+  var companyValue = (document.getElementById('invAddCompany')||{}).value||'';
+  var noteValue = (document.getElementById('invAddNote')||{}).value||'';
+  var company = validation ? validation.sanitizeFreeText(companyValue, 120) : companyValue;
+  var note = validation ? validation.sanitizeFreeText(noteValue, 500) : noteValue;
   if (!len || len <= 0) { alert('長さを入力してください'); return; }
   var inv = getInventory();
   for (var i=0; i<qty; i++) {
@@ -66,7 +90,8 @@ function manualAddInventory() {
   }
   saveInventory(inv);
   renderInventoryPage();
-  syncInventoryToRemnants();
+  var inventoryUi = getInventoryUiApi();
+  if (inventoryUi && typeof inventoryUi.syncInventoryToRemnants === 'function') inventoryUi.syncInventoryToRemnants();
   updateInvDropdown();
   document.getElementById('invAddLen').value = '';
   document.getElementById('invAddQty').value = 1;
@@ -78,6 +103,6 @@ function manualAddInventory() {
 
 // ── 規格選択時に在庫ドロップダウン更新 ──
 function updateInvDropdown() {
-  buildInventoryDropdown();
+  var inventoryUi = getInventoryUiApi();
+  if (inventoryUi && typeof inventoryUi.buildInventoryDropdown === 'function') inventoryUi.buildInventoryDropdown();
 }
-

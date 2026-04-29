@@ -1,0 +1,192 @@
+/* History Panel hard overrides */
+#hip #hiPanelH,
+#hip #hiPanelH .hi-panel-layout,
+#hip #hiPanelH .hi-sb-main {
+  background: #f5f5f7 !important;
+}
+
+#hip #hiPanelH .hi-panel-layout {
+  background: linear-gradient(90deg, #ffffff 0 280px, #f5f5f7 280px 100%) !important;
+}
+
+#hip #hiPanelH #histList {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+
+#hip #hiPanelH .hist-row,
+#hip #hiPanelH .hist-job-group,
+#hip #hiPanelH .hist-job-body,
+#hip #hiPanelH .hist-job-hd {
+  background: #ffffff !important;
+}
+
+#hip #hiPanelH .hist-row,
+#hip #hiPanelH .hist-job-group {
+  border: 1px solid #d9dde6 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 12px 28px rgba(17,17,17,.08) !important;
+}
+
+#hip #hiPanelH .hist-row {
+  padding: 20px 18px !important;
+  margin-bottom: 0 !important;
+}
+
+#hip #hiPanelH .hist-row:hover,
+#hip #hiPanelH .hist-job-hd:hover {
+  background: #ffffff !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   § 35  COMPONENT NORMALIZATION
+   ─ ボタン・入力・カードを統一ルールに揃える ─
+   Button  → 角丸 var(--r-sm)、地味カラー、hover=var(--hp)のみ
+   Input   → focus 時は border-color 変化のみ、背景は変えない
+   Card    → border 1px var(--line)、影ほぼなし
+   ══════════════════════════════════════════════════════════════ */
+
+/* ① Inputs — focus = border change only (no bg flash) */
+input[type=number]:hover, input[type=text]:hover,
+input[type=date]:hover, select:hover, textarea:hover {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+}
+input[type=number]:focus, input[type=text]:focus,
+input[type=date]:focus, select:focus, textarea:focus {
+  background: var(--bg) !important;
+  border-color: var(--ink3) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] input:hover, html[data-theme="dark"] select:hover,
+html[data-theme="dark"] textarea:hover {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] input:focus, html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:focus {
+  background: var(--bg2) !important;
+  border-color: var(--ink3) !important;
+  box-shadow: none !important;
+}
+/* search bar: same */
+.hi-search-wrap input:hover,
+.hi-search-wrap input:focus {
+  background: var(--bg2) !important;
+  border-color: var(--ink3) !important;
+}
+html[data-theme="dark"] .hi-search-wrap input:hover,
+html[data-theme="dark"] .hi-search-wrap input:focus {
+  background: var(--bg3) !important;
+  border-color: var(--ink3) !important;
+}
+/* cmd palette input */
+#cmdInput:hover, #cmdInput:focus { background: var(--bg) !important; border-color: var(--ink3) !important; }
+html[data-theme="dark"] #cmdInput:hover,
+html[data-theme="dark"] #cmdInput:focus { background: var(--bg2) !important; border-color: var(--ink3) !important; }
+/* stk-mx (max qty) */
+.stk-mx:focus { background: var(--bg) !important; border-color: var(--ink3) !important; box-shadow: none !important; }
+html[data-theme="dark"] .stk-mx:focus { background: var(--bg2) !important; }
+/* paste textarea */
+.paste-area textarea:hover, .paste-area textarea:focus {
+  background: var(--bg) !important; border-color: var(--ink3) !important;
+}
+html[data-theme="dark"] .paste-area textarea:hover,
+html[data-theme="dark"] .paste-area textarea:focus {
+  background: var(--bg2) !important; border-color: var(--ink3) !important;
+}
+
+/* ② Cards — 影ほぼなし、枠薄い */
+.cc { box-shadow: 0 1px 2px rgba(0,0,0,.04) !important; border: 1px solid var(--line) !important; }
+.cc.r1, .cc.r2, .cc.r3 { box-shadow: 0 1px 2px rgba(0,0,0,.04) !important; border: 1px solid var(--line) !important; }
+.yield-card { border: 1px solid var(--gn) !important; box-shadow: none !important; }
+html[data-theme="dark"] .cc { box-shadow: 0 1px 3px rgba(0,0,0,.2) !important; }
+/* history / inventory cards */
+.hi-card, .inv-card-new {
+  box-shadow: 0 1px 2px rgba(0,0,0,.04) !important;
+  border: 1px solid var(--line) !important;
+}
+html[data-theme="dark"] .hi-card,
+html[data-theme="dark"] .inv-card-new { box-shadow: 0 1px 3px rgba(0,0,0,.2) !important; }
+/* modals / overlays */
+.inv-add-modal-box { box-shadow: 0 4px 16px rgba(0,0,0,.12) !important; }
+html[data-theme="dark"] .inv-add-modal-box { box-shadow: 0 4px 24px rgba(0,0,0,.5) !important; }
+
+/* ③ Tags — glow 完全撤廃 */
+.tag, .tag-best, .tag-yield, .tag-chg { box-shadow: none !important; }
+
+/* ④ Buttons — 地味色に統一 */
+/* Run button: 1px border (1.5px から変更) */
+.run { border-width: 1px !important; }
+/* paste-exec: green → neutral */
+.paste-exec {
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.paste-exec:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.paste-exec.added {
+  background: transparent !important;
+  border-color: var(--gn) !important;
+  color: var(--gn) !important;
+}
+html[data-theme="dark"] .paste-exec { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .paste-exec.added { border-color: var(--gn) !important; color: var(--gn) !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   § 36  RADIUS & PADDING 統一
+   border-radius 8〜12px、padding ゆったりめに統一
+   ══════════════════════════════════════════════════════════════ */
+
+/* 入力欄 padding +2px */
+input[type=number], input[type=text], input[type=date], select, textarea {
+  padding: 8px 11px !important;
+  border-radius: var(--r-sm) !important;
+}
+/* 数量小窓 (stk-mx) — 幅固定なので padding は浅め */
+.stk-mx { border-radius: var(--r-sm) !important; padding: 3px 5px !important; }
+
+/* カードヘッダ / パターンエリア padding +2px */
+.cc-hd  { padding: 12px 16px !important; }
+.cc-pat { padding: 14px 18px !important; }
+
+/* 小ボタン (sm-btn, paste-cancel) */
+.sm-btn      { padding: 5px 11px !important; border-radius: var(--r-sm) !important; }
+.paste-cancel{ border-radius: var(--r-sm) !important; padding: 6px 12px !important; }
+
+/* Run (計算) ボタン */
+.run { border-radius: var(--r) !important; padding: 14px !important; }
+
+/* 履歴 / 在庫カード */
+.hi-card, .inv-card-new {
+  border-radius: var(--r) !important;
+  padding: 12px 16px !important;
+}
+
+/* ピースバッジ .px — 4px → var(--r-sm) */
+.px { border-radius: var(--r-sm) !important; padding: 3px 8px !important; }
+
+/* カスタム select トリガー */
+.cs-trigger { border-radius: var(--r-sm) !important; }
+.cs-dropdown { border-radius: var(--r) !important; }
+
+/* ヒストリーフィルターボタン */
+.hi-filter-btn { border-radius: var(--r-sm) !important; padding: 7px 14px !important; }
+
+/* Inventory 追加ボタン */
+.inv-add-open-btn { border-radius: var(--r-sm) !important; }
+
+/* Detail-settings セクション内ボタン */
+.ds-add-btn { border-radius: var(--r-sm) !important; }
+
+/* パターンカード */
+.pc { border-radius: var(--r-sm) !important; }
+
+/* 重量タブ 工事名バナー */
+#wJobBanner:hover {
+  background: #f0f0f8;
+}
+#wJobBanner:hover span:last-child {
+  color: #6d28d9;
+}
+

@@ -147,7 +147,7 @@ function saveProjectCutHistory(cart, outputType) {
     project: payload
   };
   hist.unshift(entry);
-  try { localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist)); } catch (e) {}
+  if (typeof saveCutHistoryList === 'function') saveCutHistoryList(hist);
   if (typeof sbUpsert === 'function') sbUpsert('cut_history', hist);
   return entry;
 }

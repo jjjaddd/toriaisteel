@@ -11,7 +11,8 @@ function onSpec() {
   var kgmDisp = document.getElementById('cmdKgm');
   if (kgmDisp) kgmDisp.textContent = (cmdInput && (cmdInput.value || '').trim()) ? (row ? row[1] + ' kg/m' : '') : '';
   updKg();
-  buildInventoryDropdown();
+  var inventoryUi = window.Toriai && window.Toriai.ui ? window.Toriai.ui.inventory : null;
+  if (inventoryUi && typeof inventoryUi.buildInventoryDropdown === 'function') inventoryUi.buildInventoryDropdown();
   rebuildStkList();
 }
 

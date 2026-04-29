@@ -24,9 +24,10 @@ function confirmCutDone() {
     if (cb && cb.checked) addToInventory(kind, spec, len, endMats[len], label);
   });
   modal.style.display = 'none';
-  buildInventoryDropdown();
+  var inventoryUi = window.Toriai && window.Toriai.ui ? window.Toriai.ui.inventory : null;
+  if (inventoryUi && typeof inventoryUi.buildInventoryDropdown === 'function') inventoryUi.buildInventoryDropdown();
   renderInventoryPage();
-  syncInventoryToRemnants();
+  if (inventoryUi && typeof inventoryUi.syncInventoryToRemnants === 'function') inventoryUi.syncInventoryToRemnants();
   alert('在庫に登録しました。');
 }
 
@@ -92,4 +93,3 @@ document.addEventListener('input', function(e) {
 
 var MANUAL_REMNANTS_KEY = 'toriai_manual_remnants_v2';
 var INVENTORY_REMNANT_USAGE_KEY = 'toriai_inventory_remnant_usage_v2';
-

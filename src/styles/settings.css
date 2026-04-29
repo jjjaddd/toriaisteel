@@ -1,0 +1,255 @@
+/* ── 詳細設定タブ専用スタイル ── */
+
+/* セクション */
+.ds-section { margin-bottom: 18px; }
+.ds-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1.5px solid #f0f0f5;
+}
+
+/* フィールド */
+.ds-field { margin-bottom: 8px; }
+.ds-field label {
+  font-size: 10px;
+  color: #1a1a2e;
+  display: block;
+  margin-bottom: 3px;
+  font-weight: 600;
+  transition: .15s;
+}
+.ds-field input[type="number"],
+.ds-field input[type="text"],
+.ds-field input[type="date"],
+.ds-field textarea {
+  width: 100%;
+  background: #f8f8fc;
+  border: 1.5px solid #eee;
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 6px 8px;
+  color: #1a1a2e;
+  outline: none;
+  font-family: inherit;
+  transition: .15s;
+  box-sizing: border-box;
+}
+.ds-field input[type="number"]:hover,
+.ds-field input[type="text"]:hover,
+.ds-field input[type="date"]:hover,
+.ds-field textarea:hover {
+  border-color: #eee;
+  background: #faf5ff;
+}
+.ds-field input[type="number"]:focus,
+.ds-field input[type="text"]:focus,
+.ds-field input[type="date"]:focus,
+.ds-field textarea:focus {
+  border-color: #eee;
+  background: #faf5ff;
+  outline: none;
+  box-shadow: none;
+}
+.ds-field textarea {
+  resize: none;
+  height: 52px;
+  line-height: 1.5;
+}
+.ds-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* セクションヘッダー（全体タップ可） */
+.ds-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 4px 2px;
+  border-radius: 6px;
+  transition: .15s;
+  user-select: none;
+}
+.ds-sec-head:hover { background: #f5f0ff; }
+.ds-sec-head:hover .ds-title { color: #1a1a2e; }
+.ds-sec-head:hover .ds-toggle-icon { color: #bbb; }
+
+/* ＋／－ アイコン */
+.ds-toggle-icon {
+  color: #bbb;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: .15s;
+}
+
+/* 在庫定尺・手持ち残材 追加ボタン */
+.ds-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px;
+  background: none;
+  border: 1.5px dashed #ddd;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #aaa;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .15s;
+  font-family: inherit;
+  margin-top: 4px;
+}
+.ds-add-btn:hover {
+  border-color: #6d28d9;
+  color: #6d28d9;
+  background: #faf5ff;
+}
+
+/* トグルスイッチエリア */
+.ds-toggle-area {
+  background: #f8f8fc;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.ds-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid #eee;
+  transition: .15s;
+  cursor: pointer;
+}
+.ds-toggle-row:last-child { border-bottom: none; }
+.ds-toggle-row:hover { background: #faf5ff; }
+.ds-toggle-row:hover .ds-toggle-label span { color: #1a1a2e; }
+.ds-toggle-label span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a1a2e;
+  display: block;
+  transition: .15s;
+}
+.ds-toggle-label small {
+  font-size: 9px;
+  color: #bbb;
+  display: block;
+  margin-top: 1px;
+}
+
+/* CSS トグルスイッチ本体 */
+.ds-tog { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.ds-tog input { opacity: 0; width: 0; height: 0; position: absolute; }
+.ds-tog-track {
+  position: absolute;
+  inset: 0;
+  background: #ddd;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: .2s;
+}
+.ds-tog input:checked + .ds-tog-track {
+  background: #f3efff;
+  box-shadow: inset 0 0 0 1px #d8ccff;
+}
+.ds-tog-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.ds-tog input:checked + .ds-tog-track::after { left: 19px; }
+
+/* ── 準備中バッジ ── */
+.wip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: .04em;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* ── 準備中セクション（薄く・操作不可） ── */
+.wip-block {
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+}
+.wip-block::after {
+  content: '準備中';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ── 準備中カード（データページ・重量ページ用） ── */
+.wip-card {
+  border: 1.5px dashed #e0e0ea;
+  border-radius: 12px;
+  padding: 16px 14px;
+  margin-bottom: 10px;
+  position: relative;
+  background: #fafafa;
+}
+.wip-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.wip-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f0f0f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.wip-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #aaa;
+}
+.wip-card-desc {
+  font-size: 11px;
+  color: #bbb;
+  line-height: 1.6;
+  padding-left: 40px;
+}
+

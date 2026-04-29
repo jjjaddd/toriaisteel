@@ -456,6 +456,6 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
     rp.appendChild(patSec);
   }
   updateCartBadge();
-  // 端材リスト UI の差し込み（旧 src/ui/calc/cardRemnantHydration.js から統合）
+  // 端材リスト UI の差し込み（src/features/calc/cardRemnants.js）
   if (typeof hydrateCardRemnantLists === 'function') hydrateCardRemnantLists();
 }

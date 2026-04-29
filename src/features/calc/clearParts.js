@@ -2,9 +2,16 @@ function clearParts() {
   if (!confirm('リストをクリアしますか？\n設定もリセットされます。')) return;
   pushUndoManual();
 
-  try { localStorage.removeItem(LS_SETTINGS); } catch(e) {}
-  try { localStorage.removeItem(LS_REMNANTS); } catch(e) {}
-  try { localStorage.removeItem(INVENTORY_REMNANT_SELECTED_KEY); } catch(e) {}
+  var store = window.Toriai && window.Toriai.storage ? window.Toriai.storage.localStore : null;
+  if (store) {
+    store.remove(LS_SETTINGS);
+    store.remove(LS_REMNANTS);
+    store.remove(INVENTORY_REMNANT_SELECTED_KEY);
+  } else {
+    try { localStorage.removeItem(LS_SETTINGS); } catch(e) {}
+    try { localStorage.removeItem(LS_REMNANTS); } catch(e) {}
+    try { localStorage.removeItem(INVENTORY_REMNANT_SELECTED_KEY); } catch(e) {}
+  }
 
   var bladeEl = document.getElementById('blade');
   var endLossEl = document.getElementById('endloss');
@@ -54,6 +61,7 @@ function clearParts() {
   } else {
     updKg();
   }
-  syncInventoryToRemnants();
+  var inventoryUi = window.Toriai && window.Toriai.ui ? window.Toriai.ui.inventory : null;
+  if (inventoryUi && typeof inventoryUi.syncInventoryToRemnants === 'function') inventoryUi.syncInventoryToRemnants();
   resetCalcResultPlaceholder();
 }

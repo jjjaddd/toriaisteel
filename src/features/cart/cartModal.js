@@ -9,6 +9,28 @@ function closeCartModal() {
   document.getElementById('cartModal').style.display = 'none';
 }
 
+function getCartPurchaseApi() {
+  return window.Toriai && window.Toriai.ui && window.Toriai.ui.cart
+    ? window.Toriai.ui.cart
+    : null;
+}
+
+function escapeCartHtml(value) {
+  if (typeof escapeHtml === 'function') return escapeHtml(value == null ? '' : String(value));
+  return value == null ? '' : String(value).replace(/[&<>"']/g, function(ch) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+  });
+}
+
+function escapeInlineJsString(value) {
+  return String(value == null ? '' : value)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/</g, '\\x3C');
+}
+
 /** カートモーダルの中身を描画 */
 function renderCartModal() {
   var cart = getCart();
@@ -35,23 +57,30 @@ function renderCartModal() {
 
   // カート項目リスト
   cutList.innerHTML = cart.map(function(item) {
-    var d = item.data;
+    var d = item.data || {};
+    var job = d.job || {};
+    var title = escapeCartHtml(d.title || '');
+    var spec = escapeCartHtml(d.spec || '');
+    var client = escapeCartHtml(job.client || '');
+    var name = escapeCartHtml(job.name || '');
+    var removeId = escapeInlineJsString(item.id);
     return '<div class="cart-item">' +
       '<div style="flex:1;min-width:0">' +
         '<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">' +
           (d.isYield ? '歩留まり最大' : '取り合いパターン') +
-          ' — ' + d.title +
+          ' — ' + title +
         '</div>' +
         '<div style="font-size:11px;color:#8888a8">' +
-          d.spec + '　' + (d.job.client || '') + '　' + (d.job.name || '') +
+          spec + '　' + client + '　' + name +
         '</div>' +
       '</div>' +
-      '<button class="cart-item-del" onclick="cartRemoveItem(\'' + item.id + '\')">✕ 削除</button>' +
+      '<button class="cart-item-del" onclick="cartRemoveItem(\'' + removeId + '\')">✕ 削除</button>' +
     '</div>';
   }).join('');
 
   // 材料手配セクション（cartSectionCut の後ろに追加）
-  var summary = typeof getCartPurchaseSummary === 'function' ? getCartPurchaseSummary(cart) : [];
+  var purchaseApi = getCartPurchaseApi();
+  var summary = purchaseApi ? purchaseApi.getCartPurchaseSummary(cart) : [];
   var section = document.createElement('div');
   section.id = 'cartPurchaseSection';
   section.className = 'cart-purchase-section';
@@ -62,8 +91,8 @@ function renderCartModal() {
           return '<div class="cart-purchase-row"><span class="cart-purchase-spec">' + escapeHtml(item.spec || '規格未設定') + '</span><span class="cart-purchase-stock">' + Number(item.sl || 0).toLocaleString() + 'mm × ' + item.qty + '本</span></div>';
         }).join('') + '</div>' +
         '<div class="cart-purchase-actions">' +
-          '<button type="button" class="cart-purchase-mail" onclick="window.location.href=\'' + buildPurchaseMailto(summary, cart).replace(/'/g, '%27') + '\'">既定のメールで開く</button>' +
-          '<button type="button" class="cart-purchase-mail" onclick="window.open(\'' + buildPurchaseGmailUrl(summary, cart).replace(/'/g, '%27') + '\', \'_blank\')">Gmailで開く</button>' +
+          '<button type="button" class="cart-purchase-mail" onclick="window.location.href=\'' + purchaseApi.buildPurchaseMailto(summary, cart).replace(/'/g, '%27') + '\'">既定のメールで開く</button>' +
+          '<button type="button" class="cart-purchase-mail" onclick="window.open(\'' + purchaseApi.buildPurchaseGmailUrl(summary, cart).replace(/'/g, '%27') + '\', \'_blank\')">Gmailで開く</button>' +
         '</div>'
       : '<div class="cart-purchase-empty">今回発注が必要な定尺材はありません。</div>');
   body.appendChild(section);

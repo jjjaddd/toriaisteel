@@ -1,5 +1,14 @@
 // 切断ピース入力履歴 + 案件情報・工区情報の取得
 
+function getPiecesHistoryRepository() {
+  return window.Toriai &&
+    window.Toriai.storage &&
+    window.Toriai.storage.repositories &&
+    window.Toriai.storage.repositories.history
+      ? window.Toriai.storage.repositories.history
+      : null;
+}
+
 function savePiecesHistory() {
   try {
     var pieces = [];
@@ -18,12 +27,16 @@ function savePiecesHistory() {
     });
     hist.unshift({pieces:pieces, date:new Date().toLocaleDateString('ja-JP'), key:key});
     hist = hist.slice(0, LS_MAX_HIST);
-    localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
+    var repo = getPiecesHistoryRepository();
+    if (repo) repo.save(hist);
+    else localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
   } catch(e) {}
 }
 
 function getPiecesHistory() {
   try {
+    var repo = getPiecesHistoryRepository();
+    if (repo) return repo.load();
     var raw = localStorage.getItem(LS_HISTORY);
     return raw ? JSON.parse(raw) : [];
   } catch(e) { return []; }

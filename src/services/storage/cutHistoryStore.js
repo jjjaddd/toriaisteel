@@ -1,7 +1,32 @@
 // 切断履歴の保存・読込 + 計算結果メタ生成 + カード選択ペイロード組み立て
 
+function getCutHistoryRepository() {
+  return window.Toriai &&
+    window.Toriai.storage &&
+    window.Toriai.storage.repositories &&
+    window.Toriai.storage.repositories.cutHistory
+      ? window.Toriai.storage.repositories.cutHistory
+      : null;
+}
+
+function saveCutHistoryList(hist) {
+  var repo = getCutHistoryRepository();
+  if (repo) return repo.save(hist);
+  try {
+    localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 function getCutHistory() {
-  try { var r=localStorage.getItem(LS_CUT_HIST); return r?JSON.parse(r):[]; } catch(e){return [];}
+  try {
+    var repo = getCutHistoryRepository();
+    if (repo) return repo.load();
+    var r=localStorage.getItem(LS_CUT_HIST);
+    return r?JSON.parse(r):[];
+  } catch(e){return [];}
 }
 
 function getLatestPrintedHistoryRemnants(cardId) {
@@ -184,12 +209,8 @@ function saveCutHistory(resultData, cardId) {
   hist.unshift(entry);
   var saved = false;
   while (!saved && hist.length > 0) {
-    try {
-      localStorage.setItem(LS_CUT_HIST, JSON.stringify(hist));
-      saved = true;
-    } catch (e) {
-      hist = hist.slice(0, Math.floor(hist.length * 0.7));
-    }
+    saved = saveCutHistoryList(hist);
+    if (!saved) hist = hist.slice(0, Math.floor(hist.length * 0.7));
   }
   if (saved && typeof sbUpsert === 'function') sbUpsert('cut_history', hist);
   return entry;

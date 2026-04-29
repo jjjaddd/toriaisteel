@@ -22,6 +22,7 @@
   ns.storage.repositories = {
     settings: makeJsonRepository(keys.settings, function() { return {}; }),
     remnants: makeJsonRepository(keys.remnants, function() { return []; }),
+    history: makeJsonRepository(keys.history, function() { return []; }),
     cutHistory: makeJsonRepository(keys.cutHistory, function() { return []; }),
     inventory: makeJsonRepository(keys.inventory, function() { return []; }),
     cart: makeJsonRepository(keys.cart, function() { return []; }),

@@ -1,0 +1,185 @@
+/* ── 20. Weight tab ─────────────────────────────────────────── */
+/* opt chips — remove purple border, use light purple bg */
+.w-opt-chip {
+  border: none !important;
+  background: var(--bg2) !important;
+  color: var(--ink2) !important;
+}
+.w-opt-chip:hover {
+  border: none !important;
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+}
+.w-opt-chip--on {
+  border: none !important;
+  background: var(--sp) !important;
+  color: var(--ink) !important;
+}
+.w-opt-chip--on:hover {
+  background: var(--sp) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .w-opt-chip { background: var(--bg3) !important; color: var(--ink2) !important; border: none !important; }
+html[data-theme="dark"] .w-opt-chip:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .w-opt-chip--on { background: var(--sp) !important; color: var(--ink) !important; }
+
+/* w-edit-btn hover → light purple */
+.w-edit-btn {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink3) !important;
+}
+.w-edit-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .w-edit-btn { background: transparent !important; border-color: var(--line) !important; color: var(--ink3) !important; }
+html[data-theme="dark"] .w-edit-btn:hover { background: var(--hp) !important; color: var(--ink) !important; }
+
+/* Weight table inputs — remove selection border */
+#hiPanelH input, #hiPanelH select,
+#hiPanelI input, #hiPanelI select {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+#hiPanelH input:focus, #hiPanelH select:focus,
+#hiPanelI input:focus, #hiPanelI select:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #hiPanelH input,
+html[data-theme="dark"] #hiPanelH select,
+html[data-theme="dark"] #hiPanelI input,
+html[data-theme="dark"] #hiPanelI select {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+/* wTable */
+#wTable thead tr { background: var(--bg2) !important; border-bottom: 2px solid var(--line) !important; }
+#wTable th { color: var(--ink2) !important; }
+#wTable tbody tr:hover { background: var(--hp) !important; }
+#wTable tfoot tr { background: var(--bg2) !important; }
+#wMainHd { border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] #wTable thead tr { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] #wTable th { color: var(--ink2) !important; }
+html[data-theme="dark"] #wTable tbody tr:hover { background: var(--hp) !important; }
+html[data-theme="dark"] #wTable tfoot tr { background: var(--bg3) !important; }
+html[data-theme="dark"] #wMainHd { border-bottom-color: var(--line) !important; }
+
+/* w-edit-btn / w-del-btn */
+.w-edit-btn, .w-del-btn {
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+  background: transparent !important;
+}
+.w-edit-btn:hover, .w-del-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .w-edit-btn,
+html[data-theme="dark"] .w-del-btn {
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .w-edit-btn:hover,
+html[data-theme="dark"] .w-del-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+/* ── 21. Data tab — light BLUE hover ─────────────────────────── */
+#dpp input:hover, #dpp input:focus,
+#dpp select:hover, #dpp select:focus,
+.dp-page input:hover, .dp-page input:focus,
+.dp-page select:hover, .dp-page select:focus,
+.data-spec-option:hover, .data-spec-option.active {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+.data-spec-dropdown { background: var(--bg) !important; border-color: var(--line) !important; }
+.data-figure-card, .data-info-card, .data-topbar {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+/* data-kind-select: neutral, blue hover, no purple */
+.data-kind-select {
+  background-color: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.data-kind-select:hover, .data-kind-select:focus {
+  background-color: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+/* ▼ toggle button — neutral, blue hover */
+#dataSpecToggleBtn {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+#dataSpecToggleBtn:hover, #dataSpecToggleBtn:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* dataSpecInput — neutral, blue hover */
+#dataSpecInput {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+#dataSpecInput:hover, #dataSpecInput:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.dp-page { background: var(--bg) !important; }
+html[data-theme="dark"] .data-figure-card,
+html[data-theme="dark"] .data-info-card,
+html[data-theme="dark"] .data-topbar {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .data-spec-dropdown { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .data-spec-option {
+  background: var(--bg2) !important;
+  color: var(--ink) !important;
+  border-bottom-color: var(--line) !important;
+}
+html[data-theme="dark"] .data-spec-option:hover,
+html[data-theme="dark"] .data-spec-option.active { background: var(--hb) !important; }
+html[data-theme="dark"] .data-kind-select { background-color: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .data-kind-select:hover, html[data-theme="dark"] .data-kind-select:focus { background-color: var(--hb) !important; }
+html[data-theme="dark"] #dataSpecToggleBtn {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+html[data-theme="dark"] #dataSpecToggleBtn:hover, html[data-theme="dark"] #dataSpecToggleBtn:focus {
+  background: var(--hb) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] #dataSpecInput {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] #dataSpecInput:hover, html[data-theme="dark"] #dataSpecInput:focus {
+  background: var(--hb) !important;
+}
+html[data-theme="dark"] .dp-page { background: var(--bg) !important; }
+

@@ -12,6 +12,10 @@ var curKind      = 'H形鋼';
 // ── 行選択（Ctrl+A / Delete） ────────────────────────────
 var _selectedRows = [];   // 選択中の行インデックス
 
+function getInventoryUi() {
+  return window.Toriai && window.Toriai.ui ? window.Toriai.ui.inventory : null;
+}
+
 /** 切り出し部材リストの全行を選択状態にする */
 /**
  * 任意の日付値を "YYYY-MM-DD" 文字列に正規化（文字列比較用）
@@ -34,15 +38,22 @@ function init() {
 
   // localStorage読み込み（設定・残材）
   loadSettings();
-  syncInventoryToRemnants();  // 在庫から自動同期
+  var inventoryUi = getInventoryUi();
+  if (inventoryUi && typeof inventoryUi.syncInventoryToRemnants === 'function') {
+    inventoryUi.syncInventoryToRemnants();  // 在庫から自動同期
+  }
   updKg();
   buildJobDatalist();
   updateCartBadge();
   var invSelect = document.getElementById('invSelect');
-  if (invSelect) invSelect.addEventListener('change', updateInventoryUseButton);
+  if (invSelect && inventoryUi && typeof inventoryUi.updateInventoryUseButton === 'function') {
+    invSelect.addEventListener('change', inventoryUi.updateInventoryUseButton);
+  }
   var cartBulkPrintBtn = document.querySelector('#cartModal [onclick="cartPrintCutting()"]');
   if (cartBulkPrintBtn) cartBulkPrintBtn.classList.add('cart-bulk-print');
-  updateInventoryUseButton();
+  if (inventoryUi && typeof inventoryUi.updateInventoryUseButton === 'function') {
+    inventoryUi.updateInventoryUseButton();
+  }
 
   // 初期規格を自動選択（H形鋼の最初の規格）
   var firstKind = getAppSteelKinds()[0];
@@ -56,6 +67,5 @@ function init() {
 
   showCalcOnboardingIfNeeded();
 }
-
 
 

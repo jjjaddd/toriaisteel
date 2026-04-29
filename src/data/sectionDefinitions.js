@@ -281,47 +281,4 @@ function getSteelRow(kind, specName) {
 //  calcLAnglePaintAreaPerMeter / calcRoundBarPaintAreaPerMeter / calcSquareBarPaintAreaPerMeter /
 //  calcLightCChannelPaintAreaPerMeter / calcSquarePipePaintAreaPerMeter /
 //  calcPipePaintAreaPerMeter / approxAreaFromWeight)
-
-function parseRectPipeSpec(name, weight) {
-  var nums = (String(name || '').match(/[\d.]+/g) || []).map(Number);
-  if (nums.length < 3) return null;
-  return {
-    name: String(name),
-    H: nums[0],
-    B: nums[1],
-    t: nums[2],
-    Ac: approxAreaFromWeight(weight),
-    W: Number(weight || 0),
-    Ix: null, Iy: null, Zx: null, Zy: null, ix: null, iy: null
-  };
-}
-
-function parseCShapeSpec(name, weight) {
-  var nums = (String(name || '').match(/[\d.]+/g) || []).map(Number);
-  if (nums.length < 4) return null;
-  return {
-    name: String(name),
-    H: nums[0],
-    B: nums[1],
-    L: nums[2],
-    t: nums[3],
-    Ac: approxAreaFromWeight(weight),
-    W: Number(weight || 0),
-    Ix: null, Iy: null, Zx: null, Zy: null, ix: null, iy: null
-  };
-}
-
-function buildSpecsFromSteelKinds(kinds, parser) {
-  var steelApi = window.Toriai && window.Toriai.data && window.Toriai.data.steel;
-  return kinds.reduce(function(all, kind) {
-    var rows = steelApi && typeof steelApi.getRowsByKind === 'function'
-      ? steelApi.getRowsByKind(kind)
-      : (typeof getSteelRowsForKind === 'function' ? getSteelRowsForKind(kind) : []);
-    rows.forEach(function(row) {
-      var parsed = parser(row[0], row[1]);
-      if (parsed) all.push(parsed);
-    });
-    return all;
-  }, []);
-}
-
+// 断面補助 parser は src/calculation/section/specParsers.js に分離

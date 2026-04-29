@@ -56,7 +56,7 @@
 - [x] `src/data/steel/index.js` に鋼材データ入口を整理
 - [x] 重量タブ保存を `src/storage/weight-store.js` へ分離
 - [x] 通常動線から `window.STEEL` の本体依存を外す
-- [ ] 案件保存・履歴保存　 `storage` / repository 層へ寄せる
+- [x] 案件保存・履歴保存　 `storage` / repository 層へ寄せる
 
 ## Phase 3: calculation の分離
 - [x] `calc.js` から `STEEL` データ本体を削除
@@ -69,7 +69,7 @@
 - [x] `worker.js` を `src/calculation/yield/*` を使う thin dispatcher に整理
 - [x] `calc.js` を orchestration 専用にさらに縮小
 - [x] 塗装面積計算（10 関数）を `src/calculation/section/paintArea.js` へ分離
-- [ ] 断面性能計算（残りの helpers / parsers）を `src/calculation/section/` へさらに分離
+- [x] 断面性能計算（残りの helpers / parsers）を `src/calculation/section/` へさらに分離
 
 ## Phase 4: UI と security
 - [x] 計算結果状態更新を `src/ui/calc/resultState.js` へ分離
@@ -89,12 +89,12 @@
 - [x] `saveCutHistory` ラッパーを `src/ui/history/saveCutHistory.js` へ分離
 - [x] `cartAdd` ラッパーを `src/ui/cart/cartAdd.js` へ分離
 - [x] `renderCartModal` 拡張を `src/ui/cart/cartModalDecorations.js` へ分離
-- [x] カード残材描画 (`render` ラッパー / `hydrateCardRemnantLists`) を `src/ui/calc/cardRemnantHydration.js` へ分離
+- [x] カード残材描画 (`render` ラッパー / `hydrateCardRemnantLists`) を `src/features/calc/cardRemnants.js` へ分離
 - [x] `printCard` / `autoRegisterAfterPrint` を `src/ui/history/printCard.js` へ分離
 - [x] 旧グローバル名 → namespace のブリッジを `src/compat/legacyGlobals.js` に集約
 - [x] `final-overrides.js` を削除
-- [ ] `innerHTML` を使う危険箇所を優先度順に削減
-- [ ] 入力バリデーションを `utils/validation` 側へさらに集約
+- [x] `innerHTML` を使う危険箇所を優先度順に削減
+- [x] 入力バリデーションを `utils/validation` 側へさらに集約
 - [x] `src/ui/*` の wrapper パターンを解体し、元の責務ファイル直接修正へ置き換え：
   - `saveCutHistory` の wrapper を削除し、`src/services/storage/cutHistoryStore.js` の base に `entry.printedCardId` 直接設定 + `getLatestPrintedHistoryRemnants` を追加
   - `cartAdd` の wrapper を削除し、`src/main.js` の base に payload-based bars/remnants/meta/remHtml 直接設定
@@ -102,9 +102,9 @@
   - `render` の wrapper を削除し、`src/main.js` の render 末尾に `hydrateCardRemnantLists()` を直接呼び出し
   - `renderInventoryPage` の wrapper を削除し、`src/main.js` の base を namespace 版（inv-card-new レイアウト + グルーピング）の logic に置き換え
   - `buildSpec` / `selectKind` の wrap は dead reference のため `specPanelInit.js` / `specPanelBehavior.js` から削除
-- [ ] `src/ui/calc/cardRemnantHydration.js` の `hydrateCardRemnantLists` / `renderCardRemnantSection` を main.js または専用モジュールへ移動（現状 main.js から global 名で呼んでいる）— 後続
-- [ ] `src/compat/legacyGlobals.js` のブリッジ削減：呼び出し元（`main.js` / `calc.js` / `weight.js` / `custom-materials.js`）を `Toriai.ui.*` 直書きに段階的に置き換える
-- [ ] localStorage 直接書きを減らし、将来 Supabase へ差し替えやすくする
+- [x] `src/features/calc/cardRemnants.js` の `hydrateCardRemnantLists` / `renderCardRemnantSection` を専用モジュールへ移動
+- [x] `src/compat/legacyGlobals.js` のブリッジ削減：呼び出し元（`main.js` / `calc.js` / `weight.js` / `custom-materials.js`）を `Toriai.ui.*` 直書きに段階的に置き換える
+- [x] localStorage 直接書きを減らし、将来 Supabase へ差し替えやすくする
 
 ## Phase 5: 将来拡張の準備
 - [ ] `auth/` にログイン関連モジュールを追加
@@ -143,8 +143,8 @@
   - `weightTable.css` (264) — 重量タブ明細テーブル
   - `overrideLayers.css` (1253) — Final overrides（calc / sidebar / history-inventory / unified sidebar）
 - [x] `service-worker.js` の `CACHE_NAME` を v82 へバンプ
-- [ ] `core.css` を更にタブ単位（base / calc / history / inventory / contact 等）に細分化 — 後続。cascade 影響を慎重に検証する必要あり
-- [ ] `toriai-theme.css` の必要に応じた分割 — 後続タスクとして保留
+- [x] `core.css` を更にタブ単位（base / calc / history / inventory / contact 等）に細分化 — `calc.css` / `historyInventory.css` / `refresh2026.css` / `contact.css` / `settings.css` / `cartModal.css` / `dataPage.css` / `darkMode.css` に分割
+- [x] `toriai-theme.css` の必要に応じた分割 — `themeCalc.css` / `themeHistoryInventory.css` / `themeDataWeight.css` / `themeContact.css` / `themeSidebar.css` / `themeCartSettings.css` / `themeDarkSupplement.css` / `themePolish.css` に分割
 
 ### Wave 3: utils / weight
 - [x] `utils.js` を `src/utils/` 配下に責務別分割：
@@ -255,23 +255,6 @@
 main.js
 ```
 
-- [ ] `src/features/` ディレクトリを新設
-- [ ] `src/features/cart/` を新設、現 `src/ui/cart/*` を移植
-- [ ] `src/features/orderHistory/` を新設、現 `src/ui/history/*` を移植
-- [ ] `src/features/materialStock/` を新設、現 `src/ui/inventory/*` を移植
-- [ ] `src/features/calc/` を新設、現 `src/ui/calc/*` を移植（取り合い計算 UI）
-- [ ] `src/features/estimate/` を新設、見積関連のロジック・UI を集約
-- [ ] `src/features/csvExport/` を新設、CSV 出力機能を集約
-- [ ] `src/features/contact/` を新設、現 `src/ui/contact/*` を移植
-- [ ] `src/calculation/cutting/` を新設、`src/calculation/yield/*` をリネーム / 整理
-- [ ] `src/calculation/section/` を新設、断面性能計算を分離
-- [ ] `src/services/` 配下に保存処理ゲートウェイを集約（`storage.js` の中身を移植）
-- [ ] `src/utils/` 配下に汎用ヘルパー集約（`utils.js` を分割、localStorage / validation / 日付フォーマット）
-- [ ] `src/styles/` 配下にタブ単位 CSS を分割
-- [ ] `main.js` から処理本体を抽出し、初期化と接続のみに縮小
-- [ ] ファイル名を具体名にリネーム（`utils.js` → `steelData.js` 等）
-- [ ] `src/ui/` を廃止（中身が `src/features/` に移ったあと）
-- [ ] `src/compat/legacyGlobals.js` を縮退（呼び出し元 namespace 直書きへ）
 
 ## Phase 7: 完了後の品質ゲート＆サーバーサイド化
 

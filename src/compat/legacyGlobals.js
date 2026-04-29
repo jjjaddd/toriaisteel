@@ -18,12 +18,6 @@
   var ui = global.Toriai && global.Toriai.ui ? global.Toriai.ui : null;
   if (!ui) return;
 
-  function bridge(name, target) {
-    global[name] = function() {
-      return target.apply(this, arguments);
-    };
-  }
-
   // inventory
   global.getSelectedInventoryRemnants = function() { return ui.inventory.getSelectedInventoryRemnants(); };
   global.saveSelectedInventoryRemnants = function(data) { return ui.inventory.saveSelectedInventoryRemnants(data); };
@@ -42,26 +36,6 @@
   global.updateInventoryGroupNote = function(groupKey, value) { return ui.inventory.updateInventoryGroupNote(groupKey, value); };
   global.toggleInventoryGroupNoteEditor = function(groupKey, forceOpen) { return ui.inventory.toggleInventoryGroupNoteEditor(groupKey, forceOpen); };
   global.saveInventoryGroupNoteFromInput = function(groupKey) { return ui.inventory.saveInventoryGroupNoteFromInput(groupKey); };
-
-  // history
-  global.buildPrintSectionFromPayload = function(sectionIndex, spec, payload, endLoss) {
-    return ui.history.buildPrintSectionFromPayload(sectionIndex, spec, payload, endLoss);
-  };
-  global.buildSinglePrintHtml = function(job, spec, payload, endLoss) {
-    return ui.history.buildSinglePrintHtml(job, spec, payload, endLoss);
-  };
-  // cart
-  global.getCartPurchaseSummary = function(cart) { return ui.cart.getCartPurchaseSummary(cart); };
-  global.buildPurchaseMailto = function(summary, cart) { return ui.cart.buildPurchaseMailto(summary, cart); };
-  global.buildPurchaseGmailUrl = function(summary, cart) { return ui.cart.buildPurchaseGmailUrl(summary, cart); };
-
-  // contact
-  global.buildFeedbackBody = function() { return ui.contact.buildFeedbackBody(); };
-  global.buildFeedbackMailto = function() { return ui.contact.buildFeedbackMailto(); };
-  global.buildFeedbackGmailUrl = function() { return ui.contact.buildFeedbackGmailUrl(); };
-  global.openFeedbackMailDefault = function() { return ui.contact.openFeedbackMailDefault(); };
-  global.openFeedbackMailGmail = function() { return ui.contact.openFeedbackMailGmail(); };
-  global.submitFeedbackViaGAS = function() { return ui.contact.submitFeedbackViaGAS(); };
 
   // inventory overrides initialisation (sync inventory module's reassignment of legacy globals)
   if (ui.inventory && typeof ui.inventory.initializeOverrides === 'function') {

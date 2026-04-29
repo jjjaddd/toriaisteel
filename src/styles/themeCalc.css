@@ -1,0 +1,379 @@
+/* ── 5. Layout / Sidebar ────────────────────────────────────── */
+.sb {
+  background: var(--bg) !important;
+  border-right-color: var(--line) !important;
+}
+.mn { background: var(--bg) !important; }
+html[data-theme="dark"] .sb {
+  background: var(--bg2) !important;
+  border-right-color: var(--line) !important;
+}
+html[data-theme="dark"] .mn { background: var(--bg) !important; }
+
+/* Sidebar tabs */
+.sb-tab { color: var(--ink2) !important; background: transparent !important; border: none !important; }
+.sb-tab:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.sb-tab.active { background: var(--sp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .sb-tab { color: var(--ink2) !important; }
+html[data-theme="dark"] .sb-tab:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .sb-tab.active { background: var(--sp) !important; color: var(--ink) !important; }
+
+.shd { color: var(--ink) !important; }
+.field label { color: var(--ink2) !important; }
+html[data-theme="dark"] .shd { color: var(--ink) !important; }
+html[data-theme="dark"] .field label { color: var(--ink2) !important; }
+
+/* ── 6. Inputs / Selects — global ───────────────────────────── */
+input[type=number],
+input[type=text],
+input[type=date],
+select,
+textarea {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  outline: none !important;
+}
+input[type=number]:hover,
+input[type=text]:hover,
+input[type=date]:hover,
+select:hover,
+textarea:hover,
+input[type=number]:focus,
+input[type=text]:focus,
+input[type=date]:focus,
+select:focus,
+textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+select option { background: var(--bg) !important; color: var(--ink) !important; }
+html[data-theme="dark"] input[type=number],
+html[data-theme="dark"] input[type=text],
+html[data-theme="dark"] input[type=date],
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] input:hover,
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] select:hover,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:hover,
+html[data-theme="dark"] textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] select option { background: var(--bg2) !important; color: var(--ink) !important; }
+
+/* ── 7. Type buttons (tbtn) ─────────────────────────────────── */
+.tbtn {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+.tbtn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.tbtn.on {
+  background: var(--sp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .tbtn {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .tbtn:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .tbtn.on { background: var(--sp) !important; }
+
+/* ── 8. Stock rows ──────────────────────────────────────────── */
+.stk-row {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+}
+.stk-nm { color: var(--ink) !important; }
+.stk-nm small { color: var(--ink2) !important; }
+.stk-mx {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.stk-mx:hover, .stk-mx:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] .stk-row { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .stk-nm { color: var(--ink) !important; }
+html[data-theme="dark"] .stk-mx { background: var(--bg3) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+
+/* ── 9. Remnant area ────────────────────────────────────────── */
+.remnant-area { border-color: var(--line) !important; background: var(--bg) !important; }
+.remnant-head { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+.remnant-head span { color: var(--ink) !important; }
+.rem-row { border-bottom-color: var(--line2) !important; }
+.rem-del { color: var(--ink3) !important; }
+.rem-del:hover { color: var(--rd) !important; }
+.rem-label { color: var(--ink2) !important; }
+.add-btn {
+  background: transparent !important;
+  border: 1px dashed var(--line) !important;
+  color: var(--ink2) !important;
+}
+.add-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .remnant-area { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .remnant-head { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .remnant-head span { color: var(--ink) !important; }
+html[data-theme="dark"] .add-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .add-btn:hover { background: var(--hp) !important; }
+
+/* ── 10. invDropCont ────────────────────────────────────────── */
+#invDropCont {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r) !important;
+  margin-bottom: 0 !important;
+}
+#invSelect {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+#invBadge {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink2) !important;
+}
+html[data-theme="dark"] #invDropCont { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] #invSelect { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] #invBadge { background: var(--bg3) !important; border-color: var(--line) !important; color: var(--ink2) !important; }
+
+/* ── 11. Parts table ────────────────────────────────────────── */
+.pt-wrap { border-color: var(--line) !important; background: var(--bg) !important; }
+.pt-hd { border-bottom-color: var(--line) !important; background: var(--bg) !important; }
+.pt-hd span { color: var(--ink2) !important; }
+.pt-row { border-bottom-color: var(--line2) !important; }
+.pt-row input { color: var(--ink) !important; }
+.pt-row input:hover, .pt-row input:focus { background: var(--hp) !important; }
+.pt-n { color: var(--ink3) !important; }
+.pt-kg { color: var(--ink2) !important; }
+.tot {
+  border: none !important;
+  border-top: 1px solid var(--line) !important;
+  background: var(--bg2) !important;
+}
+.tot-l { color: var(--ink2) !important; }
+.tot-v { color: var(--ink) !important; }
+.pt-row.pt-selected { background: var(--hp) !important; }
+.pt-row.pt-selected input { background: var(--hp) !important; }
+html[data-theme="dark"] .pt-wrap { border-color: var(--line) !important; background: var(--bg2) !important; }
+html[data-theme="dark"] .pt-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .pt-row { border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .pt-row input { color: var(--ink) !important; }
+html[data-theme="dark"] .pt-row input:hover,
+html[data-theme="dark"] .pt-row input:focus { background: var(--hp) !important; }
+html[data-theme="dark"] .tot { background: var(--bg3) !important; border-top-color: var(--line) !important; }
+html[data-theme="dark"] .tot-l { color: var(--ink2) !important; }
+html[data-theme="dark"] .tot-v { color: var(--ink) !important; }
+
+/* ── 12. Paste area / Excel-CAD copy-paste ──────────────────── */
+/* Paste area: remove purple border */
+.paste-area {
+  border: 1px solid var(--line) !important;
+  background: var(--bg2) !important;
+}
+.paste-area textarea {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+.paste-area textarea:hover,
+.paste-area textarea:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+.paste-hint { color: var(--ink2) !important; }
+.paste-hint strong { color: var(--ink) !important; }
+
+/* Excel/CAD ボタン hover → black */
+.sm-btn.paste:hover { border-color: var(--ink) !important; color: var(--ink) !important; }
+
+/* 一括入力ボタン → ＋追加と同仕様（緑枠・緑文字） */
+.paste-exec {
+  background: transparent !important;
+  border: 1.5px solid var(--gn) !important;
+  color: var(--gn) !important;
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 5px 12px !important;
+  border-radius: var(--r-sm) !important;
+  cursor: pointer !important;
+  transition: background .15s, color .15s !important;
+}
+.paste-exec:hover { background: rgba(22,163,74,.08) !important; }
+.paste-exec.added {
+  background: var(--gn) !important;
+  color: #fff !important;
+  border-color: var(--gn) !important;
+}
+
+html[data-theme="dark"] .paste-area { border-color: var(--line) !important; background: var(--bg3) !important; }
+html[data-theme="dark"] .paste-area textarea { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .paste-area textarea:hover,
+html[data-theme="dark"] .paste-area textarea:focus { background: var(--hp) !important; }
+html[data-theme="dark"] .paste-hint { color: var(--ink2) !important; }
+html[data-theme="dark"] .paste-hint strong { color: var(--ink) !important; }
+
+/* ── 13. Small buttons ──────────────────────────────────────── */
+.sm-btn {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.sm-btn:hover { border-color: var(--ink) !important; color: var(--ink) !important; background: transparent !important; }
+.sm-btn.del:hover { border-color: var(--rd) !important; color: var(--rd) !important; }
+.sm-btn.add:hover { border-color: var(--gn) !important; color: var(--gn) !important; }
+html[data-theme="dark"] .sm-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .sm-btn:hover { border-color: var(--ink) !important; color: var(--ink) !important; }
+
+/* ── 14. Run button ─────────────────────────────────────────── */
+/* style.css の .run（黒背景/ホバーで薄紫 #d8d4ff）に統一。変数ではなく明示色で合わせる */
+.run {
+  background: #1a1a2e !important;
+  color: #ffffff !important;
+  border: 1.5px solid #1a1a2e !important;
+}
+.run:hover {
+  background: #f8fbff !important;
+  border-color: #e5e7eb !important;
+  color: #1a1a2e !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .run { background: #1a1a2e !important; border-color: #1a1a2e !important; color: #ffffff !important; }
+html[data-theme="dark"] .run:hover { background: #f8fbff !important; border-color: #e5e7eb !important; color: #1a1a2e !important; }
+
+/* ── 15. Result cards ───────────────────────────────────────── */
+.ph { background: var(--bg) !important; border-color: var(--line) !important; }
+.ph p { color: var(--ink) !important; }
+.ph small { color: var(--ink2) !important; }
+.cc { background: var(--bg) !important; border-color: var(--line) !important; box-shadow: 0 2px 12px rgba(0,0,0,.06) !important; }
+.cc.r1,.cc.r2,.cc.r3 { border-color: var(--line) !important; }
+.cc-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+.yield-card .cc-hd { background: var(--bg2) !important; }
+.cc-desc { color: var(--ink) !important; }
+.r1 .cc-desc,.r2 .cc-desc,.r3 .cc-desc { color: var(--ink) !important; }
+.cs .cl { color: var(--ink2) !important; }
+.cs .cv { color: var(--ink) !important; }
+.r1 .cs .cv,.r2 .cs .cv,.r3 .cs .cv { color: var(--ink) !important; }
+.cc-pat { background: var(--bg2) !important; }
+.cut-diagram { background: var(--bg2) !important; border-top-color: var(--line) !important; }
+.cut-diagram-title { color: var(--ink) !important; }
+.cut-diagram-title::after { background: var(--line) !important; }
+.bar-vis-label { color: var(--ink) !important; }
+.bar-track { background: var(--bg2) !important; border-color: var(--line) !important; }
+.diag-toggle { color: var(--ink2) !important; border-top-color: var(--line) !important; }
+.diag-toggle:hover, .diag-toggle.open { background: var(--hp) !important; color: var(--ink) !important; }
+
+/* rank badge */
+.rbdg { background: var(--bg3) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; }
+.r1 .rbdg { background: var(--ink) !important; color: var(--bg) !important; border-color: var(--ink) !important; }
+
+/* tags */
+.tag-best { background: var(--ink) !important; color: var(--bg) !important; border-color: var(--ink) !important; box-shadow: none !important; }
+.tag-chg { border-color: var(--line) !important; color: var(--ink2) !important; }
+.res-ttl { color: var(--ink) !important; }
+.chg-note { color: var(--ink) !important; }
+.chg-note strong { color: var(--ink) !important; }
+
+/* pattern cards */
+.pc { background: var(--bg) !important; border-color: var(--line) !important; }
+.pc-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; color: var(--ink) !important; }
+.pc-row { color: var(--ink) !important; border-bottom-color: var(--line2) !important; }
+.px { background: var(--bg3) !important; color: var(--ink) !important; }
+
+/* preview buttons */
+.preview-action-btn {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.preview-action-btn:hover, .preview-action-btn:active {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+}
+.cc-btn-print {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.cc-btn-print:hover { background: var(--hp) !important; border-color: var(--line) !important; }
+.cart-bulk-print {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+.cart-bulk-print:hover { background: var(--hp) !important; border-color: var(--line) !important; }
+.print-btn { background: var(--bg) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; }
+.print-btn:hover { background: var(--hp) !important; border-color: var(--line) !important; }
+
+html[data-theme="dark"] .ph { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .cc { background: var(--bg2) !important; border-color: var(--line) !important; box-shadow: 0 4px 20px rgba(0,0,0,.3) !important; }
+html[data-theme="dark"] .cc-hd { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .cc-desc { color: var(--ink) !important; }
+html[data-theme="dark"] .cs .cl { color: var(--ink2) !important; }
+html[data-theme="dark"] .cs .cv { color: var(--ink) !important; }
+html[data-theme="dark"] .cc-pat { background: var(--bg3) !important; }
+html[data-theme="dark"] .cut-diagram { background: var(--bg3) !important; border-top-color: var(--line) !important; }
+html[data-theme="dark"] .bar-track { background: var(--bg3) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .diag-toggle { color: var(--ink2) !important; border-top-color: var(--line) !important; }
+html[data-theme="dark"] .diag-toggle:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pc { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .pc-hd { background: var(--bg3) !important; border-bottom-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pc-row { color: var(--ink) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .preview-action-btn { background: var(--bg2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .preview-action-btn:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .cc-btn-print { background: var(--bg2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .cart-bulk-print { background: var(--bg2) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+
+/* ── 16. Spec items (sidebar) ───────────────────────────────── */
+.spec-item {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border-bottom-color: var(--line2) !important;
+}
+.spec-item:hover { background: var(--hp) !important; color: var(--ink) !important; }
+.spec-item.on { background: var(--sp) !important; color: var(--ink) !important; }
+#specSelected:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .spec-item { background: var(--bg2) !important; color: var(--ink) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .spec-item:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .spec-item.on { background: var(--sp) !important; }
+
+/* ── 17. cmd palette ────────────────────────────────────────── */
+#cmdDropdown, #wCmdDropdown {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,.1) !important;
+}
+.cmd-item { color: var(--ink) !important; border-bottom-color: var(--line2) !important; }
+.cmd-item:hover, .cmd-item.cmd-focus { background: var(--hp) !important; color: var(--ink) !important; }
+.cmd-cat { background: var(--bg2) !important; color: var(--ink3) !important; }
+html[data-theme="dark"] #cmdDropdown,
+html[data-theme="dark"] #wCmdDropdown { background: var(--bg2) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .cmd-item { color: var(--ink) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .cmd-item:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .cmd-cat { background: var(--bg3) !important; color: var(--ink2) !important; }
+

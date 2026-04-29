@@ -71,10 +71,15 @@
 
 var _selectedInventoryRemnantsState = null;
 
+function getSelectedInventoryLocalStore() {
+  return window.Toriai && window.Toriai.storage ? window.Toriai.storage.localStore : null;
+}
+
 function loadSelectedInventoryRemnantsState() {
   if (_selectedInventoryRemnantsState) return _selectedInventoryRemnantsState;
   try {
-    var parsed = JSON.parse(localStorage.getItem(INVENTORY_REMNANT_SELECTED_KEY) || '{}');
+    var store = getSelectedInventoryLocalStore();
+    var parsed = store ? store.readJson(INVENTORY_REMNANT_SELECTED_KEY, {}) : JSON.parse(localStorage.getItem(INVENTORY_REMNANT_SELECTED_KEY) || '{}');
     _selectedInventoryRemnantsState = parsed && typeof parsed === 'object' ? parsed : {};
   } catch (e) {
     _selectedInventoryRemnantsState = {};
@@ -84,7 +89,9 @@ function loadSelectedInventoryRemnantsState() {
 
 function persistSelectedInventoryRemnantsState() {
   try {
-    localStorage.setItem(INVENTORY_REMNANT_SELECTED_KEY, JSON.stringify(_selectedInventoryRemnantsState || {}));
+    var store = getSelectedInventoryLocalStore();
+    if (store) store.writeJson(INVENTORY_REMNANT_SELECTED_KEY, _selectedInventoryRemnantsState || {});
+    else localStorage.setItem(INVENTORY_REMNANT_SELECTED_KEY, JSON.stringify(_selectedInventoryRemnantsState || {}));
   } catch (e) {}
 }
 
@@ -109,7 +116,8 @@ function updateInventoryUseButton() {
   function stateLoad() {
     if (remnantState) return remnantState;
     try {
-      var parsed = JSON.parse(localStorage.getItem(INVENTORY_REMNANT_SELECTED_KEY) || '{}');
+      var store = getSelectedInventoryLocalStore();
+      var parsed = store ? store.readJson(INVENTORY_REMNANT_SELECTED_KEY, {}) : JSON.parse(localStorage.getItem(INVENTORY_REMNANT_SELECTED_KEY) || '{}');
       remnantState = parsed && typeof parsed === 'object' ? parsed : {};
     } catch (e) {
       remnantState = {};
@@ -119,7 +127,9 @@ function updateInventoryUseButton() {
 
   function stateSave() {
     try {
-      localStorage.setItem(INVENTORY_REMNANT_SELECTED_KEY, JSON.stringify(remnantState || {}));
+      var store = getSelectedInventoryLocalStore();
+      if (store) store.writeJson(INVENTORY_REMNANT_SELECTED_KEY, remnantState || {});
+      else localStorage.setItem(INVENTORY_REMNANT_SELECTED_KEY, JSON.stringify(remnantState || {}));
     } catch (e) {}
   }
 

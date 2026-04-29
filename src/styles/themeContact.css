@@ -1,0 +1,68 @@
+/* ── 22. Contact page ───────────────────────────────────────── */
+#cop, #contactp { background:#ffffff !important; }
+#cop .contact-card {
+  background:#ffffff !important;
+  border:1px solid #000 !important;
+  box-shadow:0 0 0 2px #ffffff, inset 0 0 0 1px #000 !important;
+}
+#cop .contact-card-title{
+  background:#ffffff !important;
+  color:#1a1a2e !important;
+  border:none !important;
+  box-shadow:none !important;
+  font-weight:700 !important;
+  padding:0 8px !important;
+}
+#cop .contact-title,
+#cop .contact-lead,
+#cop .contact-kicker,
+#cop .contact-card-title,
+#cop .contact-field label,
+#cop .contact-info-row,
+#cop .contact-info-row span,
+#cop .contact-info-row strong,
+#cop .contact-faq-q,
+#cop .contact-faq-item p { color:#1a1a2e !important; }
+#cop .contact-field input,
+#cop .contact-field select,
+#cop .contact-field textarea {
+  background:#ffffff !important;
+  border:2px solid #000 !important;
+  border-radius:0 !important;
+  color:#1a1a2e !important;
+  box-shadow:none !important;
+}
+#cop .contact-field input:hover, #cop .contact-field select:hover, #cop .contact-field textarea:hover,
+#cop .contact-field input:focus, #cop .contact-field select:focus, #cop .contact-field textarea:focus,
+#cop input:hover, #cop input:focus, #cop select:hover, #cop select:focus, #cop textarea:hover, #cop textarea:focus {
+  background:#ffffff !important;
+  border-color:#000 !important;
+  border-radius:0 !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+#contactSubject, #contactCategory { color:#1a1a2e !important; }
+#contactSubject option, #contactCategory option { background:#ffffff !important; color:#1a1a2e !important; }
+/* Submit button: default white, hover light purple */
+#feedbackSubmitBtn {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+#feedbackSubmitBtn:hover, #feedbackSubmitBtn:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+}
+#feedbackSubmitBtn:active { background: var(--sp) !important; }
+#contactSubmitBtn {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+#contactSubmitBtn:hover, #contactSubmitBtn:focus {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  outline: none !important;
+}
+

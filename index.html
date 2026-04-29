@@ -69,12 +69,28 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="apple-touch-icon" href="src/assets/icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="src/styles/core.css?v=phase1">
+<link rel="stylesheet" href="src/styles/calc.css?v=phase1">
+<link rel="stylesheet" href="src/styles/historyInventory.css?v=phase1">
+<link rel="stylesheet" href="src/styles/refresh2026.css?v=phase1">
+<link rel="stylesheet" href="src/styles/contact.css?v=phase1">
+<link rel="stylesheet" href="src/styles/settings.css?v=phase1">
+<link rel="stylesheet" href="src/styles/cartModal.css?v=phase1">
+<link rel="stylesheet" href="src/styles/dataPage.css?v=phase1">
+<link rel="stylesheet" href="src/styles/darkMode.css?v=phase1">
 <link rel="stylesheet" href="src/styles/dataTabLayout.css?v=phase1">
 <link rel="stylesheet" href="src/styles/changelog.css?v=phase1">
 <link rel="stylesheet" href="src/styles/gearPopup.css?v=phase1">
 <link rel="stylesheet" href="src/styles/weightTable.css?v=phase1">
 <link rel="stylesheet" href="src/styles/overrideLayers.css?v=phase1">
 <link rel="stylesheet" href="src/styles/theme.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeCalc.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeHistoryInventory.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeDataWeight.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeContact.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeSidebar.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeCartSettings.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeDarkSupplement.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themePolish.css?v=ui29">
 <link rel="stylesheet" href="src/styles/dataTab.css?v=8">
 </head>
 <body>
@@ -529,9 +545,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         </div>
         <div class="hist-body" style="overflow-y:auto;padding:8px"></div>
       </div>
-    
+
   </div>
-  
+
     </div>
 
     <!-- 切断完了モーダル -->
@@ -681,7 +697,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   </div>
 </div>
 
-  
+
 <!-- /hip -->
 
 
@@ -1048,6 +1064,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/calculation/yield/repeatPlans.js?v=phase1"></script>
 <script src="src/calculation/yield/bundlePlan.js?v=phase1"></script>
 <script src="src/calculation/yield/calcCore.js?v=phase1"></script>
+<script src="src/calculation/yield/algorithmV2.js?v=phase2"></script>
 <script src="src/services/storage/storageKeys.js?v=phase1"></script>
 <script src="src/services/storage/settingsStore.js?v=phase1"></script>
 <script src="src/services/storage/remnantsStore.js?v=phase1"></script>
@@ -1062,6 +1079,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/utils/dateUtils.js?v=phase1"></script>
 <script src="src/utils/uiHelpers.js?v=phase1"></script>
 <script src="src/calculation/section/paintArea.js?v=phase1"></script>
+<script src="src/calculation/section/specParsers.js?v=phase1"></script>
 <script src="src/data/sectionDefinitions.js?v=ui39"></script>
 <script src="src/features/dataTab/sectionSvg.js?v=phase1"></script>
 <script src="src/features/dataTab/state.js?v=phase1"></script>
@@ -1112,7 +1130,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/ui/calc/specPanelInit.js?v=phase1"></script>
 <script src="src/ui/history/historyInit.js?v=phase1"></script>
 <script src="src/ui/history/printPayload.js?v=phase1"></script>
-<script src="src/ui/calc/cardRemnantHydration.js?v=phase1"></script>
+<script src="src/features/calc/cardRemnants.js?v=phase1"></script>
 <script src="src/ui/history/printCard.js?v=phase1"></script>
 <script src="src/compat/legacyGlobals.js?v=phase1"></script>
 <script src="src/features/weight/state.js?v=phase1"></script>
@@ -1239,7 +1257,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           過去の結果や残材在庫を見直せます。残材を使った切断や、前の作業の再利用に便利です。
         </p>
       </section>
-      
+
     </div>
     <div class="onboarding-hint">左側を押すと戻る / 右側を押すと進む</div>
     <div class="onboarding-hit onboarding-hit-left" onclick="moveCalcOnboarding(-1)" aria-hidden="true"></div>

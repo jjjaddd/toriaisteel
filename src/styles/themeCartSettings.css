@@ -1,0 +1,458 @@
+/* ── 23. Cart modal ─────────────────────────────────────────── */
+.cart-modal-inner { background: var(--bg) !important; }
+.cart-modal-hd { background: var(--bg2) !important; border-bottom-color: var(--line) !important; }
+.cart-item { border-bottom-color: var(--line2) !important; }
+.cart-item-del { background: transparent !important; border: none !important; color: var(--ink3) !important; }
+.cart-item-del:hover { color: var(--rd) !important; background: rgba(220,38,38,.07) !important; }
+html[data-theme="dark"] .cart-modal-inner { background: var(--bg2) !important; }
+html[data-theme="dark"] .cart-modal-hd { background: var(--bg3) !important; border-bottom-color: var(--line) !important; }
+html[data-theme="dark"] .cart-item { border-bottom-color: var(--line) !important; }
+
+/* ── 24. ds-toggle rows (settings panel WIP) ─────────────────── */
+.ds-toggle-row { border-color: var(--line2) !important; }
+.ds-toggle-row:hover { background: var(--hp) !important; }
+.ds-toggle-label span { color: var(--ink) !important; }
+.ds-toggle-label small { color: var(--ink2) !important; }
+html[data-theme="dark"] .ds-toggle-row { border-color: var(--line) !important; }
+html[data-theme="dark"] .ds-toggle-row:hover { background: var(--hp) !important; }
+html[data-theme="dark"] .ds-toggle-label span { color: var(--ink) !important; }
+
+/* 詳細設定: セクション見出し・フィールド・トグルエリア */
+html[data-theme="dark"] .ds-title {
+  color: var(--ink) !important;
+  border-bottom-color: var(--line) !important;
+}
+html[data-theme="dark"] .ds-field label { color: var(--ink2) !important; }
+html[data-theme="dark"] .ds-field input[type="number"],
+html[data-theme="dark"] .ds-field input[type="text"],
+html[data-theme="dark"] .ds-field input[type="date"],
+html[data-theme="dark"] .ds-field textarea {
+  background: var(--bg3) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .ds-field input:hover,
+html[data-theme="dark"] .ds-field textarea:hover,
+html[data-theme="dark"] .ds-field input:focus,
+html[data-theme="dark"] .ds-field textarea:focus {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="dark"] .ds-toggle-area {
+  background: var(--bg3) !important;
+}
+html[data-theme="dark"] .ds-sec-head:hover {
+  background: var(--hp) !important;
+}
+html[data-theme="dark"] .ds-add-btn {
+  border-color: var(--line) !important;
+  color: var(--ink3) !important;
+}
+html[data-theme="dark"] .ds-add-btn:hover {
+  background: var(--hp) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="dark"] .ds-tog-track { background: var(--bg2) !important; border: 1px solid var(--line) !important; }
+
+/* 端材リスト帯 (rem-strip) */
+.rem-strip {
+  padding: 6px 14px !important;
+  background: var(--bg2) !important;
+  border-top: 1px solid var(--line) !important;
+}
+.rem-strip-label {
+  font-size: 10px;
+  color: var(--ink3);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.rem-strip-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+html[data-theme="dark"] .rem-strip {
+  background: var(--bg3) !important;
+  border-top-color: var(--line) !important;
+}
+
+/* ── 25. WIP badges ─────────────────────────────────────────── */
+.wip-badge { background: rgba(234,88,12,.08) !important; border: 1px solid rgba(234,88,12,.25) !important; color: #c2410c !important; }
+html[data-theme="dark"] .wip-badge { background: rgba(234,88,12,.12) !important; border-color: rgba(234,88,12,.3) !important; color: #fb923c !important; }
+
+/* ── 26. Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar-track { background: var(--bg2) !important; }
+::-webkit-scrollbar-thumb { background: var(--ink3) !important; }
+html[data-theme="dark"] ::-webkit-scrollbar-track { background: var(--bg2) !important; }
+html[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--bg3) !important; }
+
+/* ── 27. Dark mode — body/global background ──────────────────── */
+html[data-theme="dark"] body { background: var(--bg) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pg { background: var(--bg) !important; }
+html[data-theme="dark"] .layout { background: var(--bg) !important; }
+
+/* ── 28. hi-panel inner items ───────────────────────────────── */
+.hi-page-title { color: var(--ink) !important; }
+.hi-label { color: var(--ink3) !important; }
+.hi-input { background: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--ink) !important; }
+.hi-input:hover, .hi-input:focus { background: var(--hp) !important; border-color: var(--line) !important; }
+.hi-clear-btn { background: transparent !important; border: 1px solid var(--line) !important; color: var(--ink2) !important; }
+.hi-clear-btn:hover { background: var(--hp) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-page-title { color: var(--ink) !important; }
+html[data-theme="dark"] .hi-input { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .hi-input:focus { background: var(--hp) !important; }
+html[data-theme="dark"] .hi-clear-btn { border-color: var(--line) !important; color: var(--ink2) !important; }
+
+/* ── 29. inv-note badge/save ─────────────────────────────────── */
+.inv-note-badge, .inv-note-save {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink2) !important;
+}
+.inv-note-badge:hover, .inv-note-save:hover { background: var(--hp) !important; }
+.inv-note-input { background: var(--bg) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+.inv-note-input:focus { background: var(--hp) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .inv-note-badge,
+html[data-theme="dark"] .inv-note-save { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink2) !important; }
+html[data-theme="dark"] .inv-note-input { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+
+/* ── 30. Pager ──────────────────────────────────────────────── */
+.pager button { background: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--ink) !important; }
+.pager button:hover { background: var(--hp) !important; }
+.pager button.active { background: var(--sp) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+html[data-theme="dark"] .pager button { background: var(--bg2) !important; border-color: var(--line) !important; color: var(--ink) !important; }
+html[data-theme="dark"] .pager button:hover { background: var(--hp) !important; }
+
+/* ── 31. Critical: remove toriai-theme-critical inline colors ── */
+/* The <style id="toriai-theme-critical"> in <head> is also cleaned via this */
+html[data-theme="dark"] {
+  background: var(--bg) !important;
+}
+html[data-theme="dark"] body {
+  background: var(--bg) !important;
+}
+
+/* ── 32. 印刷カート modal redesign ─────────────────────────── */
+
+/* Overlay: flex-center when shown (JS sets display:block → override) */
+#cartModal[style*="block"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+#cartModal {
+  padding: 20px 16px !important;
+}
+
+/* Modal box */
+.cart-modal-inner {
+  max-width: 520px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  background: var(--bg) !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.18) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: calc(100vh - 48px) !important;
+}
+
+/* Header */
+.cart-modal-hd {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 18px 22px !important;
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--line) !important;
+  flex-shrink: 0 !important;
+}
+.cart-modal-hd-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cart-modal-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: .01em;
+}
+.cart-modal-count {
+  font-size: 11px;
+  color: var(--ink3);
+  background: var(--bg2);
+  padding: 2px 9px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  font-weight: 600;
+}
+.cart-modal-count:empty { display: none; }
+.cart-modal-hd-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Body scroll area */
+.cart-modal-body {
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  max-height: none !important;
+  padding: 0 !important;
+}
+
+/* Sections */
+.cart-section {
+  padding: 18px 22px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+.cart-section:last-child {
+  border-bottom: none !important;
+}
+.cart-section-title {
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  color: var(--ink3) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .09em !important;
+  margin-bottom: 14px !important;
+}
+.cart-section-actions {
+  display: flex !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  padding: 10px 0 4px !important;
+}
+.cart-empty-msg {
+  padding: 12px 0 !important;
+  font-size: 12px !important;
+  color: var(--ink3) !important;
+}
+.cart-item-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+  margin-bottom: 2px !important;
+}
+.cart-item-sub {
+  font-size: 11px !important;
+  color: var(--ink3) !important;
+}
+.cart-copy-btn {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 5px 10px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r-sm) !important;
+  background: var(--bg) !important;
+  color: var(--ink2) !important;
+  cursor: pointer !important;
+  transition: background .12s !important;
+}
+.cart-copy-btn:hover:not(:disabled) {
+  background: var(--hp) !important;
+  color: var(--ink) !important;
+}
+.cart-copy-btn:disabled {
+  opacity: .4 !important;
+  cursor: default !important;
+}
+.cart-copy-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  padding: 6px 0 2px !important;
+}
+.cart-copy-label {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: var(--ink3) !important;
+  letter-spacing: .04em !important;
+  white-space: nowrap !important;
+  margin-right: 2px !important;
+}
+.w-saved-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 6px !important;
+  border-radius: var(--r-sm) !important;
+  border: 1px solid var(--line) !important;
+  margin-bottom: 4px !important;
+  background: var(--bg) !important;
+}
+.w-saved-info {
+  flex: 1 !important;
+  min-width: 0 !important;
+  cursor: pointer !important;
+}
+.w-saved-info:hover .w-saved-name {
+  color: var(--ink) !important;
+}
+.w-saved-name {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--ink2) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.w-saved-date {
+  font-size: 10px !important;
+  color: var(--ink3) !important;
+}
+.w-saved-del {
+  background: transparent !important;
+  border: none !important;
+  color: var(--ink3) !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  padding: 2px 4px !important;
+  flex-shrink: 0 !important;
+}
+.w-saved-del:hover {
+  color: var(--rd) !important;
+}
+html[data-theme="dark"] .w-saved-item {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+}
+
+/* Output action grid: 3 cols, print spans full width */
+.cart-actions-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+}
+.cart-action-btn {
+  padding: 11px 14px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border: 1.5px solid var(--line) !important;
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  text-align: center !important;
+  transition: background .15s, border-color .15s !important;
+}
+.cart-action-btn:hover:not(:disabled) {
+  background: var(--hp) !important;
+  border-color: #ccc !important;
+}
+/* Primary print CTA — full width, solid dark */
+.cart-action-primary {
+  grid-column: span 3 !important;
+  background: var(--ink) !important;
+  color: #fff !important;
+  border-color: var(--ink) !important;
+  font-size: 14px !important;
+  padding: 13px !important;
+  letter-spacing: .02em !important;
+}
+.cart-action-primary:hover:not(:disabled) {
+  background: #333 !important;
+  border-color: #333 !important;
+  color: #fff !important;
+}
+.cart-action-btn:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+/* Cart items */
+.cart-item {
+  padding: 12px 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  margin: 0 !important;
+}
+.cart-item:last-child {
+  border-bottom: none !important;
+}
+.cart-item-del {
+  background: none !important;
+  border: 1.5px solid var(--line) !important;
+  color: var(--ink3) !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+  font-size: 11px !important;
+  flex-shrink: 0 !important;
+  font-family: inherit !important;
+  transition: border-color .15s, color .15s !important;
+}
+.cart-item-del:hover {
+  border-color: #f87171 !important;
+  color: #f87171 !important;
+}
+
+/* Danger btn (全クリア) */
+.cart-danger-btn {
+  background: none !important;
+  border: 1.5px solid var(--line) !important;
+  color: #e55 !important;
+  border-radius: 9px !important;
+  padding: 7px 14px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  transition: background .15s, border-color .15s !important;
+}
+.cart-danger-btn:hover {
+  background: #fff4f4 !important;
+  border-color: #e55 !important;
+}
+
+/* Close btn — neutral, override cart-danger-btn if applied by normalizeInterfaceChrome */
+.cart-close-btn,
+.cart-close-btn.cart-danger-btn {
+  background: none !important;
+  border: 1.5px solid var(--line) !important;
+  color: var(--ink2) !important;
+  border-radius: 9px !important;
+  padding: 7px 14px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  transition: background .15s, border-color .15s !important;
+}
+.cart-close-btn:hover,
+.cart-close-btn.cart-danger-btn:hover {
+  background: var(--bg2) !important;
+  border-color: #aaa !important;
+  color: var(--ink) !important;
+}
+
+/* Dark mode adjustments */
+html[data-theme="dark"] .cart-action-primary {
+  background: #e8e8f0 !important;
+  color: #111 !important;
+  border-color: #e8e8f0 !important;
+}
+html[data-theme="dark"] .cart-action-primary:hover:not(:disabled) {
+  background: #fff !important;
+  border-color: #fff !important;
+}
+html[data-theme="dark"] .cart-modal-count {
+  background: var(--bg2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink3) !important;
+}
+html[data-theme="dark"] .cart-danger-btn:hover {
+  background: rgba(255,80,80,.1) !important;
+}
+html[data-theme="dark"] .cart-close-btn:hover,
+html[data-theme="dark"] .cart-close-btn.cart-danger-btn:hover {
+  background: var(--bg2) !important;
+}
+
