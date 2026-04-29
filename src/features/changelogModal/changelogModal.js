@@ -1,6 +1,7 @@
 // 更新履歴モーダル
 // 新しいバージョンを出すときは TORIAI_CHANGELOG 配列の先頭に追記するだけ。
-// ユーザーに表示する更新履歴は最新バージョンのみ。
+// 更新後の自動表示は最新バージョンのみ。
+// ハンバーガーメニューから開いた場合は全履歴を表示する。
 // date は YYYY-MM-DD、changes は 1 行 1 項目で短く。
 
 var TORIAI_CHANGELOG = [
@@ -85,10 +86,11 @@ function markChangelogSeen() {
   } catch (e) {}
 }
 
-function renderChangelog() {
+function renderChangelog(showAll) {
   var body = document.getElementById('changelogBody');
   if (!body) return;
-  body.innerHTML = TORIAI_CHANGELOG.slice(0, 1).map(function(entry, idx) {
+  var entries = showAll ? TORIAI_CHANGELOG : TORIAI_CHANGELOG.slice(0, 1);
+  body.innerHTML = entries.map(function(entry, idx) {
     var items = entry.changes.map(function(c){
       return '<li>' + escapeHtml(c) + '</li>';
     }).join('');
@@ -102,8 +104,8 @@ function renderChangelog() {
   }).join('');
 }
 
-function openChangelog() {
-  renderChangelog();
+function openChangelog(showAll) {
+  renderChangelog(showAll !== false);
   var modal = document.getElementById('changelogModal');
   if (modal) modal.classList.add('show');
   markChangelogSeen();
@@ -118,6 +120,6 @@ function closeChangelog() {
 function showChangelogIfNeeded() {
   if (hasSeenChangelog()) return;
   setTimeout(function() {
-    openChangelog();
+    openChangelog(false);
   }, 280);
 }
