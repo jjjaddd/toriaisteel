@@ -49,30 +49,38 @@ function renderDataSpec() {
   // SVG断面図（鋼種タイプに応じて切り替え）
   const svgEl = document.getElementById('dataSVGWrap');
   if (svgEl) {
-    const compactViewW = 340;
-    const compactViewH = 260;
+    const diagramViewW = 620;
+    const diagramViewH = 460;
+    const channelViewW = 600;
+    const channelViewH = 600;
+    const flatViewW = 600;
+    const flatViewH = 600;
+    const compactViewW = 510;
+    const compactViewH = 390;
     if (kindData.type === 'H') {
-      svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, 552, 408);
+      svgEl.innerHTML = drawHBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r, diagramViewW, diagramViewH);
     } else if (kindData.type === 'C') {
-      svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 552, 408);
+      svgEl.innerHTML = drawChannelSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, spec.r2, channelViewW, channelViewH);
     } else if (kindData.type === 'C_LIGHT') {
       svgEl.innerHTML = drawCChannelSVG(spec.H, spec.A, spec.B, spec.t, compactViewW, compactViewH);
     } else if (kindData.type === 'LGC') {
       svgEl.innerHTML = ''; // 軽量溝形鋼: 断面図は準備中
     } else if (kindData.type === 'I') {
-      svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, 552, 408);
+      svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, diagramViewW, diagramViewH);
     } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {
-      svgEl.innerHTML = drawLAngleSVG(spec, 552, 408);
+      svgEl.innerHTML = drawLAngleSVG(spec, diagramViewW, diagramViewH);
     } else if (kindData.type === 'RB') {
       svgEl.innerHTML = drawRoundBarSVG(spec.D, compactViewW, compactViewH);
     } else if (kindData.type === 'SB') {
       svgEl.innerHTML = drawSquareBarSVG(spec.a, compactViewW, compactViewH);
     } else if (kindData.type === 'PIPE') {
       svgEl.innerHTML = drawPipeSVG(spec.D, spec.d, compactViewW, compactViewH);
-    } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE' || kindData.type === 'BCR') {
+    } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
       svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, compactViewW, compactViewH);
+    } else if (kindData.type === 'BCR') {
+      svgEl.innerHTML = drawRectPipeSVG(spec.H, spec.B, spec.t, compactViewW, compactViewH);
     } else if (kindData.type === 'FL') {
-      svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, compactViewW, compactViewH);
+      svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, flatViewW, flatViewH);
     }
   }
 

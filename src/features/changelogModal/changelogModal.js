@@ -1,15 +1,17 @@
 // 更新履歴モーダル
 // 新しいバージョンを出すときは TORIAI_CHANGELOG 配列の先頭に追記するだけ。
+// ユーザーに表示する更新履歴は最新バージョンのみ。
 // date は YYYY-MM-DD、changes は 1 行 1 項目で短く。
 
 var TORIAI_CHANGELOG = [
   {
     version: 'v1.0.5',
-    date: '2026-04-29',
+    date: '2026-04-30',
     changes: [
       'ハンバーガーメニューに「使い方」を追加し、note のガイドを外部サイト確認つきで開けるようにしました',
       '更新後の自動表示を、使い方オンボーディングから更新履歴に変更しました',
       '使い方オンボーディングの左右操作を、枠の左下・右下に表示される三角ボタンへ変更しました',
+      'データタブの溝形鋼と平鋼の断面図を見やすく刷新しました',
       'CSS分割、保存層、断面性能 parser、フェーズ6までのリファクタリングを進めました'
     ]
   },
@@ -67,7 +69,7 @@ var TORIAI_CHANGELOG = [
 ];
 
 var TORIAI_CHANGELOG_KEY = 'toriai_changelog_seen_version';
-var TORIAI_CHANGELOG_VERSION = TORIAI_CHANGELOG[0] ? TORIAI_CHANGELOG[0].version : '';
+var TORIAI_CHANGELOG_VERSION = TORIAI_CHANGELOG[0] ? TORIAI_CHANGELOG[0].version + '-20260430' : '';
 
 function hasSeenChangelog() {
   try {
@@ -86,7 +88,7 @@ function markChangelogSeen() {
 function renderChangelog() {
   var body = document.getElementById('changelogBody');
   if (!body) return;
-  body.innerHTML = TORIAI_CHANGELOG.map(function(entry, idx) {
+  body.innerHTML = TORIAI_CHANGELOG.slice(0, 1).map(function(entry, idx) {
     var items = entry.changes.map(function(c){
       return '<li>' + escapeHtml(c) + '</li>';
     }).join('');

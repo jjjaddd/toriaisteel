@@ -341,8 +341,8 @@
 }
 
 .data-page-shell {
-  max-width: 1180px;
-  width: min(1180px, calc(100vw - 32px));
+  max-width: 1280px;
+  width: min(1280px, calc(100vw - 32px));
   margin: 0 auto;
 }
 
@@ -361,7 +361,7 @@
 
 .data-main-grid {
   display: grid;
-  grid-template-columns: minmax(430px, 500px) minmax(500px, 620px);
+  grid-template-columns: minmax(430px, 500px) minmax(560px, 720px);
   gap: 18px;
   align-items: start;
   justify-content: center;
@@ -403,22 +403,27 @@
 .dp-diagram-bg {
   background: #f6f6f6;
   border-radius: 14px;
-  padding: 8px 6px;
-  min-height: 352px;
+  padding: 10px 8px;
+  min-height: 510px;
 }
 
 #dataSVGWrap {
-  min-height: 336px;
+  min-height: 490px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 12px;
 }
 
 #dataSVGWrap svg {
   width: 100%;
-  max-width: 420px;
+  max-width: 630px;
   height: auto;
   display: block;
+}
+
+#dataSVGWrap svg text {
+  font-size: 18px;
 }
 
 #dataDimGrid,
@@ -477,7 +482,7 @@
   }
 
   .data-main-grid {
-    grid-template-columns: minmax(290px, 360px) minmax(360px, 1fr);
+    grid-template-columns: minmax(290px, 360px) minmax(390px, 1fr);
     gap: 14px;
   }
 
@@ -488,16 +493,17 @@
   }
 
   .dp-diagram-bg {
-    min-height: 258px;
-    padding: 6px 4px;
+    min-height: 390px;
+    padding: 8px 6px;
   }
 
   #dataSVGWrap {
-    min-height: 246px;
+    min-height: 372px;
+    padding: 10px;
   }
 
   #dataSVGWrap svg {
-    max-width: 250px;
+    max-width: 380px;
   }
 
   #dataDimGrid,
@@ -552,16 +558,17 @@
   }
 
   .dp-diagram-bg {
-    min-height: 224px;
-    padding: 6px 4px;
+    min-height: 320px;
+    padding: 8px 6px;
   }
 
   #dataSVGWrap {
-    min-height: 214px;
+    min-height: 304px;
+    padding: 8px;
   }
 
   #dataSVGWrap svg {
-    max-width: 220px;
+    max-width: 320px;
   }
 
   #dataExtraInfo {
@@ -585,5 +592,3 @@
   background: #e8eaf6;
   color: #3f51b5;
 }
-
-

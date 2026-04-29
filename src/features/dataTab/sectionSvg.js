@@ -176,63 +176,219 @@ function drawLAngleSVG(spec, viewW, viewH) {
 }
 
 function drawFlatBarSVG(t, B, viewW, viewH) {
-  const margin = 40;
-  const scale = Math.min(
-    (viewW - margin * 2) / B,
-    (viewH - margin * 2) / t
-  );
-
-  const width = B * scale;
-  const height = t * scale;
-
+  const margin = { left: 86, top: 98, right: 86, bottom: 112 };
+  const maxW = viewW - margin.left - margin.right;
+  const maxH = viewH - margin.top - margin.bottom;
+  const width = maxW * 0.86;
+  const realRatioH = width * (t / Math.max(B, 1));
+  const height = Math.min(maxH * 0.42, Math.max(34, realRatioH));
   const x = (viewW - width) / 2;
-  const y = (viewH - height) / 2;
-
-  return `
-    <svg width="${viewW}" height="${viewH}">
-      <rect x="${x}" y="${y}" width="${width}" height="${height}"
-        fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
-    </svg>
-  `;
-}
-
-function drawChannelSVG(H, B, t1, t2, r1, viewW, viewH) {
-  const margin = 34;
-  const totalW = B + t1;
-  const sc = Math.min((viewW - margin * 2) / totalW, (viewH - margin * 2) / H);
-  const h = H * sc;
-  const b = B * sc;
-  const web = t1 * sc;
-  const flange = t2 * sc;
-  const rr = Math.max(0, r1 * sc);
-  const x = (viewW - (b + web)) / 2;
-  const y = (viewH - h) / 2;
-  const top = y;
-  const bottom = y + h;
-  const left = x;
-  const right = x + b + web;
-  const inner = left + web;
-
-  const path = [
-    `M ${right} ${top}`,
-    `L ${inner} ${top}`,
-    `L ${inner} ${bottom - flange - rr}`,
-    `A ${rr} ${rr} 0 0 1 ${inner - rr} ${bottom - flange}`,
-    `L ${left} ${bottom - flange}`,
-    `L ${left} ${bottom}`,
-    `L ${right} ${bottom}`,
-    `L ${right} ${bottom - flange}`,
-    `L ${inner + rr} ${bottom - flange}`,
-    `A ${rr} ${rr} 0 0 1 ${inner} ${bottom - flange - rr}`,
-    `L ${inner} ${top + flange + rr}`,
-    `A ${rr} ${rr} 0 0 1 ${inner + rr} ${top + flange}`,
-    `L ${right} ${top + flange}`,
-    `Z`
-  ].join(' ');
+  const y = (viewH - height) / 2 - 10;
+  const dimBottomY = y + height + 52;
+  const dimLeftX = x - 34;
+  const midY = y + height / 2;
+  const tInset = Math.min(5, Math.max(2, height * 0.18));
+  const dim = '#111111';
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"/>
+    <defs>
+      <marker id="dtFlatArrowEnd" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtFlatArrowStart" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto">
+        <path d="M8,0 L0,4 L8,8 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtFlatSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtFlatSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-flat-shape { fill: #ffffff; stroke: ${dim}; stroke-width: 2; stroke-linejoin: miter; }
+        .dt-flat-guide { stroke: ${dim}; stroke-width: 1.25; fill: none; }
+        .dt-flat-dim { stroke: ${dim}; stroke-width: 1.55; fill: none; marker-start: url(#dtFlatArrowStart); marker-end: url(#dtFlatArrowEnd); }
+        .dt-flat-thickness-dim { stroke: ${dim}; stroke-width: 1.3; fill: none; marker-start: url(#dtFlatSmallArrowStart); marker-end: url(#dtFlatSmallArrowEnd); }
+        .dt-flat-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${dim}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+      </style>
+    </defs>
+    <rect class="dt-flat-shape" x="${x}" y="${y}" width="${width}" height="${height}"/>
+
+    <line class="dt-flat-guide" x1="${x}" y1="${dimBottomY - 14}" x2="${x}" y2="${dimBottomY + 14}"/>
+    <line class="dt-flat-guide" x1="${x + width}" y1="${dimBottomY - 14}" x2="${x + width}" y2="${dimBottomY + 14}"/>
+    <line class="dt-flat-dim" x1="${x + 12}" y1="${dimBottomY}" x2="${x + width - 12}" y2="${dimBottomY}"/>
+    <text class="dt-flat-label" x="${x + width / 2}" y="${dimBottomY + 30}" text-anchor="middle">B=${B}</text>
+
+    <line class="dt-flat-guide" x1="${dimLeftX - 14}" y1="${y}" x2="${dimLeftX + 14}" y2="${y}"/>
+    <line class="dt-flat-guide" x1="${dimLeftX - 14}" y1="${y + height}" x2="${dimLeftX + 14}" y2="${y + height}"/>
+    <line class="dt-flat-thickness-dim" x1="${dimLeftX}" y1="${y + tInset}" x2="${dimLeftX}" y2="${y + height - tInset}"/>
+    <line class="dt-flat-guide" x1="${dimLeftX + 12}" y1="${midY}" x2="${x - 14}" y2="${midY}"/>
+    <text class="dt-flat-label" x="${Math.max(18, dimLeftX - 10)}" y="${midY + 7}" text-anchor="end">T=${t}</text>
   </svg>`;
+}
+
+function drawChannelSVG(H, B, t1, t2, r1, r2, viewW, viewH) {
+  const margin = { left: 132, top: 56, right: 150, bottom: 128 };
+  const scale = Math.min(
+    (viewW - margin.left - margin.right) / Math.max(B, 1),
+    (viewH - margin.top - margin.bottom) / Math.max(H, 1)
+  );
+  const x0 = margin.left + (viewW - margin.left - margin.right - B * scale) / 2;
+  const y0 = margin.top + (viewH - margin.top - margin.bottom - H * scale) / 2;
+  const g = getChannelGeometry({
+    H: H,
+    B: B,
+    t1: t1,
+    t2: t2,
+    r1: r1 || 0,
+    r2: r2 || 0
+  }, x0, y0, scale);
+
+  const path = [
+    `M ${g.xL} ${g.yT}`,
+    `L ${g.xR} ${g.yT}`,
+    `L ${g.xR} ${g.fTR.t1.y}`,
+    `Q ${g.pTR.x} ${g.pTR.y} ${g.fTR.t2.x} ${g.fTR.t2.y}`,
+    `L ${g.fTL.t1.x} ${g.fTL.t1.y}`,
+    `Q ${g.pTL.x} ${g.pTL.y} ${g.fTL.t2.x} ${g.fTL.t2.y}`,
+    `L ${g.fBL.t1.x} ${g.fBL.t1.y}`,
+    `Q ${g.pBL.x} ${g.pBL.y} ${g.fBL.t2.x} ${g.fBL.t2.y}`,
+    `L ${g.fBR.t1.x} ${g.fBR.t1.y}`,
+    `Q ${g.pBR.x} ${g.pBR.y} ${g.xR} ${g.fBR.t2.y}`,
+    `L ${g.xR} ${g.yB}`,
+    `L ${g.xL} ${g.yB}`,
+    'Z'
+  ].join(' ');
+
+  const dimLeftX = g.xL - 58;
+  const dimBottomY = g.yB + 48;
+  const midY = (g.yT + g.yB) / 2;
+  const t1LabelX = g.xW + 74;
+  const t2MidY = (g.yT + g.yTopRef) / 2;
+  const t1Inset = Math.min(4, Math.max(1.5, (g.xW - g.xL) * 0.22));
+  const t2Inset = Math.min(4, Math.max(1.5, (g.yTopRef - g.yT) * 0.22));
+  const r1StartX = g.pTL.x + 10;
+  const r1StartY = g.pTL.y + 10;
+  const r1LabelX = Math.min(viewW - 84, r1StartX + 82);
+  const r1LabelY = Math.min(viewH - 84, r1StartY + 44);
+  const r2StartX = g.fBR.t1.x + 14;
+  const r2StartY = g.fBR.t1.y - 10;
+  const r2LabelX = Math.min(viewW - 72, r2StartX + 80);
+  const r2LabelY = Math.min(viewH - 36, r2StartY + 48);
+  const t2LabelX = Math.min(viewW - 66, g.xR + 80);
+
+  const guide = '#111111';
+  const guideSoft = '#111111';
+  const dim = '#1f2937';
+  const text = '#111111';
+  const steelFill = '#ffffff';
+  const steelEdge = '#111111';
+  return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
+    <defs>
+      <marker id="dtChannelArrowEnd" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtChannelArrowStart" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto">
+        <path d="M9,0 L0,4.5 L9,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtChannelSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtChannelSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <filter id="dtChannelSoftShadow" x="-12%" y="-12%" width="124%" height="124%">
+        <feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#0f172a" flood-opacity="0.10"/>
+      </filter>
+      <style>
+        .dt-channel-shape { fill: ${steelFill}; stroke: ${steelEdge}; stroke-width: 2.1; stroke-linejoin: round; filter: url(#dtChannelSoftShadow); }
+        .dt-channel-guide { stroke: ${guide}; stroke-width: 1.25; fill: none; }
+        .dt-channel-guide-soft { stroke: ${guideSoft}; stroke-width: 1.25; fill: none; }
+        .dt-channel-dim { stroke: ${dim}; stroke-width: 1.6; fill: none; marker-start: url(#dtChannelArrowStart); marker-end: url(#dtChannelArrowEnd); }
+        .dt-channel-thickness-dim { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtChannelSmallArrowStart); marker-end: url(#dtChannelSmallArrowEnd); }
+        .dt-channel-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${text}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-channel-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+
+    <path class="dt-channel-shape" d="${path}"/>
+
+    <line class="dt-channel-guide" x1="${dimLeftX - 13}" y1="${g.yT}" x2="${dimLeftX + 13}" y2="${g.yT}"/>
+    <line class="dt-channel-guide" x1="${dimLeftX - 13}" y1="${g.yB}" x2="${dimLeftX + 13}" y2="${g.yB}"/>
+    <line class="dt-channel-dim" x1="${dimLeftX}" y1="${g.yT + 12}" x2="${dimLeftX}" y2="${g.yB - 12}"/>
+    <text class="dt-channel-label" x="${dimLeftX - 22}" y="${midY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${midY})">H=${H}</text>
+
+    <line class="dt-channel-guide" x1="${g.xL}" y1="${dimBottomY - 13}" x2="${g.xL}" y2="${dimBottomY + 13}"/>
+    <line class="dt-channel-guide" x1="${g.xR}" y1="${dimBottomY - 13}" x2="${g.xR}" y2="${dimBottomY + 13}"/>
+    <line class="dt-channel-dim" x1="${g.xL + 12}" y1="${dimBottomY}" x2="${g.xR - 12}" y2="${dimBottomY}"/>
+    <text class="dt-channel-label" x="${(g.xL + g.xR) / 2}" y="${dimBottomY + 26}" text-anchor="middle">B=${B}</text>
+
+    <line class="dt-channel-guide-soft" x1="${g.xL}" y1="${midY - 26}" x2="${g.xL}" y2="${midY + 26}"/>
+    <line class="dt-channel-guide-soft" x1="${g.xW}" y1="${midY - 26}" x2="${g.xW}" y2="${midY + 26}"/>
+    <line class="dt-channel-thickness-dim" x1="${g.xL + t1Inset}" y1="${midY}" x2="${g.xW - t1Inset}" y2="${midY}"/>
+    <line class="dt-channel-guide" x1="${g.xW + 14}" y1="${midY}" x2="${t1LabelX - 14}" y2="${midY}"/>
+    <text class="dt-channel-sub" x="${t1LabelX}" y="${midY + 6}">t1=${t1}</text>
+
+    <line class="dt-channel-guide-soft" x1="${g.xRef - 22}" y1="${g.yT}" x2="${g.xRef + 22}" y2="${g.yT}"/>
+    <line class="dt-channel-guide-soft" x1="${g.xRef - 22}" y1="${g.yTopRef}" x2="${g.xRef + 22}" y2="${g.yTopRef}"/>
+    <line class="dt-channel-thickness-dim" x1="${g.xRef}" y1="${g.yT + t2Inset}" x2="${g.xRef}" y2="${g.yTopRef - t2Inset}"/>
+    <line class="dt-channel-guide" x1="${g.xRef + 16}" y1="${t2MidY}" x2="${t2LabelX - 14}" y2="${t2MidY}"/>
+    <text class="dt-channel-sub" x="${t2LabelX}" y="${t2MidY + 6}">t2=${t2}</text>
+
+    <path class="dt-channel-guide" d="M ${r1StartX} ${r1StartY} L ${r1LabelX - 14} ${r1LabelY - 10}"/>
+    <text class="dt-channel-sub" x="${r1LabelX}" y="${r1LabelY}">r1=${r1 || 0}</text>
+    <path class="dt-channel-guide" d="M ${r2StartX} ${r2StartY} L ${r2LabelX - 14} ${r2LabelY - 10}"/>
+    <text class="dt-channel-sub" x="${r2LabelX}" y="${r2LabelY}">r2=${r2 || 0}</text>
+  </svg>`;
+}
+
+function getChannelGeometry(spec, x0, y0, scale) {
+  const H = spec.H * scale;
+  const B = spec.B * scale;
+  const t1 = spec.t1 * scale;
+  const t2 = spec.t2 * scale;
+  const r1 = Math.max(0.01, spec.r1 * scale);
+  const r2 = Math.max(0.01, spec.r2 * scale);
+  const xL = x0;
+  const xW = x0 + t1;
+  const xR = x0 + B;
+  const yT = y0;
+  const yB = y0 + H;
+  const angle = 5 * Math.PI / 180;
+  const xRef = xR - (B - t1) / 2;
+  const yTopRef = yT + t2;
+  const yBotRef = yB - t2;
+  const slope = Math.tan(angle);
+  const yTopAt = function(x) { return yTopRef - slope * (x - xRef); };
+  const yBotAt = function(x) { return yBotRef + slope * (x - xRef); };
+  const pTR = { x: xR, y: yTopAt(xR) };
+  const pTL = { x: xW, y: yTopAt(xW) };
+  const pBL = { x: xW, y: yBotAt(xW) };
+  const pBR = { x: xR, y: yBotAt(xR) };
+
+  return {
+    xL: xL, xW: xW, xR: xR, yT: yT, yB: yB, xRef: xRef, yTopRef: yTopRef,
+    pTR: pTR, pTL: pTL, pBL: pBL, pBR: pBR,
+    fTR: getChannelFillet(pTR, channelUnit(0, -1), channelUnit(-1, slope), r2),
+    fTL: getChannelFillet(pTL, channelUnit(1, -slope), channelUnit(0, 1), r1),
+    fBL: getChannelFillet(pBL, channelUnit(0, -1), channelUnit(1, slope), r1),
+    fBR: getChannelFillet(pBR, channelUnit(-1, -slope), channelUnit(0, 1), r2)
+  };
+}
+
+function channelUnit(vx, vy) {
+  const len = Math.hypot(vx, vy) || 1;
+  return { x: vx / len, y: vy / len };
+}
+
+function getChannelFillet(point, u1, u2, radius) {
+  const dot = Math.min(1, Math.max(-1, u1.x * u2.x + u1.y * u2.y));
+  const phi = Math.acos(dot) || Math.PI / 2;
+  const offset = Math.min(radius / Math.tan(phi / 2), radius * 3);
+  return {
+    t1: { x: point.x + u1.x * offset, y: point.y + u1.y * offset },
+    t2: { x: point.x + u2.x * offset, y: point.y + u2.y * offset }
+  };
 }
 
 function drawIBeamSVG(H, B, t1, t2, r1, viewW, viewH) {
