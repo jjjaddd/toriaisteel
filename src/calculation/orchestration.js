@@ -209,12 +209,44 @@ function ensureCalcLoadingOverlay() {
   return null;
 }
 
+// Phase 2-3: 進捗バナー＋中断機能との連携
+var _activeCalcWorkers = [];
+
+function _registerActiveWorker(handle) {
+  if (handle && handle.worker) _activeCalcWorkers.push(handle);
+}
+function _unregisterActiveWorker(handle) {
+  var idx = _activeCalcWorkers.indexOf(handle);
+  if (idx >= 0) _activeCalcWorkers.splice(idx, 1);
+}
+
+if (typeof document !== 'undefined' && !document._toriaiCancelHooked) {
+  document._toriaiCancelHooked = true;
+  document.addEventListener('toriai:calcCancel', function() {
+    // 全 active worker を強制終了
+    _activeCalcWorkers.slice().forEach(function(h) {
+      try { h.worker.terminate(); } catch (_e) {}
+      try { h.cleanup && h.cleanup(); } catch (_e) {}
+    });
+    _activeCalcWorkers.length = 0;
+    // UI 復元
+    var btn = document.getElementById('runBtn');
+    if (btn) {
+      btn.innerHTML = '計算を実行する <span class="arr">→</span><span class="run-hint">Ctrl + Enter</span>';
+      btn.disabled = false;
+    }
+  });
+}
+
 function showCalcLoadingOverlay() {
-  return;
+  if (typeof toriaiShowProgress === 'function') {
+    var mode = (typeof toriaiGetCalcMode === 'function') ? toriaiGetCalcMode() : 'normal';
+    toriaiShowProgress({ mode: mode });
+  }
 }
 
 function hideCalcLoadingOverlay() {
-  return;
+  if (typeof toriaiHideProgress === 'function') toriaiHideProgress();
 }
 
 function createCalcWorker() {
@@ -400,7 +432,9 @@ function runCalc() {
     return;
   }
 
-  var baseMsg = { blade: blade, endLoss: endLoss, kgm: kgm, stocks: stocks, pieces: pieces, remnants: remnants, minValidLen: minValidLen };
+  // Phase 2-2: 長考モードトグルの状態を取得して worker に伝播
+  var calcMode = (typeof toriaiGetCalcMode === 'function') ? toriaiGetCalcMode() : 'normal';
+  var baseMsg = { blade: blade, endLoss: endLoss, kgm: kgm, stocks: stocks, pieces: pieces, remnants: remnants, minValidLen: minValidLen, calcMode: calcMode };
   var runner = calcFlowNs && typeof calcFlowNs.runSequentialModes === 'function'
     ? calcFlowNs.runSequentialModes
     : null;

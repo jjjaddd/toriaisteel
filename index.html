@@ -612,6 +612,24 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           </div>
         </div>
 
+        <!-- 計算モード（Phase 2-2） -->
+        <div class="ds-section">
+          <div class="ds-sec-head" onclick="toggleSection('calcModeBody','calcModeToggleBtn','')">
+            <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">計算モード</div>
+            <span id="calcModeToggleBtn" class="ds-toggle-icon">＋</span>
+          </div>
+          <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
+          <div id="calcModeBody" style="display:none">
+            <label id="deepModeWrap" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fff7e6;border:1px solid #ffd591;border-radius:6px;font-size:13px;cursor:pointer;user-select:none">
+              <input type="checkbox" id="deepModeToggle" style="margin:0;flex:0 0 auto">
+              <span style="flex:1">
+                <span style="font-weight:600">🐢 長考モード</span>
+                <span style="display:block;color:#666;font-size:11px;margin-top:2px">最大3分かけて歩留まりを最大化（通常モードは数秒で完了）</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
         <!-- 作業情報 -->
         <div class="ds-section">
           <div class="ds-sec-head" onclick="toggleSection('jobBody','jobToggleBtn','')">
@@ -1051,6 +1069,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/ui/calc/inputState.js?v=phase1"></script>
 <script src="src/ui/calc/executionFlow.js?v=phase1"></script>
 <script src="src/ui/calc/specPanelBehavior.js?v=phase1"></script>
+<script src="src/ui/calc/deepModeToggle.js?v=phase2"></script>
+<script src="src/ui/calc/progressIndicator.js?v=phase2"></script>
 <script src="src/ui/inventory/remnantSelection.js?v=phase1"></script>
 <script src="src/ui/inventory/page.js?v=phase1"></script>
 <script src="src/ui/cart/purchaseSection.js?v=phase1"></script>
@@ -1070,6 +1090,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/calculation/yield/bundlePlan.js?v=phase1"></script>
 <script src="src/calculation/yield/calcCore.js?v=phase1"></script>
 <script src="src/calculation/yield/algorithmV2.js?v=phase2"></script>
+<script src="src/calculation/yield/cgClient.js?v=phase2"></script>
 <script src="src/services/storage/storageKeys.js?v=phase1"></script>
 <script src="src/services/storage/settingsStore.js?v=phase1"></script>
 <script src="src/services/storage/remnantsStore.js?v=phase1"></script>
@@ -1086,12 +1107,12 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/calculation/section/paintArea.js?v=phase1"></script>
 <script src="src/calculation/section/specParsers.js?v=phase1"></script>
 <script src="src/data/sectionDefinitions.js?v=ui39"></script>
-<script src="src/features/dataTab/sectionSvg.js?v=phase7"></script>
+<script src="src/features/dataTab/sectionSvg.js?v=phase11"></script>
 <script src="src/features/dataTab/state.js?v=phase1"></script>
 <script src="src/features/dataTab/init.js?v=phase1"></script>
 <script src="src/features/dataTab/kindSidebar.js?v=phase1"></script>
 <script src="src/features/dataTab/specPicker.js?v=phase1"></script>
-<script src="src/features/dataTab/renderSpec.js?v=phase6"></script>
+<script src="src/features/dataTab/renderSpec.js?v=phase7"></script>
 <script src="src/features/dataTab/stdLengths.js?v=phase1"></script>
 <script src="src/features/dataTab/notes.js?v=phase1"></script>
 <script src="src/calculation/orchestration.js?v=ui28"></script>
