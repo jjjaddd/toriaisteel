@@ -3,7 +3,10 @@ function cmdBuildAll() {
   var items = [];
   ensureSteelCatalogReady().forEach(function(kind) {
     getAppSteelRows(kind).forEach(function(row) {
-      items.push({ kind: kind, spec: row[0], kgm: row[1] });
+      var entry = window.Toriai && window.Toriai.data && window.Toriai.data.steel && window.Toriai.data.steel.getSectionData
+        ? window.Toriai.data.steel.getSectionData(kind)
+        : null;
+      items.push({ kind: kind, label: entry && entry.label ? entry.label : kind, spec: row[0], kgm: row[1] });
     });
   });
   return items;
@@ -118,12 +121,18 @@ function cmdOutside(e) {
 
 // 鋼材種類 プレフィックスマップ（長い順に並べて先に評価）
 var CMD_PREFIX_MAP = [
+  { prefix: 'sgp', kinds: ['SGP配管'] },
+  { prefix: 'pipe', kinds: ['SGP配管'] },
   { prefix: 'fb', kinds: ['平鋼'] },
   { prefix: 'rb', kinds: ['丸鋼'] },
+  { prefix: 'sb', kinds: ['角鋼'] },
   { prefix: 'h',  kinds: ['H形鋼'] },
   { prefix: 'l',  kinds: ['山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼'] },
   { prefix: 'u',  kinds: ['溝形鋼'] },
   { prefix: 'i',  kinds: ['I形鋼'] },
+  { prefix: 'p',  kinds: ['角パイプ', 'スモール角パイプ'] },
+  { prefix: '[',  kinds: ['軽量溝形鋼'] },
+  { prefix: 'c',  kinds: ['C形鋼'] },
   { prefix: 'f',  kinds: ['平鋼'] },
   { prefix: 'r',  kinds: ['丸鋼'] }
 ];
@@ -164,17 +173,22 @@ function cmdFilter() {
   if (kindFilter) {
     filtered = all.filter(function(it) {
       if (kindFilter.indexOf(it.kind) < 0) return false;
-      if (!numQuery) return true;
-      var specNums = it.spec.replace(/[^0-9]/g, '');
-      return specNums.indexOf(numQuery) >= 0;
+      return !numQuery || (typeof steelSpecMatchesQuery === 'function'
+        ? steelSpecMatchesQuery(numQuery, it)
+        : it.spec.replace(/[^0-9]/g, '').indexOf(numQuery) >= 0);
     });
   } else {
     // 数字のみ or 未知の入力: 全種類から数字一致で検索
     filtered = all.filter(function(it) {
-      return it.kind.toLowerCase().indexOf(q) >= 0 ||
-             it.spec.toLowerCase().indexOf(q) >= 0 ||
-             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+      return typeof steelSpecMatchesQuery === 'function'
+        ? steelSpecMatchesQuery(raw, it)
+        : (it.kind.toLowerCase().indexOf(q) >= 0 ||
+           it.spec.toLowerCase().indexOf(q) >= 0 ||
+           it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0);
     });
+  }
+  if (typeof compareSteelSearchResults === 'function') {
+    filtered.sort(function(a, b) { return compareSteelSearchResults(raw, a, b); });
   }
 
   dd.innerHTML = '';

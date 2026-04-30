@@ -1,3 +1,16 @@
+function syncGearButtonVisibility() {
+  var gearBtn = document.getElementById('gearBtn');
+  if (!gearBtn) return;
+  var cp = document.getElementById('cp');
+  var activePage = window.Toriai && window.Toriai.ui && window.Toriai.ui.pageState &&
+    typeof window.Toriai.ui.pageState.getActivePage === 'function'
+    ? window.Toriai.ui.pageState.getActivePage()
+    : null;
+  var show = (activePage === 'c') || !!(cp && cp.classList.contains('show'));
+  gearBtn.hidden = !show;
+  gearBtn.style.display = show ? 'flex' : '';
+}
+
 function goPage(p) {
   if (window.Toriai && window.Toriai.ui && window.Toriai.ui.pageState) {
     window.Toriai.ui.pageState.setActivePage(p);
@@ -18,9 +31,6 @@ function goPage(p) {
     if (el) el.classList.remove('active');
   });
 
-  // 歯車ボタンは取り合いタブのみ表示
-  var gearBtn = document.getElementById('gearBtn');
-  if (gearBtn) gearBtn.style.display = (p === 'c') ? 'flex' : 'none';
   // タブ切替時はポップアップも閉じる
   if (p !== 'c') {
     var gpb = document.getElementById('gearPopBd');
@@ -80,7 +90,10 @@ function goPage(p) {
       }, 0);
     }
   }
+  syncGearButtonVisibility();
 }
+
+document.addEventListener('DOMContentLoaded', syncGearButtonVisibility);
 
 // ============================================================
 // 初期化
@@ -106,7 +119,6 @@ function sbSwitch(n) {
 
 
 // ── 端材優先切断（目標端材長さを考慮したストック選択） ──
-
 
 
 

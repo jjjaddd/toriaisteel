@@ -12,36 +12,214 @@ function drawRectPipeSVG(H, B, t, viewW, viewH) {
   </svg>`;
 }
 
-function drawCChannelSVG(H, B, L, t, viewW, viewH) {
-  const margin = 28;
-  const scale = Math.min((viewW - margin * 2) / Math.max(B + L, 1), (viewH - margin * 2) / H);
+function drawCChannelSVG(H, A, B, t, viewW, viewH) {
+  H = Number(H || 0);
+  A = Number(A || 0);
+  B = Number(B || 0);
+  t = Number(t || 0);
+
+  const margin = { left: 104, top: 46, right: 122, bottom: 96 };
+  const scale = Math.min(
+    (viewW - margin.left - margin.right) / Math.max(A, 1),
+    (viewH - margin.top - margin.bottom) / Math.max(H, 1)
+  );
   const h = H * scale;
-  const b = B * scale;
-  const lip = L * scale;
-  const th = Math.max(2, t * scale);
-  const x = (viewW - (b + lip)) / 2;
-  const y = (viewH - h) / 2;
+  const a = A * scale;
+  const lip = B * scale;
+  const th = Math.max(3, t * scale);
+  const innerR = Math.max(0.01, th);
+  const outerR = Math.max(0.01, th * 2);
+  const x = margin.left + (viewW - margin.left - margin.right - a) / 2;
+  const y = margin.top + (viewH - margin.top - margin.bottom - h) / 2;
+  const xL = x;
+  const xR = x + a;
+  const yT = y;
+  const yB = y + h;
+  const topLipEnd = yT + lip;
+  const botLipStart = yB - lip;
+  const xi = xL + th;
+  const xr = xR - th;
+  const yt = yT + th;
+  const yb = yB - th;
   const path = [
-    `M ${x + lip} ${y}`,
-    `L ${x + lip + b} ${y}`,
-    `L ${x + lip + b} ${y + th}`,
-    `L ${x + lip + th} ${y + th}`,
-    `L ${x + lip + th} ${y + h - th}`,
-    `L ${x + lip + b} ${y + h - th}`,
-    `L ${x + lip + b} ${y + h}`,
-    `L ${x + lip} ${y + h}`,
-    `L ${x + lip} ${y + h - th}`,
-    `L ${x + th} ${y + h - th}`,
-    `L ${x + th} ${y + h - lip}`,
-    `L ${x} ${y + h - lip}`,
-    `L ${x} ${y + lip}`,
-    `L ${x + th} ${y + lip}`,
-    `L ${x + th} ${y + th}`,
-    `L ${x + lip} ${y + th}`,
+    `M ${xL + outerR} ${yT}`,
+    `L ${xR - outerR} ${yT}`,
+    `Q ${xR} ${yT} ${xR} ${yT + outerR}`,
+    `L ${xR} ${topLipEnd}`,
+    `L ${xr} ${topLipEnd}`,
+    `L ${xr} ${yt + innerR}`,
+    `Q ${xr} ${yt} ${xr - innerR} ${yt}`,
+    `L ${xi + innerR} ${yt}`,
+    `Q ${xi} ${yt} ${xi} ${yt + innerR}`,
+    `L ${xi} ${yb - innerR}`,
+    `Q ${xi} ${yb} ${xi + innerR} ${yb}`,
+    `L ${xr - innerR} ${yb}`,
+    `Q ${xr} ${yb} ${xr} ${yb - innerR}`,
+    `L ${xr} ${botLipStart}`,
+    `L ${xR} ${botLipStart}`,
+    `L ${xR} ${yB - outerR}`,
+    `Q ${xR} ${yB} ${xR - outerR} ${yB}`,
+    `L ${xL + outerR} ${yB}`,
+    `Q ${xL} ${yB} ${xL} ${yB - outerR}`,
+    `L ${xL} ${yT + outerR}`,
+    `Q ${xL} ${yT} ${xL + outerR} ${yT}`,
     `Z`
   ].join(' ');
+
+  const midY = yT + h / 2;
+  const dimLeftX = xL - 58;
+  const dimBottomY = yB + 50;
+  const dimRightX = xR + 46;
+  const tDimY = midY;
+  const tLabelX = Math.min(viewW - 72, xi + 92);
+  const tInset = Math.min(4, Math.max(1.5, th * 0.22));
+  const guideGap = 12;
+  const fmt = function(n) { return Number(n || 0).toFixed(1).replace(/\.0$/, ''); };
+  const dim = '#1f2937';
+  const guide = '#111111';
+  const text = '#111111';
+
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <path d="${path}" fill="#ffffff" stroke="#111111" stroke-width="2.5" stroke-linejoin="round"/>
+    <defs>
+      <marker id="dtCShapeArrowEnd" markerWidth="6" markerHeight="6" refX="5.3" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtCShapeArrowStart" markerWidth="6" markerHeight="6" refX="0.7" refY="3" orient="auto">
+        <path d="M6,0 L0,3 L6,6 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtCShapeSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtCShapeSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-cshape-shape { fill: #ffffff; stroke: #111111; stroke-width: 2.1; stroke-linejoin: round; }
+        .dt-cshape-guide { stroke: ${guide}; stroke-width: 1.25; fill: none; }
+        .dt-cshape-dim { stroke: ${dim}; stroke-width: 1.6; fill: none; marker-start: url(#dtCShapeArrowStart); marker-end: url(#dtCShapeArrowEnd); }
+        .dt-cshape-thickness { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtCShapeSmallArrowStart); marker-end: url(#dtCShapeSmallArrowEnd); }
+        .dt-cshape-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${text}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-cshape-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+    <path class="dt-cshape-shape" d="${path}"/>
+
+    <line class="dt-cshape-guide" x1="${xL - guideGap}" y1="${yT}" x2="${dimLeftX + 18}" y2="${yT}"/>
+    <line class="dt-cshape-guide" x1="${xL - guideGap}" y1="${yB}" x2="${dimLeftX + 18}" y2="${yB}"/>
+    <line class="dt-cshape-dim" x1="${dimLeftX}" y1="${yT + 12}" x2="${dimLeftX}" y2="${yB - 12}"/>
+    <text class="dt-cshape-label" x="${dimLeftX - 22}" y="${midY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${midY})">H=${fmt(H)}</text>
+
+    <line class="dt-cshape-guide" x1="${xL}" y1="${yB + guideGap}" x2="${xL}" y2="${dimBottomY - 18}"/>
+    <line class="dt-cshape-guide" x1="${xR}" y1="${yB + guideGap}" x2="${xR}" y2="${dimBottomY - 18}"/>
+    <line class="dt-cshape-dim" x1="${xL + 12}" y1="${dimBottomY}" x2="${xR - 12}" y2="${dimBottomY}"/>
+    <text class="dt-cshape-label" x="${xL + a / 2}" y="${dimBottomY + 28}" text-anchor="middle">A=${fmt(A)}</text>
+
+    <line class="dt-cshape-guide" x1="${xR + guideGap}" y1="${yT}" x2="${dimRightX + 18}" y2="${yT}"/>
+    <line class="dt-cshape-guide" x1="${xR + guideGap}" y1="${topLipEnd}" x2="${dimRightX + 18}" y2="${topLipEnd}"/>
+    <line class="dt-cshape-dim" x1="${dimRightX}" y1="${yT + 12}" x2="${dimRightX}" y2="${topLipEnd - 12}"/>
+    <text class="dt-cshape-label" x="${dimRightX + 24}" y="${yT + lip / 2 + 7}">B=${fmt(B)}</text>
+
+    <line class="dt-cshape-guide" x1="${xL}" y1="${tDimY - 22}" x2="${xL}" y2="${tDimY + 22}"/>
+    <line class="dt-cshape-guide" x1="${xi}" y1="${tDimY - 22}" x2="${xi}" y2="${tDimY + 22}"/>
+    <line class="dt-cshape-thickness" x1="${xL + tInset}" y1="${tDimY}" x2="${xi - tInset}" y2="${tDimY}"/>
+    <line class="dt-cshape-guide" x1="${xi + 14}" y1="${tDimY}" x2="${tLabelX - 14}" y2="${tDimY}"/>
+    <text class="dt-cshape-sub" x="${tLabelX}" y="${tDimY + 6}">t=${fmt(t)}</text>
+  </svg>`;
+}
+
+function drawLightChannelSVG(H, A, t, viewW, viewH) {
+  H = Number(H || 0);
+  A = Number(A || 0);
+  t = Number(t || 0);
+
+  const margin = { left: 104, top: 46, right: 122, bottom: 96 };
+  const scale = Math.min(
+    (viewW - margin.left - margin.right) / Math.max(A, 1),
+    (viewH - margin.top - margin.bottom) / Math.max(H, 1)
+  );
+  const h = H * scale;
+  const a = A * scale;
+  const th = Math.max(3, t * scale);
+  const innerR = Math.max(0.01, th);
+  const outerR = Math.max(0.01, th * 2);
+  const x = margin.left + (viewW - margin.left - margin.right - a) / 2;
+  const y = margin.top + (viewH - margin.top - margin.bottom - h) / 2;
+  const xL = x;
+  const xR = x + a;
+  const yT = y;
+  const yB = y + h;
+  const xi = xL + th;
+  const yt = yT + th;
+  const yb = yB - th;
+  const path = [
+    `M ${xL + outerR} ${yT}`,
+    `L ${xR} ${yT}`,
+    `L ${xR} ${yt}`,
+    `L ${xi + innerR} ${yt}`,
+    `Q ${xi} ${yt} ${xi} ${yt + innerR}`,
+    `L ${xi} ${yb - innerR}`,
+    `Q ${xi} ${yb} ${xi + innerR} ${yb}`,
+    `L ${xR} ${yb}`,
+    `L ${xR} ${yB}`,
+    `L ${xL + outerR} ${yB}`,
+    `Q ${xL} ${yB} ${xL} ${yB - outerR}`,
+    `L ${xL} ${yT + outerR}`,
+    `Q ${xL} ${yT} ${xL + outerR} ${yT}`,
+    'Z'
+  ].join(' ');
+
+  const midY = yT + h / 2;
+  const dimLeftX = xL - 58;
+  const dimBottomY = yB + 50;
+  const tDimY = midY;
+  const tLabelX = Math.min(viewW - 72, xi + 92);
+  const tInset = Math.min(4, Math.max(1.5, th * 0.22));
+  const guideGap = 12;
+  const fmt = function(n) { return Number(n || 0).toFixed(1).replace(/\.0$/, ''); };
+  const dim = '#1f2937';
+  const guide = '#111111';
+  const text = '#111111';
+
+  return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
+    <defs>
+      <marker id="dtLightChannelArrowEnd" markerWidth="6" markerHeight="6" refX="5.3" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtLightChannelArrowStart" markerWidth="6" markerHeight="6" refX="0.7" refY="3" orient="auto">
+        <path d="M6,0 L0,3 L6,6 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtLightChannelSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtLightChannelSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-light-channel-shape { fill: #ffffff; stroke: #111111; stroke-width: 2.1; stroke-linejoin: round; }
+        .dt-light-channel-guide { stroke: ${guide}; stroke-width: 1.25; fill: none; }
+        .dt-light-channel-dim { stroke: ${dim}; stroke-width: 1.6; fill: none; marker-start: url(#dtLightChannelArrowStart); marker-end: url(#dtLightChannelArrowEnd); }
+        .dt-light-channel-thickness { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtLightChannelSmallArrowStart); marker-end: url(#dtLightChannelSmallArrowEnd); }
+        .dt-light-channel-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${text}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-light-channel-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+    <path class="dt-light-channel-shape" d="${path}"/>
+
+    <line class="dt-light-channel-guide" x1="${xL - guideGap}" y1="${yT}" x2="${dimLeftX + 18}" y2="${yT}"/>
+    <line class="dt-light-channel-guide" x1="${xL - guideGap}" y1="${yB}" x2="${dimLeftX + 18}" y2="${yB}"/>
+    <line class="dt-light-channel-dim" x1="${dimLeftX}" y1="${yT + 12}" x2="${dimLeftX}" y2="${yB - 12}"/>
+    <text class="dt-light-channel-label" x="${dimLeftX - 22}" y="${midY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${midY})">H=${fmt(H)}</text>
+
+    <line class="dt-light-channel-guide" x1="${xL}" y1="${yB + guideGap}" x2="${xL}" y2="${dimBottomY - 18}"/>
+    <line class="dt-light-channel-guide" x1="${xR}" y1="${yB + guideGap}" x2="${xR}" y2="${dimBottomY - 18}"/>
+    <line class="dt-light-channel-dim" x1="${xL + 12}" y1="${dimBottomY}" x2="${xR - 12}" y2="${dimBottomY}"/>
+    <text class="dt-light-channel-label" x="${xL + a / 2}" y="${dimBottomY + 28}" text-anchor="middle">A=${fmt(A)}</text>
+
+    <line class="dt-light-channel-guide" x1="${xL}" y1="${tDimY - 22}" x2="${xL}" y2="${tDimY + 22}"/>
+    <line class="dt-light-channel-guide" x1="${xi}" y1="${tDimY - 22}" x2="${xi}" y2="${tDimY + 22}"/>
+    <line class="dt-light-channel-thickness" x1="${xL + tInset}" y1="${tDimY}" x2="${xi - tInset}" y2="${tDimY}"/>
+    <line class="dt-light-channel-guide" x1="${xi + 14}" y1="${tDimY}" x2="${tLabelX - 14}" y2="${tDimY}"/>
+    <text class="dt-light-channel-sub" x="${tLabelX}" y="${tDimY + 6}">t=${fmt(t)}</text>
   </svg>`;
 }
 
@@ -503,34 +681,104 @@ function drawIBeamSVG(H, B, t1, t2, r1, viewW, viewH) {
 }
 
 function drawRoundBarSVG(D, viewW, viewH) {
-  const margin = 42;
-  const scale = (Math.min(viewW, viewH) - margin * 2) / D;
-  const radius = (D * scale) / 2;
+  const margin = { left: 86, top: 46, right: 86, bottom: 110 };
+  const maxDiameter = Math.min(viewW - margin.left - margin.right, viewH - margin.top - margin.bottom);
+  const radius = (maxDiameter * 0.88) / 2;
   const cx = viewW / 2;
-  const cy = viewH / 2;
+  const cy = margin.top + (viewH - margin.top - margin.bottom) / 2;
+  const dimBottomY = cy + radius + 48;
+  const dim = '#111111';
+
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <circle cx="${cx}" cy="${cy}" r="${radius}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
-    <line x1="${cx - radius}" y1="${cy + radius + 18}" x2="${cx + radius}" y2="${cy + radius + 18}" stroke="#555555" stroke-width="1"/>
-    <line x1="${cx - radius}" y1="${cy + radius + 14}" x2="${cx - radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
-    <line x1="${cx + radius}" y1="${cy + radius + 14}" x2="${cx + radius}" y2="${cy + radius + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${cy + radius + 32}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">D=${D}</text>
+    <defs>
+      <pattern id="dtRoundHatch" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+        <rect width="10" height="10" fill="#ffffff"></rect>
+        <line x1="0" y1="0" x2="0" y2="10" stroke="#c8ced8" stroke-width="1.3"></line>
+      </pattern>
+      <marker id="dtRoundArrowEnd" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtRoundArrowStart" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto">
+        <path d="M8,0 L0,4 L8,8 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-round-shape { fill: url(#dtRoundHatch); stroke: ${dim}; stroke-width: 2.3; }
+        .dt-round-guide { stroke: ${dim}; stroke-width: 1.25; fill: none; }
+        .dt-round-dim { stroke: ${dim}; stroke-width: 1.55; fill: none; marker-start: url(#dtRoundArrowStart); marker-end: url(#dtRoundArrowEnd); }
+        .dt-round-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${dim}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+      </style>
+    </defs>
+    <circle class="dt-round-shape" cx="${cx}" cy="${cy}" r="${radius}"/>
+
+    <line class="dt-round-guide" x1="${cx - radius}" y1="${dimBottomY - 14}" x2="${cx - radius}" y2="${dimBottomY + 14}"/>
+    <line class="dt-round-guide" x1="${cx + radius}" y1="${dimBottomY - 14}" x2="${cx + radius}" y2="${dimBottomY + 14}"/>
+    <line class="dt-round-dim" x1="${cx - radius + 12}" y1="${dimBottomY}" x2="${cx + radius - 12}" y2="${dimBottomY}"/>
+    <text class="dt-round-label" x="${cx}" y="${dimBottomY + 30}" text-anchor="middle">D=${D}</text>
   </svg>`;
 }
 
 function drawPipeSVG(D, d, viewW, viewH) {
-  const margin = 42;
-  const scale = (Math.min(viewW, viewH) - margin * 2) / D;
-  const outerRadius = (D * scale) / 2;
-  const innerRadius = (d * scale) / 2;
+  D = Number(D || 0);
+  d = Number(d || 0);
+  const t = Math.max(0, (D - d) / 2);
+  const margin = { left: 108, top: 46, right: 124, bottom: 124 };
+  const maxDiameter = Math.min(viewW - margin.left - margin.right, viewH - margin.top - margin.bottom);
+  const outerRadius = (maxDiameter * 0.9) / 2;
+  const rawInnerRadius = D > 0 ? Math.max(0, (d / D) * outerRadius) : 0;
+  const minWall = Math.min(18, Math.max(10, outerRadius * 0.08));
+  const innerRadius = Math.max(0, Math.min(rawInnerRadius, outerRadius - minWall));
   const cx = viewW / 2;
-  const cy = viewH / 2;
+  const cy = margin.top + (viewH - margin.top - margin.bottom) / 2;
+  const dimBottomY = cy + outerRadius + 48;
+  const innerDimY = cy;
+  const tDimX1 = cx + innerRadius;
+  const tDimX2 = cx + outerRadius;
+  const tDimY = cy - 40;
+  const tLabelX = Math.min(viewW - 76, cx + outerRadius + 54);
+  const fmt = function(n) { return Number(n || 0).toFixed(1).replace(/\.0$/, ''); };
+  const dim = '#111111';
+
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <circle cx="${cx}" cy="${cy}" r="${outerRadius}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
-    <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#fff" stroke="#111111" stroke-width="1.5"/>
-    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 18}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 18}" stroke="#555555" stroke-width="1"/>
-    <line x1="${cx - outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx - outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
-    <line x1="${cx + outerRadius}" y1="${cy + outerRadius + 14}" x2="${cx + outerRadius}" y2="${cy + outerRadius + 22}" stroke="#555555" stroke-width="1"/>
-    <text x="${cx}" y="${cy + outerRadius + 32}" font-size="14" font-weight="700" fill="#111111" text-anchor="middle">D=${D}</text>
+    <defs>
+      <marker id="dtPipeArrowEnd" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtPipeArrowStart" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto">
+        <path d="M8,0 L0,4 L8,8 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtPipeSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtPipeSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-pipe-shape { fill: #ffffff; stroke: ${dim}; stroke-linejoin: round; }
+        .dt-pipe-hole { fill: var(--surface-2, #f8f8fc); stroke: ${dim}; stroke-width: 1.6; }
+        .dt-pipe-guide { stroke: ${dim}; stroke-width: 1.25; fill: none; }
+        .dt-pipe-dim { stroke: ${dim}; stroke-width: 1.55; fill: none; marker-start: url(#dtPipeArrowStart); marker-end: url(#dtPipeArrowEnd); }
+        .dt-pipe-small-dim { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtPipeSmallArrowStart); marker-end: url(#dtPipeSmallArrowEnd); }
+        .dt-pipe-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${dim}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-pipe-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+    <circle class="dt-pipe-shape" cx="${cx}" cy="${cy}" r="${outerRadius}" stroke-width="2.3"/>
+    <circle class="dt-pipe-hole" cx="${cx}" cy="${cy}" r="${innerRadius}"/>
+
+    <line class="dt-pipe-guide" x1="${cx - outerRadius}" y1="${dimBottomY - 14}" x2="${cx - outerRadius}" y2="${dimBottomY + 14}"/>
+    <line class="dt-pipe-guide" x1="${cx + outerRadius}" y1="${dimBottomY - 14}" x2="${cx + outerRadius}" y2="${dimBottomY + 14}"/>
+    <line class="dt-pipe-dim" x1="${cx - outerRadius + 12}" y1="${dimBottomY}" x2="${cx + outerRadius - 12}" y2="${dimBottomY}"/>
+    <text class="dt-pipe-label" x="${cx}" y="${dimBottomY + 30}" text-anchor="middle">D=${fmt(D)}</text>
+
+    <line class="dt-pipe-guide" x1="${cx - innerRadius}" y1="${innerDimY}" x2="${cx + innerRadius}" y2="${innerDimY}"/>
+    <line class="dt-pipe-small-dim" x1="${cx - innerRadius + 10}" y1="${innerDimY}" x2="${cx + innerRadius - 10}" y2="${innerDimY}"/>
+    <text class="dt-pipe-label" x="${cx}" y="${innerDimY + 30}" text-anchor="middle">d=${fmt(d)}</text>
+
+    <line class="dt-pipe-guide" x1="${tDimX1}" y1="${tDimY - 18}" x2="${tDimX1}" y2="${tDimY + 18}"/>
+    <line class="dt-pipe-guide" x1="${tDimX2}" y1="${tDimY - 18}" x2="${tDimX2}" y2="${tDimY + 18}"/>
+    <line class="dt-pipe-small-dim" x1="${tDimX1 + 3}" y1="${tDimY}" x2="${tDimX2 - 3}" y2="${tDimY}"/>
+    <line class="dt-pipe-guide" x1="${tDimX2 + 12}" y1="${tDimY}" x2="${tLabelX - 16}" y2="${tDimY}"/>
+    <text class="dt-pipe-sub" x="${tLabelX}" y="${tDimY + 6}">t=${fmt(t)}</text>
   </svg>`;
 }
 
@@ -547,6 +795,10 @@ function drawSquareBarSVG(a, viewW, viewH) {
 
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
     <defs>
+      <pattern id="dtSquareHatch" patternUnits="userSpaceOnUse" width="10" height="10" patternTransform="rotate(45)">
+        <rect width="10" height="10" fill="#ffffff"></rect>
+        <line x1="0" y1="0" x2="0" y2="10" stroke="#c8ced8" stroke-width="1.3"></line>
+      </pattern>
       <marker id="dtSquareArrowEnd" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
         <path d="M0,0 L8,4 L0,8 Z" fill="${dim}"></path>
       </marker>
@@ -554,7 +806,7 @@ function drawSquareBarSVG(a, viewW, viewH) {
         <path d="M8,0 L0,4 L8,8 Z" fill="${dim}"></path>
       </marker>
       <style>
-        .dt-square-shape { fill: #ffffff; stroke: ${dim}; stroke-width: 2.3; stroke-linejoin: miter; }
+        .dt-square-shape { fill: url(#dtSquareHatch); stroke: ${dim}; stroke-width: 2.3; stroke-linejoin: miter; }
         .dt-square-guide { stroke: ${dim}; stroke-width: 1.25; fill: none; }
         .dt-square-dim { stroke: ${dim}; stroke-width: 1.55; fill: none; marker-start: url(#dtSquareArrowStart); marker-end: url(#dtSquareArrowEnd); }
         .dt-square-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${dim}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }

@@ -218,8 +218,58 @@ function addPartRowAt(i) {
   pl.appendChild(d);
 }
 
+function ptCellOrderForRow(i) {
+  var order = ['pl' + i, 'pq' + i];
+  var kuikuOn = document.getElementById('useKuiku') && document.getElementById('useKuiku').checked;
+  if (kuikuOn) order.push('pz' + i);
+  return order;
+}
+
+function ptFocusCell(id) {
+  var el = document.getElementById(id);
+  if (!el) return false;
+  el.focus();
+  if (typeof el.select === 'function') el.select();
+  return true;
+}
+
+function ptMoveCell(i, col, direction) {
+  var rowOrder = ptCellOrderForRow(i);
+  var currentId = (col === 'q') ? 'pq' + i : (col === 'z' ? 'pz' + i : 'pl' + i);
+  var pos = rowOrder.indexOf(currentId);
+  if (pos < 0) return;
+
+  if (direction > 0) {
+    if (pos < rowOrder.length - 1) {
+      ptFocusCell(rowOrder[pos + 1]);
+      return;
+    }
+    var nextRowFirst = 'pl' + (i + 1);
+    if (document.getElementById(nextRowFirst)) {
+      ptFocusCell(nextRowFirst);
+    } else {
+      addPartRow();
+      setTimeout(function() { ptFocusCell(nextRowFirst); }, 30);
+    }
+    return;
+  }
+
+  if (pos > 0) {
+    ptFocusCell(rowOrder[pos - 1]);
+    return;
+  }
+  if (i <= 0) return;
+  var prevOrder = ptCellOrderForRow(i - 1);
+  ptFocusCell(prevOrder[prevOrder.length - 1]);
+}
+
 /** テンキーEnterで次のセルへ移動 */
 function ptEnter(e, i, col) {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    ptMoveCell(i, col, e.key === 'ArrowDown' ? 1 : -1);
+    return;
+  }
   if (e.key !== 'Enter') return;
   e.preventDefault();
   if (e.shiftKey) {
@@ -277,7 +327,6 @@ function addPartRow() {
   var pt = document.getElementById('ptList');
   pt.scrollTop = pt.scrollHeight;
 }
-
 
 
 

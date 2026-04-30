@@ -43,11 +43,13 @@ function getSortedSpecsForKind(kind) {
 }
 
 function normalizeDataSpecText(value) {
+  if (typeof normalizeSteelSearchText === 'function') return normalizeSteelSearchText(value);
   return String(value || '')
     .replace(/[０-９Ａ-Ｚａ-ｚ]/g, function(ch) {
       return String.fromCharCode(ch.charCodeAt(0) - 65248);
     })
-    .replace(/×/g, 'x')
+    .replace(/[×＊*]/g, 'x')
+    .replace(/[‐‑‒–—―−ー]/g, '-')
     .replace(/\s+/g, '')
     .toLowerCase();
 }

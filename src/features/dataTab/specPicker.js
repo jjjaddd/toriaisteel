@@ -55,10 +55,10 @@ function _renderDataSpecChips() {
   var hit = 0;
   specs.forEach(function(s, i) {
     if (q) {
-      var nm = (typeof normalizeDataSpecText === 'function')
-        ? normalizeDataSpecText(s.name || '')
-        : String(s.name || '').toLowerCase();
-      if (nm.indexOf(q) < 0) return;
+      var matches = typeof steelSpecMatchesQuery === 'function'
+        ? steelSpecMatchesQuery(_dtSpecQuery || '', { kind: _dataKind, spec: s.name || '', name: s.name || '', label: kindData.label || '' })
+        : normalizeDataSpecText(s.name || '').indexOf(q) >= 0;
+      if (!matches) return;
     }
     hit++;
     var active = (i === _dataSpecIdx) ? ' on' : '';
@@ -262,8 +262,15 @@ function filterDataSpecOptions(keyword) {
     _dataSpecFiltered = currentSpecs;
   } else {
     _dataSpecFiltered = currentSpecs.filter(function(item) {
-      return item.norm.indexOf(q) >= 0;
+      return typeof steelSpecMatchesQuery === 'function'
+        ? steelSpecMatchesQuery(keyword, { kind: item.kind, spec: item.name, name: item.name })
+        : item.norm.indexOf(q) >= 0;
     });
+    if (typeof compareSteelSearchResults === 'function') {
+      _dataSpecFiltered.sort(function(a, b) {
+        return compareSteelSearchResults(keyword, { kind: a.kind, spec: a.name }, { kind: b.kind, spec: b.name });
+      });
+    }
   }
 
   renderDataSpecDropdownList(_dataSpecFiltered);

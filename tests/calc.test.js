@@ -81,6 +81,7 @@ describe('calculation and stock helpers', () => {
       'src/storage/local-store.js',
       'src/storage/repositories.js',
       'src/data/steel/registry.js',
+      'src/data/steel/index.js',
       'src/data/steel/hBeam/specs.js',
       'src/data/steel/hBeam/stockLengths.js',
       'src/data/steel/hBeam/specStockLengths.js',
@@ -148,6 +149,28 @@ describe('calculation and stock helpers', () => {
 
     const flatStd = sandbox.getDefaultStockLengths('平鋼', 'FB-6×50');
     expect(Array.from(flatStd)).toEqual([5500, 6000, 7000, 8000, 9000, 10000, 11000, 12000]);
+  });
+
+  test('steel spec search finds SGP and square pipe aliases', () => {
+    const steel = sandbox.window.Toriai.data.steel;
+    const all = steel.getCalcEnabledKinds().flatMap(function(kind) {
+      return steel.getRowsByKind(kind).map(function(row) {
+        return { kind: kind, spec: row[0], kgm: row[1] };
+      });
+    });
+    const top = function(query) {
+      return all
+        .filter(function(item) { return steel.searchSpecMatches(query, item); })
+        .sort(function(a, b) { return steel.compareSearchResults(query, a, b); })
+        .slice(0, 10)
+        .map(function(item) { return item.kind + ':' + item.spec; });
+    };
+
+    expect(top('25a')[0]).toBe('SGP配管:25A');
+    expect(top('25A')[0]).toBe('SGP配管:25A');
+    expect(top('100x100').some(function(hit) { return hit.indexOf('角パイプ:') === 0; })).toBe(true);
+    expect(top('100×100').some(function(hit) { return hit.indexOf('角パイプ:') === 0; })).toBe(true);
+    expect(top('10010023').some(function(hit) { return hit.indexOf('角パイプ:') === 0; })).toBe(true);
   });
 
   test('yield packing computes expected pattern and loss', () => {

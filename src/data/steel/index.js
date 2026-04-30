@@ -126,6 +126,92 @@
     return String((a && a[0]) || '').localeCompare(String((b && b[0]) || ''), 'ja');
   }
 
+  function normalizeSteelSearchText(value) {
+    return String(value || '')
+      .replace(/[０-９Ａ-Ｚａ-ｚ]/g, function(ch) {
+        return String.fromCharCode(ch.charCodeAt(0) - 65248);
+      })
+      .replace(/[×＊*]/g, 'x')
+      .replace(/[‐‑‒–—―−ー]/g, '-')
+      .replace(/[φΦ]/g, 'd')
+      .replace(/\s+/g, '')
+      .toLowerCase();
+  }
+
+  function compactSteelSearchText(value) {
+    return normalizeSteelSearchText(value).replace(/[^a-z0-9.]/g, '');
+  }
+
+  function steelSearchDigits(value) {
+    return normalizeSteelSearchText(value).replace(/[^0-9]/g, '');
+  }
+
+  function buildSteelSearchTarget(item) {
+    item = item || {};
+    var spec = item.spec || item.name || '';
+    var kind = item.kind || '';
+    var label = item.label || '';
+    var normSpec = normalizeSteelSearchText(spec);
+    var compactSpec = compactSteelSearchText(spec);
+    var normKind = normalizeSteelSearchText(kind);
+    var compactKind = compactSteelSearchText(kind);
+    var normLabel = normalizeSteelSearchText(label);
+    var compactLabel = compactSteelSearchText(label);
+    var digits = steelSearchDigits(spec);
+    return {
+      normSpec: normSpec,
+      compactSpec: compactSpec,
+      digits: digits,
+      all: [
+        normSpec,
+        compactSpec,
+        digits,
+        normKind,
+        compactKind,
+        normLabel,
+        compactLabel,
+        normKind + normSpec,
+        compactKind + compactSpec,
+        normLabel + normSpec,
+        compactLabel + compactSpec
+      ].join(' ')
+    };
+  }
+
+  function getSteelSearchRank(query, item) {
+    var q = normalizeSteelSearchText(query);
+    var qc = compactSteelSearchText(query);
+    var qd = steelSearchDigits(query);
+    var hasAlpha = /[a-z]/.test(qc);
+    if (!q && !qc && !qd) return 0;
+
+    var target = buildSteelSearchTarget(item);
+    if (q && target.normSpec === q) return 0;
+    if (qc && target.compactSpec === qc) return 1;
+    if (q && target.normSpec.indexOf(q) === 0) return 2;
+    if (qc && target.compactSpec.indexOf(qc) === 0) return 3;
+    if (q && target.normSpec.indexOf(q) >= 0) return 4;
+    if (qc && target.compactSpec.indexOf(qc) >= 0) return 5;
+    if (q && target.all.indexOf(q) >= 0) return 8;
+    if (qc && target.all.indexOf(qc) >= 0) return 9;
+    if (!hasAlpha && qd && target.digits.indexOf(qd) === 0) return 10;
+    if (!hasAlpha && qd && target.digits.indexOf(qd) >= 0) return 11;
+    return Infinity;
+  }
+
+  function steelSpecMatchesQuery(query, item) {
+    return getSteelSearchRank(query, item) !== Infinity;
+  }
+
+  function compareSteelSearchResults(query, a, b) {
+    var ar = getSteelSearchRank(query, a);
+    var br = getSteelSearchRank(query, b);
+    if (ar !== br) return ar - br;
+    var an = String((a && (a.spec || a.name)) || '');
+    var bn = String((b && (b.spec || b.name)) || '');
+    return compareSpecRowsByName([an], [bn]);
+  }
+
   function getRowsByKind(kind) {
     var rows = [];
     var seen = {};
@@ -183,4 +269,15 @@
   ns.data.steel.getCustomMaterialRows = getCustomMaterialRows;
   ns.data.steel.getFirstRowByKind = getFirstRowByKind;
   ns.data.steel.findRowByKindAndSpec = findRowByKindAndSpec;
+  ns.data.steel.normalizeSearchText = normalizeSteelSearchText;
+  ns.data.steel.compactSearchText = compactSteelSearchText;
+  ns.data.steel.searchDigits = steelSearchDigits;
+  ns.data.steel.searchSpecMatches = steelSpecMatchesQuery;
+  ns.data.steel.compareSearchResults = compareSteelSearchResults;
+
+  global.normalizeSteelSearchText = normalizeSteelSearchText;
+  global.compactSteelSearchText = compactSteelSearchText;
+  global.steelSearchDigits = steelSearchDigits;
+  global.steelSpecMatchesQuery = steelSpecMatchesQuery;
+  global.compareSteelSearchResults = compareSteelSearchResults;
 })(window);

@@ -2,7 +2,10 @@ function wCmdBuildAll() {
   _wCmdAll = [];
   _wEnsureCatalogReady().forEach(function(kind) {
     _wRowsByKind(kind).forEach(function(row) {
-      _wCmdAll.push({ kind: kind, spec: row[0], kgm: row[1], label: kind + ' ' + row[0] });
+      var entry = window.Toriai && window.Toriai.data && window.Toriai.data.steel && window.Toriai.data.steel.getSectionData
+        ? window.Toriai.data.steel.getSectionData(kind)
+        : null;
+      _wCmdAll.push({ kind: kind, spec: row[0], kgm: row[1], label: (entry && entry.label ? entry.label : kind) + ' ' + row[0] });
     });
   });
 }
@@ -110,8 +113,11 @@ function wCmdShowKind(kind) {
 }
 
 var W_PREFIX_MAP = [
+  { prefix: 'sgp', kinds: ['SGP配管'] },
+  { prefix: 'pipe', kinds: ['SGP配管'] },
   { prefix: 'fb', kinds: ['平鋼'] },
   { prefix: 'rb', kinds: ['丸鋼'] },
+  { prefix: 'sb', kinds: ['角鋼'] },
   { prefix: 'h',  kinds: ['H形鋼'] },
   { prefix: 'l',  kinds: ['山形鋼', '不等辺山形鋼', '不等辺不等厚山形鋼'] },
   { prefix: 'u',  kinds: ['溝形鋼'] },
@@ -144,15 +150,22 @@ function wCmdFilter() {
   if (kindFilter) {
     filtered = _wCmdAll.filter(function(it) {
       if (kindFilter.indexOf(it.kind) < 0) return false;
-      return it.spec.toLowerCase().indexOf(q) >= 0 ||
-             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+      return typeof steelSpecMatchesQuery === 'function'
+        ? steelSpecMatchesQuery(q, it)
+        : (it.spec.toLowerCase().indexOf(q) >= 0 ||
+           it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0);
     });
   } else {
     filtered = _wCmdAll.filter(function(it) {
-      return it.label.toLowerCase().indexOf(q) >= 0 ||
-             it.spec.toLowerCase().indexOf(q)  >= 0 ||
-             it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0;
+      return typeof steelSpecMatchesQuery === 'function'
+        ? steelSpecMatchesQuery(q, it)
+        : (it.label.toLowerCase().indexOf(q) >= 0 ||
+           it.spec.toLowerCase().indexOf(q)  >= 0 ||
+           it.spec.replace(/[^0-9]/g,'').indexOf(q.replace(/[^0-9]/g,'')) >= 0);
     });
+  }
+  if (typeof compareSteelSearchResults === 'function') {
+    filtered.sort(function(a, b) { return compareSteelSearchResults(q, a, b); });
   }
   dd.replaceChildren();
   if (filtered.length === 0) {

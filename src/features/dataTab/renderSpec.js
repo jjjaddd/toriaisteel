@@ -64,7 +64,8 @@ function renderDataSpec() {
     } else if (kindData.type === 'C_LIGHT') {
       svgEl.innerHTML = drawCChannelSVG(spec.H, spec.A, spec.B, spec.t, compactViewW, compactViewH);
     } else if (kindData.type === 'LGC') {
-      svgEl.innerHTML = ''; // 軽量溝形鋼: 断面図は準備中
+      var lgcSpecForSvg = parseLightChannelSpecForDataTab(spec);
+      svgEl.innerHTML = drawLightChannelSVG(lgcSpecForSvg.H, lgcSpecForSvg.A, lgcSpecForSvg.t, compactViewW, compactViewH);
     } else if (kindData.type === 'I') {
       svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, diagramViewW, diagramViewH);
     } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {
@@ -146,6 +147,13 @@ function renderDataSpec() {
         (spec.Ac != null ? _d('断面積 Ac', spec.Ac, 'cm²') : '') +
         (spec.Cx != null ? _d('A 方向', spec.Cx, 'cm') : '') +
         (spec.Cy != null ? _d('B 方向', spec.Cy, 'cm') : '');
+    } else if (kindData.type === 'LGC') {
+      var lgcSpec = parseLightChannelSpecForDataTab(spec);
+      dimEl.innerHTML =
+        _d('H', lgcSpec.H, 'mm') +
+        _d('A', lgcSpec.A, 'mm') +
+        _d('t', lgcSpec.t, 'mm') +
+        _d('単位質量 W', spec.W, 'kg/m');
     } else if (kindData.type === 'FL') {
       dimEl.innerHTML =
         _d('厚さ t', spec.t, 'mm') +
@@ -184,8 +192,17 @@ function renderDataSpec() {
         _d('r', spec.r, 'mm') +
         _d('t/r', spec.Ht, '') +
         _d('ランク', spec.rank, '');
-    }
   }
+}
+
+function parseLightChannelSpecForDataTab(spec) {
+  var nums = (String((spec && spec.name) || '').match(/[\d.]+/g) || []).map(Number);
+  return {
+    H: Number(spec && spec.H != null ? spec.H : nums[0] || 0),
+    A: Number(spec && spec.A != null ? spec.A : nums[1] || 0),
+    t: Number(spec && spec.t != null ? spec.t : nums[2] || 0)
+  };
+}
 
   // 断面性能グリッド（規格切替えのたびに必ず折りたたみ状態へ戻す）
   const perfWrap = document.getElementById('dataPerfWrap');

@@ -24,6 +24,13 @@
   padding:0;
   transition:none;
 }
+#cp.show ~ .gear-btn,
+body.page-calc-active .gear-btn{
+  display:flex;
+}
+.gear-btn[hidden]{
+  display:none !important;
+}
 .gear-btn:hover,
 .gear-btn:focus,
 .gear-btn:active{
