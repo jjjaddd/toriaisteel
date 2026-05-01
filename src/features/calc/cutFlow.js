@@ -42,7 +42,8 @@ function buildCutSourceLabel(slLen) {
 function formatMaterialTotalWeightKg(value) {
   var num = Number(value);
   if (!isFinite(num) || num <= 0) return '—';
-  return (Math.round(num * 10) / 10).toLocaleString() + ' kg';
+  var rounded = typeof jisRoundKg === 'function' ? jisRoundKg(num) : Math.round(num);
+  return rounded.toLocaleString() + ' kg';
 }
 
 

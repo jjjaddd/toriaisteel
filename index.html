@@ -125,6 +125,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         <button class="hm-row" type="button" onclick="openUsageGuideExternal()">
           <span class="hm-txt">使い方</span>
         </button>
+        <a class="hm-row" href="benchmark.html" style="text-decoration:none;color:inherit;display:flex;align-items:center">
+          <span class="hm-txt">性能ベンチマーク</span>
+        </a>
         <button class="hm-row hm-row--version" type="button" onclick="openChangelog()">
 <span class="hm-txt">バージョン<span class="hm-version-tag">v1.0.5</span></span>
           <span class="hm-version-arrow">›</span>
@@ -612,23 +615,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           </div>
         </div>
 
-        <!-- 計算モード（Phase 2-2） -->
-        <div class="ds-section">
-          <div class="ds-sec-head" onclick="toggleSection('calcModeBody','calcModeToggleBtn','')">
-            <div class="ds-title" style="margin-bottom:0;border-bottom:none;flex:1">計算モード</div>
-            <span id="calcModeToggleBtn" class="ds-toggle-icon">＋</span>
-          </div>
-          <div style="height:1.5px;background:#f0f0f5;margin:2px 0 8px"></div>
-          <div id="calcModeBody" style="display:none">
-            <label id="deepModeWrap" style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fff7e6;border:1px solid #ffd591;border-radius:6px;font-size:13px;cursor:pointer;user-select:none">
-              <input type="checkbox" id="deepModeToggle" style="margin:0;flex:0 0 auto">
-              <span style="flex:1">
-                <span style="font-weight:600">🐢 長考モード</span>
-                <span style="display:block;color:#666;font-size:11px;margin-top:2px">最大3分かけて歩留まりを最大化（通常モードは数秒で完了）</span>
-              </span>
-            </label>
-          </div>
-        </div>
+        <!-- 計算モード セクションは v2 単一化のため削除（2026-05-01） -->
+
 
         <!-- 作業情報 -->
         <div class="ds-section">
@@ -990,15 +978,17 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 
 <!-- 切断履歴プレビューモーダル -->
 <div id="histPreviewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9000;align-items:flex-start;justify-content:center;padding:24px 16px;box-sizing:border-box" onclick="if(event.target===this)this.style.display='none'">
-  <div style="width:100%;max-width:1200px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+  <div style="width:100%;max-width:1200px;max-height:calc(100vh - 48px);background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18);display:flex;flex-direction:column">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #ebebeb;background:#fff;position:sticky;top:0;z-index:1">
       <div style="font-size:13px;font-weight:700;color:#1a1a2e">作業指示書プレビュー</div>
       <div style="display:flex;gap:8px">
         <button onclick="printHistoryPreview()" style="background:#1a1a2e;color:#fff;border:none;border-radius:7px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">印刷</button>
+        <button id="histPreviewEditBtn" onclick="toggleHistoryPreviewJobEdit()" style="background:#fff;color:#1a1a2e;border:1px solid #ddd;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">編集</button>
         <button onclick="document.getElementById('histPreviewModal').style.display='none'" style="background:none;border:1px solid #ddd;color:#888;border-radius:7px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit">閉じる</button>
       </div>
     </div>
-    <div id="histPreviewBody" style="padding:16px 20px;font-family:sans-serif;font-size:11px;color:#000;line-height:1.4;overflow-x:auto"></div>
+    <div id="histPreviewEditPanel" style="flex:0 0 auto"></div>
+    <div id="histPreviewBody" style="padding:16px 20px;font-family:sans-serif;font-size:11px;color:#000;line-height:1.4;overflow:auto;flex:1 1 auto;min-height:0"></div>
   </div>
 </div>
 
@@ -1069,7 +1059,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/ui/calc/inputState.js?v=phase1"></script>
 <script src="src/ui/calc/executionFlow.js?v=phase1"></script>
 <script src="src/ui/calc/specPanelBehavior.js?v=phase1"></script>
-<script src="src/ui/calc/deepModeToggle.js?v=phase2"></script>
+<!-- deepModeToggle.js は v2 単一化で除去（2026-05-01） -->
 <script src="src/ui/calc/progressIndicator.js?v=phase2"></script>
 <script src="src/ui/inventory/remnantSelection.js?v=phase1"></script>
 <script src="src/ui/inventory/page.js?v=phase1"></script>
@@ -1078,7 +1068,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/ui/header/navOrder.js?v=phase1"></script>
 <script src="src/ui/contact/feedback.js?v=phase1"></script>
 <script src="src/ui/history/renderHistory.js?v=phase1"></script>
-<script src="src/ui/history/preview.js?v=phase1"></script>
+<script src="src/ui/history/preview.js?v=phase4"></script>
 <script src="src/calculation/common/normalizeInput.js?v=phase1"></script>
 <script src="src/calculation/common/validateCalculationInput.js?v=phase1"></script>
 <script src="src/calculation/weight/calculateWeight.js?v=phase1"></script>
@@ -1135,7 +1125,7 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/features/calc/calcRender.js?v=phase1"></script>
 <script src="src/features/calc/calcResultActions.js?v=phase1"></script>
 <script src="src/features/calc/stockControls.js?v=phase1"></script>
-<script src="src/features/calc/cutFlow.js?v=phase1"></script>
+<script src="src/features/calc/cutFlow.js?v=phase2"></script>
 <script src="src/features/calc/manualRemnants.js?v=phase1"></script>
 <script src="src/features/calc/calcToolbar.js?v=phase1"></script>
 <script src="src/features/calc/calcUtils.js?v=phase1"></script>

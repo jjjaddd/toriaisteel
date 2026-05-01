@@ -36,19 +36,7 @@
     cb.addEventListener('change', function() {
       saveStored(cb.checked);
       global.__toriaiDeepMode = cb.checked;
-      // 視覚的フィードバック
-      var wrap = document.getElementById('deepModeWrap');
-      if (wrap) {
-        wrap.style.background = cb.checked ? '#ffe7ba' : '#fff7e6';
-        wrap.style.borderColor = cb.checked ? '#fa8c16' : '#ffd591';
-      }
     });
-    // 初期状態の見た目
-    var wrap = document.getElementById('deepModeWrap');
-    if (wrap && cb.checked) {
-      wrap.style.background = '#ffe7ba';
-      wrap.style.borderColor = '#fa8c16';
-    }
   }
 
   if (document.readyState === 'loading') {

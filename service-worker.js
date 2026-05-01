@@ -1,7 +1,8 @@
-const CACHE_NAME = 'steel-optimizer-v110';
+const CACHE_NAME = 'steel-optimizer-v117';
 const ASSETS = [
   '/',
   '/index.html',
+  '/benchmark.html',
   '/src/styles/core.css',
   '/src/styles/calc.css',
   '/src/styles/historyInventory.css',
