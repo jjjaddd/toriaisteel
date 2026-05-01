@@ -2,6 +2,7 @@
 // 初回起動時 / バージョンアップ時に自動表示し、操作方法を 5 ページで案内する。
 
 var TORIAI_ONBOARDING_KEY = 'toriai_calc_onboarding_seen_version';
+var TORIAI_VISIT_KEY = 'toriai_site_visited_v1';
 var TORIAI_ONBOARDING_VERSION = (typeof TORIAI_CHANGELOG !== 'undefined' && TORIAI_CHANGELOG[0])
   ? TORIAI_CHANGELOG[0].version
   : '';
@@ -21,6 +22,31 @@ function hasSeenCalcOnboarding() {
 function markCalcOnboardingSeen() {
   try {
     localStorage.setItem(TORIAI_ONBOARDING_KEY, TORIAI_ONBOARDING_VERSION);
+  } catch (e) {}
+}
+
+function hasVisitedToriai() {
+  try {
+    return localStorage.getItem(TORIAI_VISIT_KEY) === '1';
+  } catch (e) {
+    return true;
+  }
+}
+
+function hasAnyWelcomeHistory() {
+  try {
+    return !!(
+      localStorage.getItem(TORIAI_ONBOARDING_KEY) ||
+      localStorage.getItem('toriai_changelog_seen_version')
+    );
+  } catch (e) {
+    return true;
+  }
+}
+
+function markVisitedToriai() {
+  try {
+    localStorage.setItem(TORIAI_VISIT_KEY, '1');
   } catch (e) {}
 }
 
@@ -74,6 +100,14 @@ function startCalcFromOnboarding() {
 }
 
 function showCalcOnboardingIfNeeded() {
+  if (!hasVisitedToriai() && !hasAnyWelcomeHistory()) {
+    markVisitedToriai();
+    setTimeout(function() {
+      openCalcOnboarding(true);
+    }, 280);
+    return;
+  }
+  markVisitedToriai();
   if (typeof showChangelogIfNeeded === 'function') {
     showChangelogIfNeeded();
   }
