@@ -51,5 +51,5 @@
 - 今セッション追加: `docs/WORK_LOG.md`, `docs/AI_RULES.md`
 **Commit**:
 - `24c855d` Codex データタブ作業をまとめて commit + push 済
-- 作業ログ追加分は次の commit 予定
+- `17c9d73` 作業ログ運用ルール新設（commit + push 済）
 **未完了 / 引継ぎ**: なし
