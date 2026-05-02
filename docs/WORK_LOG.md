@@ -38,6 +38,24 @@
 
 ## 2026-05-03
 
+### 14:30  [Claude]
+**依頼**: 刃厚 3mm / 端ロス両端 150mm 確定 / critical pair 列挙 GO / 世界初狙う
+**やったこと**:
+- BUG-V2-001 に確定値（blade=3, endloss=150）を反映、V2 出力 2,503mm を手計算で完全再現確認
+- 最適解候補を計算: 41×10m + 1×9m → 母材 419,000mm（V2 比 -1,000mm）/ 41×10m + 1×8m → 418,000mm
+- ALGEBRA_DESIGN.md §1.6 を全面拡張（v0.1 → v0.2）:
+  - §1.6.1 規則の決定論化（R1-R5 の選択肢を一意化、特に R5 は最小 S\* lift）
+  - §1.6.2 Termination の単調量を辞書式順序で定義（厳密減少の証明）
+  - §1.6.3 全 15 critical pair を表形式で列挙、すべて合流確認
+  - §1.6.4 Newman の補題で confluence 結論
+  - §1.6.5 Phase 1 の経験的検証義務（property-based test 10,000 ケース）
+- §6 OQ-1（R5 が confluence を壊す可能性）を解決済へ更新
+- ALGEBRA_DIARY.md に Phase 0 完了エントリ（V2 数字検証 / (R3,R5) 解決 / Newman の強さ）
+**ファイル**: `docs/ALGEBRA_BUG_LOG.md`, `docs/ALGEBRA_DESIGN.md`, `docs/ALGEBRA_DIARY.md`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成（Phase 0 完了）
+**未完了 / 引継ぎ**:
+- Phase 0 完了。コミット後 Phase 1 着手（最初の 1 行: `src/calculation/yield/algebra/term.js` の TERM 型）
+
 ### 13:30  [Claude]
 **依頼**: 設計レビュー異論なし / V2 失敗ケース受領（1222mm × 334本で 10m × 42 本、最後 1 本だけ端材 2503mm）/ 設計書 4 つを `docs(algebra): bootstrap project docs` で 1 コミット + push
 **やったこと**:
