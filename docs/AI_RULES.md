@@ -12,12 +12,14 @@ AI に開発を依頼するときは、このファイルを最初に渡す。
 - 後置き上書き禁止。`fn = function(){...}` で既存関数を包んで拡張しない
 - `final-overrides.js` のような応急処置ファイルを作らない
 - `src/compat/legacyGlobals.js` の bridge は増やさない
+- **作業ログ必須**。ユーザーから指示が来たら、その都度 `docs/WORK_LOG.md` に **1 ユーザーターン = 1 エントリ** で追記する。フォーマットと詳細は `docs/WORK_LOG.md` の冒頭を参照。コード変更が無い「確認だけ」のターンも結論を 1 行残す
 
 ## 2. 作業開始時に必ず確認すること
 
 - `git status --short`
-- `REFACTOR_TODO.md`
-- `HANDOFF.md`
+- `docs/WORK_LOG.md`（最新エントリ＝同日内に何が起きたか）
+- `docs/REFACTOR_TODO.md`
+- `docs/HANDOFF.md`
 - 該当機能の `src/features/*`
 - 計算に触る場合は、ユーザーに Claude 側作業と衝突しないか確認する
 
