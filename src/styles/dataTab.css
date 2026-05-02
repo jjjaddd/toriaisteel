@@ -180,6 +180,65 @@
   text-align: center;
 }
 
+.dt-sb-tooltip {
+  position: fixed;
+  z-index: 3000;
+  min-width: 220px;
+  max-width: min(340px, calc(100vw - 20px));
+  max-height: min(420px, calc(100vh - 20px));
+  overflow: hidden;
+  padding: 10px 0;
+  border-radius: 12px;
+  background: var(--surface, #fff);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+  color: var(--ink, #141420);
+  font-family: "Space Grotesk", "Noto Sans JP", "Segoe UI", sans-serif;
+  pointer-events: auto;
+}
+.dt-sb-tooltip[hidden] { display: none; }
+.dt-sb-tooltip-title {
+  padding: 0 12px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(20,20,32,0.56);
+  letter-spacing: .08em;
+}
+.dt-sb-tooltip-list {
+  max-height: 320px;
+  overflow: hidden;
+}
+.dt-sb-tooltip-row {
+  display: block;
+  width: 100%;
+  padding: 5px 12px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+}
+.dt-sb-tooltip-row:hover,
+.dt-sb-tooltip-row:focus {
+  background: rgba(109,40,217,0.08);
+  outline: none;
+}
+.dt-sb-tooltip-more {
+  margin-top: 6px;
+  padding: 8px 12px 0;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(20,20,32,0.58);
+}
+
 /* ============================================================
    右メイン: 情報 (左) + 断面形状 (右 440px)
    ============================================================ */

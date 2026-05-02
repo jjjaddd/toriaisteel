@@ -77,9 +77,10 @@ function renderDataSpec() {
     } else if (kindData.type === 'PIPE') {
       svgEl.innerHTML = drawPipeSVG(spec.D, spec.d, compactViewW, compactViewH);
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
-      svgEl.innerHTML = drawRectPipeSVG(spec.A, spec.B, spec.t, compactViewW, compactViewH);
+      var rectPipeSpecForSvg = parseRectPipeSpecForDataTab(spec);
+      svgEl.innerHTML = drawRectPipeSVG(rectPipeSpecForSvg.A, rectPipeSpecForSvg.B, rectPipeSpecForSvg.t, compactViewW, compactViewH);
     } else if (kindData.type === 'BCR') {
-      svgEl.innerHTML = drawRectPipeSVG(spec.H, spec.B, spec.t, compactViewW, compactViewH);
+      svgEl.innerHTML = drawRectPipeSVG(spec.H, spec.B, spec.t, compactViewW, compactViewH, spec.r);
     } else if (kindData.type === 'FL') {
       svgEl.innerHTML = drawFlatBarSVG(spec.t, spec.B, flatViewW, flatViewH);
     }
@@ -178,11 +179,12 @@ function renderDataSpec() {
         _d('厚さ t', spec.t, 'mm') +
         _d('断面積 A', spec.A, 'cm²');
     } else if (kindData.type === 'SQUARE_PIPE' || kindData.type === 'RECT_PIPE') {
+      var rectPipeSpec = parseRectPipeSpecForDataTab(spec);
       dimEl.innerHTML =
-        _d('A', spec.A, 'mm') +
-        _d('B', spec.B, 'mm') +
-        _d('t', spec.t, 'mm') +
-        _d('断面積 A', spec.Asec, 'cm²') +
+        _d('A', rectPipeSpec.A, 'mm') +
+        _d('B', rectPipeSpec.B, 'mm') +
+        _d('t', rectPipeSpec.t, 'mm') +
+        (spec.Asec != null ? _d('断面積 A', spec.Asec, 'cm²') : '') +
         _d('単位質量 W', spec.W, 'kg/m');
     } else if (kindData.type === 'BCR') {
       dimEl.innerHTML =
@@ -193,15 +195,6 @@ function renderDataSpec() {
         _d('t/r', spec.Ht, '') +
         _d('ランク', spec.rank, '');
   }
-}
-
-function parseLightChannelSpecForDataTab(spec) {
-  var nums = (String((spec && spec.name) || '').match(/[\d.]+/g) || []).map(Number);
-  return {
-    H: Number(spec && spec.H != null ? spec.H : nums[0] || 0),
-    A: Number(spec && spec.A != null ? spec.A : nums[1] || 0),
-    t: Number(spec && spec.t != null ? spec.t : nums[2] || 0)
-  };
 }
 
   // 断面性能グリッド（規格切替えのたびに必ず折りたたみ状態へ戻す）
@@ -280,4 +273,21 @@ function toggleDataPerfSection() {
   if (perfAction) perfAction.textContent = collapsed ? '開く' : '閉じる';
   perfEl.hidden = collapsed;
   perfEl.style.display = collapsed ? 'none' : 'grid';
+}
+
+function parseLightChannelSpecForDataTab(spec) {
+  var nums = (String((spec && spec.name) || '').match(/[\d.]+/g) || []).map(Number);
+  return {
+    H: Number(spec && spec.H != null ? spec.H : nums[0] || 0),
+    A: Number(spec && spec.A != null ? spec.A : nums[1] || 0),
+    t: Number(spec && spec.t != null ? spec.t : nums[2] || 0)
+  };
+}
+
+function parseRectPipeSpecForDataTab(spec) {
+  var nums = (String((spec && spec.name) || '').match(/[\d.]+/g) || []).map(Number);
+  var a = Number(spec && spec.A != null ? spec.A : nums[0] || 0);
+  var b = Number(spec && spec.B != null ? spec.B : nums[1] || a);
+  var t = Number(spec && spec.t != null ? spec.t : nums[2] || 0);
+  return { A: a, B: b, t: t };
 }

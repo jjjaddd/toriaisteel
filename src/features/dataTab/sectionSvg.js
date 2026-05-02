@@ -1,14 +1,90 @@
-function drawRectPipeSVG(H, B, t, viewW, viewH) {
-  const margin = 28;
-  const scale = Math.min((viewW - margin * 2) / B, (viewH - margin * 2) / H);
+function drawRectPipeSVG(H, B, t, viewW, viewH, outerRValue) {
+  H = Number(H || 0);
+  B = Number(B || 0);
+  t = Number(t || 0);
+  outerRValue = Number(outerRValue || 0);
+
+  const margin = { left: 104, top: 48, right: 96, bottom: 96 };
+  const scale = Math.min(
+    (viewW - margin.left - margin.right) / Math.max(B, 1),
+    (viewH - margin.top - margin.bottom) / Math.max(H, 1)
+  );
   const w = B * scale;
   const h = H * scale;
-  const th = Math.max(2, t * scale);
-  const x = (viewW - w) / 2;
-  const y = (viewH - h) / 2;
+  const th = Math.max(3, t * scale);
+  const rawOuterR = outerRValue > 0 ? outerRValue * scale : th * 2;
+  const outerR = Math.min(Math.max(0.01, rawOuterR), Math.min(w, h) / 2);
+  const innerW = Math.max(0, w - th * 2);
+  const innerH = Math.max(0, h - th * 2);
+  const rawInnerR = outerRValue > 0 ? Math.max(0, (outerRValue - t) * scale) : th;
+  const innerR = Math.min(Math.max(0.01, rawInnerR), Math.min(innerW, innerH) / 2);
+  const x = margin.left + (viewW - margin.left - margin.right - w) / 2;
+  const y = margin.top + (viewH - margin.top - margin.bottom - h) / 2;
+  const xL = x;
+  const xR = x + w;
+  const yT = y;
+  const yB = y + h;
+  const xi = xL + th;
+  const yi = yT + th;
+  const midY = yT + h / 2;
+  const dimLeftX = xL - 58;
+  const dimBottomY = yB + 50;
+  const tLabelX = Math.min(viewW - 72, xi + 92);
+  const tInset = Math.min(4, Math.max(1.5, th * 0.22));
+  const guideGap = 12;
+  const fmt = function(n) { return Number(n || 0).toFixed(1).replace(/\.0$/, ''); };
+  const dim = '#1f2937';
+  const guide = '#111111';
+  const text = '#111111';
+  const rLabelX = Math.min(viewW - 72, xR + 42);
+  const rLabelY = Math.max(26, yT - 20);
+  const rLeader = outerRValue > 0 ? `
+    <path class="dt-rect-pipe-guide" d="M ${xR - outerR * 0.35} ${yT + outerR * 0.35} L ${rLabelX - 14} ${rLabelY + 8}"/>
+    <text class="dt-rect-pipe-sub" x="${rLabelX}" y="${rLabelY + 14}">R=${fmt(outerRValue)}</text>` : '';
+
   return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
-    <rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#ffffff" stroke="#111111" stroke-width="2.5"/>
-    <rect x="${x + th}" y="${y + th}" width="${Math.max(0, w - th * 2)}" height="${Math.max(0, h - th * 2)}" fill="#fff" stroke="#111111" stroke-width="1.5"/>
+    <defs>
+      <marker id="dtRectPipeArrowEnd" markerWidth="6" markerHeight="6" refX="5.3" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtRectPipeArrowStart" markerWidth="6" markerHeight="6" refX="0.7" refY="3" orient="auto">
+        <path d="M6,0 L0,3 L6,6 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtRectPipeSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtRectPipeSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-rect-pipe-shape { fill: #ffffff; stroke: #111111; stroke-width: 2.1; stroke-linejoin: round; }
+        .dt-rect-pipe-hole { fill: var(--surface-2, #f8f8fc); stroke: #111111; stroke-width: 1.5; stroke-linejoin: round; }
+        .dt-rect-pipe-guide { stroke: ${guide}; stroke-width: 1.25; fill: none; }
+        .dt-rect-pipe-dim { stroke: ${dim}; stroke-width: 1.6; fill: none; marker-start: url(#dtRectPipeArrowStart); marker-end: url(#dtRectPipeArrowEnd); }
+        .dt-rect-pipe-thickness { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtRectPipeSmallArrowStart); marker-end: url(#dtRectPipeSmallArrowEnd); }
+        .dt-rect-pipe-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${text}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-rect-pipe-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+    <rect class="dt-rect-pipe-shape" x="${xL}" y="${yT}" width="${w}" height="${h}" rx="${outerR}" ry="${outerR}"/>
+    <rect class="dt-rect-pipe-hole" x="${xi}" y="${yi}" width="${innerW}" height="${innerH}" rx="${innerR}" ry="${innerR}"/>
+
+    <line class="dt-rect-pipe-guide" x1="${xL - guideGap}" y1="${yT}" x2="${dimLeftX + 18}" y2="${yT}"/>
+    <line class="dt-rect-pipe-guide" x1="${xL - guideGap}" y1="${yB}" x2="${dimLeftX + 18}" y2="${yB}"/>
+    <line class="dt-rect-pipe-dim" x1="${dimLeftX}" y1="${yT + 12}" x2="${dimLeftX}" y2="${yB - 12}"/>
+    <text class="dt-rect-pipe-label" x="${dimLeftX - 22}" y="${midY}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${midY})">A=${fmt(H)}</text>
+
+    <line class="dt-rect-pipe-guide" x1="${xL}" y1="${yB + guideGap}" x2="${xL}" y2="${dimBottomY - 18}"/>
+    <line class="dt-rect-pipe-guide" x1="${xR}" y1="${yB + guideGap}" x2="${xR}" y2="${dimBottomY - 18}"/>
+    <line class="dt-rect-pipe-dim" x1="${xL + 12}" y1="${dimBottomY}" x2="${xR - 12}" y2="${dimBottomY}"/>
+    <text class="dt-rect-pipe-label" x="${xL + w / 2}" y="${dimBottomY + 28}" text-anchor="middle">B=${fmt(B)}</text>
+
+    <line class="dt-rect-pipe-guide" x1="${xL}" y1="${midY - 22}" x2="${xL}" y2="${midY + 22}"/>
+    <line class="dt-rect-pipe-guide" x1="${xi}" y1="${midY - 22}" x2="${xi}" y2="${midY + 22}"/>
+    <line class="dt-rect-pipe-thickness" x1="${xL + tInset}" y1="${midY}" x2="${xi - tInset}" y2="${midY}"/>
+    <line class="dt-rect-pipe-guide" x1="${xi + 14}" y1="${midY}" x2="${tLabelX - 14}" y2="${midY}"/>
+    <text class="dt-rect-pipe-sub" x="${tLabelX}" y="${midY + 6}">t=${fmt(t)}</text>
+    ${rLeader}
   </svg>`;
 }
 
