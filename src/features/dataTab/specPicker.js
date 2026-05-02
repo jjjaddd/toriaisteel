@@ -62,7 +62,13 @@ function _renderDataSpecChips() {
     }
     hit++;
     var active = (i === _dataSpecIdx) ? ' on' : '';
-    var nameEsc = String(s.name).replace(/"/g, '&quot;');
+    // XSS 防御（2026-05-01）: spec.name はカスタム鋼材で user 入力。HTML/属性 両方をエスケープ
+    var nameEsc = String(s.name == null ? '' : s.name)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
     html += '<button type="button" class="data-spec-chip' + active + '" ' +
       'data-index="' + i + '" ' +
       'onclick="selectDataSpec(' + i + ",'" + kEsc + "'" + ')">' +

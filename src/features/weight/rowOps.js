@@ -63,7 +63,7 @@ function wAddRow() {
         amount: price > 0 ? myKg * price : null,
         paintPrice: paintPrice,
         paintAmount: paintPrice > 0 ? myM2 * paintPrice : null,
-        memo: memo || r.memo
+        memo: _wOpts.name ? memo : r.memo
       });
     });
     _wSelected = [];
@@ -112,6 +112,8 @@ function wEditRow(idx) {
   if (r.memo) {
     if (!_wOpts.name) wToggleOpt('name');
     var me = document.getElementById('wMemo'); if (me) me.value = r.memo;
+  } else if (_wOpts.name) {
+    var emptyMemo = document.getElementById('wMemo'); if (emptyMemo) emptyMemo.value = '';
   }
   if (r.paintPrice > 0) {
     if (!_wOpts.paint) wToggleOpt('paint');

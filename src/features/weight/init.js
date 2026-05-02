@@ -56,8 +56,8 @@ function wInit() {
 
 // ── Enter フロー ──────────────────────────────────────────────
 function wNextOptOrAdd(from) {
-  var order    = ['price', 'name', 'title'];
-  var fieldMap = { price: 'wPrice', name: 'wMemo', title: 'wDocTitle' };
+  var order    = ['title', 'name', 'price', 'paint', 'rev'];
+  var fieldMap = { title: 'wDocTitle', name: 'wMemo', price: 'wPrice', paint: 'wPaintPrice', rev: 'wRevKg' };
   var startIdx = (from === 'qty') ? 0 : order.indexOf(from) + 1;
   for (var i = startIdx; i < order.length; i++) {
     var opt = order[i];
@@ -72,6 +72,13 @@ function wNextOptOrAdd(from) {
 function wSetupEnter() {
   var lenEl = document.getElementById('wLen');
   var qtyEl = document.getElementById('wQty');
+  var cmdInput = document.getElementById('wCmdInput');
+
+  function focusAndSelect(el) {
+    if (!el) return;
+    el.focus();
+    if (typeof el.select === 'function') el.select();
+  }
 
   // Shift+Enter: 計算結果をリストに追加してから検索欄へ戻る
   function shiftEnterToCmd(e) {
@@ -91,9 +98,19 @@ function wSetupEnter() {
   if (lenEl) {
     lenEl.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && e.shiftKey) { shiftEnterToCmd(e); return; }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        focusAndSelect(cmdInput || document.getElementById('wCmdInput'));
+        return;
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        focusAndSelect(qtyEl);
+        return;
+      }
       if (e.key === 'Enter') {
         e.preventDefault();
-        if (qtyEl) { qtyEl.focus(); qtyEl.select(); }
+        focusAndSelect(qtyEl);
       }
     });
     lenEl.addEventListener('input', wPreview);
@@ -103,6 +120,11 @@ function wSetupEnter() {
   if (qtyEl) {
     qtyEl.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && e.shiftKey) { shiftEnterToCmd(e); return; }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        focusAndSelect(lenEl);
+        return;
+      }
       if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();

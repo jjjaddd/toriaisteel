@@ -31,6 +31,13 @@ function openUsageGuideExternal() {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
+function openUsageGuide2External() {
+  var url = 'https://note.com/tender_kiwi2595/n/n3acdcf1fee08';
+  if (!confirm('外部サイト（note）に移動します。よろしいですか？')) return;
+  closeHeaderMenu();
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
 function openPerformanceArticleExternal() {
   var url = 'https://qiita.com/toriaiapp/items/6322f6c1326d22efc5e8';
   if (!confirm('外部サイト（Qiita）に移動します。よろしいですか？')) return;

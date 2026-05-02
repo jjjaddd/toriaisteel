@@ -266,20 +266,28 @@ body.sidebar-layout-active #cop{
 }
 #hip .inv-summary-grid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(200px,220px));
-  gap:16px;
+  grid-template-columns:repeat(3,minmax(180px,220px));
+  column-gap:16px;
+  row-gap:16px;
   justify-content:start;
-  width:max-content;
+  width:100%;
   max-width:100%;
   margin-left:14px;
 }
 #hip .inv-summary-card{
+  box-sizing:border-box;
   background:#fff;
   border:1px solid #e7e8ee;
   border-radius:16px;
   padding:16px 18px 16px 40px;
   box-shadow:0 6px 18px rgba(17,17,17,.03);
-  min-height:92px;
+  height:92px;
+}
+#hip button.inv-summary-card{
+  appearance:none;
+  cursor:pointer;
+  text-align:left;
+  font-family:inherit;
 }
 #hip .inv-summary-label{
   font-size:11px;
@@ -408,18 +416,74 @@ body.sidebar-layout-active #cop{
   height:40px;
   margin-bottom:0;
   padding:0 14px;
-  border-radius:12px;
-  border:1px solid #181818;
   background:#181818;
+  border:1px solid #181818;
+  border-radius:12px;
   color:#fff;
   font-size:12px;
   font-weight:700;
   box-shadow:none;
   white-space:nowrap;
+  font-family:inherit;
+  cursor:pointer;
 }
 #hip .inv-add-open-btn:hover{
   background:#181818;
   border-color:#181818;
+}
+#hip .inv-min-remnant-field{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:8px;
+  box-sizing:border-box;
+}
+#hip .inv-min-remnant-view{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#hip .inv-min-remnant-field small{
+  font-size:11px;
+  font-weight:700;
+  color:#8b8ea3;
+}
+#hip .inv-min-remnant-field button{
+  height:28px;
+  padding:0 10px;
+  border:1px solid #e3e4ea;
+  border-radius:8px;
+  background:#fff;
+  color:#111320;
+  font-family:inherit;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+}
+#hip .inv-min-remnant-field button:hover{
+  background:#fafafe;
+}
+#hip .inv-min-remnant-edit{
+  align-items:center;
+  gap:8px;
+}
+#hip .inv-min-remnant-edit input{
+  min-width:0;
+  flex:1;
+}
+#hip .inv-min-remnant-field input[type="number"]{
+  width:100%;
+  height:32px;
+  box-sizing:border-box;
+  border:1px solid #e3e4ea;
+  border-radius:8px;
+  background:#fbfbfd;
+  color:#111320;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:700;
+  padding:0 10px;
 }
 #hip #hiPanelI .inv-add-open-btn{
   min-width:128px !important;
@@ -848,6 +912,8 @@ body.sidebar-layout-active #cop{
   }
   #hip .inv-summary-grid{
     grid-template-columns:repeat(2,minmax(0,1fr));
+    width:100%;
+    margin-left:0;
   }
   #hip .inv-col-header--table,
   #hip .inv-row--table{
@@ -1090,6 +1156,47 @@ nav a{
   line-height:1.25;
 }
 
+@media (max-width: 1100px){
+  #cp .calc-result-toolbar{
+    align-items:stretch;
+  }
+
+  #cp .calc-result-toolbar-main{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-areas:
+      "job-title job-title"
+      "job-client job-name"
+      "job-deadline job-memo";
+    gap:10px 12px;
+  }
+
+  #cp .calc-result-toolbar-main > .calc-result-cell:nth-child(1){
+    grid-area:job-title;
+    min-height:20px;
+    justify-content:flex-start !important;
+    align-self:end;
+  }
+
+  #cp .calc-result-toolbar-main > .calc-result-edit:nth-child(2){ grid-area:job-client; }
+  #cp .calc-result-toolbar-main > .calc-result-edit:nth-child(3){ grid-area:job-name; }
+  #cp .calc-result-toolbar-main > .calc-result-edit:nth-child(4){ grid-area:job-deadline; }
+  #cp .calc-result-toolbar-main > .calc-result-edit:nth-child(5){ grid-area:job-memo; }
+
+  #cp .calc-result-edit{
+    padding:0 !important;
+    border-left:none !important;
+  }
+
+  #cp .calc-result-input{
+    height:42px !important;
+    min-height:42px !important;
+  }
+
+  #cp .calc-toolbar-cart{
+    align-self:center;
+  }
+}
+
 #hip .hi-sb{
   padding:18px 14px 24px;
 }
@@ -1221,14 +1328,46 @@ nav a{
   }
 
   #hip .inv-summary-grid{
-    grid-template-columns:repeat(2,minmax(180px,220px));
-    gap:12px;
-    margin-left:14px;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    column-gap:12px;
+    row-gap:14px;
+    width:100%;
+    margin-left:0;
+  }
+
+  #hip .inv-min-remnant-field{
+    grid-column:auto;
+    padding-left:12px;
+    padding-right:12px;
   }
 
   #hip .inv-summary-card{
-    min-height:84px;
+    height:84px;
     padding:14px 16px 14px 34px;
+  }
+
+  #hip .inv-min-remnant-field .inv-summary-label{
+    font-size:9px;
+    line-height:1.25;
+    margin-bottom:4px;
+  }
+
+  #hip .inv-min-remnant-field .inv-summary-value{
+    font-size:17px;
+  }
+
+  #hip .inv-min-remnant-field button{
+    height:26px;
+    padding:0 8px;
+    font-size:10px;
+  }
+
+  #hip #hiPanelI .inv-add-open-btn{
+    height:40px !important;
+  }
+
+  #hip .inv-min-remnant-view{
+    gap:6px;
   }
 
   #hip .hi-topbar{

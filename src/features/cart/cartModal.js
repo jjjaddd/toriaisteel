@@ -64,7 +64,7 @@ function renderCartModal() {
     var client = escapeCartHtml(job.client || '');
     var name = escapeCartHtml(job.name || '');
     var removeId = escapeInlineJsString(item.id);
-    return '<div class="cart-item">' +
+    return '<div class="cart-item cart-item--preview" role="button" tabindex="0" title="作業指示書をプレビュー" onclick="cartPreviewCutItem(\'' + removeId + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();cartPreviewCutItem(\'' + removeId + '\')}">' +
       '<div style="flex:1;min-width:0">' +
         '<div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px">' +
           (d.isYield ? '歩留まり最大' : '取り合いパターン') +
@@ -74,7 +74,7 @@ function renderCartModal() {
           spec + '　' + client + '　' + name +
         '</div>' +
       '</div>' +
-      '<button class="cart-item-del" onclick="cartRemoveItem(\'' + removeId + '\')">✕ 削除</button>' +
+      '<button class="cart-item-del" onclick="event.stopPropagation();cartRemoveItem(\'' + removeId + '\')">✕ 削除</button>' +
     '</div>';
   }).join('');
 
@@ -87,13 +87,16 @@ function renderCartModal() {
   section.innerHTML =
     '<div class="cart-purchase-title">材料手配</div>' +
     (summary.length
-      ? '<div class="cart-purchase-list">' + summary.map(function(item) {
-          return '<div class="cart-purchase-row"><span class="cart-purchase-spec">' + escapeHtml(item.spec || '規格未設定') + '</span><span class="cart-purchase-stock">' + Number(item.sl || 0).toLocaleString() + 'mm × ' + item.qty + '本</span></div>';
-        }).join('') + '</div>' +
-        '<div class="cart-purchase-actions">' +
+      ? '<div class="cart-purchase-actions">' +
           '<button type="button" class="cart-purchase-mail" onclick="window.location.href=\'' + purchaseApi.buildPurchaseMailto(summary, cart).replace(/'/g, '%27') + '\'">既定のメールで開く</button>' +
-          '<button type="button" class="cart-purchase-mail" onclick="window.open(\'' + purchaseApi.buildPurchaseGmailUrl(summary, cart).replace(/'/g, '%27') + '\', \'_blank\')">Gmailで開く</button>' +
-        '</div>'
+          '<button type="button" class="cart-purchase-mail" onclick="window.open(\'' + purchaseApi.buildPurchaseGmailUrl(summary, cart).replace(/'/g, '%27') + '\', \'_blank\')">Gメールで開く</button>' +
+        '</div>' +
+        '<details class="cart-purchase-details">' +
+          '<summary>材料詳細</summary>' +
+          '<div class="cart-purchase-list">' + summary.map(function(item) {
+            return '<div class="cart-purchase-row"><span class="cart-purchase-spec">' + escapeHtml(item.spec || '規格未設定') + '</span><span class="cart-purchase-stock">' + Number(item.sl || 0).toLocaleString() + 'mm × ' + item.qty + '本</span></div>';
+          }).join('') + '</div>' +
+        '</details>'
       : '<div class="cart-purchase-empty">今回発注が必要な定尺材はありません。</div>');
   body.appendChild(section);
 }

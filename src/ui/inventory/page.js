@@ -22,6 +22,13 @@
     if (!cont || cont.dataset.actionsBound === '1') return;
     cont.dataset.actionsBound = '1';
     cont.addEventListener('click', function(e) {
+      var delBtn = e.target.closest('.inv-del-btn[data-group-key]');
+      if (delBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        ns.deleteInventoryGroup(delBtn.dataset.groupKey || '');
+        return;
+      }
       var editBtn = e.target.closest('.inv-note-badge[data-group-key]');
       if (editBtn) {
         e.preventDefault();

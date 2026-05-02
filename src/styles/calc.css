@@ -109,10 +109,10 @@ input[type=checkbox]{width:13px;height:13px;accent-color:#d8ccff;cursor:pointer;
 .pt-hd span{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#5a5a78;padding:0 8px}
 .pt-row{display:grid;grid-template-columns:28px 1fr 60px 76px;border-bottom:1px solid #f0f0f4;align-items:center}
 /* 工区カラム有効時 */
-.pt-wrap.kuiku-on .pt-hd{grid-template-columns:28px minmax(0,1fr) 48px 58px 52px}
-.pt-wrap.kuiku-on .pt-row{grid-template-columns:28px minmax(0,1fr) 48px 58px 52px}
+.pt-wrap.kuiku-on .pt-hd{grid-template-columns:28px minmax(76px,1fr) 48px 46px 52px}
+.pt-wrap.kuiku-on .pt-row{grid-template-columns:28px minmax(76px,1fr) 48px 46px 52px}
 #ptHdKuiku{text-align:center}
-.pt-row input[id^="pz"]{text-align:center;font-size:11px}
+.pt-row input[id^="pz"]{text-align:center;font-size:11px;padding-left:4px;padding-right:4px}
 .pt-row:last-child{border-bottom:none}
 /* Ctrl+A 全選択状態 */
 .pt-row.pt-selected{background:rgba(109,40,217,.07)}
@@ -441,4 +441,3 @@ input[type=checkbox]{width:13px;height:13px;accent-color:#d8ccff;cursor:pointer;
   text-align:center;
   line-height:1.6;
 }
-

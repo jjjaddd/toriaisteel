@@ -59,6 +59,11 @@ function cartPrintWeight() {
   var cart = getCart().filter(function(x) { return x.data.isWeight; });
   if (!cart.length) { alert('重量リストがカートにありません。'); return; }
 
+  // XSS 防御（2026-05-01）: メモ・部材名・規格・タイトルなどユーザー入力をエスケープ
+  var _esc = (window.Toriai && window.Toriai.utils && window.Toriai.utils.html && window.Toriai.utils.html.escapeHtml) || function(s){
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  };
+
   var allSections = cart.map(function(item) {
     var d = item.data;
     var sumKg = d.sumKg;
@@ -67,11 +72,11 @@ function cartPrintWeight() {
     var rows = (d.rows || []).map(function(r, i) {
       return '<tr style="border-bottom:1px solid #eee">' +
         '<td style="padding:4px 8px;text-align:center">' + (i + 1) + '</td>' +
-        '<td style="padding:4px 8px">' + (r.memo || '—') +
-          (r.kuiku ? ' <span style="font-size:9px;background:#f0f0f0;padding:1px 5px;border-radius:8px">' + r.kuiku + '</span>' : '') +
+        '<td style="padding:4px 8px">' + _esc(r.memo || '—') +
+          (r.kuiku ? ' <span style="font-size:9px;background:#f0f0f0;padding:1px 5px;border-radius:8px">' + _esc(r.kuiku) + '</span>' : '') +
         '</td>' +
-        '<td style="padding:4px 8px">' + r.kind + '</td>' +
-        '<td style="padding:4px 8px">' + r.spec + '</td>' +
+        '<td style="padding:4px 8px">' + _esc(r.kind) + '</td>' +
+        '<td style="padding:4px 8px">' + _esc(r.spec) + '</td>' +
         '<td style="padding:4px 8px;text-align:right">' + r.len.toLocaleString() + '</td>' +
         '<td style="padding:4px 8px;text-align:right">' + r.qty + '</td>' +
         '<td style="padding:4px 8px;text-align:right;font-weight:700">' +
@@ -82,7 +87,7 @@ function cartPrintWeight() {
     }).join('');
 
     return '<div style="margin-bottom:24px">' +
-      '<h3 style="font-size:12px;margin-bottom:6px;color:#444">重量計算リスト — ' + d.title + '</h3>' +
+      '<h3 style="font-size:12px;margin-bottom:6px;color:#444">重量計算リスト — ' + _esc(d.title) + '</h3>' +
       '<table style="width:100%;border-collapse:collapse;font-size:11px">' +
       '<thead><tr style="background:#f4f4fa;border-bottom:2px solid #e0e0ea">' +
         '<th style="padding:5px 8px;text-align:left">#</th>' +

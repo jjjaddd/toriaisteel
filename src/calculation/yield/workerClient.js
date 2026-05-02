@@ -7,7 +7,7 @@
   ns.calculation.yield = ns.calculation.yield || {};
 
   function getExternalWorkerUrl() {
-    return 'src/calculation/workers/yieldWorker.js?v=phase2';
+    return 'src/calculation/workers/yieldWorker.js?v=phase3';
   }
 
   function createBlobWorker(workerBase64) {

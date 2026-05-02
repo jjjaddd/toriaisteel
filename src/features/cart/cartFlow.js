@@ -163,6 +163,16 @@ function showCartCutPreview(html) {
   var body = document.getElementById('histPreviewBody');
   if (!modal || !body) return;
   body.innerHTML = html;
-  closeCartModal();
   modal.style.display = 'flex';
+}
+
+function cartPreviewCutItem(id) {
+  var item = getCutCartItems().find(function(cartItem) {
+    return cartItem && cartItem.id === id;
+  });
+  if (!item) {
+    alert('プレビュー対象が見つかりませんでした。');
+    return;
+  }
+  showCartCutPreview(buildCartCutPrintHtml([item]));
 }

@@ -48,6 +48,16 @@
     if (/Password should be/i.test(m)) return 'パスワードは6文字以上で設定してください';
     if (/Email rate limit/i.test(m)) return '送信回数が多すぎます。しばらく待ってから再度お試しください';
     if (/Email not confirmed/i.test(m)) return 'メールの確認がまだです。届いたリンクをクリックしてください';
+    if (/Error sending recovery email/i.test(m)) return '再設定メールを送信できませんでした。Supabaseのメール設定とリダイレクトURLを確認してください';
+    if (/Unable to validate email address|invalid email/i.test(m)) return 'メールアドレスの形式を確認してください';
+    if (/For security purposes/i.test(m)) return '安全のため少し時間を置いてから再度お試しください';
+    if (/redirect/i.test(m)) return 'メールリンクの戻り先URLが許可されていません。SupabaseのURL設定を確認してください';
+    if (/row-level security policy/i.test(m)) return '権限がありません。ログイン状態を確認して、再読み込み後にもう一度お試しください';
+    if (/expires_at/i.test(m) && /null value/i.test(m)) return '招待コードの有効期限を設定できませんでした。画面を再読み込みしてもう一度お試しください';
+    if (/Could not find a relationship/i.test(m) || /schema cache/i.test(m)) return 'メンバー情報の取得方法が古い状態です。画面を再読み込みしてもう一度お試しください';
+    if (/duplicate key/i.test(m) || /unique constraint/i.test(m)) return '同じ内容がすでに登録されています。もう一度お試しください';
+    if (/Not authenticated/i.test(m) || /JWT/i.test(m)) return 'ログイン状態を確認できません。再ログインしてください';
+    if (/Invalid or expired invitation code/i.test(m)) return '招待コードが違うか、有効期限が切れています';
     return m || 'エラーが発生しました';
   }
 
@@ -138,6 +148,7 @@
           pwField.querySelector('input').setAttribute('autocomplete', 'current-password');
           tabs.style.display = '';
           footer.style.display = '';
+          forgot.textContent = 'パスワードを忘れた';
         } else if (m === 'signup') {
           title.textContent = '新規アカウント登録';
           nameField.style.display = '';
@@ -146,6 +157,7 @@
           pwField.querySelector('input').setAttribute('autocomplete', 'new-password');
           tabs.style.display = '';
           footer.style.display = 'none';
+          forgot.textContent = 'パスワードを忘れた';
         } else if (m === 'reset') {
           title.textContent = 'パスワード再設定';
           nameField.style.display = 'none';
@@ -153,13 +165,16 @@
           submit.textContent = '再設定メールを送る';
           tabs.style.display = 'none';
           footer.style.display = '';
+          forgot.textContent = 'ログインに戻る';
         }
       }
 
       Array.prototype.forEach.call(tabs.querySelectorAll('.tauth-tab'), function(t) {
         t.addEventListener('click', function() { setMode(t.getAttribute('data-mode')); });
       });
-      forgot.addEventListener('click', function() { setMode('reset'); });
+      forgot.addEventListener('click', function() {
+        setMode(mode === 'reset' ? 'signin' : 'reset');
+      });
 
       submit.addEventListener('click', function() {
         clearMsg();
@@ -363,8 +378,7 @@
         members.forEach(function(m) {
           var role = el('span', { class: 'tmember-role' + (m.role === 'owner' ? ' is-owner' : '') }, m.role === 'owner' ? 'オーナー' : 'メンバー');
           var info = el('div', {}, [
-            el('div', { class: 'tmember-name' }, m.display_name || '(名前未設定)'),
-            el('div', { class: 'tmember-email' }, m.email || '')
+            el('div', { class: 'tmember-name' }, m.display_name || '(名前未設定)')
           ]);
           var right = el('div', { style: 'display:flex;align-items:center;gap:8px;' }, [role]);
           if (me && me.id !== m.user_id) {
@@ -405,12 +419,12 @@
       return ns.org.listMyOrgs().then(function(orgs) {
         var label = btn.querySelector('.torg-label');
         if (!orgs || !orgs.length) {
-          setText(label, '事業所を作成');
+          setText(label, '未設定');
           return { orgs: [], active: null };
         }
         var active = orgs.filter(function(o) { return o.org_id === activeId; })[0] || orgs[0];
         if (!activeId || activeId !== active.org_id) ns.org.setActiveOrgId(active.org_id);
-        setText(label, active.name);
+        setText(label, active.name || 'オンライン');
         return { orgs: orgs, active: active };
       }).catch(function() {
         setText(btn.querySelector('.torg-label'), 'オフライン');
@@ -445,21 +459,22 @@
           ]);
           dropdown.appendChild(row);
         });
-        if (state.orgs.length) dropdown.appendChild(el('div', { class: 'torg-divider' }));
-        dropdown.appendChild(el('div', {
-          class: 'torg-action',
-          onclick: function() { closeDropdown(); openOrgCreate({ onSuccess: refresh }); }
-        }, ['＋ 事業所を作成']));
-        dropdown.appendChild(el('div', {
-          class: 'torg-action',
-          onclick: function() { closeDropdown(); openJoin({ onSuccess: refresh }); }
-        }, ['↪ 招待コードで参加']));
+        if (!state.orgs.length) {
+          dropdown.appendChild(el('div', {
+            class: 'torg-action',
+            onclick: function() { closeDropdown(); openOrgCreate({ onSuccess: refresh }); }
+          }, ['＋ 事業所を作成']));
+          dropdown.appendChild(el('div', {
+            class: 'torg-action',
+            onclick: function() { closeDropdown(); openJoin({ onSuccess: refresh }); }
+          }, ['↪ 招待コードで参加']));
+        }
         if (state.active) {
           dropdown.appendChild(el('div', { class: 'torg-divider' }));
           dropdown.appendChild(el('div', {
             class: 'torg-item',
             onclick: function() { closeDropdown(); openMembers(state.active.org_id); }
-          }, [el('span', {}, 'メンバー管理'), el('span', { class: 'torg-role' }, '→')]));
+          }, [el('span', {}, 'メンバー一覧'), el('span', { class: 'torg-role' }, '→')]));
           if (state.active.role === 'owner') {
             dropdown.appendChild(el('div', {
               class: 'torg-item',
@@ -483,8 +498,13 @@
         var rect = btn.getBoundingClientRect();
         dropdown.style.position = 'fixed';
         dropdown.style.top = (rect.bottom + 6) + 'px';
-        dropdown.style.left = Math.max(8, rect.left) + 'px';
+        dropdown.style.left = '0px';
         doc.body.appendChild(dropdown);
+        var margin = 10;
+        var width = dropdown.offsetWidth || 260;
+        var maxLeft = Math.max(margin, global.innerWidth - width - margin);
+        var left = Math.min(Math.max(margin, rect.right - width), maxLeft);
+        dropdown.style.left = left + 'px';
         setTimeout(function() { doc.addEventListener('click', onDocClick, true); }, 0);
       });
     }

@@ -1,119 +1,259 @@
-# Phase 7 Audit
+# Phase 7 監査レポート
 
-Date: 2026-04-29
+日付: 2026-04-29
 
-## Scope
+このファイルは、リファクタリング完了後に見つかったリスク・残タスク・次フェーズ候補をまとめた監査メモです。
+日常の管理は `docs/TASK_BOARD.md` を見る。ここは「なぜそのタスクが必要なのか」を思い出すための背景資料として残します。
 
-This audit covers the post-refactor application structure, UI/security hotspots, storage boundaries, and remaining migration risks.
+## 1. 監査範囲
 
-Excluded from direct edits in this pass:
+対象:
+
+- リファクタ後のアプリ構成
+- UI / security の注意点
+- storage / Supabase 境界
+- 残っている移行リスク
+- Phase 8 で仕上げた内容
+
+今回直接触らない対象:
+
 - `src/calculation/workers/yieldWorker.js`
 - `src/calculation/yield/algorithmV2.js`
 - `src/calculation/yield/columnGeneration.js`
 - `benchmark/`
+- `supabase/functions/cg/`
 - `package.json` / `package-lock.json`
 
-Those files appear to be part of the parallel large calculation-system update and should be reviewed after that work lands.
+これらは Claude 側の大規模計算改修・秘匿計算・ベンチマークに関わるため、担当者が明確なときだけ触る。
 
-## Risk Analysis
+## 2. 現在の結論
 
-### Load Order
+通常のリファクタリングは、いったん完了扱いでよい。
 
-- `src/main.js` is now intentionally thin, and startup is provided by `src/features/calc/calcInit.js`.
-- `init()` is assigned globally from `calcInit.js`; `src/features/calc/cutFlow.js` calls `init()` on `DOMContentLoaded`. This is acceptable because all scripts are loaded before `DOMContentLoaded` in the current page layout.
-- `src/compat/legacyGlobals.js` still depends on `Toriai.ui.inventory` being initialized first. The current script order does that, but this should be treated as a load-order dependency until the bridge is removed.
-- `index.html` currently references `src/calculation/yield/algorithmV2.js`; that file is untracked in the current worktree. Coordinate with the parallel calculation update before deploys so the referenced file is committed with the worker changes.
+完了した大きな整理:
 
-### Responsibility Boundaries
+- `src/main.js` は削除済み
+- 起動処理は `src/features/calc/calcInit.js` に集約
+- CSS / data / calculation / features / services / storage は分離済み
+- `src/compat/legacyGlobals.js` は在庫系 bridge だけに縮小
+- `inventoryRemnantRows.js` のような古い上書き残骸は削除済み
+- Auth / 事業所共有は有料化まで非表示・凍結
 
-- `src/main.js` is no longer a logic container.
-- Feature modules are now mostly under `src/features/*`.
-- Known remaining mixed-responsibility areas:
-  - `src/features/materialStock/inventoryRemnantState.js` contains UI rendering, selected-remnant state persistence, and cart-modal override logic.
-  - `src/services/storage/inventoryStore.js` still has legacy per-kind/spec inventory helpers plus the newer flat `LS_INVENTORY` model.
-  - Several UI files still expose global functions for inline `onclick` compatibility.
+ここから先は、通常リファクタではなく次フェーズ:
 
-### Global Surface
+- UI イベント移行
+- 計算ロジックのサーバーサイド化
+- Auth / 事業所共有の本格再開
+- Supabase RLS / 課金 / seat 制限
 
-- `src/compat/legacyGlobals.js` is reduced to inventory bridges only.
-- Many non-IIFE files still define global functions directly because `index.html` still uses inline handlers. This is now the main source of global surface area.
-- Recommended next step: replace high-traffic inline handlers with delegated event listeners, then remove the matching globals from `legacyGlobals.js`.
+## 3. リスク分析
 
-## Maintainability Audit
+### 3-1. 読み込み順
 
-### Good State
+- `src/features/calc/calcInit.js` が `global.init` 互換を公開している
+- `src/features/calc/cutFlow.js` など旧導線は `init()` を呼ぶため、この互換はまだ必要
+- `src/compat/legacyGlobals.js` は `Toriai.ui.inventory` 初期化後に読む必要がある
+- `index.html` は `src/calculation/yield/algorithmV2.js` を読む。計算V2改修と一緒に必ず整合確認する
 
-- CSS has been split into smaller purpose files.
-- Calculation, data, storage, and feature folders are meaningfully separated.
-- `REFACTOR_TODO.md` now reflects Phase 6 completion.
-- Storage repositories exist for the main project/history flows.
+### 3-2. 責務境界
 
-### Remaining Maintainability Debt
+良い状態:
 
-- `src/features/materialStock/inventoryRemnantState.js` should be split into:
-  - selected inventory remnant state store
-  - remnant section shell rendering
-  - inventory remnant list rendering
-  - cart modal compatibility code
-- `src/services/storage/inventoryStore.js` should choose one inventory model. The flat array model should become the source of truth, then the old `invKey(kind, spec)` helpers can be retired.
-- `src/features/weight/*` still has direct localStorage use and several global entry points. Move weight-save helpers toward `src/services/storage/weightHistoryStore.js` and `src/storage/local-store.js`.
-- `src/features/dataTab/*` still owns some persistence and large HTML/SVG render strings. This is acceptable short term, but should be split only after the current calculation work stabilizes.
+- `src/main.js` は削除済み
+- `src/features/*` に機能単位の実装が集まっている
+- `src/calculation/*` は計算ロジック中心
+- `src/data/*` は鋼材データ中心
+- `src/services/*` に storage / Supabase が寄っている
 
-## Vulnerability Audit
+まだ重い場所:
 
-### innerHTML / document.write
-
-Remaining uses were searched across `src/**/*.js`.
-
-Higher-priority follow-up areas:
 - `src/features/materialStock/inventoryRemnantState.js`
-  - still renders some cart/remnant rows with string HTML.
-  - should be converted to DOM construction or central escaping.
-- `src/features/orderHistory/historyRender.js` and `src/ui/history/preview.js`
-  - render saved history/print HTML. Treat saved HTML as trusted only if it was generated by the app; imported data should be sanitized or displayed as text.
-- `src/features/cart/cartCopy.js`, `src/features/orderHistory/historyRender.js`, `src/features/print/printPages.js`, `src/features/weight/printCart.js`
-  - use `document.write` into print windows. This is acceptable for app-generated print payloads, but imported or user-authored fields must stay escaped.
+  - 残材UIの描画
+  - 選択状態の保存
+  - cart modal 互換処理
+  - 古い上書き処理
+  が混ざっている
+- `src/services/storage/inventoryStore.js`
+  - 旧 `kind/spec` 型 inventory helper と新しい flat array 型が並走している
+- `src/features/weight/*`
+  - 直接 localStorage に触る箇所とグローバル entry point がまだ残る
+
+### 3-3. グローバル関数
+
+`src/compat/legacyGlobals.js` はかなり減ったが、まだ 10 bridge 残っている。
+
+残す理由:
+
+- `src/calculation/orchestration.js`
+- storage
+- 残材 UI
+- inline handler
+
+が旧グローバル導線をまだ使っているため。
+
+Phase 8 では、計算V2並走中にここを深追いしない判断にした。
+
+## 4. 保守性監査
+
+### 良い点
+
+- ディレクトリ構成はかなり整理された
+- `REFACTOR_TODO.md` は Phase 8 まで更新済み
+- `docs/ARCHITECTURE.md` / `docs/AI_RULES.md` / `docs/TASK_BOARD.md` / `docs/DEV_LOG.md` を追加済み
+- 起動導線が `calcInit.js` に寄った
+- 古い `inventoryRemnantRows.js` は削除済み
+- 在庫一覧削除は inline `onclick` からイベント委譲に移行済み
+- 手入力残材行は DOM イベントリスナー化済み
+
+### 残る負債
+
+- `inventoryRemnantState.js` は分割候補
+- `legacyGlobals.js` は最終的には削除したい
+- `index.html` には inline handler がまだ多い
+- print 系は `document.write` を使う
+- weight / dataTab / customMaterials に直接保存処理が残る
+
+## 5. 脆弱性 / 安全面
+
+### 5-1. innerHTML / document.write
+
+まだ残っている。優先的に見る場所:
+
+- `src/features/materialStock/inventoryRemnantState.js`
+- `src/features/orderHistory/historyRender.js`
+- `src/ui/history/preview.js`
+- `src/features/cart/cartCopy.js`
+- `src/features/print/printPages.js`
+- `src/features/weight/printCart.js`
 - `src/features/dataTab/renderSpec.js`
-  - uses `innerHTML` for SVG/section data rendering. Most inputs are app steel data, but custom data should be validated before display.
 
-### Validation
+判断:
 
-- `src/utils/validation.js` now contains reusable numeric/text helpers.
-- Remaining direct parsing exists in feature files, especially weight/data/inventory UI.
-- Recommended next step: add domain-specific validators:
-  - `src/utils/validation/steelInputValidation.js`
-  - `src/utils/validation/inventoryValidation.js`
-  - `src/utils/validation/weightValidation.js`
+- アプリ生成HTMLだけなら短期的には許容
+- imported data / user input / job name / memo / customer name は必ず escape する
+- print window の `document.write` は、app-generated payload に限定する
 
-### Storage / Sensitive Data
+### 5-2. 入力バリデーション
 
-- Most storage is still local-first.
-- Known direct localStorage clusters:
-  - onboarding/changelog seen flags
-  - custom materials
-  - data tab notes and custom standard lengths
-  - weight tab saved docs/job labels
-  - Supabase sync device id
-- These are not credentials, but job/client names can be sensitive business data. Before shared accounts or cloud sync are enabled by default, organization/user scoping and RLS must be enforced.
+`src/utils/validation.js` はあるが、まだ各 feature で直接 `parseInt` / `Number` を使う箇所が残る。
 
-### Auth / Supabase
+将来追加したい validator:
 
-- `src/auth/session.js` is currently a local session boundary, not a real authentication flow.
-- `src/inventory/inventory-service.js` prepares user/office scope metadata.
-- Supabase client creation is centralized, but RLS/schema integration is not complete.
-- Do not mark Supabase integration complete until:
-  - auth UI is wired
-  - organization/office switcher exists
-  - RLS policies are applied and tested
-  - sync queries include user/office scope
+- `src/utils/validation/steelInputValidation.js`
+- `src/utils/validation/inventoryValidation.js`
+- `src/utils/validation/weightValidation.js`
 
-## Recommended Phase 7 Order
+### 5-3. 保存データ
 
-1. Wait for the parallel calculation update to land.
-2. Re-run tests and confirm `algorithmV2.js` / worker files are committed together.
-3. Split `inventoryRemnantState.js`.
-4. Remove the remaining inventory bridges in `legacyGlobals.js`.
-5. Move weight/custom-material/data-tab direct localStorage usage toward storage wrappers.
-6. After calculation stabilizes, design the server-side calculation API boundary.
-7. Then proceed with `staging-auth-org/INTEGRATION.md` and RLS verification.
+localStorage に残る主な業務データ:
 
+- 履歴
+- 在庫
+- 残材
+- カスタム鋼材
+- データタブメモ
+- 重量計算の保存
+- 案件名 / 顧客名 / メモ
+
+これらは credential ではないが、業務上は機密情報になり得る。
+クラウド同期や共有を本格化する前に、ユーザー / 事業所スコープと RLS を必ず確認する。
+
+## 6. Auth / Supabase
+
+現在:
+
+- Auth / 事業所共有 UI は試作コードとして存在
+- 有料化まで非表示
+- `src/features/auth/authBoot.js` の `AUTH_ORG_UI_ENABLED = false` で起動を止めている
+- `staging-auth-org/` は再開用の原本として残す
+
+本格再開の完了条件:
+
+- Supabase Auth の Site URL / Redirect URLs / Email 設定確認
+- `schema.sql` の整理
+- RLS policy の再監査
+- 事業所作成 / 招待 / メンバー一覧 / パスワード再設定の動作確認
+- localStorage から org scope への取り込み UI
+- 課金 / seat 制限 / Stripe 連携
+
+## 7. Service Worker
+
+現在:
+
+- `CACHE_NAME`: `steel-optimizer-v94`
+- 実ロード: 184 件
+- precache: 51 件
+
+判断:
+
+- fetch 時に動的キャッシュする設計
+- precache は初回表示に必要な核だけに留める
+- 全ファイルを precache すると install 失敗や更新遅延のリスクが上がる
+
+ルール:
+
+- `index.html`
+- `service-worker.js`
+- 起動系 JS
+- CSS の主要ファイル
+
+を変えたら `CACHE_NAME` を上げる。
+
+## 8. 次フェーズ候補
+
+### A. UI イベント移行
+
+目的:
+
+- `onclick="..."` / `oninput="..."` / `onchange="..."` を減らす
+- global function surface を減らす
+- XSS / 保守性リスクを下げる
+
+進め方:
+
+1. 画面単位でやる
+2. 1回のPR/commitで1領域だけ
+3. 先にイベント委譲の入口を作る
+4. 動作確認してから inline handler を消す
+
+候補順:
+
+- 在庫 / 履歴 sidebar
+- カート modal
+- 重量タブ保存リスト
+- データタブ notes / std lengths
+- 計算結果カード
+
+### B. inventoryRemnantState.js 分割
+
+分けたい責務:
+
+- selected inventory remnant state store
+- remnant section shell rendering
+- inventory remnant list rendering
+- cart modal compatibility code
+
+### C. server-side calculation
+
+目的:
+
+- Pro / Business 版の計算ロジック秘匿
+- `supabase/functions/cg/` に CG / HiGHS を置く
+- クライアントは入力 → API → 結果表示の薄い層にする
+
+注意:
+
+- 無料版の公開計算と Pro 版の秘匿計算を分ける
+- `supabase/` は `.gitignore` 対象
+- GitHub Pages に秘匿計算を載せない
+
+## 9. 推奨運用
+
+- 日々のタスクは `docs/TASK_BOARD.md`
+- AI に渡すルールは `docs/AI_RULES.md`
+- 構造の見取り図は `docs/ARCHITECTURE.md`
+- エラー備忘録は `docs/DEV_LOG.md`
+- 長い引継ぎは `HANDOFF.md`
+- リファクタ履歴は `REFACTOR_TODO.md`
+
+このファイルは、Phase 7 時点の監査スナップショットとして残す。

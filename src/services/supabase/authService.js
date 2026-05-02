@@ -15,9 +15,14 @@
     if (global.supabaseClient && typeof global.supabaseClient.auth === 'object') {
       return global.supabaseClient;
     }
-    // fallback: services.supabase.createClient() を使う
+    // fallback: services.supabase の singleton client を使う
+    if (ns.services && ns.services.supabase && typeof ns.services.supabase.getClient === 'function') {
+      var c = ns.services.supabase.getClient();
+      if (c) global.supabaseClient = c;
+      return c;
+    }
     if (ns.services && ns.services.supabase && typeof ns.services.supabase.createClient === 'function') {
-      var c = ns.services.supabase.createClient();
+      c = ns.services.supabase.createClient();
       if (c) global.supabaseClient = c;
       return c;
     }
@@ -66,11 +71,17 @@
   }
 
   // ── パスワード再設定メール ───────────────────────────────
+  function buildRecoveryOptions(redirectTo) {
+    var url = redirectTo || '';
+    if (!url && global.location && /^https?:$/i.test(global.location.protocol || '')) {
+      url = global.location.origin + global.location.pathname;
+    }
+    return url ? { redirectTo: url } : {};
+  }
+
   function resetPassword(email, redirectTo) {
     if (!_ready()) return Promise.reject(new Error('Supabase 未初期化'));
-    return getClient().auth.resetPasswordForEmail(email, {
-      redirectTo: redirectTo || global.location.origin
-    }).then(function(res) {
+    return getClient().auth.resetPasswordForEmail(email, buildRecoveryOptions(redirectTo)).then(function(res) {
       if (res.error) throw res.error;
       return true;
     });

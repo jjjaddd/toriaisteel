@@ -51,7 +51,6 @@ function cartAdd(cardId, btn) {
   btn.textContent = '✓ 追加済み';
   btn.classList.add('added');
   btn.disabled = true;
-  if (_lastCalcResult) saveCutHistory(_lastCalcResult, cardId);
 }
 
 function cartPrintCutting() {

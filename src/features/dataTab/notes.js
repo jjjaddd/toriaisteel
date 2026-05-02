@@ -1,4 +1,15 @@
 
+// XSS 防御（2026-05-01）: メモ本文（n.text）と spec 名は user 入力。完全エスケープ
+function _noteEsc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ── 殴り書きメモ（絵文字なし） ────────────────────────────────
 function renderDataNote(specName) {
   var el = document.getElementById('dataNoteArea');
@@ -7,12 +18,14 @@ function renderDataNote(specName) {
   var key = 'dnote_' + specName;
   var notes = [];
   try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+  // onclick 属性内に挿入する specName 用：HTML エスケープ + シングルクォートエスケープ
+  var specNameAttr = _noteEsc(specName).replace(/'/g, '&#39;');
   var chatHtml = notes.length
     ? notes.map(function(n, idx) {
         return '<div class="dt-note-item" style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
-          '<div><div class="dt-note-ts">' + n.ts + '</div>' +
-          '<div class="dt-note-text">' + n.text.replace(/</g,'&lt;') + '</div></div>' +
-          '<button onclick="dataNoteDelete(\'' + specName.replace(/'/g,"\\'") + '\',' + idx + ')" ' +
+          '<div><div class="dt-note-ts">' + _noteEsc(n.ts) + '</div>' +
+          '<div class="dt-note-text">' + _noteEsc(n.text) + '</div></div>' +
+          '<button onclick="dataNoteDelete(\'' + specNameAttr + '\',' + idx + ')" ' +
             'style="background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;line-height:1" title="削除">×</button>' +
           '</div>';
       }).join('')
@@ -22,7 +35,7 @@ function renderDataNote(specName) {
     '<div class="dt-note-list">' + chatHtml + '</div>' +
     '<div class="dt-note-form">' +
       '<textarea id="dataNoteInput" placeholder="自由記入..."></textarea>' +
-      '<button onclick="dataNotePost(\'' + specName.replace(/'/g,"\\'") + '\')">送信</button>' +
+      '<button onclick="dataNotePost(\'' + specNameAttr + '\')">送信</button>' +
     '</div>';
 }
 

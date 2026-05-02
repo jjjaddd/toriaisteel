@@ -84,6 +84,50 @@ function submitContactForm(event) {
   setContactSubmitting(true);
   showContactStatus('送信しています。しばらくお待ちください。', 'info');
 
+  var params = [
+    'name=' + encodeURIComponent(payload.name),
+    'subject=' + encodeURIComponent(payload.subject),
+    'message=' + encodeURIComponent(payload.message)
+  ];
+
+  function onSubmitSuccess() {
+    setContactSubmitting(false);
+    showContactStatus('送信しました。ご連絡ありがとうございます。', 'success');
+    var form = document.getElementById('contactForm');
+    if (form) form.reset();
+  }
+
+  function onSubmitError(message) {
+    setContactSubmitting(false);
+    showContactStatus(message || '送信に失敗しました。通信状態をご確認ください。', 'error');
+  }
+
+  if (typeof fetch !== 'undefined') {
+    var fetchDone = false;
+    var fetchTimeout = setTimeout(function() {
+      if (fetchDone) return;
+      fetchDone = true;
+      onSubmitError('送信に失敗しました。時間をおいてもう一度お試しください。');
+    }, 12000);
+
+    fetch(GAS_URL + '?' + params.join('&'), {
+      method: 'GET',
+      mode: 'no-cors',
+      cache: 'no-store'
+    }).then(function() {
+      if (fetchDone) return;
+      fetchDone = true;
+      clearTimeout(fetchTimeout);
+      onSubmitSuccess();
+    }).catch(function() {
+      if (fetchDone) return;
+      fetchDone = true;
+      clearTimeout(fetchTimeout);
+      onSubmitError();
+    });
+    return;
+  }
+
   var callbackName = '__toriaiContactCallback_' + Date.now();
   var cleanup = function() {
     try { delete window[callbackName]; } catch (_) {}
@@ -93,38 +137,26 @@ function submitContactForm(event) {
 
   var timeout = setTimeout(function() {
     cleanup();
-    setContactSubmitting(false);
-    showContactStatus('送信に失敗しました。時間をおいてもう一度お試しください。', 'error');
+    onSubmitError('送信に失敗しました。時間をおいてもう一度お試しください。');
   }, 12000);
 
   window[callbackName] = function(result) {
     clearTimeout(timeout);
     cleanup();
-    setContactSubmitting(false);
     if (!result || result.status !== 'ok') {
-      showContactStatus('送信に失敗しました。もう一度お試しください。', 'error');
+      onSubmitError('送信に失敗しました。もう一度お試しください。');
       return;
     }
-    showContactStatus('送信しました。ご連絡ありがとうございます。', 'success');
-    var form = document.getElementById('contactForm');
-    if (form) form.reset();
+    onSubmitSuccess();
   };
-
-  var params = [
-    'callback=' + encodeURIComponent(callbackName),
-    'name=' + encodeURIComponent(payload.name),
-    'subject=' + encodeURIComponent(payload.subject),
-    'message=' + encodeURIComponent(payload.message)
-  ];
 
   var script = document.createElement('script');
   script.id = callbackName;
-  script.src = GAS_URL + '?' + params.join('&');
+  script.src = GAS_URL + '?callback=' + encodeURIComponent(callbackName) + '&' + params.join('&');
   script.onerror = function() {
     clearTimeout(timeout);
     cleanup();
-    setContactSubmitting(false);
-    showContactStatus('送信に失敗しました。通信状態をご確認ください。', 'error');
+    onSubmitError();
   };
   document.body.appendChild(script);
 }

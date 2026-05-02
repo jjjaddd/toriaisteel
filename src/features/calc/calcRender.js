@@ -87,13 +87,17 @@ function render(single, top3, chgPlans, endLoss, remnantBars, kgm, allDP, origPi
   }
 
   var jobHeader = mk('div','print-job-header');
+  // XSS 防御（2026-05-01）: spec はカスタム鋼材名を含むのでエスケープ必須
+  var _esc = (window.Toriai && window.Toriai.utils && window.Toriai.utils.html && window.Toriai.utils.html.escapeHtml) || function(s){
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  };
   jobHeader.innerHTML =
     '<div class="job-title">✂ 鋼材切断作業指示書</div>' +
     '<div class="job-meta">' +
-      '<span>発行日：'+jobDate+'</span>' +
-      '<span>鋼材規格：'+specVal+'</span>' +
-      '<span>刃厚：'+blade2+'mm</span>' +
-      '<span>端部ロス（両側合計）：'+endLoss2+'mm</span>' +
+      '<span>発行日：'+_esc(jobDate)+'</span>' +
+      '<span>鋼材規格：'+_esc(specVal)+'</span>' +
+      '<span>刃厚：'+(blade2|0)+'mm</span>' +
+      '<span>端部ロス（両側合計）：'+(endLoss2|0)+'mm</span>' +
       '' +
     '</div>' +
     '<table>' +

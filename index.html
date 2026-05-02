@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <script>
@@ -26,6 +26,12 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 </script>
 <meta charset="UTF-8">
 <title>鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画・重量計算【TORIAI】</title>
+<!-- ===== Content Security Policy（2026-05-01 セキュリティ強化）=====
+     - script-src: 'unsafe-inline' は既存 onclick 138 箇所の互換維持のため必須。外部スクリプトは pinned ホストのみ許可
+     - connect-src: Supabase / PostHog / Umami / GAS feedback のみ通信許可（XSS で他へ exfil されるのを防ぐ）
+     - object-src 'none' / base-uri 'self' / form-action: 余計な destination を遮断
+     - 違反は console に出るので運用しながら調整 -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://app.posthog.com https://*.posthog.com https://*.i.posthog.com https://cloud.umami.is https://*.umami.is https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://pryogyuclybetietopjm.supabase.co https://*.supabase.co wss://*.supabase.co https://app.posthog.com https://*.posthog.com https://*.i.posthog.com https://cloud.umami.is https://*.umami.is https://*.umami.dev https://script.google.com https://script.googleusercontent.com; frame-src 'self' https://script.google.com; worker-src 'self' blob:; child-src 'self' blob:; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://script.google.com; upgrade-insecure-requests">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta property="og:title" content="鋼材取り合い計算ツール｜バンドソー歩留まり・切断計画【TORIAI】">
 <meta property="og:description" content="バンドソー歩留まり計算・鋼材取り合い最適化・切断計画・重量計算・残材管理が無料で使えるWebツール。H形鋼・山形鋼・角鋼・丸鋼対応。">
@@ -69,9 +75,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="apple-touch-icon" href="src/assets/icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="src/styles/core.css?v=phase1">
-<link rel="stylesheet" href="src/styles/calc.css?v=phase1">
+<link rel="stylesheet" href="src/styles/calc.css?v=phase2">
 <link rel="stylesheet" href="src/styles/historyInventory.css?v=phase1">
-<link rel="stylesheet" href="src/styles/refresh2026.css?v=phase1">
+<link rel="stylesheet" href="src/styles/refresh2026.css?v=phase2">
 <link rel="stylesheet" href="src/styles/contact.css?v=phase1">
 <link rel="stylesheet" href="src/styles/settings.css?v=phase1">
 <link rel="stylesheet" href="src/styles/cartModal.css?v=phase1">
@@ -81,14 +87,14 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <link rel="stylesheet" href="src/styles/changelog.css?v=phase1">
 <link rel="stylesheet" href="src/styles/gearPopup.css?v=phase2">
 <link rel="stylesheet" href="src/styles/weightTable.css?v=phase1">
-<link rel="stylesheet" href="src/styles/overrideLayers.css?v=phase1">
+<link rel="stylesheet" href="src/styles/overrideLayers.css?v=phase13">
 <link rel="stylesheet" href="src/styles/theme.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themeCalc.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themeHistoryInventory.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themeDataWeight.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themeContact.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themeSidebar.css?v=ui29">
-<link rel="stylesheet" href="src/styles/themeCartSettings.css?v=ui29">
+<link rel="stylesheet" href="src/styles/themeCartSettings.css?v=ui30">
 <link rel="stylesheet" href="src/styles/themeDarkSupplement.css?v=ui29">
 <link rel="stylesheet" href="src/styles/themePolish.css?v=ui29">
 <link rel="stylesheet" href="src/styles/dataTab.css?v=8">
@@ -123,7 +129,10 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <span class="hm-txt">データ読み込み（JSON）</span>
         </button>
         <button class="hm-row" type="button" onclick="openUsageGuideExternal()">
-          <span class="hm-txt">使い方</span>
+          <span class="hm-txt">使い方①　取り合い</span>
+        </button>
+        <button class="hm-row" type="button" onclick="openUsageGuide2External()">
+          <span class="hm-txt">使い方②　重量・在庫ほか</span>
         </button>
         <button class="hm-row" type="button" onclick="openPerformanceArticleExternal()">
           <span class="hm-txt">計算性能</span>
@@ -356,6 +365,18 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
             <div class="inv-summary-card">
               <div class="inv-summary-label">合計重量</div>
               <div class="inv-summary-value" id="invSummaryWeight">0.0 kg</div>
+            </div>
+            <div class="inv-summary-card inv-min-remnant-field">
+              <span class="inv-summary-label">端材 最小有効長さ (mm)</span>
+              <input type="hidden" id="minRemnantLen" value="500">
+              <div class="inv-min-remnant-view" id="minRemnantLenView">
+                <span class="inv-summary-value"><span id="minRemnantLenValue">500</span><small> mm</small></span>
+                <button type="button" onclick="invMinRemnantBeginEdit()">編集</button>
+              </div>
+              <div class="inv-min-remnant-edit" id="minRemnantLenEdit" style="display:none">
+                <input type="number" id="minRemnantLenInput" value="500" min="0" onkeydown="if(event.key==='Enter')invMinRemnantConfirm()">
+                <button type="button" onclick="invMinRemnantConfirm()">確定</button>
+              </div>
             </div>
           </div>
           <button class="inv-add-open-btn" onclick="openInvAddModal()">＋ 残材を追加</button>
@@ -605,12 +626,8 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
               </div>
               <div class="ds-field">
                 <label>端部ロス (mm)</label>
-                <input type="number" id="endloss" onkeydown="enterNext(event,'minRemnantLen')" value="150" min="0" oninput="saveSettings()">
+                <input type="number" id="endloss" onkeydown="enterNext(event,'jobClient')" value="150" min="0" oninput="saveSettings()">
               </div>
-            </div>
-            <div class="ds-field">
-              <label>端材 最小有効長さ (mm)</label>
-              <input type="number" id="minRemnantLen" onkeydown="enterNext(event,'kgm')" value="500" min="0" placeholder="例:500" oninput="saveSettings()">
             </div>
           </div>
         </div>
@@ -768,12 +785,12 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
         </div>
 
         <div class="w-opt-chips">
+          <button class="w-opt-chip" id="wChip_title" onclick="wToggleOpt('title')">タイトル</button>
           <button class="w-opt-chip" id="wChip_name" onclick="wToggleOpt('name')">部材名 / メモ</button>
           <button class="w-opt-chip" id="wChip_price" onclick="wToggleOpt('price')">単価</button>
           <button class="w-opt-chip" id="wChip_paint" onclick="wToggleOpt('paint')">塗装単価</button>
           <button class="w-opt-chip" id="wChip_m2" onclick="wToggleOpt('m2')">塗装面積</button>
           <button class="w-opt-chip" id="wChip_co2" onclick="wToggleOpt('co2')">CO₂</button>
-          <button class="w-opt-chip" id="wChip_title" onclick="wToggleOpt('title')">タイトル</button>
           <button class="w-opt-chip" id="wChip_rev" onclick="wToggleOpt('rev')">⇄ 逆算</button>
         </div>
 
@@ -781,6 +798,13 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <div class="field" style="margin-top:6px">
             <label>印刷タイトル</label>
             <input type="text" id="wDocTitle" placeholder="例：見積依頼書 / 見積書 / 発注書" maxlength="24" tabindex="-1" oninput="wSaveDocTitle()">
+          </div>
+        </div>
+
+        <div id="wPanel_name" style="display:none">
+          <div class="field" style="margin-top:6px">
+            <label>部材名 / メモ</label>
+            <input type="text" id="wMemo" placeholder="例：柱材、梁材、A工区など" maxlength="40" tabindex="-1">
           </div>
         </div>
 
@@ -795,13 +819,6 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
           <div class="field" style="margin-top:6px">
             <label>塗装単価 (円/m²)</label>
             <input type="number" id="wPaintPrice" placeholder="例：800" min="0" tabindex="-1">
-          </div>
-        </div>
-
-        <div id="wPanel_name" style="display:none">
-          <div class="field" style="margin-top:6px">
-            <label>部材名 / メモ</label>
-            <input type="text" id="wMemo" placeholder="例：柱材、梁材、A工区など" maxlength="40" tabindex="-1">
           </div>
         </div>
 
@@ -837,9 +854,10 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
       </p>
     </aside>
     <main class="mn" id="wMain">
-      <div id="wEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;color:#c0c0d0;gap:12px;min-height:300px">
+      <div id="wEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;flex:1;color:#8888a8;gap:12px;min-height:300px;padding-top:64px">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2 2"/></svg>
-        <p style="font-size:13px">左の入力欄で設定して「リストに追加」を押してください</p>
+        <p style="font-size:13px;color:#2a2a3e">左の入力欄で設定して「リストに追加」を押してください</p>
+        <small style="font-size:11px;color:#5a5a78;text-align:center;line-height:1.6">表示したい項目はバッジを選択すると記載できます。</small>
       </div>
       <div id="wTopBar" class="w-topbar" style="display:none">
         <div class="w-topbar-main">
@@ -1074,13 +1092,14 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/calculation/weight/calculateWeight.js?v=phase1"></script>
 <script src="src/calculation/weight/calculateTotalWeight.js?v=phase1"></script>
 <script src="src/calculation/yield/barMetrics.js?v=phase2"></script>
-<script src="src/calculation/yield/workerClient.js?v=phase1"></script>
+<script src="src/calculation/yield/workerClient.js?v=phase2"></script>
 <script src="src/calculation/yield/patternPacking.js?v=phase1"></script>
 <script src="src/calculation/yield/repeatPlans.js?v=phase1"></script>
 <script src="src/calculation/yield/bundlePlan.js?v=phase1"></script>
 <script src="src/calculation/yield/calcCore.js?v=phase1"></script>
 <script src="src/calculation/yield/algorithmV2.js?v=phase2"></script>
-<script src="src/calculation/yield/cgClient.js?v=phase2"></script>
+<!-- cgClient.js は CG/B&P 不採用方針で除去（2026-05-01 セキュリティ対応） -->
+
 <script src="src/services/storage/storageKeys.js?v=phase1"></script>
 <script src="src/services/storage/settingsStore.js?v=phase1"></script>
 <script src="src/services/storage/remnantsStore.js?v=phase1"></script>
@@ -1129,9 +1148,10 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/features/calc/manualRemnants.js?v=phase1"></script>
 <script src="src/features/calc/calcToolbar.js?v=phase1"></script>
 <script src="src/features/calc/calcUtils.js?v=phase1"></script>
-<script src="src/features/calc/clearParts.js?v=phase1"></script>
+<script src="src/features/calc/clearParts.js?v=phase2"></script>
 <script src="src/features/calc/cardDisplay.js?v=phase1"></script>
 <script src="src/features/materialStock/inventoryDropdowns.js?v=phase1"></script>
+<script src="src/features/materialStock/inventorySettings.js?v=phase1"></script>
 <script src="src/features/materialStock/inventoryRemnantState.js?v=phase1"></script>
 <script src="src/features/orderHistory/historyRows.js?v=phase1"></script>
 <script src="src/features/print/printPages.js?v=phase1"></script>
@@ -1139,9 +1159,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/features/print/buildPrintBarHtml.js?v=phase1"></script>
 <script src="src/features/materialStock/inventoryRender.js?v=phase1"></script>
 <script src="src/features/orderHistory/historyRender.js?v=phase1"></script>
-<script src="src/features/cart/cartModal.js?v=phase1"></script>
-<script src="src/features/cart/cartFlow.js?v=phase1"></script>
-<script src="src/features/cart/cartActions.js?v=phase1"></script>
+<script src="src/features/cart/cartModal.js?v=phase3"></script>
+<script src="src/features/cart/cartFlow.js?v=phase3"></script>
+<script src="src/features/cart/cartActions.js?v=phase2"></script>
 <script src="src/features/cart/cartCopy.js?v=phase1"></script>
 <script src="src/ui/calc/specPanelInit.js?v=phase1"></script>
 <script src="src/ui/history/historyInit.js?v=phase1"></script>
@@ -1150,15 +1170,15 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <script src="src/ui/history/printCard.js?v=phase1"></script>
 <script src="src/compat/legacyGlobals.js?v=phase1"></script>
 <script src="src/features/weight/state.js?v=phase1"></script>
-<script src="src/features/weight/init.js?v=phase1"></script>
+<script src="src/features/weight/init.js?v=phase3"></script>
 <script src="src/features/weight/undoOptions.js?v=phase1"></script>
 <script src="src/features/weight/kindSpecPreview.js?v=phase1"></script>
-<script src="src/features/weight/rowOps.js?v=phase1"></script>
+<script src="src/features/weight/rowOps.js?v=phase2"></script>
 <script src="src/features/weight/render.js?v=phase1"></script>
 <script src="src/features/weight/saveLoad.js?v=phase1"></script>
-<script src="src/features/weight/commandPalette.js?v=phase2"></script>
+<script src="src/features/weight/commandPalette.js?v=phase3"></script>
 <script src="src/features/weight/printCart.js?v=phase1"></script>
-<script src="src/features/contact/contactPage.js?v=ui28"></script>
+<script src="src/features/contact/contactPage.js?v=ui29"></script>
 
 <!-- カートモーダル -->
 <div id="cartModal" onclick="if(event.target===this)closeCartModal()">

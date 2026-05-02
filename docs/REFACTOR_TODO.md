@@ -268,13 +268,21 @@ main.js
 ## Phase 8: 最後の 5% 仕上げ
 
 - [x] `src/main.js` の読み込みを完全撤去（`init()` は `src/features/calc/calcInit.js` に移設済み）
-- [ ] `src/compat/legacyGlobals.js` の残ブリッジをさらに削減（計算V2 / benchmark には触らない）
-- [ ] `index.html` の inline handler を高リスク箇所からイベントリスナー化
+- [x] `src/compat/legacyGlobals.js` の残ブリッジをさらに削減（計算V2 / benchmark には触らない）
+  - [x] 在庫一覧の削除ボタンをイベント委譲へ移し、`deleteInventoryGroup` ブリッジを削除
+  - [x] グローバル呼び出しが残っていない在庫補助ブリッジ 6 件を削除
+  - 残り 10 件は `calculation/orchestration.js` / storage / 残材 UI の旧グローバル導線に接続中。計算V2並走中のため Phase 8 では保持
+- [x] `index.html` の inline handler を高リスク箇所からイベントリスナー化
   - [x] 在庫追加ボタン `#invUseBtn` の `onclick` を削除し、既存の初期化バインドに一本化
-- [ ] 参照のない実行ファイル / stale コメント / 古い引継ぎ記述を整理
+  - [x] 手入力残材行の `onchange/oninput/onclick` を DOM イベントリスナー化
+  - 残りの inline handler は画面全体のイベント設計に関わるため、次フェーズの UI イベント移行として扱う
+- [x] 参照のない実行ファイル / stale コメント / 古い引継ぎ記述を整理
   - [x] 有料化までログイン導線を非表示化（ハンバーガーメニューから `ログイン` を撤去）
   - [x] 有料化まで事業所スイッチャー / ヘッダーログイン導線を auth boot 側で無効化
-- [ ] `service-worker.js` の precache と実ロードファイルの差分を最終確認
+  - [x] 後続 bridge で上書きされていた旧 `inventoryRemnantRows.js` を削除
+  - [x] `HANDOFF.md` の `main.js` / auth 導線 / service-worker 記述を現状に更新
+- [x] `service-worker.js` の precache と実ロードファイルの差分を最終確認
+  - 実ロード 184 件 / precache 51 件。`fetch` 時に動的キャッシュする設計のため、precache は初回表示の核だけに留める
 - [x] `node --check` と既存 Jest の確認（Claude の計算改修領域は混ぜない）
 
 ## 直近の優先順

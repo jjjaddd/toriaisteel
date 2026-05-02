@@ -252,6 +252,15 @@ function wCmdOutside(e) {
 
 function wCmdKey(e) {
   var dd = document.getElementById('wCmdDropdown');
+  if ((!dd || dd.style.display === 'none') && e.key === 'ArrowDown') {
+    var lenEl = document.getElementById('wLen');
+    if (lenEl) {
+      e.preventDefault();
+      lenEl.focus();
+      lenEl.select();
+    }
+    return;
+  }
   if (!dd || dd.style.display === 'none') return;
   var items = dd.querySelectorAll('.cmd-item');
   if (!items.length) return;

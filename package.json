@@ -6,6 +6,10 @@
     "test": "jest --runInBand"
   },
   "devDependencies": {
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "supabase": "^2.95.6"
+  },
+  "dependencies": {
+    "highs": "^1.8.0"
   }
 }

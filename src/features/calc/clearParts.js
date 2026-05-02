@@ -1,6 +1,8 @@
 function clearParts() {
-  if (!confirm('リストをクリアしますか？\n設定もリセットされます。')) return;
+  if (!confirm('リストをクリアしますか？\n刃厚・端部ロス・作業情報もリセットされます。')) return;
   pushUndoManual();
+  var minRemnantLenEl = document.getElementById('minRemnantLen');
+  var preservedMinRemnantLen = minRemnantLenEl ? minRemnantLenEl.value : '';
 
   var store = window.Toriai && window.Toriai.storage ? window.Toriai.storage.localStore : null;
   if (store) {
@@ -15,7 +17,6 @@ function clearParts() {
 
   var bladeEl = document.getElementById('blade');
   var endLossEl = document.getElementById('endloss');
-  var minRemnantLenEl = document.getElementById('minRemnantLen');
   var jobClientEl = document.getElementById('jobClient');
   var jobNameEl = document.getElementById('jobName');
   var jobDeadlineEl = document.getElementById('jobDeadline');
@@ -28,7 +29,7 @@ function clearParts() {
 
   if (bladeEl) bladeEl.value = '3';
   if (endLossEl) endLossEl.value = '150';
-  if (minRemnantLenEl) minRemnantLenEl.value = '500';
+  if (minRemnantLenEl && preservedMinRemnantLen) minRemnantLenEl.value = preservedMinRemnantLen;
   if (jobClientEl) jobClientEl.value = '';
   if (jobNameEl) jobNameEl.value = '';
   if (jobDeadlineEl) jobDeadlineEl.value = '';
@@ -63,5 +64,11 @@ function clearParts() {
   }
   var inventoryUi = window.Toriai && window.Toriai.ui ? window.Toriai.ui.inventory : null;
   if (inventoryUi && typeof inventoryUi.syncInventoryToRemnants === 'function') inventoryUi.syncInventoryToRemnants();
+  try {
+    var preservedSettings = { minRemnantLen: (minRemnantLenEl && minRemnantLenEl.value) || preservedMinRemnantLen || '500' };
+    if (store && typeof store.writeJson === 'function') store.writeJson(LS_SETTINGS, preservedSettings);
+    else localStorage.setItem(LS_SETTINGS, JSON.stringify(preservedSettings));
+  } catch (e) {}
+  if (typeof syncMinRemnantDisplay === 'function') syncMinRemnantDisplay();
   resetCalcResultPlaceholder();
 }

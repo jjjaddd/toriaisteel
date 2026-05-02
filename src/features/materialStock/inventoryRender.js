@@ -98,7 +98,7 @@ function renderInventoryPage() {
           '<div class="inv-meta">' + escapeHtml(item.company || '会社名なし') + ' / ' + escapeHtml(item.note || 'メモなし') + ' / ' + escapeHtml(item.addedDate || '') + '</div>' +
         '</div>' +
         '<span class="inv-qty-badge">' + item.qty + '本</span>' +
-        '<button type="button" class="inv-del-btn" data-group-key="' + item.ids.join(',') + '" onclick="deleteInventoryGroup(\'' + item.ids.join(',') + '\')">削除</button>' +
+        '<button type="button" class="inv-del-btn" data-group-key="' + item.ids.join(',') + '">削除</button>' +
       '</div>';
     }).join('');
   }).join('');

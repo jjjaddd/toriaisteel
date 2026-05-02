@@ -60,7 +60,7 @@ for each row execute function handle_new_user();
 -- ── 事業所 ──────────────────────────────────────────────────
 create table if not exists organizations (
   id uuid primary key default gen_random_uuid(),
-  short_id text unique not null,          -- 人が読める ID (例: org_a1b2c3)
+  short_id text unique not null default ('org_' || encode(gen_random_bytes(4), 'hex')), -- 人が読める ID (例: org_a1b2c3)
   name text not null,
   plan text not null default 'free',      -- free / starter / team / business
   seat_limit int not null default 1,      -- プラン別 seat 上限 (free=1, starter=5, team=15, business=999)
@@ -69,6 +69,8 @@ create table if not exists organizations (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table organizations alter column short_id set default ('org_' || encode(gen_random_bytes(4), 'hex'));
+alter table organizations alter column created_by set default auth.uid();
 
 -- ── 所属 ────────────────────────────────────────────────────
 create table if not exists org_members (
@@ -84,14 +86,16 @@ create index if not exists idx_org_members_user on org_members(user_id);
 create table if not exists invitations (
   id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations(id) on delete cascade,
-  code text unique,                       -- 6 桁数字
+  code text unique default lpad((floor(random() * 1000000))::int::text, 6, '0'), -- 6 桁数字
   email text,                             -- メール招待時のみ
   invited_by uuid references auth.users(id) on delete set null,
-  expires_at timestamptz not null,
+  expires_at timestamptz not null default (now() + interval '7 days'),
   accepted_at timestamptz,
   accepted_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
+alter table invitations alter column code set default lpad((floor(random() * 1000000))::int::text, 6, '0');
+alter table invitations alter column expires_at set default (now() + interval '7 days');
 create index if not exists idx_invitations_code on invitations(code) where accepted_at is null;
 
 -- ── 案件（物件） ────────────────────────────────────────────
@@ -247,6 +251,43 @@ drop policy if exists "org update by owner" on organizations;
 create policy "org update by owner" on organizations
   for update using (is_org_owner(id));
 
+-- RLS 越しの初回事業所作成を安定させる RPC。
+-- クライアントの直接 insert ではなく、この関数から作成者を owner 登録する。
+create or replace function create_organization(p_name text)
+returns table (
+  id uuid,
+  name text,
+  short_id text,
+  plan text,
+  seat_limit int,
+  created_at timestamptz
+) language plpgsql security definer set search_path = public as $$
+declare
+  v_org organizations%rowtype;
+  v_user uuid := auth.uid();
+begin
+  if v_user is null then
+    raise exception 'Not authenticated' using errcode = 'P0004';
+  end if;
+  if p_name is null or length(trim(p_name)) = 0 then
+    raise exception 'Organization name is required' using errcode = 'P0005';
+  end if;
+
+  insert into organizations (name, created_by)
+  values (trim(p_name), v_user)
+  returning * into v_org;
+
+  insert into org_members (org_id, user_id, role)
+  values (v_org.id, v_user, 'owner')
+  on conflict (org_id, user_id) do update set role = 'owner';
+
+  return query
+    select v_org.id, v_org.name, v_org.short_id, v_org.plan, v_org.seat_limit, v_org.created_at;
+end;
+$$;
+
+grant execute on function create_organization(text) to authenticated;
+
 -- ── org_members : メンバーが閲覧、オーナーがinsert/update/delete、本人はselfのdelete可 ──
 drop policy if exists "members read" on org_members;
 create policy "members read" on org_members
@@ -355,9 +396,8 @@ create policy "org csl all" on org_custom_stock_lengths
 create or replace function add_creator_as_owner()
 returns trigger language plpgsql security definer as $$
 begin
-  new.created_by = coalesce(new.created_by, auth.uid());
   insert into org_members (org_id, user_id, role)
-    values (new.id, auth.uid(), 'owner')
+    values (new.id, coalesce(new.created_by, auth.uid()), 'owner')
     on conflict do nothing;
   return new;
 end;

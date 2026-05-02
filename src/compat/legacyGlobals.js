@@ -27,15 +27,8 @@
   global.addFromInventory = function() { return ui.inventory.addFromInventory(); };
   global.removeRemnant = function(i) { return ui.inventory.removeRemnant(i); };
   global.saveRemnants = function() { return ui.inventory.saveRemnants(); };
-  global.createInventoryRemnantRow = function(item, selectedQty) { return ui.inventory.createInventoryRemnantRow(item, selectedQty); };
   global.syncInventoryToRemnants = function() { return ui.inventory.syncInventoryToRemnants(); };
   global.getRemnants = function() { return ui.inventory.getRemnants(); };
-  global.deleteInventoryGroup = function(groupKey) { return ui.inventory.deleteInventoryGroup(groupKey); };
-  global.bindInventoryListActions = function() { return ui.inventory.bindInventoryListActions(); };
-  global.bindRemnantQtyEnter = function() { return ui.inventory.bindRemnantQtyEnter(); };
-  global.updateInventoryGroupNote = function(groupKey, value) { return ui.inventory.updateInventoryGroupNote(groupKey, value); };
-  global.toggleInventoryGroupNoteEditor = function(groupKey, forceOpen) { return ui.inventory.toggleInventoryGroupNoteEditor(groupKey, forceOpen); };
-  global.saveInventoryGroupNoteFromInput = function(groupKey) { return ui.inventory.saveInventoryGroupNoteFromInput(groupKey); };
 
   // inventory overrides initialisation (sync inventory module's reassignment of legacy globals)
   if (ui.inventory && typeof ui.inventory.initializeOverrides === 'function') {

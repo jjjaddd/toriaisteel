@@ -63,13 +63,14 @@
     var c = _client();
     if (!c) return Promise.reject(_err('Supabase 未初期化'));
     if (!name || !name.trim()) return Promise.reject(_err('事業所名を入力してください'));
-    return c.from('organizations')
-      .insert({ name: name.trim() })
-      .select('id, name, short_id, plan, seat_limit, created_at')
-      .single()
+    return c.auth.getSession().then(function(sessionRes) {
+      var session = sessionRes && sessionRes.data ? sessionRes.data.session : null;
+      if (!session || !session.user) throw _err('ログイン状態を確認できません。再ログインしてください');
+      return c.rpc('create_organization', { p_name: name.trim() });
+    })
       .then(function(res) {
         if (res.error) throw res.error;
-        return res.data;
+        return Array.isArray(res.data) ? res.data[0] : res.data;
       });
   }
 
@@ -92,19 +93,18 @@
     var c = _client();
     if (!c) return Promise.reject(_err('Supabase 未初期化'));
     return c.from('org_members')
-      .select('user_id, role, joined_at, profiles:user_id (id, display_name, email)')
+      .select('user_id, role, joined_at')
       .eq('org_id', orgId)
       .order('joined_at', { ascending: true })
       .then(function(res) {
         if (res.error) throw res.error;
         return (res.data || []).map(function(m) {
-          var p = m.profiles || {};
           return {
             user_id: m.user_id,
             role: m.role,
             joined_at: m.joined_at,
-            display_name: p.display_name || '',
-            email: p.email || ''
+            display_name: m.role === 'owner' ? 'オーナー' : 'メンバー',
+            email: ''
           };
         });
       });
@@ -124,11 +124,16 @@
   }
 
   // ── 招待を発行 ──────────────────────────────────────────
-  // email は任意。6桁コードは SQL 側の default で自動生成
+  // email は任意。既存DBでも動くよう、6桁コードと期限はアプリ側でも入れる
   function createInvitation(orgId, email) {
     var c = _client();
     if (!c) return Promise.reject(_err('Supabase 未初期化'));
-    var payload = { org_id: orgId };
+    var expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    var payload = {
+      org_id: orgId,
+      code: String(Math.floor(Math.random() * 1000000)).padStart(6, '0'),
+      expires_at: expiresAt
+    };
     if (email && email.trim()) payload.email = email.trim().toLowerCase();
     return c.from('invitations')
       .insert(payload)
