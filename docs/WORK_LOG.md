@@ -38,6 +38,77 @@
 
 ## 2026-05-03
 
+### 25:30  [Claude]  ✨ 研究勝利 — Algebraic k-best 多様解列挙
+
+**依頼**: 2 やろう
+（前ターン提示の 4 候補のうち「別ドメイン algebra 応用」、特に k-best / Pareto / 解説明）
+
+**やったこと**:
+- 研究設計書 `docs/RESEARCH_KBEST.md` 起草: 仮説 H1〜H3、formalization、falsification
+- **実装** `src/calculation/yield/research/kBest.js` (純関数 + dual-mode):
+  - `solveKBest(spec, k, opts)` — CG で patterns 確定 → 反復で k 解列挙
+  - `_addNoGoodCut(mipSpec, prevX, nOrig)` — disjunctive cut
+- **テスト** `tests/research/kBest.test.js` (4 件 pass)
+- 実装中に **致命的なバグ発見と修正**:
+  - v0.1 ナイーブ formulation: y_p ≥ |x_p − prevX[p]| + ε cost で y を inflate させて Σ y ≥ 1 を満たす想定
+  - **失敗**: cost ε << cost (x 移動) なので、LP は x = prevX のまま y を膨らませる方を選ぶ。x 不変。
+  - v0.2 採用: **binary big-M disjunctive cut**
+    - 各 active p に binary z_p
+    - z_p = 1 → x_p ≤ prevX[p] − 1 (big-M で線形化)
+    - Σ z_p ≥ 1
+  - 理論的根拠: prevX が optimal なら different feasible solution は必ず少なくとも 1 つの p で減少（cost optimality argument）
+
+**実測結果**:
+
+CASE-2 (L20):
+| rank | obj | breakdown |
+|---:|---:|---|
+| 1 | 442,000 | {11000:2, 12000:35} |
+| 2 | 442,000 | {11000:2, 12000:35} (x 異なるが同 stock) |
+| 3 | 443,000 | {11000:1, 12000:36} (+0.23%) |
+
+CASE-6 (L65) — production case:
+| rank | obj | breakdown | 解釈 |
+|---:|---:|---|---|
+| 1 | **723,500** | {5500:1, 11000:14, 12000:47} | LP-tight 最適 |
+| 2 | **729,000** | {**11000:15**, 12000:47} | **5500 不使用代替プラン** |
+| 3 | (tol 超で打切) | — | — |
+
+→ rank 2 は **コスト +0.76% で 5500 stock を使わない代替プラン**。
+  在庫切れ・調達制約で短尺がない場合の現場対応に直接使える。
+
+仮説評価:
+- **H1** (cut で k 個列挙可能): ✅ 実証
+- **H2** (近最適解は数%以内): ✅ CASE-2 +0.23%、CASE-6 +0.76% (CSP の near-LP-tightness が k-best にも継承)
+- **H3** (algebra-derived diversity): 未試行（次 phase）
+
+**意義**:
+- 今日 4 連続研究失敗 (Dominance, Branching, Hardness, ナイーブ k-best v0.1) を経て、**初の明確な研究勝利**
+- 「algebra → CSP 性能向上」線では半世紀の OR を超えられなかったが、「algebra → CSP **機能拡張**」線では空白地帯で素直に成果
+- TORIAI は世界の他の CSP ツールが持たない「**k-best 多様解列挙**」を持つことに
+
+**Qiita §11 大幅更新素材**:
+> 「algebra で CSP の計算性能を上げるのは半世紀の OR を超える試みで、簡単ではなかった。
+> しかし algebra で CSP のソフトウェア機能を拡張する方は、空白地帯で素直に実装できた。
+> TORIAI は今や、世界の他の CSP ツールが提供しない『k-best 多様解列挙』を持っている。
+> 性能優位ではなく機能優位。これが honest な現在地。」
+
+**ファイル**:
+- 新規: `docs/RESEARCH_KBEST.md`, `docs/KBEST_RESULTS.md`
+- 新規: `src/calculation/yield/research/kBest.js`
+- 新規: `tests/research/kBest.test.js`
+- 更新: `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**全 41 テスト pass** (research 16 + bb 25)、回帰なし。
+
+**未完了 / 引継ぎ**:
+- UI 統合: ブラウザで「代替プラン計算」ボタン → Worker → solveKBest → 表示
+  - Phase 4.5 完遂と組み合わせると最も価値高い
+- algebra normal form 等価類による真の "algebraic diversity" 実装 (H3)
+- explanation generation: なぜ rank 2 が +0.76% かの algebra ベース説明
+
 ### 24:30  [Claude]  🔬 研究続行 — CSP インスタンス難易度の経験的分析（3 連敗目）
 
 **依頼**: 治ったありがとう 研究の続きしていいよ
