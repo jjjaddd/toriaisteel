@@ -108,13 +108,55 @@ node --check path/to/file.js
 - 秘匿ファイルを stage しない
 - push 前に `git status --short` を確認する
 
-## 9. AI に渡す短縮プロンプト
+## 9. WORK_LOG 並走編集プロトコル（2026-05-03 制定）
+
+複数 AI が `docs/WORK_LOG.md` を同時編集して上書き衝突が起きた事故を受けて制定。**単一ファイル維持**を前提に、以下を**全 AI が遵守**する。
+
+### 編集前
+
+1. **必ず最新を読み直す**。Claude/Codex は `Read` ツール、Gemini は IDE の最新状態。古いキャッシュで書かない
+2. **時刻は `date '+%H:%M'`** の出力を使う。AI の脳内推定は数時間ズレる事故が確認済。`date` が信頼できる
+
+### 追記位置と書き方
+
+3. **追記位置**: 当日セクション (`## YYYY-MM-DD`) の直下、最新エントリの真上
+4. **エントリは前後を空行 1 つで区切る**。他 AI のエントリの本文中にタイトル行を絶対紛れ込ませない
+5. **フォーマット遵守**: `### HH:MM  [Agent]` → `**依頼**:` → `**やったこと**:` → `**ファイル**:` → `**Commit**:` → `**未完了 / 引継ぎ**:` の順
+
+### 保存後の検証
+
+6. `grep "^### " docs/WORK_LOG.md | head -10` で**自分のエントリと既存最新数件の両方が見える**ことを確認
+7. 構造破損（タイトル行が他エントリ本文に紛れ込んでる等）を見つけたら**その場で再構成**
+
+### 衝突発覚時の復旧
+
+8. **エントリが消えてたら git から復元**:
+   - `git log -p docs/WORK_LOG.md | head -300` で消えたエントリ本文を探す
+   - 該当 commit hash を見つけて `git show <hash>:docs/WORK_LOG.md` で当時の全文を取得
+   - 必要箇所をコピーして再追記
+9. 自分の編集が他 AI の追記を上書きしてしまった場合、**気付いた側が復旧責務を負う**
+
+### コミット権限
+
+10. **WORK_LOG のコミットは Claude / Codex のみ**。Gemini は WORK_LOG への追記まで担当、コミットは「Claude さん commit して」とユーザー or Claude に依頼
+11. 複数 AI の差分が同時に未コミットで溜まっていたら、**Claude が一括 commit する際にメッセージで明記**:
+    `docs(worklog): consolidate Claude+Gemini turns YYYY-MM-DD HH:MM-HH:MM`
+
+### 最終アービタ
+
+12. 上記を全部守っても発生しうる稀な破損は、**ユーザーが手で直す**ことを許容する設計。完璧主義しない。直せない壊れ方になったら git から該当 commit を `git checkout <hash> -- docs/WORK_LOG.md` で復元
+
+### 将来オプション
+
+13. 破損を機械検知したい場合、`scripts/check-worklog.js`（各 `### HH:MM [Agent]` 直後に `**依頼**:` があるか等のシンプルな構造チェック）を pre-commit hook に仕込む。Phase 1 段階では**未実装**、必要になったら導入
+
+## 10. AI に渡す短縮プロンプト
 
 ```text
 TORIAI の開発を手伝ってください。
 まず docs/AI_RULES.md / docs/ARCHITECTURE.md / docs/ALGEBRA_PLAN.md / docs/WORK_LOG.md を読んでください。
 既存機能を壊さず、担当外の差分を戻さず、計算V2 / Column Generation / benchmark / supabase/functions/cg / 計算 V3 algebra プロジェクトの凍結ファイル（ALGEBRA_PLAN.md 冒頭参照）は明示されない限り触らないでください。
 変更前に、追加ファイル / 触るファイル / レイヤー / 影響範囲 / 移行手順を説明してください。
-作業ログ（docs/WORK_LOG.md）にユーザーターン毎に 1 エントリ追記してください。
+作業ログ（docs/WORK_LOG.md）にユーザーターン毎に 1 エントリ追記。**追記前に AI_RULES §9（WORK_LOG 並走編集プロトコル）を必ず守る**: 最新を読み直す → `date '+%H:%M'` で時刻取得 → 当日セクション直下に追記 → 保存後に grep で検証。
 旧ドキュメントは OLD_DOC/ に隔離済。過去経緯参照のみで運用ルールには使わないでください。
 ```

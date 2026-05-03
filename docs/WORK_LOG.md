@@ -38,33 +38,57 @@
 
 ## 2026-05-03
 
-### 17:00  [Claude]
-**依頼**: Phase 1 着手 GO（世界初狙う / ワクワクしてきた）
+### 13:14  [Claude]
+**依頼**: つづけて + WORK_LOG 衝突は単一ファイル維持で別解を / 「OK」承認
 **やったこと**:
-- AI_RULES §3 準拠の Phase 1 着手宣言（追加ファイル / 触る既存 / レイヤー / 影響範囲 / 移行手順）
-- ディレクトリ作成: `src/calculation/yield/algebra/`, `tests/algebra/`
-- `src/calculation/yield/algebra/term.js` 実装（260 行、純関数、IIFE、副作用ゼロ）:
-  - ATOM / PATTERN / PLAN コンストラクタ（`makeAtom` / `makePattern` / `makePlan` / `emptyPlan`）
-  - バリデータ（型・正整数・容量制約・effective length 正当性）
-  - 述語（`isAtom` / `isPattern` / `isPlan` / `patternIsValid`）
-  - パターン計算（`patSize` / `patEff` / `patLoss` / `patYield`）
-  - パターン等価（`patternEquals` 多重集合等価 / `patternKey` 正準キー）
-  - `planMetrics`（barCount / stockTotal / pieceTotal / lossTotal / yieldPct）
-  - `Object.freeze` で TERM 不変性保証、`Toriai.calculation.yield.algebra.term.*` に公開
-- `tests/algebra/term.test.js` 実装（vm sandbox、29 テスト）:
-  - ATOM / PATTERN / PLAN それぞれの構築・拒否・凍結を網羅
-  - **BUG-V2-001 の数値を直接コードで再現**（[1222×8] loss 53 / [1222×6] in 10m loss 2503 / in 9m loss 1503 / 節約 1000mm）
-  - patternEquals が多重集合等価（A1 交換律）であることを実証
-- `npx jest tests/algebra/term.test.js` → **29 passed / 0 failed**
-- 回帰確認 `tests/calc.test.js + tests/storage.test.js` → 8 passed（既存無傷）
-- index.html 配線なし → runtime 影響ゼロ
+- AI_RULES.md に **§9「WORK_LOG 並走編集プロトコル」を新設**（編集前に最新読み直し / 時刻は `date` 必須 / 追記位置と空行ルール / 保存後 grep 検証 / git からの復旧手順 / Gemini はコミット非対応で Claude が代表 / 最終アービタはユーザー / 将来 pre-commit hook オプション）
+- 旧 §9 を §10 にスライド、短縮プロンプトに「§9 を必ず守る」一文追加
+- **Phase 1 day-2: `src/calculation/yield/algebra/axioms.js` を実装**（295 行、純関数、IIFE）:
+  - `concatPlan` (⊎ 結合子)
+  - `planEquivalent` (R3 lift-merge を先取りした多重集合等価, count=0 無視)
+  - `verifyA1〜A9` 全 9 公理の検証述語、結果は `{ holds, reason }` で返す
+  - `_internal` の参照誤りを発見（`T._internal` ではなく `algebra._internal`）→ 修正
+- `tests/algebra/axioms.test.js` 実装（35 テスト）:
+  - 各公理の通常ケース・境界ケース・拒否ケース
+  - **BUG-V2-001 統合シナリオ** で V2 plan ≠ Optimal plan を代数的に確認、A5 が歩留まり差を説明することを実証
+- `npx jest tests/algebra tests/calc.test.js tests/storage.test.js` → **72 / 72 全 pass**（既存 8 + term 29 + axioms 35）
+- Gemini が並行で `docs/ARCHITECTURE.md` を更新済（未コミット）→ Claude が別コミットで反映予定
+- 時刻は `date '+%H:%M'` で取得（13:14）。エージェント内推定をやめて以降はこのプロトコル準拠
 **ファイル**:
-- 新規: `src/calculation/yield/algebra/term.js`, `tests/algebra/term.test.js`
-- 既存ファイル変更なし
-**Commit**: これから 1 件作成（Phase 1 day-1）
+- 新規: `src/calculation/yield/algebra/axioms.js`, `tests/algebra/axioms.test.js`
+- 更新: `docs/AI_RULES.md`, `docs/WORK_LOG.md`, (`docs/ALGEBRA_DIARY.md` これから)
+- Gemini 由来: `docs/ARCHITECTURE.md`（別コミット）
+**Commit**: これから 2 件作成（① Gemini ARCHITECTURE / ② Claude axioms+AI_RULES+WORK_LOG+DIARY）
 **未完了 / 引継ぎ**:
-- Phase 1 残: `axioms.js` / `rewriteRules.js`（R1-R5 純関数）/ `normalForm.js` / 各テストファイル
-- 次セッション: axioms.js から継続
+- Phase 1 残: `rewriteRules.js`（R1-R5 純関数）/ `normalForm.js`（fixed-point 簡約器）/ `criticalPairs.test.js`（設計書 §1.6.3 の 15 ペア実コード検証）
+
+### 16:45  [Gemini]
+**依頼**: 完璧！認識全部合ってる。これでコミットするよ。
+**やったこと**:
+- 提示したディレクトリ構成の認識（featuresとuiの棲み分け、凍結ディレクトリの扱い等）が完全に合致していることをユーザーと確認。
+- ユーザーのコミット実行を待機しつつ、ログを追記。
+**ファイル**: `docs/WORK_LOG.md`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: ユーザーのコミット完了と、次の作業指示（データタブSVGテンプレート化など）待ち
+
+### 16:30  [Gemini]
+**依頼**: architectureの内容を今の構成に変更して、説明も細かく頼む。とくにディレクトリ。わからないことは質問して
+**やったこと**:
+- `docs/ARCHITECTURE.md` の全体構成とディレクトリマップを最新状態（OLD_DOC隔離、ALGEBRA系ドキュメント追加、V3用ディレクトリ追加等）に更新。
+- ディレクトリの役割（特に `src/` 配下の `features`, `ui`, `calculation` 等の責務の違い）について詳細な説明を追記。
+- 構成の正確性を期すため、一部残存ディレクトリ（staging-auth-org等）や機能の棲み分けについてユーザーへ質問を提示。
+**ファイル**: `docs/WORK_LOG.md`, `docs/ARCHITECTURE.md`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: 更新内容のレビューと、質問への回答待ち
+
+### 16:15  [Gemini]
+**依頼**: ジェミニがやったことだけをコミットするにはどうすればいいの？
+**やったこと**:
+- 他のAI（Claude等）の作業を混ぜずに、Geminiが変更したファイル（WORK_LOG.md）だけをステージングしてコミットするGitコマンドの手順を案内。
+- ログを追記。
+**ファイル**: `docs/WORK_LOG.md`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: コミット操作および次の作業指示待ち
 
 ### 16:00  [Gemini]
 **依頼**: ALGEBRA アルゴリズムについてどう思う？率直な意見、評価ください

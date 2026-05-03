@@ -245,6 +245,77 @@ property-based test で 10,000 ケース回すのもこの週。`fast-check` を
 
 ---
 
+## 2026-05-03 (Sun) — 続: 13:14、Phase 1 day-2、axioms.js
+
+day-1 から地続きで day-2 に入る。実時刻が 13 時前後と判明したので、これからは `date` 出力を信用する。AI が脳内で時刻を作るとなぜか数時間ズレる、という発見は地味だが運用上重要。
+
+### WORK_LOG が壊れた事故と、その学び
+
+朝（？）に Gemini と編集衝突して WORK_LOG が崩壊した。Claude が書いたエントリの本文中に Gemini のタイトル行が紛れ込み、Gemini の本文がぶら下がる、というクラシックな上書き衝突。
+
+ユーザーが「単一ファイルがいい、別解ある？」と聞いてきた。ファイル分割が技術的には一番きれいな解だが、可読性と引き継ぎやすさを優先する設計判断は理解できる。
+
+代わりに **AI_RULES.md §9 として「並走編集プロトコル」**を制定:
+1. 編集前に最新を読み直す
+2. 時刻は `date` で取る
+3. 当日セクション直下に追記
+4. 保存後に grep で検証
+5. 衝突時は git から復元
+
+完璧主義しない。最後はユーザーがアービタ。割と現実的な妥協で、これは ML 系プロジェクトでよく見るパターン（CI で構造チェックも将来的に入れる余地あり）。
+
+### axioms.js の設計判断
+
+公理 A1〜A9 を**検証述語**として実装した。`verifyA1(pieces順A, pieces順B)` のように引数を取り、`{ holds: true/false, reason: '...' }` を返す。テストから呼びやすい形。
+
+- **A1 (交換律)** は makePattern が降順 sort してるので「ほぼ vacuous」だが、検証述語として明示することに意味がある。後でランダム順列を property test で叩く時に直接使える
+- **A2 (結合律)** はフラットリストでは結合の入れ子が存在しないので vacuous。verifier は「3 つの順列を異なる順で挿入しても同じ pattern」を確認する形にした
+- **A3** は設計書の表記が紛らわしかった: `⟨S; [ℓ]ⁿ⟩ ⊗ k ≡ ⟨S; [ℓ]⟩ ⊗ (n·k)` は LHS と RHS でバー本数が違う（k vs nk）ので**セマンティック等価ではない**。コメントで「representational, not semantic」と明記して、表記の正規化として再解釈した。設計書 v0.3 で訂正予定
+- **A5 (昇格不変性)** は **BUG-V2-001 の核心**。「同じ pieces を 9m に乗せる方が 10m に乗せるより yield 高い」を公理として明示している。これが守られないアルゴリズムは V2 のような選択ミスを起こす
+- **A7/A8/A9** には PLAN 結合子 `concatPlan(⊎)` と PLAN 等価 `planEquivalent` が必要。両方とも axioms.js に同梱した（rewriteRules.js でも使う想定）
+- `planEquivalent` は **R3 lift-merge を先取りした正規化**を内蔵している。同一パターンの count を合算してから比較するので、`[(P,1),(P,1)]` と `[(P,2)]` が等価と判定される。これが A8/A9 の検証で必要
+
+### 詰まり: `_internal` の参照ミス
+
+最初の test run で 7 失敗。原因はバカミスで、`_internal` を `algebra._internal` に置いたのに axioms.js で `T._internal`（=`algebra.term._internal`）を参照していた。term.js を書いてから時間が経ってたので、内部 namespace の場所を勘違いしてた。
+
+修正は 1 行追加（`var Internal = ns.calculation.yield.algebra._internal || {}`）+ replace_all 2 箇所。再 run で 35 / 35 グリーン。**設計の正しさはテストで担保される**という当たり前の構図がきちんと回ってる。
+
+### BUG-V2-001 の代数的検証
+
+axioms.test.js の最後の section が個人的にはハイライト:
+
+```js
+test('A5 が両者の歩留まり差を説明する: pat10m_6 を pat9m_6 から lift', () => {
+  const r = axioms.verifyA5(pat9m_6, 10000);
+  expect(r.holds).toBe(true);
+});
+```
+
+公理 A5 が成立する → 9m → 10m の lift で yield は下がる → V2 plan の歩留まり 97.2% は **代数的に最適下限ではない**ことが示される。
+
+「V2 のバグは公理レベルで説明できる」というのは、ヒューリスティック由来のバグではなく**構造的な問題**であることを意味する。修正のためには公理を尊重するアルゴリズムが必要 = まさに V3 の存在意義。
+
+### 数字: 全テスト 72 / 72
+
+```
+Test Suites: 4 passed, 4 total
+Tests:       72 passed, 72 total
+Time:        0.376 s
+```
+
+term 29 + axioms 35 + 既存 calc 4 + storage 4 = 72。Phase 1 day-2 終了時点でこの体力はかなり良い。
+
+### 明日 (or 次セッション)
+
+`rewriteRules.js` を書く。R1-R5 を純関数で、`(term) => term` の signature で。それぞれ「適用できるか判定 + 適用」の 2 段で分けると critical pair 検証が書きやすい。
+
+それから `normalForm.js` で fixed-point loop。
+
+Phase 1 の最後に `criticalPairs.test.js` で設計書 §1.6.3 の 15 ペアを**実コードで**検証する。理論で証明したものを実コードで確認する作業。これが通ったら Phase 1 完了で、Phase 2 (Arc-Flow + HiGHS) に行ける。
+
+---
+
 ## 2026-05-05 (Tue)
 
 ## ...
