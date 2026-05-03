@@ -115,7 +115,7 @@
 
 ## V3 開発中のバグ・エラー
 
-### BUG-V3-001  🔍 調査中  🟠 High  2026-05-03 14:48  [Claude]
+### BUG-V3-001  🛠 修正中  🟡 Mid  2026-05-03 14:48 / 15:15 緩和済  [Claude]
 **タイトル**: HiGHS-WASM 1.8.0 が中規模 MIP (約 1000 変数 / 326 制約) で `Aborted()` で落ちる
 **Phase**: Phase 2 day-3
 **再現入力**:
@@ -134,14 +134,19 @@ LP: 1168 整数変数, 326 制約, 約 46KB
 1. WASM スタック制限を MIP 探索木が超える
 2. HiGHS-WASM で MIP 探索パラメータ (`mip_max_nodes` 等) を渡せない（1.8.0 既知の罠で options 渡すと parse 失敗）
 3. 圧縮 arc-flow に対称性削減が無く MIP 探索が冗長
-**対処（暫定）**:
+**対処（暫定、2026-05-03 14:48）**:
 - 該当テスト (CASE-2 を 12m 単一定尺で解くやつ) を `describe.skip` で停止
 - BUG-V2-001 micro 等の小規模ケースは正常動作 → Phase 2 day-3 主目的は達成
-**対処（恒久案、Phase 2 day-4 以降）**:
-- LP 緩和の解を整数丸めしてフォールバック
-- 列生成 (Gilmore-Gomory) で局所最適解を逐次構築（メモリ効率が桁違い）
-- 対称性削減付き compact arc-flow へリファクタ
-- HiGHS-WASM の代わりに pure JS の MIP ソルバー (jsLPSolver 等) を試す
+**対処（緩和、2026-05-03 15:15 Phase 2 day-4 完了）**:
+- ✅ **`solveSingleStockGreedy` (FFD) を実装** — 純 JS、必ず動く、O(n²)
+- ✅ **`solveSingleStockRobust` を実装** — MIP 試行 → 失敗 catch → FFD フォールバック
+- ✅ skip していた CASE-2 テストを Robust 経由で復活、CASE-2 が 37 bars / 444,000mm / 92.85% を返すことを確認 (V2: 60 bars / 443,000mm / 93.1% — 単一定尺なのに**バー本数約半分**)
+- これで「中規模で V3 が解を返さない」問題は事実上解消
+**対処（恒久案、Phase 2 day-5 以降）**:
+- 多定尺対応で V2 の 443,000mm を実質的に下回らせる
+- LP 緩和の解で下界を提示し最適性ギャップを表示
+- 列生成 (Gilmore-Gomory) で大規模 (CASE-6 = k=61 / n=463) を解く
+- 対称性削減付き compact arc-flow へリファクタ（MIP の素生スケール拡張）
 **関連ファイル**: `src/calculation/yield/arcflow/solver.js`, `tests/arcflow/solver.test.js`
 **関連 Commit**: 未コミット
 **学び**:

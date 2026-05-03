@@ -335,11 +335,158 @@ async function solveSingleStock(spec) {
 }
 
 // ============================================================================
+// FFD (First Fit Decreasing) — 純 JS フォールバックパッカー
+//
+// HiGHS-WASM が中規模 MIP で Aborted する (BUG-V3-001) 場合のセーフティネット。
+// LP 緩和も使えない最悪ケースで最低限の解を返す。
+//
+// アルゴリズム:
+//   1. 全 piece をフラット展開して長い順にソート
+//   2. 各 piece について「すでに開いてるバーで入る最初のもの」に詰める
+//   3. 入らなければ新しいバーを開ける
+//   4. 同パターンのバーを集約
+//
+// 性質:
+//   - 必ず終わる（線形時間）
+//   - 解の品質: 最適の 11/9 倍以下（FFD の理論限界、Johnson 1973）
+//   - 単一定尺前提
+// ============================================================================
+
+function ffdPack(spec) {
+  const eff = spec.stock - spec.endLoss;
+  const blade = spec.blade;
+  // フラット展開 + 降順ソート
+  const flat = [];
+  for (const p of spec.pieces) {
+    for (let i = 0; i < p.count; i++) flat.push(p.length);
+  }
+  flat.sort(function(a, b) { return b - a; });
+
+  const bars = []; // each: { used, pieces: [length] }
+
+  for (const len of flat) {
+    let placed = false;
+    for (const bar of bars) {
+      const cost = bar.pieces.length === 0 ? len : len + blade;
+      if (bar.used + cost <= eff) {
+        bar.used += cost;
+        bar.pieces.push(len);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      // 新規バー（piece 単独）
+      if (len > eff) {
+        // この piece は単体ですら入らない → 制約違反、空配列を返す
+        return [];
+      }
+      bars.push({ used: len, pieces: [len] });
+    }
+  }
+
+  // 同パターン集約
+  const patternMap = new Map();
+  for (const bar of bars) {
+    const sorted = bar.pieces.slice().sort(function(a, b) { return b - a; });
+    const key = sorted.join(',');
+    if (!patternMap.has(key)) {
+      patternMap.set(key, { pieces: sorted, count: 0 });
+    }
+    patternMap.get(key).count++;
+  }
+  return Array.from(patternMap.values());
+}
+
+function summarizeBars(spec, bars, status) {
+  const stockTotal = bars.reduce(function(s, b) { return s + b.count * spec.stock; }, 0);
+  const pieceTotal = spec.pieces.reduce(function(s, p) { return s + p.length * p.count; }, 0);
+  const lossTotal = bars.reduce(function(s, b) {
+    const used = b.pieces.reduce(function(a, x) { return a + x; }, 0);
+    const sizeWithBlades = b.pieces.length > 0 ? used + (b.pieces.length - 1) * spec.blade : 0;
+    const lossPerBar = (spec.stock - spec.endLoss) - sizeWithBlades;
+    return s + lossPerBar * b.count;
+  }, 0);
+  const barCount = bars.reduce(function(s, b) { return s + b.count; }, 0);
+  const barsWithStock = bars.map(function(b) {
+    return Object.freeze({
+      stock: spec.stock,
+      pattern: Object.freeze(b.pieces.slice()),
+      count: b.count
+    });
+  });
+  return Object.freeze({
+    status: status,
+    barCount: barCount,
+    stockTotal: stockTotal,
+    pieceTotal: pieceTotal,
+    lossTotal: lossTotal,
+    bars: Object.freeze(barsWithStock)
+  });
+}
+
+/**
+ * solveSingleStockGreedy — FFD のみで解く（HiGHS 不使用）。
+ * status は常に 'greedy_ffd'。HiGHS が落ちる規模でも必ず動く。
+ */
+function solveSingleStockGreedy(spec) {
+  // Greedy は安全網。throw せず最低限の防御だけ行い、無理なら infeasible を返す
+  if (!spec || !Array.isArray(spec.pieces) || spec.pieces.length === 0
+    || !(spec.stock > 0) || !(spec.stock - (spec.endLoss || 0) > 0)) {
+    return Object.freeze({
+      status: 'infeasible',
+      barCount: 0, stockTotal: 0, pieceTotal: 0, lossTotal: 0,
+      bars: Object.freeze([])
+    });
+  }
+  const bars = ffdPack(spec);
+  if (bars.length === 0) {
+    return Object.freeze({
+      status: 'infeasible',
+      barCount: 0, stockTotal: 0, pieceTotal: 0, lossTotal: 0,
+      bars: Object.freeze([])
+    });
+  }
+  return summarizeBars(spec, bars, 'greedy_ffd');
+}
+
+// ============================================================================
+// solveSingleStockRobust — 3 段階フォールバック
+//
+//   1. MIP (solveSingleStock): 最適だが中規模で Aborted
+//   2. (将来) LP 緩和 + 整数化: Phase 2 day-5 で追加予定
+//   3. FFD (solveSingleStockGreedy): 必ず動く
+//
+// status:
+//   'optimal'     : MIP 成功
+//   'greedy_ffd'  : MIP が落ちて FFD で解いた（最適とは限らない）
+//   'infeasible'  : 物理的に解不能（piece 1 個が定尺に入らない等）
+// ============================================================================
+
+async function solveSingleStockRobust(spec) {
+  // Step 1: MIP を試す
+  try {
+    const mip = await solveSingleStock(spec);
+    if (mip.status === 'optimal') return mip;
+    // MIP が optimal 以外を返した → fallback へ
+  } catch (e) {
+    // HiGHS-WASM の Aborted / null function 等は throw される → catch して fallback
+  }
+  // Step 3: FFD（LP fallback は day-5 で追加予定）
+  return solveSingleStockGreedy(spec);
+}
+
+// ============================================================================
 // 公開
 // ============================================================================
 
 module.exports = {
   buildLp: buildLp,
   decodeFlow: decodeFlow,
-  solveSingleStock: solveSingleStock
+  solveSingleStock: solveSingleStock,
+  solveSingleStockGreedy: solveSingleStockGreedy,
+  solveSingleStockRobust: solveSingleStockRobust,
+  // 内部 helper をテスト用に露出
+  _ffdPack: ffdPack,
+  _summarizeBars: summarizeBars
 };

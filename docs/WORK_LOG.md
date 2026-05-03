@@ -38,6 +38,33 @@
 
 ## 2026-05-03
 
+### 15:07  [Claude]  Phase 2 day-4 — BUG-V3-001 緩和（FFD フォールバック）
+**依頼**: I-beam 確認 OK、Phase 2 day-4 へ
+**やったこと**:
+- AI_RULES §3 準拠の day-4 着手宣言（3 段階フォールバック戦略: MIP → LP → FFD）
+- **`solveSingleStockGreedy(spec)` 実装**（純 JS FFD、HiGHS 不使用、O(n²)）:
+  - `ffdPack`: 全 piece をフラット展開→降順ソート→各バーに first-fit
+  - `summarizeBars`: solver 結果フォーマットに整形 (status='greedy_ffd')
+  - 入力検証は throw せず infeasible で返す（安全網設計）
+- **`solveSingleStockRobust(spec)` 実装**（MIP → catch → FFD）:
+  - MIP が optimal なら 'optimal' 返却
+  - MIP が Aborted/exception の場合 catch して FFD に委譲、'greedy_ffd' で返却
+- **テスト追加**（FFD 4 + Robust 2 = 6 件、全 pass）
+  - CASE-2 (k=5, n=192) を Robust 経由で **37 bars / 444,000mm / 92.85%** で解いた
+  - V2 baseline (多定尺): 60 bars / 443,000mm / 93.1%
+  - **単一定尺なのに V3 のバー本数が約半分** = handling コスト大幅削減の見込み
+- **BUG-V3-001 を「修正中 → 緩和済」に降格**:
+  - 高優先度 → 中優先度
+  - skip していた CASE-2 テストを Robust 経由で再活性化
+- **全テスト 225 / 225 pass**（algebra 168 + arcflow 49 + 既存 8）
+**ファイル**:
+- 更新: `src/calculation/yield/arcflow/solver.js`, `tests/arcflow/solver.test.js`, `docs/ALGEBRA_BUG_LOG.md`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 2 day-5: **多定尺対応**（V2 の 443,000mm を実質的に下回るために必須）
+- Phase 2 day-6: multiStockGuard、CASE-2/CASE-6 を BENCHMARK.md に記入
+- Phase 2 day-7 以降: 列生成 / 対称性削減で大規模 CASE-6 (k=61, n=463) も MIP で解けるように
+
 ### 15:01  [Claude]  I 形鋼断面図を本実装
 **依頼**: ラストの I-beam 断面図を作ったから更新して。Gemini がちょっといじってミスってるから理解した上でお願い
 **やったこと**:

@@ -162,22 +162,29 @@ describe('arcflow/solver — graph + HiGHS 統合', () => {
   });
 
   // -------------------------------------------------------------------------
-  // CASE-2 L20 — k=5, n=192 規模で HiGHS-WASM MIP が "Aborted()" で落ちる事象を発見
-  // (Phase 2 day-3 の day-3 スコープ外。Phase 2 day-4 以降で対処予定)
-  //
-  // 原因仮説:
-  //   1. MIP 探索木が WASM スタック制限を超えている
-  //   2. Presolve オプションを渡せない（HiGHS 1.8.0 既知の罠で options を渡すと
-  //      parse 失敗するため、MIP 制御パラメータを渡せない）
-  //   3. 圧縮 arc-flow の対称性削減が無いため MIP が冗長探索している
-  //
-  // 対処候補（Phase 2 day-4 以降）:
-  //   - LP 緩和の解 (= 36.83 が出ることは確認済) を整数丸めしてフォールバック
-  //   - 列生成で局所最適解を逐次構築（メモリ効率）
-  //   - 対称性削減付き compact arc-flow に書き換え
+  // FFD Fallback (Phase 2 day-4)
+  // BUG-V3-001 (HiGHS-WASM Aborted on medium MIP) を回避する純 JS パッカー
   // -------------------------------------------------------------------------
-  describe.skip('CASE-2 L20 を 12m 単一定尺で (Phase 2 day-4 で対処)', () => {
-    test('barCount が出る、全 piece 数が満たされる', async () => {
+  describe('FFD fallback (純 JS、HiGHS 不使用)', () => {
+    test('BUG-V2-001 micro [1222 × 6] in 8m: FFD でも 1 バー / loss 503', () => {
+      const r = solver.solveSingleStockGreedy({
+        stock: 8000, blade: 3, endLoss: 150,
+        pieces: [{ length: 1222, count: 6 }]
+      });
+      expect(r.status).toBe('greedy_ffd');
+      expect(r.barCount).toBe(1);
+      expect(r.lossTotal).toBe(503);
+    });
+
+    test('[1222 × 16] in 10m: FFD で 2 バー (8+8)', () => {
+      const r = solver.solveSingleStockGreedy({
+        stock: 10000, blade: 3, endLoss: 150,
+        pieces: [{ length: 1222, count: 16 }]
+      });
+      expect(r.barCount).toBe(2);
+    });
+
+    test('全 piece 数が常に満たされる（demand 保証）', () => {
       const spec = {
         stock: 12000, blade: 3, endLoss: 150,
         pieces: [
@@ -188,11 +195,56 @@ describe('arcflow/solver — graph + HiGHS 統合', () => {
           { length: 2806, count: 60 }
         ]
       };
-      const r = await solver.solveSingleStock(spec);
+      const r = solver.solveSingleStockGreedy(spec);
+      expect(r.status).toBe('greedy_ffd');
+      const totalPieces = r.bars.reduce(function(s, b) { return s + b.pattern.length * b.count; }, 0);
+      expect(totalPieces).toBe(192);
+    });
+
+    test('物理的に入らない piece は infeasible を返す', () => {
+      const r = solver.solveSingleStockGreedy({
+        stock: 1000, blade: 3, endLoss: 150,
+        pieces: [{ length: 9000, count: 1 }]
+      });
+      expect(r.status).toBe('infeasible');
+      expect(r.barCount).toBe(0);
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Robust solver: MIP → fallback to FFD
+  // BUG-V3-001 を完全に隠蔽し、必ず使える解を返す
+  // -------------------------------------------------------------------------
+  describe('solveSingleStockRobust (MIP → FFD フォールバック)', () => {
+    test('小規模 (BUG-V2-001 micro): MIP path で optimal', async () => {
+      const r = await solver.solveSingleStockRobust({
+        stock: 8000, blade: 3, endLoss: 150,
+        pieces: [{ length: 1222, count: 6 }]
+      });
       expect(r.status).toBe('optimal');
+      expect(r.barCount).toBe(1);
+      expect(r.lossTotal).toBe(503);
+    });
+
+    test('CASE-2 L20 12m 単一定尺: MIP が落ちて FFD で必ず解を返す (BUG-V3-001)', async () => {
+      const spec = {
+        stock: 12000, blade: 3, endLoss: 150,
+        pieces: [
+          { length: 1750, count: 4 },
+          { length: 1825, count: 50 },
+          { length: 1830, count: 60 },
+          { length: 1992, count: 18 },
+          { length: 2806, count: 60 }
+        ]
+      };
+      const r = await solver.solveSingleStockRobust(spec);
+      // MIP が optimal なら 'optimal'、落ちて FFD なら 'greedy_ffd'
+      expect(['optimal', 'greedy_ffd']).toContain(r.status);
       expect(r.barCount).toBeGreaterThan(0);
       const totalPieces = r.bars.reduce(function(s, b) { return s + b.pattern.length * b.count; }, 0);
-      expect(totalPieces).toBe(4 + 50 + 60 + 18 + 60); // 192
+      expect(totalPieces).toBe(192);
+      // 12m 単一定尺なので最低 ceil(412266 / (12000 - 150 + blade補正)) 程度のバー数になる
+      // V2 の多定尺 60 本と直接比較は不可（多定尺は day-5 以降で対応）
     }, 60_000);
   });
 });
