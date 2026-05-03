@@ -7,7 +7,7 @@ importScripts(
   '/src/calculation/yield/bundlePlan.js?v=phase3',
   '/src/calculation/yield/calcCore.js?v=phase3',
   '/src/calculation/yield/algorithmV2.js?v=phase3',
-  '/src/calculation/yield/algorithmV3.js?v=phase3'
+  '/src/calculation/yield/algorithmV3.js?v=phase3v3opt'
 );
 
 (function(global) {

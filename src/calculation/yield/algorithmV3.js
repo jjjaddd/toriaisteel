@@ -159,9 +159,35 @@
   // bars[i] = { pat: [length, ...], loss, sl }
   // ===========================================================================
 
-  function v3BarsToCalcCoreEntry(v3Bars, blade, endLoss, kgm) {
+  // ---------------------------------------------------------------------------
+  // 材料下界 (lower bound) — Compute minimum bars / minimum stockTotal
+  // (algorithmV3 用 inline 版、multiStockGuard.js と同じ式)
+  // ---------------------------------------------------------------------------
+  function computeLowerBoundInline(pieces, stocks, blade, endLoss) {
+    if (!pieces || !stocks || stocks.length === 0) {
+      return { minBars: 0, totalPieceLen: 0, totalPieces: 0 };
+    }
+    var maxStock = stocks.reduce(function(m, s) { return s > m ? s : m; }, 0);
+    var maxBarCapacity = maxStock - endLoss;
+    if (maxBarCapacity <= 0) return { minBars: 0, totalPieceLen: 0, totalPieces: 0 };
+    var totalPieceLen = 0;
+    var totalPieces = 0;
+    pieces.forEach(function(p) {
+      totalPieceLen += p.length * p.count;
+      totalPieces += p.count;
+    });
+    var num = totalPieceLen + totalPieces * blade;
+    var denom = maxBarCapacity + blade;
+    return {
+      minBars: denom > 0 ? Math.ceil(num / denom) : 0,
+      totalPieceLen: totalPieceLen,
+      totalPieces: totalPieces
+    };
+  }
+
+  function v3BarsToCalcCoreEntry(v3Bars, blade, endLoss, kgm, opts) {
+    opts = opts || {};
     // v3Bars = [{ stock, used, pieces: [length, ...] }, ...]
-    // 各 bar を 1 つずつ展開（count を解いて個別バーに）
     var allBars = [];
     var stockUsed = {};
 
@@ -182,11 +208,30 @@
     var lossKg = (totalLoss / 1000) * (kgm || 0);
     var barKg = (totalUse / 1000) * (kgm || 0);
     var lossRate = totalUse > 0 ? (1 - totalPieces / totalUse) * 100 : 100;
+    var yieldPct = 100 - lossRate;
 
-    var desc = Object.keys(stockUsed).map(Number).sort(function(a, b) { return b - a; })
+    // ---- desc 構築 ----
+    var stockDesc = Object.keys(stockUsed).map(Number).sort(function(a, b) { return b - a; })
       .map(function(sl) {
         return sl.toLocaleString() + 'mm × ' + stockUsed[sl] + '本';
-      }).join(' + ') + ' [V3]';
+      }).join(' + ');
+
+    // 注釈: V3 タグ + V2 比較 + LP 下界差
+    var annotations = ['V3'];
+    if (typeof opts.v2BestLossRate === 'number' && lossRate < opts.v2BestLossRate - 0.001) {
+      var gain = opts.v2BestLossRate - lossRate;
+      annotations.push('V2比 +' + gain.toFixed(2) + '%');
+    }
+    if (typeof opts.lowerBoundBars === 'number' && opts.lowerBoundBars > 0) {
+      var actualBars = allBars.length;
+      var barGap = actualBars - opts.lowerBoundBars;
+      if (barGap === 0) {
+        annotations.push('LP最適');
+      } else if (barGap > 0 && barGap <= 5) {
+        annotations.push('LB +' + barGap + '本');
+      }
+    }
+    var desc = stockDesc + ' [' + annotations.join(' / ') + ']';
 
     var slKeys = Object.keys(stockUsed);
     var slA = slKeys.length > 0 ? Number(slKeys[0]) : 0;
@@ -202,7 +247,13 @@
       bA: allBars,
       bB: [],
       chg: 0,
-      type: 'v3_multi_ffd'
+      type: 'v3_multi_ffd',
+      // 追加メタ（UI 拡張時に使える）
+      _v3Meta: {
+        yieldPct: yieldPct,
+        v2BestLossRate: opts.v2BestLossRate,
+        lowerBoundBars: opts.lowerBoundBars
+      }
     };
   }
 
@@ -256,12 +307,34 @@
 
     if (!v3Bars || v3Bars.length === 0) return v2Result;
 
-    var v3Entry = v3BarsToCalcCoreEntry(v3Bars, options.blade || 0, options.endLoss || 0, options.kgm || 0);
+    // V2 の allDP の中で最良 (lowest lossRate) を見つける → 比較用
+    var v2BestLossRate = null;
+    (v2Result.allDP || []).forEach(function(e) {
+      if (e && e.type !== 'v3_multi_ffd' && typeof e.lossRate === 'number') {
+        if (v2BestLossRate === null || e.lossRate < v2BestLossRate) {
+          v2BestLossRate = e.lossRate;
+        }
+      }
+    });
+
+    // LP 下界（バー本数の理論最小）
+    var lb = computeLowerBoundInline(v3Pieces, stocks, options.blade || 0, options.endLoss || 0);
+
+    var v3Entry = v3BarsToCalcCoreEntry(v3Bars, options.blade || 0, options.endLoss || 0, options.kgm || 0, {
+      v2BestLossRate: v2BestLossRate,
+      lowerBoundBars: lb.minBars
+    });
 
     // V2 の allDP に V3 entry を追加して再ソート
+    // tiebreaker: 同 lossRate なら V3 entry を優先（[V3 / LP最適] 等のメタ情報が有用）
     var newAllDP = (v2Result.allDP || []).slice();
     newAllDP.push(v3Entry);
-    newAllDP.sort(function(a, b) { return a.lossRate - b.lossRate; });
+    newAllDP.sort(function(a, b) {
+      if (a.lossRate !== b.lossRate) return a.lossRate - b.lossRate;
+      if (a.type === 'v3_multi_ffd' && b.type !== 'v3_multi_ffd') return -1;
+      if (b.type === 'v3_multi_ffd' && a.type !== 'v3_multi_ffd') return 1;
+      return 0;
+    });
 
     var newYieldCard1 = newAllDP.length > 0 ? newAllDP[0] : v2Result.yieldCard1;
 

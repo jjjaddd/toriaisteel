@@ -90,6 +90,36 @@ describe('algorithmV3 — drop-in patch on V2 calcCore', () => {
       expect(v3Entry.bars[0].loss).toBe(503);
     });
 
+    test('V3 desc に [V3] タグ + 最適性情報が含まれる', () => {
+      const r = Y.calcCore(baseOptions());
+      const v3Entry = (r.allDP || []).find(function(e) { return e.type === 'v3_multi_ffd'; });
+      expect(v3Entry.desc).toMatch(/\[V3/);
+      // BUG-V2-001 micro は LB=1, V3 actual=1 → "LP最適"
+      expect(v3Entry.desc).toMatch(/LP最適|LB \+/);
+      // _v3Meta が付与される
+      expect(v3Entry._v3Meta).toBeDefined();
+      expect(v3Entry._v3Meta.lowerBoundBars).toBe(1);
+    });
+
+    test('V3 desc: V3 が V2 を勝った場合 "V2比 +X.XX%" が入る', () => {
+      // 1222 × 333 で V3 が V2 (10m×42=3.11%) を超える
+      const opts = {
+        blade: 3, endLoss: 150, kgm: 1,
+        pieces: Array(333).fill(1222),
+        stocks: [
+          { sl: 6000, max: 999 }, { sl: 7000, max: 999 }, { sl: 8000, max: 999 },
+          { sl: 9000, max: 999 }, { sl: 10000, max: 999 }, { sl: 11000, max: 999 },
+          { sl: 12000, max: 999 }
+        ],
+        kind: 'H形鋼', spec: 'H-test', minValidLen: 500
+      };
+      const r = Y.calcCore(opts);
+      const v3Entry = (r.allDP || []).find(function(e) { return e.type === 'v3_multi_ffd'; });
+      expect(v3Entry).toBeTruthy();
+      // V3 lossRate=2.42%, V2 best=3.11%, gain=0.69% → desc に "V2比 +" が入る
+      expect(v3Entry.desc).toMatch(/V2比 \+/);
+    });
+
     test('yieldCard1 は最終的に 8m を選ぶ（V2 BnB と V3 FFD が同点でも壊れない）', () => {
       const r = Y.calcCore(baseOptions());
       expect(r.yieldCard1).toBeTruthy();

@@ -38,6 +38,35 @@
 
 ## 2026-05-03
 
+### 16:21  [Claude]  ✨ Roadmap A — V3 desc に最適性メタ表示
+**依頼**: A から行こうか TODO リスト忘れずに（ロードマップ A: 最適性ギャップ表示）
+**やったこと**:
+- AI_RULES §3 準拠 + TodoWrite 起動
+- **`algorithmV3.js` に `computeLowerBoundInline` を追加**（multiStockGuard.js の式を IIFE 用に inline）
+- **`v3BarsToCalcCoreEntry` 拡張**: opts に `v2BestLossRate` / `lowerBoundBars` を受け取り、desc に注釈を埋め込む
+  - 「[V3]」: 常に
+  - 「V2比 +X.XX%」: V3 が V2 best より strict に勝つ時
+  - 「LP最適」: V3 のバー本数 == LP 下界（バー数で証明的最適）
+  - 「LB +N本」: LP 下界より N 本多い (N ≤ 5)
+- **`calcCoreV3` 拡張**: V2 allDP の最良 lossRate を抽出 + LB 計算 → builder に渡す
+- **tiebreaker 追加**: 同 lossRate なら V3 entry を優先（[V3 / LP最適] 等のメタが有用）
+- **テスト 2 件追加**:
+  - V3 desc に [V3 タグ + 最適性情報が入る (LP最適 / LB +N)
+  - V3 が V2 を勝った場合 "V2比 +X.XX%" が含まれる
+- 実出力プレビュー:
+  - 1222×333 USER ケース: `10,000mm × 41本 + 7,000mm × 1本 [V3 / V2比 +0.70%]`
+  - BUG-V2-001 micro: `8,000mm × 1本 [V3 / LP最適]`
+- service-worker CACHE_NAME v162 → v163
+- algorithmV3.js / yieldWorker.js / workerClient.js すべて `?v=phase3v3opt` に統一
+- **全テスト 262 / 262 pass**（algebra 180 + arcflow 74 + 既存 8）
+**ファイル**:
+- 更新: `src/calculation/yield/algorithmV3.js`, `tests/algebra/algorithmV3.test.js`, `service-worker.js`, `index.html`, `src/calculation/workers/yieldWorker.js`, `src/calculation/yield/workerClient.js`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- ユーザーが Ctrl+Shift+R で再リロード → calculation 結果カードに「[V3 / V2比 +X.XX%]」または「[V3 / LP最適]」が見えるはず
+- 次は ロードマップ B: 全 6 ベンチマークケース自動化 (`npm run benchmark` 的なやつ)
+- その後 ロードマップ C: Phase 2 day-7 MIP 統合（FFD ギャップ 5-7% を 0% に）
+
 ### 16:03  [Claude]  🚨 Phase 3 day-2 真の原因発見 — Web Worker が V3 を読み込んでなかった
 **依頼**: 母材数より歩留まりにフォーカス、TORIAI は定尺選べる、これ読み込めてない？
 **やったこと**:
