@@ -763,6 +763,85 @@ B-AG は B-MF の **6 倍** の node を探索した上で 60 秒以内に収束
 
 ---
 
+## 2026-05-03 (Sun) — 続: 21:30、本番勝利 ✨
+
+### 一行サマリー
+
+**CASE-6 を 779,500 → 723,500 まで詰めた**（LP-tight 0.69%、29 秒）。HiGHS-WASM が解けない規模を JS-native B&B が本番品質で解いた。
+
+### 経緯
+
+20:30 のターンで「B&B 配線したが production では未改善」と正直に報告した。
+ユーザーが「続けましょう」と言ってくれたので、本気で勝ちを取りに行った。
+
+### 仮説と検証
+
+19:30 の benchmark で「77 patterns なら B&B が 7.2 秒で 723,500 取れる」が分かっていた。
+20:30 の本番では 97 patterns で 60 秒タイムアウト、779,500 止まり。
+
+→ **20 patterns の差で 7.5 倍の探索木**。
+→ pattern 数を抑えれば B&B が時間内に届く、という仮説。
+
+### 配線改修
+
+`columnGen.js` を 4 点修正:
+
+1. **`maxPatterns` キャップ (default 80)**
+   CG ループに「pattern 数が 80 に達したら break」を追加。
+   LP は完全収束しないが、十分多様な pattern 集合になっているはず。
+
+2. **HiGHS subset 成功時も B&B を試す**
+   HiGHS が `cg_optimal` を返しても、それは active subset (~10 patterns) の最適。
+   global の最適とは限らないので、B&B on full patterns で再挑戦。
+
+3. **warm-start incumbent**
+   HiGHS subset 解と LP 丸めの **良い方** を B&B の初期上界として渡す。
+   B&B が時間切れでも「最低でも warm-start 値」を保証。
+
+4. **subset → full の座標変換**
+   HiGHS が subset 上で返した整数解を full patterns 座標に逆変換するロジックを追加。
+   これで HiGHS 結果を warm-start として使える。
+
+### 結果（CASE-6 production）
+
+| Stage | stockTotal | gap to LP | wall time |
+|---|---:|---:|---:|
+| LP 丸めのみ（旧）             | 779,500 | 9.64% | ~10s |
+| HiGHS subset MIP（旧）        | 811,000 | 12.74% | ~20s |
+| **B&B + warm-start (新)**     | **723,500** | **0.69%** | **29s** |
+
+**56,000 mm（約 7.2%）コスト削減**。LP-tight。
+HiGHS-WASM は CASE-6 規模の MIP を解けない（stack overflow）。これを JS で攻略した。
+
+### 今日 1 日の総括
+
+研究仮説 (algebra-derived smartness) は **2 連敗**:
+- Algebra Dominance pre-solve (17:50) → 棄却
+- Algebra-Guided branching (19:30) → 棄却
+
+しかし **実用設計**が勝った (21:30):
+- JS-native B&B + maxPatterns + warm-start の組み合わせで CASE-6 を LP-tight に
+
+`Phase 1 algebra` は今日も bridge 検証用としてしか出番がなかったが、それは「algebra が研究線では弱かった」のであって、TORIAI 本体の品質は確実に上がった。
+
+### Qiita §11 の「正直な評価」更新素材
+
+> 半世紀の MIP literature が育てた手法（CG, Most-Fractional, branch-and-bound）に対し、
+> 形式的「世界初」を狙った algebra 系仮説は弾き返された。
+> しかし「JS-native B&B を CG とハンドオーバーさせる設計」は実装的に正しく刺さり、
+> CASE-6 規模の問題を browser 上で LP-tight に解けるようになった。
+> **半世紀の理論を理解した上での実装的勝利**であって、理論的勝利ではない。これが honest な状況。
+
+### 明日の候補
+
+- (a) **Phase 4 着手**: 配線 v2 を Web Worker 経由で本番ブラウザに繋ぐ
+- (b) revised simplex + LU 更新で B&B 内 LP 高速化（100+ patterns 対応）
+- (c) algebra-driven CG-pricing — H2 の前提を変えた再挑戦
+
+ユーザーの好みで決めてもらう。
+
+---
+
 ## 2026-05-05 (Tue)
 
 ## ...

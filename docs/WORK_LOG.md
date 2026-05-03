@@ -38,6 +38,65 @@
 
 ## 2026-05-03
 
+### 21:30  [Claude]  🏆 本番勝利 — CASE-6 を 779,500 → 723,500 (LP-tight 0.69%)
+
+**依頼**: 続けましょう
+**やったこと**:
+- 20:30 で「B&B 配線したが production CASE-6 で未改善」と報告。続きとして真の勝利を取りに行った
+- 仮説検証: 「CG iterations を抑えると B&B が間に合う」
+  - benchmark の 7.2s/723,500 は **77 patterns** での結果
+  - production CG (maxIter=50) は **97 patterns** で B&B が timeout
+  - 仮説: 80 patterns 以下に抑えれば B&B が時間内に LP-tight に到達できる
+- 配線 v2 改修 (`columnGen.js`):
+  1. CG ループに **`maxPatterns` キャップ (default 80)** を追加 — 反復を 80 patterns で打ち切り
+  2. HiGHS MIP が subset で「optimal」を返しても **必ず B&B on full patterns** を試す（subset の最適は global の最適とは限らないため）
+  3. HiGHS subset 解と LP 丸めの **良い方を warm-start incumbent** として B&B に渡す
+  4. B&B が改善 → B&B 解、改善なし → warm-start ソースを採用
+
+**実験結果**（CASE-6 L65、production default config）:
+
+| Stage | stockTotal | gap to LP | wall time |
+|---|---:|---:|---:|
+| LP 丸めのみ（旧）             | 779,500 | 9.64% | ~10s |
+| HiGHS subset MIP（旧）        | 811,000 | 12.74% | ~20s |
+| **JS-native B&B + warm-start** | **723,500** | **0.69%** | **29s** |
+
+→ **約 7.2% コスト削減 (56,000mm)**、ほぼ **LP-tight** 到達。
+→ HiGHS-WASM が解けない CASE-6 規模を、JS-native B&B が **29 秒で本番品質**で解決
+- 統合テスト assertion を強化: `r.stockTotal <= 730_000` で回帰防止
+- 全 327 / 327 tests pass、回帰なし
+
+**key insight**:
+- 「**CG を完全収束させない + B&B にバトンタッチ**」が決め手
+- CG は LP-tight である必要はなく、十分な pattern 多様性 (~80) があれば B&B が後半を引き取る
+- 「LP → IP の役割分担」設計
+
+**ファイル**:
+- 更新: `src/calculation/yield/arcflow/columnGen.js`
+  - `maxPatterns=80` opt 追加 (CG 反復キャップ)
+  - HiGHS subset 成功時も B&B 試行
+  - warm-start incumbent (HiGHS subset or LP 丸め、良い方) を B&B に渡す
+  - HiGHS subset 解を full patterns 座標に逆変換するロジック
+- 更新: `tests/bb/integration.test.js` (default opts に変更、回帰 assertion 強化)
+- 更新: `docs/RESEARCH_BB_ALGEBRA.md` §12.1 「本番勝利」追記
+
+**Commit**: これから 1 件作成 → push
+
+**今日の総括**:
+- 17:50 Algebra Dominance pre-solve → 棄却 (CG が Pareto-aware)
+- 19:30 Algebra-Guided branching → 棄却 (CG が signal を消す)
+- 20:30 B&B 本番配線 → 完成だが production CASE-6 では未改善
+- **21:30 maxPatterns + warm-start 改修 → CASE-6 で 7.2% 改善、LP-tight 0.69% 到達** ✨
+
+研究仮説 (algebra) 2 連敗。**実用設計勝利 1 件**（B&B + maxPatterns + warm-start の組み合わせ）。
+これは Qiita の §11「正直な評価」を一段更新する素材: **「TORIAI が CASE-6 で LP-tight に到達した」** と書ける。
+
+**未完了 / 引継ぎ**:
+- 「世界初」狙いはまだ未達。次の研究線候補:
+  1. 配線 v2 を Web Worker 経由でブラウザ配線（Phase 4 着手）
+  2. revised simplex + LU 更新で B&B 内 LP 高速化 → 100 patterns 以上にも対応
+  3. CG-pricing 段に algebra signal を入れる（H2 の前提を変える）
+
 ### 20:30  [Claude]  🔌 B&B 本番配線 — no-harm 配線完了、ただし production CASE-6 では未改善
 
 **依頼**: クロードが思ういけそうなやつやろうぜ

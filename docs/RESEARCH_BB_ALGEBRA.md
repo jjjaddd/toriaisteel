@@ -269,6 +269,48 @@ H2 棄却により実施不要。
 
 ---
 
+## 12.1 配線後の **本番勝利** （2026-05-03 21:30）
+
+§12 で示した「副産物としての B&B 実装」が、配線設計を改善することで **CASE-6 production case で実際に勝った**:
+
+### 配線設計の最終形
+
+```
+1. CG 反復で patterns 集合を生成（maxPatterns=80 でキャップ）
+2. HiGHS MIP を active subset で試行（高速、small UB）
+3. LP 丸めを full patterns で計算（safety net、warm-start 候補）
+4. 上記 2 つの良い方を warm-start incumbent として B&B (full patterns) を実行
+5. B&B が改善を見つければそれを採用、見つけなければ warm-start 元を採用
+```
+
+### 数値結果
+
+| Stage | CASE-6 stockTotal | gap to LP | wall time |
+|---|---:|---:|---:|
+| LP 丸めのみ（旧）            | 779,500 | 9.64% | ~10s |
+| HiGHS subset MIP（旧）       | 811,000 | 12.74% | ~20s |
+| **JS-native B&B + warm-start** | **723,500** | **0.69%** | **29s** |
+
+→ 約 **7.2% コスト削減**、ほぼ **LP-tight** に到達。HiGHS-WASM が落ちる規模を JS で攻略。
+
+### key insight
+
+「**CG iterations を打ち切って B&B にバトンタッチ**」が決め手:
+- 反復 50 → 97 patterns → B&B 探索木巨大化、60s timeout
+- 反復 30 (or maxPatterns=80) → 77〜80 patterns → B&B が数十秒で LP-tight
+
+CG は必ずしも完全収束させる必要がない。十分な多様性 (~80 patterns) があれば B&B が後半を引き取れる。
+これは「LP→IP の役割分担」設計の好例。
+
+### Falsification 状態の更新
+
+H1 強く支持: **本番フローで CASE-6 を 0.69% gap で解いた**。HiGHS-WASM 単独では到達不能。
+
+H2 棄却（変更なし）: algebra-guided branching は依然として Most-Fractional に劣る。
+ただし B&B 配線そのものの実用利得は H2 とは独立に成立した。
+
+---
+
 ## 13. 残課題
 
 - LP precision: 私の LP が HiGHS と微小に異なる値を返す（CASE-6 で 222 違い）。tableau simplex の数値ドリフト。問題は実用上は無害（B&B 整数解は両方より上）だが将来的には revised simplex + LU 更新で解決可能

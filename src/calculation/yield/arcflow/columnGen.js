@@ -223,6 +223,10 @@ async function solveColumnGen(spec, opts) {
   // 大規模ケース (CASE-6 級 k=60+) で CG が収束せずタイムアウトする問題対策で、
   // デフォルトを小さく抑える。50 反復で十分な改善が得られる経験則。
   const maxIter = opts.maxIterations || 50;
+  // pattern 数キャップ: B&B フォールバックが扱える規模 (~80) に抑える。
+  // CG はこのキャップに達したら反復を打ち切る。LP は完全収束しないが、
+  // 十分多様な pattern を持ったところで B&B にバトンタッチ
+  const maxPatterns = opts.maxPatterns != null ? opts.maxPatterns : 80;
   const verbose = opts.verbose || false;
 
   // ---- 入力検証 + items 正規化 ----
@@ -333,6 +337,11 @@ async function solveColumnGen(spec, opts) {
       console.log('CG iter=' + iter + ' added pattern stock=' + bestPat.stock +
         ' reducedCost=' + bestReducedCost.toFixed(2) + ' lpObj=' + lpObjective);
     }
+    // pattern 数キャップに達したら CG 反復を打ち切る（B&B が扱える規模を維持）
+    if (patterns.length >= maxPatterns) {
+      if (verbose) console.log('CG stopped at maxPatterns=' + maxPatterns);
+      break;
+    }
   }
 
   // ---- IP recovery: Master を MIP として解く ----
@@ -359,8 +368,9 @@ async function solveColumnGen(spec, opts) {
     highsFailed = true;
   }
 
-  if (!highsFailed && highs.isOptimal(mipSol)) {
-    // 整数解抽出（mipPatterns に対して）
+  // HiGHS 成功 + subset を使ってない（= 全 patterns 解けた）→ それが本当の最適
+  const usedSubset = (mipPatterns.length < patterns.length);
+  if (!highsFailed && highs.isOptimal(mipSol) && !usedSubset) {
     const xInt = mipPatterns.map(function(_, k) {
       const col = mipSol.Columns['x' + k];
       return col ? Math.round(col.Primal || 0) : 0;
@@ -368,50 +378,102 @@ async function solveColumnGen(spec, opts) {
     return _formatResult('cg_optimal', spec, items, mipPatterns, xInt, mipSol.ObjectiveValue, lpObjective, iter);
   }
 
-  // ---- HiGHS MIP 失敗 → JS-native B&B フォールバック ----
-  // CASE-6 規模で HiGHS-WASM が stack overflow を起こすケースをここで救う
+  // HiGHS が subset でしか解けなかった or 失敗 → full patterns で B&B 試行
+  // HiGHS subset 解は warm-start incumbent の候補にする
+  let highsXFull = null;
+  let highsObj = Infinity;
+  if (!highsFailed && highs.isOptimal(mipSol)) {
+    // subset 上の x[] を full patterns 座標に持ち上げる
+    highsXFull = patterns.map(function() { return 0; });
+    mipPatterns.forEach(function(p, sk) {
+      const col = mipSol.Columns['x' + sk];
+      const v = col ? Math.round(col.Primal || 0) : 0;
+      if (v > 0) {
+        // mipPatterns[sk] が patterns 内のどの index か検索
+        const fullIdx = patterns.findIndex(function(fp) {
+          if (fp.stock !== p.stock) return false;
+          if (fp.counts.length !== p.counts.length) return false;
+          for (let i = 0; i < fp.counts.length; i++) {
+            if (fp.counts[i] !== p.counts[i]) return false;
+          }
+          return true;
+        });
+        if (fullIdx >= 0) highsXFull[fullIdx] = v;
+      }
+    });
+    highsObj = mipSol.ObjectiveValue;
+  }
+
+  // ---- HiGHS が full patterns を解けてない → full patterns で B&B ----
   if (lastLpSol) {
-    // 比較用 LP 丸め解（後で B&B が悪化させたとき退避先）
+    // 比較用 LP 丸め解（B&B 安全網 + 候補上界）
     const lpRounded = _roundLpInMemory(spec, items, patterns, lastLpSol, lpObjective);
 
-    // B&B を走らせる pattern 集合の選び方:
-    //   小規模 (<= 30) → 全 patterns
-    //   大規模 (> 30)  → active subset（HiGHS と同じ）に限定
-    //   理由: 大規模で全 patterns に B&B かけると探索木が大きすぎて time-out。
-    //        active subset は LP で実際に使われている patterns で、整数解候補
-    //        として十分な品質を持つ
-    const bbPatterns = (patterns.length > 30 && lastLpSol)
-      ? patterns.filter(function(p, k) {
-          const col = lastLpSol.Columns['x' + k];
-          return col && col.Primal > 0.001;
-        })
-      : patterns;
+    // lpRounded.bars を full patterns 上の x[] に逆変換
+    const lpRoundedX = patterns.map(function(_, k) {
+      let count = 0;
+      lpRounded.bars.forEach(function(b) {
+        if (b.stock !== patterns[k].stock) return;
+        const patPieces = [];
+        patterns[k].counts.forEach(function(c, i) {
+          for (let j = 0; j < c; j++) patPieces.push(items[i].length);
+        });
+        patPieces.sort(function(a, b) { return b - a; });
+        const barPieces = b.pattern.slice().sort(function(a, b) { return b - a; });
+        if (patPieces.length === barPieces.length &&
+            patPieces.every(function(v, i) { return v === barPieces[i]; })) {
+          count = b.count;
+        }
+      });
+      return count;
+    });
+
+    // 最良 warm-start を選ぶ: HiGHS subset 解 vs LP 丸め
+    let warmObj = lpRounded.stockTotal;
+    let warmX = lpRoundedX;
+    let warmSource = 'lp_rounded';
+    if (highsXFull && highsObj < warmObj) {
+      warmObj = highsObj;
+      warmX = highsXFull;
+      warmSource = 'highs_subset';
+    }
+    const warmIncumbent = { x: warmX, objective: warmObj };
 
     let bbRes;
     try {
-      bbRes = solveMipFromPatterns(bbPatterns, items, {
+      bbRes = solveMipFromPatterns(patterns, items, {
+        incumbent: warmIncumbent,
         timeLimit: opts.bbTimeLimit != null ? opts.bbTimeLimit : 15000,
         maxNodes: opts.bbMaxNodes != null ? opts.bbMaxNodes : 50000
       });
       if (opts.verbose) {
-        console.log('[CG-BB] full=' + patterns.length + ' subset=' + bbPatterns.length
+        console.log('[CG-BB] patterns=' + patterns.length
+          + ' warm_src=' + warmSource + ' warm_ub=' + warmObj
           + ' bb_status=' + bbRes.status + ' bb_obj=' + (bbRes.objective != null ? bbRes.objective : 'N/A')
           + ' bb_nodes=' + bbRes.nodeCount + ' lp_round=' + lpRounded.stockTotal);
       }
     } catch (e) {
+      // B&B 自身が落ちた → 既存上界 (HiGHS or LP 丸め) を採用
+      if (highsXFull) {
+        return _formatResult('cg_optimal_subset', spec, items, patterns, highsXFull, highsObj, lpObjective, iter);
+      }
       return lpRounded;
     }
 
+    // B&B 結果評価
     if ((bbRes.status === 'optimal' || bbRes.status === 'timelimit' || bbRes.status === 'nodelimit')
         && bbRes.x && isFinite(bbRes.objective)) {
-      if (bbRes.objective < lpRounded.stockTotal - 1e-6) {
+      if (bbRes.objective < warmObj - 1e-6) {
         const status = bbRes.status === 'optimal' ? 'cg_optimal_bb' : 'cg_bb_' + bbRes.status;
         const xInt = bbRes.x.map(function(v) { return Math.round(v); });
-        return _formatResult(status, spec, items, bbPatterns, xInt, bbRes.objective, lpObjective, iter);
+        return _formatResult(status, spec, items, patterns, xInt, bbRes.objective, lpObjective, iter);
       }
     }
 
-    // B&B 改善なし → LP 丸めを採用
+    // B&B が改善できなかった → warm-start ソースを採用
+    if (warmSource === 'highs_subset') {
+      return _formatResult('cg_optimal_subset', spec, items, patterns, warmX, warmObj, lpObjective, iter);
+    }
     return lpRounded;
   }
 
