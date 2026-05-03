@@ -38,6 +38,72 @@
 
 ## 2026-05-04
 
+### 07:30  [Claude]  🔬 研究 8 — Cross-Instance Pattern Library (G、partial 結果)
+
+**依頼**: デイリーとワークログはやりつづけてね。Gいこうぜ クロードならいける。ほかのAiに負けないでしょ。一番取ろうぜ
+
+**やったこと**:
+- 研究設計書 `docs/RESEARCH_LIBRARY.md` 起草: 仮説 H1〜H4
+- 実装 `src/calculation/yield/research/patternLibrary.js`:
+  - `extractAbstractPatterns` — CG 出力から `{pieces, stock, loss, yieldRatio}` 抽出
+  - `mergeLibrary` / `buildLibrary` — 複数 instance 集約
+  - `findApplicablePatterns` — exact length match
+  - `findApplicableApproximate` — ±tolerance 近似 match
+- `columnGen.js` に `opts.initialPatterns` を追加 (warm-start)
+- テスト `tests/research/patternLibrary.test.js` (7 件 pass)
+- 4 レベルで実証評価
+
+**実測結果（honest）**:
+
+Level 1 (6 実 case exact): applicable 0-2 / case → transfer ほぼゼロ
+Level 2 (6 case approximate tol 0.05): applicable 1-13 / case
+Level 3 (CASE-2 ±2% variants): applicable 4-22 / 同 project
+Level 4 (CASE-6 variants): HiGHS 状態劣化で評価不能
+
+**全レベルで CG iteration 削減効果ゼロ**。
+理由:
+1. FFD initial が既に LP basis をカバー（小規模では）
+2. piece length が project 固有で transferable なのは structure のみ
+3. FFD と library が「良い初期 pattern」で競合、被って上乗せ薄
+
+**仮説評価**:
+- H1 (warm-start で削減): 部分支持 △ (framework 動くが実測効果ゼロ)
+- H2 (similarity 依存): 支持 ✅
+- H3 (50%+ 削減): 棄却 ❌
+- H4 (低次元有限): 検証不可
+
+**「超える」目標 — honest な答え**: 今回は超えてない。
+- 単一 instance 性能は CG/B&B engineering に依存、library 寄与せず
+- ensemble across instances 場面が TORIAI フローで想定外
+- 実 user history が貯まれば再評価可能 → "埋まってる線路" 段階
+
+**今日の研究 8 連続のスコアカード**:
+
+| # | 結果 |
+|---|---|
+| 1-3 | ❌❌❌ |
+| 4 | ❌ バグ |
+| 5 | ✅ k-best |
+| 6 | △ Decomposition |
+| 7 | ✅ Explanation |
+| **8** | **△ Library framework 完成 / 効果なし** |
+
+性能向上系: 4 連敗 + 1 partial / 機能拡張系: 2 勝 + 1 部分支持
+
+**ファイル**:
+- 新規: `docs/RESEARCH_LIBRARY.md`, `docs/LIBRARY_RESULTS.md`
+- 新規: `src/calculation/yield/research/patternLibrary.js`
+- 新規: `tests/research/patternLibrary.test.js`
+- 修正: `src/calculation/yield/arcflow/columnGen.js` (initialPatterns opt)
+- 更新: `docs/ALGEBRA_DIARY.md`, `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**未完了 / 引継ぎ**:
+- 残 "超える" 候補: **K. Dual-Algebra LP** — exact rational simplex で世界初の symbolic-numerical CSP solver を主張可能。実装高難度
+- 実 user history (10-100 instance/user) があれば G 再評価
+- HiGHS-WASM 状態劣化問題: fresh load per call または JS-native LP 置換で解決可能
+
 ### 06:00  [Claude]  📚 doc 棚卸し + 次研究の honest 評価
 
 **依頼**: まだワンちゃんありそうなのどれ？　超えたくね？　あとデイリーつけてないでしょ？　つけつづけてね。やってないところから全部埋めて

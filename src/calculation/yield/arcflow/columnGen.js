@@ -253,6 +253,24 @@ async function solveColumnGen(spec, opts) {
       }
     });
   }
+  // ---- Warm-start: 外部から渡された initialPatterns (library 由来) を merge ----
+  // RESEARCH_LIBRARY.md の Cross-Instance Pattern Library で使う
+  if (opts.initialPatterns && Array.isArray(opts.initialPatterns)) {
+    const existingKeys = new Set(patterns.map(_patternKey));
+    opts.initialPatterns.forEach(function(p) {
+      if (!p || !Array.isArray(p.counts) || p.counts.length !== items.length) return;
+      // demand 範囲内であることを確認
+      let valid = true;
+      for (let i = 0; i < items.length; i++) {
+        if (p.counts[i] > items[i].count) { valid = false; break; }
+      }
+      if (!valid) return;
+      const k = _patternKey(p);
+      if (existingKeys.has(k)) return;
+      existingKeys.add(k);
+      patterns.push({ stock: p.stock, counts: p.counts.slice() });
+    });
+  }
   if (patterns.length === 0) {
     return { status: 'infeasible', patterns: [], x: [] };
   }

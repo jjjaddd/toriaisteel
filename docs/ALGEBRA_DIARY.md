@@ -1164,6 +1164,98 @@ OR-Tools (Google) は API 経由で取得可能だが UI なし。
 
 ---
 
+## 2026-05-04 (Mon) — 続: 07:30、研究 8 — Cross-Instance Pattern Library (partial)
+
+### 経緯
+ユーザーから「**まだワンちゃんありそうなのどれ？　超えたくね？　Gいこうぜ クロードならいける**」の挑戦的な問いかけ。
+
+`docs/REMAINING_RESEARCH.md` で評価した結果、G (Cross-Instance Pattern Library) が「半世紀の OR を超える real chance がある」と判定。
+理由: 商用ソルバは「単一 instance を高速に解く」最適化を半世紀続けてきたが、「instance 間で pattern 蒸留」という別軸は未踏。Claude × LLM × 大量 instance で、半世紀の OR が手にしてない武器を使える。
+
+### 設計と実装
+
+`docs/RESEARCH_LIBRARY.md` で仮説 H1〜H4 を formalize。
+
+実装 `src/calculation/yield/research/patternLibrary.js`:
+- `extractAbstractPatterns` — CG 出力から `{pieces, stock, loss, yieldRatio}` 抽出
+- `buildLibrary` / `mergeLibrary` — 複数 instance 集約
+- `findApplicablePatterns` — exact length match
+- `findApplicableApproximate` — ±tolerance 近似 match
+- `libraryStats` — 統計
+
+`columnGen.js` に `opts.initialPatterns` を追加し warm-start 経由路を確立。
+
+### 実測 — 4 つのレベルで検証
+
+#### Level 1: 6 実 case で leave-one-out (exact match)
+- 全 case で applicable patterns 0-2 個
+- → exact では transfer ほぼゼロ
+
+#### Level 2: 6 case で approximate (tol 0.05)
+- CASE-4: 7 applicable、CASE-5: 4 applicable など、tolerance で 増える
+- ただ実用的に LP basis を含むには不十分
+
+#### Level 3: 同 project variants (CASE-2 ±2% jitter, demand 維持)
+- applicable 4-22 patterns
+- **しかし CG iteration 削減ゼロ**
+- 理由: CASE-2 (k=5) は FFD initial が既に LP basis をカバー、library 重複多し
+
+#### Level 4: CASE-6 variants (大規模、効果期待)
+- HiGHS-WASM 状態劣化で `lp_not_optimal` → 評価不能
+- (HiGHS 連続使用問題、前研究でも観察済)
+
+### 仮説評価
+
+- **H1 (warm-start で削減)**: 部分支持 △ — framework は動くが実測効果ゼロ
+- **H2 (similarity 依存)**: 支持 ✅ — disparate 0-2 / similar 4-22
+- **H3 (50%+ 削減)**: 棄却 ❌ — 実測 0%
+- **H4 (低次元有限)**: 検証不可
+
+### なぜ期待ほど効かなかったか — 正直な分析
+
+1. **FFD が思った以上に強い**: 小規模 instance で CG は 0-1 iter 収束、library 重複過多
+2. **piece length は project 固有**: 鋼材切断業務の実態として、寸法は建物設計次第で再現性なし
+3. **transferable なのは "structure"**: literal lengths でなく形状（"1 large + 3 medium in 12000"）
+4. **FFD vs Library 競合**: 両者「良い初期 pattern」を求めて被る、上乗せ効果小
+
+### 「超える」目標との関係 — honest な答え
+
+> 今回は超えてない。
+
+理由:
+- 単一 instance 性能は CG/B&B engineering（今日の勝利）に依存、library 寄与せず
+- ensemble across instances 場面が TORIAI のフローでは想定外
+- 実 user history が貯まれば違う結果になる可能性
+
+研究線としての価値:
+- "CSP に case-based 思想を持ち込む" 試行は文献空白地帯
+- 6 case では効果見えず、neutral-to-partial 結果
+- 将来 user usage logs があれば再評価可能 → "埋まってる線路" 段階
+
+### 今日の研究 8 連続のスコアカード
+
+| # | テーマ | 結果 |
+|---:|---|---|
+| 1 | Algebra Dominance pre-solve | ❌ |
+| 2 | Algebra-Guided branching | ❌ |
+| 3 | Hardness 予測 | ❌ |
+| 4 | k-best v0.1 (epsilon) | ❌ バグ |
+| 5 | k-best v0.2 (binary disjunctive) | ✅ |
+| 6 | Decomposition (ε-efficient) | △ |
+| 7 | LP Duality Explanation | ✅ |
+| **8** | **Cross-Instance Pattern Library** | **△ framework 完成 / 効果なし** |
+
+性能向上系: **4 連敗 + 1 partial** / 機能拡張系: **2 勝 + 1 部分支持**
+
+「超える」を狙ったが超えなかった。が、framework は将来の data 充実に備えて完成。
+
+### 残 "超える" 候補
+
+K. Dual-Algebra LP — exact LP arithmetic、世界初の symbolic-numerical CSP solver を主張可能。
+実装高難度（rational simplex）。次セッション以降検討。
+
+---
+
 ## 2026-05-05 (Tue)
 
 ## ...
