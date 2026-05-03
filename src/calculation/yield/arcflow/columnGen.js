@@ -562,9 +562,80 @@ async function solveBest(spec, opts) {
 // 公開
 // ============================================================================
 
+// ============================================================================
+// solveColumnGenInspect — 内部 patterns を返すデバッグ版
+// CG 反復後の全 pattern 集合を取得（pruning 効果の研究用）
+// ============================================================================
+
+async function solveColumnGenInspect(spec, opts) {
+  opts = opts || {};
+  const maxIter = opts.maxIterations || 50;
+  if (!spec || !Array.isArray(spec.pieces) || !Array.isArray(spec.availableStocks)) {
+    return { status: 'invalid_input', patterns: [] };
+  }
+  const blade = spec.blade || 0;
+  const endLoss = spec.endLoss || 0;
+  const items = spec.pieces.map(function(p) {
+    return { length: p.length, count: p.count, weight: p.length + blade };
+  });
+  const stocksAsc = spec.availableStocks.slice().sort(function(a, b) { return a - b; });
+  let patterns = _initialPatternsFromFfd(spec, items);
+  if (patterns.length === 0) return { status: 'infeasible', patterns: [] };
+
+  let lpObjective = Infinity;
+  let lastLpSol = null;
+  for (let iter = 0; iter < maxIter; iter++) {
+    const lpStr = _buildMasterLp(patterns, items, false);
+    let sol;
+    try {
+      sol = await highs.solve(lpStr);
+    } catch (e) {
+      return { status: 'lp_error', patterns: patterns, error: e.message, iter: iter };
+    }
+    if (!highs.isOptimal(sol)) {
+      return { status: 'lp_not_optimal', patterns: patterns, iter: iter };
+    }
+    lpObjective = sol.ObjectiveValue;
+    lastLpSol = sol;
+
+    const dualPi = new Array(items.length).fill(0);
+    if (sol.Rows) {
+      for (let r = 0; r < sol.Rows.length; r++) {
+        const row = sol.Rows[r];
+        if (row.Name && row.Name.indexOf('demand_') === 0) {
+          const idx = parseInt(row.Name.substring(7), 10);
+          if (!isNaN(idx) && idx >= 0 && idx < items.length) dualPi[idx] = row.Dual;
+        }
+      }
+    }
+
+    let bestPat = null;
+    let bestRC = 1e-9;
+    for (const stock of stocksAsc) {
+      const cap = stock - endLoss + blade;
+      if (cap <= 0) continue;
+      const knapItems = items.map(function(it, i) {
+        return { value: dualPi[i], weight: it.weight, count: it.count };
+      });
+      const knap = boundedKnapsack(knapItems, cap);
+      const rc = knap.value - stock;
+      if (rc > bestRC && knap.counts.reduce(function(a, b) { return a + b; }, 0) > 0) {
+        bestRC = rc;
+        bestPat = { stock: stock, counts: knap.counts };
+      }
+    }
+    if (!bestPat) break;
+    const newKey = _patternKey(bestPat);
+    if (patterns.some(function(p) { return _patternKey(p) === newKey; })) break;
+    patterns.push(bestPat);
+  }
+  return { status: 'cg_inspected', patterns: patterns, lpObjective: lpObjective };
+}
+
 module.exports = {
   solveColumnGen: solveColumnGen,
   solveBest: solveBest,
+  solveColumnGenInspect: solveColumnGenInspect,
   _boundedKnapsack: boundedKnapsack,
   _buildMasterLp: _buildMasterLp,
   _initialPatternsFromFfd: _initialPatternsFromFfd

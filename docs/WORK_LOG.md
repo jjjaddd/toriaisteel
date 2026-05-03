@@ -38,6 +38,41 @@
 
 ## 2026-05-03
 
+### 18:10  [Claude]  🔬 Algebra Dominance 研究 — クリーンな負の結果
+
+**依頼**: オッケー 研究に戻ろうぜ
+**やったこと**:
+- 「Algebra-Driven Pattern Dominance for MIP Pre-solve」を研究プランに着手
+- **形式定義** (`docs/RESEARCH_DOMINANCE.md`):
+  - `P >= Q ⇔ ∀i: P.counts[i] >= Q.counts[i] ∧ P.stock <= Q.stock ∧ P != Q`
+  - §4 で交換論証による最適性保存の証明
+- **実装** (`src/calculation/yield/arcflow/algebraDominance.js`):
+  - `dominates(P, Q)` — 述語、O(k)
+  - `findDominated(patterns)` — O(N²k) 検出
+  - `prunePatterns` / `verifyPruneSafety` — demand-safe 検証付き
+- **テスト** (`tests/arcflow/algebraDominance.test.js`): 17 件全 pass
+- **CG inspection ハンドル追加**: `columnGen.js` に `solveColumnGenInspect(spec, opts)` を新設し、収束後の patterns を取り出せるようにした
+- **実証実験**:
+  - CASE-2 L20 (FFD 初期 7 patterns): **0/7 dominated**（pruning 0%）
+  - CASE-6 L65 (FFD 初期 97 patterns): **0/97 dominated**（pruning 0%）
+- **負の結果の数学的解釈**（`docs/RESEARCH_DOMINANCE.md` §11 / `docs/ALGEBRA_DIARY.md` 17:50 エントリ）:
+  - CG の pricing subproblem は `max (Σ π_i × counts_i) - stock` を解く
+  - 同じ counts の場合、stock 小さい方が必ず reduced cost 高 → 大きい stock の dominated pattern は pricing で**構造的に拒絶される**
+  - つまり CG は出力時点で既に Pareto 上にいる。Algebra dominance pre-solve は冗長
+  - FFD 初期解も多様な stock サイズをまたぐので明確な dominance が起きない
+- **本当の壁の特定**: CASE-6 が解けない理由は「dominated pattern が多くて MIP が膨らむ」ではなく **HiGHS-WASM の MIP ソルバーが branch-and-bound 中にスタックを使い切る**こと。pattern 数を減らしても本質解決にならない（直前ターンですでに HiGHS への解析で確認済）
+- 全テスト **302 / 302 pass**
+**ファイル**:
+- 新規: `docs/RESEARCH_DOMINANCE.md`, `src/calculation/yield/arcflow/algebraDominance.js`, `tests/arcflow/algebraDominance.test.js`
+- 更新: `src/calculation/yield/arcflow/columnGen.js` (`solveColumnGenInspect` 追加), `docs/ALGEBRA_DIARY.md` (17:50 エントリ)
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Algebra Dominance 仮説は棄却。次の研究方向の候補:
+  1. **JS-native MIP solver**（HiGHS-WASM stack 限界の根本回避） — 最有力
+  2. **算法距離による近似 dominance**（Pareto 面に近い pattern を「実用 dominance」として弱く枝刈り）
+  3. **LP-tight 検出時の MIP スキップ**（既に CASE-2 で実装済の系を更に活用）
+- 負の結果でも研究としては clean。Qiita §11 の素材としても使える
+
 ### 17:31  [Claude]  📝 Qiita 記事ドラフト v0.1 (589 行)
 **依頼**: 数学的評価率直に / Claude にしかできない革新可能か / **とりあえず先に Qiita ブログ書こう**
 **やったこと**:

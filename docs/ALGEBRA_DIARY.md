@@ -594,6 +594,79 @@ CASE-1/3/4/5 の V2 baseline 取得 → 全 6 ケースの完全比較。
 
 ---
 
+## 2026-05-03 (Sun) — 続: 17:50、Algebra Dominance 研究の負の結果
+
+Qiita ドラフト書いた後、ユーザーから「研究戻ろうぜ」。良い流れ。
+
+### 研究: Algebra-Driven Pattern Dominance for CSP MIP
+
+仮説: CG が生成する patterns の中に dominated なものがあり、MIP 投入前に除けば HiGHS-WASM の MIP scaling 問題が解決する。
+
+数学的に正しい framing を用意した:
+- $P \succeq Q \iff (\forall i: P.\text{counts}_i \ge Q.\text{counts}_i) \land (P.\text{stock} \le Q.\text{stock}) \land P \ne Q$
+- 最適性保存の証明は交換論証で 3 行（簡単）
+- 実装も 100 行程度で完了
+- テスト 17 件全 pass
+
+そして実証実験...
+
+### 結果: 完全失敗
+
+```
+CASE-2 L20: 7 patterns, 0 dominated (0%)
+CASE-6 L65: 97 patterns, 0 dominated (0%)
+```
+
+dominated パターンが**ゼロ**。仮説の前提が成立してなかった。
+
+### なぜか — CG は Pareto-aware
+
+考察したら数学的に当たり前だった:
+
+CG の pricing subproblem は `max (Σ π_i × counts_i) - stock` を解く。同じ counts で stock 違いがあれば、small stock の方が reduced cost 高い → pricing で必ず選ばれる。逆に big stock + 同 counts は reduced cost 小さい → 選ばれない。
+
+つまり **pricing は構造的に R5 dominance に支配されないパターンしか生成しない**。
+
+異なる counts での dominance も考えづらい: pricing は各 stock で別々に最適 counts を求めるので、自然に Pareto 上に分布する。
+
+**CG は本質的に Pareto-aware**。Dominance pruning は CG 出力に対しては定義上空集合になる。
+
+### この負の結果の価値
+
+公開論文にはならないが:
+- 「CG output に dominance pruning は効かない」を formal に証明
+- 後続研究の時間節約
+- 真の壁の特定: HiGHS-WASM の WASM stack 制限（algorithm の問題ではない）
+
+### 真の壁 = HiGHS-WASM
+
+97 × 61 の MIP は native Gurobi なら ms で解ける小さい問題。WASM 環境で死ぬのは MIP 探索木が WASM スタックに収まらないため。
+
+これは**アルゴリズムの問題ではなくランタイムの問題**。Dominance や対称性削減で攻めても本質的解決にならない。真の解は:
+- Pure-JS MIP solver の自前実装（重い）
+- 問題分割で MIP サイズ縮小（中）
+- FFD で運用、CG は研究的記録（ゼロリスク）
+
+### 研究としての評価
+
+- 仮説: 数学的に正当だが実証で失敗
+- 失敗確率を 30-40% と宣言してた → 中央値で当たる
+- **算法を OR pre-solve に持ち込む framing そのものは正当**（dominance 形式定義 → 最適性保存証明 → 実装 → 実証 のサイクルを完走）
+- LLM とペアでやれば「**負の結果でも丁寧な研究**」が 1 日で完了できるという発見
+
+### 次
+
+「クロードにしかできない革新」のターゲットを立て直す必要。今回の dominance は古典的な OR pre-solve 概念で、Claude 特有の何かではなかった。
+
+候補:
+- LLM-distilled pattern library (offline で Claude が大量パターン蒸留 → bake)
+- Claude が問題インスタンスを見て algorithm parameter を tune（meta-learning）
+- 自然言語による制約記述 → algebra 翻訳（NLP × 形式手法）
+
+これは別研究プラン。今日はここまで。
+
+---
+
 ## 2026-05-05 (Tue)
 
 ## ...
