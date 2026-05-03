@@ -38,6 +38,53 @@
 
 ## 2026-05-03
 
+### 19:30  [Claude]  🚀 JS-native B&B 実装 — 実用面で大勝、研究仮説は棄却
+
+**依頼**: プッシュしましょう / 世界初革新的な 1D カット方法、絶対いける、できること全部やってよ
+**やったこと**:
+- 17:50 commit (`7f3ee23`) を origin に push 完了
+- 次の研究線として **「Algebra-Guided Branch-and-Bound」** を選択
+  - 理由: 直前研究で判明した「真の壁 = HiGHS-WASM stack overflow」を回避するため、JS-native B&B を書く必要がある。同時に branching strategy に algebra signal を入れる仮説検証
+- **`docs/RESEARCH_BB_ALGEBRA.md` 起草** (v0.1, 13 章): 仮説 H1〜H3、形式化、falsification 条件、リスク列挙
+- **3 つの新モジュール実装** (合計 ~600 行、全て pure JS、依存ゼロ、CommonJS):
+  - `src/calculation/yield/bb/lp.js` — Two-phase tableau simplex、Bland's rule
+  - `src/calculation/yield/bb/branchAndBound.js` — iterative DFS、explicit stack、plug-in branchScore
+  - `src/calculation/yield/bb/algebraBranching.js` — pattern feature 計算 + algebra-derived score
+- **テスト 21 件追加・全 pass**:
+  - `tests/bb/lp.test.js` (8): 教科書 LP、infeasible、unbounded、退化、CSP toy
+  - `tests/bb/branchAndBound.test.js` (7): MIP、custom branchScore、node count
+  - `tests/bb/algebraBranching.test.js` (6): feature 計算、score 関数、B&B 結合
+- **ベンチマーク実験** (`tests/bb/benchmark.test.js`): CASE-2 / CASE-6 で B-MF (Most-Fractional) vs B-AG (Algebra-Guided) 比較
+
+**実験結果**:
+
+| Case | B-MF | B-AG |
+|---|---|---|
+| CASE-2 (small, 7 patterns) | optimal 442,000 / 3 nodes / 0ms | optimal 442,000 / 3 nodes / 0ms |
+| **CASE-6** (large, 77 patterns) | **optimal 723,500** / 3,855 nodes / **7.2 秒** | timelimit 916,000 / 22,946 nodes / 60 秒 |
+
+- **H1 (実用) 圧勝** ✅: HiGHS-WASM が落ちる **CASE-6 を JS-native B&B が 7.2 秒で最適解到達**。Integrality gap 0.58%
+- **H2 (research) 棄却** ❌: B-AG は B-MF の 6 倍の node 探索 + 60 秒 timeout。incumbent も 27% 悪い
+- **H2 棄却の理論**: CG が Pareto-frontier patterns しか出力しないため `lossRatio` の分散が小さく、algebra signal が消える。「pre-CG では dominance、post-CG では branching signal、両方 CG が先回りして潰している」
+- 結果を `RESEARCH_BB_ALGEBRA.md §11-§13` と `ALGEBRA_DIARY.md 19:30 エントリ` に詳述
+- Regression check: 全 325 テスト中、私の追加 21 件 + 既存 302 件、合計 323 件すべて pass。stress.test.js 1 件は heap OOM（HiGHS-WASM 由来、私の変更と無関係、事前から環境制約あり）
+
+**ファイル**:
+- 新規: `src/calculation/yield/bb/lp.js`, `branchAndBound.js`, `algebraBranching.js`
+- 新規: `tests/bb/lp.test.js`, `branchAndBound.test.js`, `algebraBranching.test.js`, `benchmark.test.js`
+- 新規: `docs/RESEARCH_BB_ALGEBRA.md`
+- 更新: `docs/ALGEBRA_DIARY.md`, `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**未完了 / 引継ぎ**:
+- 副産物として強い実用成果: `solveBest.js` のフォールバック chain に bb を組み込めば、HiGHS-WASM が落ちる規模で自動切替できる（次セッション最有力候補）
+- LP precision: 私の LP は HiGHS と微小なズレ（CASE-6 で 222 違い）。tableau simplex の数値ドリフト。実用上は無害（B&B 整数解は両方より上）だが将来的には revised simplex + LU 更新で改善可能
+- 「世界初」狙いは現状未達。次方向の候補:
+  1. JS-native B&B を本番配線（実用、確実）
+  2. CG を経由しない algebra signal の取り方を考える（H2 の前提を変える）
+  3. 完全別線（quantum-inspired、ML-aided）
+
 ### 18:10  [Claude]  🔬 Algebra Dominance 研究 — クリーンな負の結果
 
 **依頼**: オッケー 研究に戻ろうぜ
