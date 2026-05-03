@@ -1,6 +1,6 @@
 # TORIAI Architecture Map
 
-TORIAI の全体構造メモ。新しい開発者や AI は、まずこのファイルと `docs/AI_RULES.md` を読む。
+TORIAI の全体構造とディレクトリマップ。新しい開発者や AI は、作業開始前にまずこのファイルと `docs/AI_RULES.md` を読むこと。
 
 ## 1. 全体構成
 
@@ -48,42 +48,52 @@ Supabase
 - ローカル秘匿ファイル: `src/calculation/yield/columnGeneration.js`
 - `.gitignore` で `supabase/` と `src/calculation/yield/columnGeneration.js` は除外
 - GitHub Pages に出すのは無料版 / 公開してよい計算ロジックのみ
+- **V3「代数版」プロジェクトについて**: 新規の記号代数エンジンはローカルのWASM（HiGHS）で完結させるため公開領域に置くが、既存の V2 (ヒューリスティクス) と V1 はフォールバック用としてそのまま維持する。
 
-## 5. ディレクトリ構成
+## 5. ディレクトリ構成（詳細版）
 
 ```text
 /
-  index.html              # 静的アプリ本体の HTML
-  service-worker.js       # PWA / cache
-  CNAME / .nojekyll       # GitHub Pages
-  sitemap.xml             # SEO
-  REFACTOR_TODO.md        # リファクタ履歴
-  HANDOFF.md              # 次作業者向け引継ぎ
-  NOTES.md                # 秘密の開発日記。git 管理しない
-  docs/
-    ARCHITECTURE.md       # このファイル
-    AI_RULES.md           # AI に渡すルール
-    TASK_BOARD.md         # タスク / バグ管理
-    DEV_LOG.md            # エラー備忘録
+  index.html              # アプリ本体のHTML。全JSスクリプトの読込順をここで厳密に制御する
+  service-worker.js       # PWA のオフラインキャッシュ制御。更新時は CACHE_NAME を上げる
+  CNAME / .nojekyll       # GitHub Pages デプロイ用の設定ファイル群
+  sitemap.xml             # SEO用サイトマップ
+  OLD_DOC/                # 旧ドキュメント群（TASK_BOARD, DEV_LOG, 過去の引継ぎ等）の隔離領域
+  docs/                   # プロジェクトの正本となるアクティブなドキュメント群
+    ARCHITECTURE.md       # このファイル（全体構成）
+    AI_RULES.md           # 開発時の絶対ルール、コーディング規約、AIへのプロンプト
+    WORK_LOG.md           # 開発作業の全ログ（1ターン1エントリ。並走AIによる衝突回避プロトコルあり）
+    DATA_TAB_DIAGRAM_TODO.md # データタブのSVG断面図テンプレート化の進捗管理
+    ALGEBRA_*.md          # V3「代数版」プロジェクト専用の設計書・計画・バグ履歴・開発日記
   src/
-    assets/               # icon / logo / manifest
-    auth/                 # 旧 auth session helper
-    calculation/          # クライアントに置いてよい計算ロジック
-    compat/               # 旧グローバル互換。増やさない
-    core/                 # namespace 等の基盤
-    data/                 # 鋼材・規格データ。ロジック禁止
-    features/             # 機能単位 UI / business flow
-    inventory/            # 在庫 service
-    services/             # storage / Supabase / gateway
-    storage/              # local storage repository
-    styles/               # CSS
-    ui/                   # 横断 UI helpers
-    utils/                # 汎用 helper
-  staging-auth-org/       # auth / org 再開用の試作原本
-  supabase/               # Edge Functions。git 管理しない
-  tests/                  # Jest tests
-  tools/                  # GAS 等の補助
-  benchmark/              # アルゴリズム検証。秘匿ドキュメントを含む
+    assets/               # PWA用アイコン、ロゴ画像、manifest.json 等の静的リソース
+    auth/                 # [凍結中] ログイン・セッション管理の旧ヘルパー
+    calculation/          # 計算ロジック本体。純関数原則を守り、DOM/UI/localStorageには一切依存させない
+      yield/              # 歩留まり計算関連
+        algebra/          # [進行中] V3「代数版」の心臓部（項書換系、等価類圧縮）。Claude専用
+        arcflow/          # [進行中] V3の数値ソルバー基盤（HiGHS-WASM連携）。Claude専用
+        columnGeneration.js # [秘匿] V2の列生成ロジック。Git公開禁止
+        algorithmV2.js    # 現在稼働中のV2（ヒューリスティクス）エントリポイント
+        algorithmV3.js    # 開発中のV3エントリポイント。V2を後ろから上書きする(Drop-in patch)
+      orchestration.js    # 複数アルゴリズムの制御、結果の統合ラッパー
+    compat/               # 旧グローバル変数 (`window.xxx`) を維持するためのブリッジ。新規追加禁止
+    core/                 # `Toriai` 名前空間の定義など、アプリの最も基礎となる基盤
+    data/                 # 鋼種ごとの規格寸法や重量などの静的データ。計算ロジックはここに入れない
+    features/             # 画面の機能単位（タブ等）でまとめたUI制御と業務フロー
+      calc/               # 「計算タブ」のUI、入力フォーム制御、計算初期化
+      dataTab/            # 「データタブ」のUI、SVG断面図の描画（sectionSvg.js等）
+      weight/             # 「重量タブ」のUI
+    inventory/            # [凍結中] 在庫管理サービスのUIとロジック
+    services/             # 外部API通信（Supabase連携、Edge Functions呼出、Gateway等）
+    storage/              # localStorageの読み書きをラップし、オブジェクトとして扱うリポジトリ層
+    styles/               # UIを構成するCSSファイル群
+    ui/                   # 複数機能（features）から使い回される汎用UIコンポーネント（ボタン、モーダル等）
+    utils/                # フォーマット変換や文字列処理など、UIに依存しない汎用ヘルパー関数
+  staging-auth-org/       # [凍結中] 事業所共有・ログイン機能再開用の試作コード原本
+  supabase/               # [秘匿] Edge Functions等のバックエンド処理。Git管理対象外
+  tests/                  # Jest による単体テスト、結合テスト群 (`npm run test`)
+  tools/                  # Google Apps Script (GAS) 等の外部連携・補助ツール
+  benchmark/              # V1/V2/V3アルゴリズムの性能検証用スクリプトと秘匿ドキュメント
 ```
 
 ## 6. 起動順の重要ルール
