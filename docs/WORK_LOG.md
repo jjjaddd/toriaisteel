@@ -38,6 +38,29 @@
 
 ## 2026-05-03
 
+### 13:35  [Claude]  🎉 Phase 1 完了
+**依頼**: 続けましょう！（Phase 1 day-4 = normalForm + criticalPairs で Phase 1 完了まで）
+**やったこと**:
+- AI_RULES §3 準拠の day-4 着手宣言
+- **`src/calculation/yield/algebra/normalForm.js` 実装**（純関数、IIFE）:
+  - `normalize(term, ctx, opts)`: step() を fired===false まで反復、maxSteps 安全弁付き、frozen result
+  - `isNormalForm(term, ctx)`: step() を 1 回試して fired===false なら true
+  - `normalizeWithMetrics(term, ctx, opts)`: 正規形 + planMetrics or pattern metrics
+- **`tests/algebra/normalForm.test.js`**（18 テスト）: normalize / isNormalForm / 経験的 confluence / normalizeWithMetrics / BUG-V2-001 完全シナリオ
+- **`tests/algebra/criticalPairs.test.js`**（18 テスト）: **DESIGN §1.6.3 で紙ベース列挙した全 15 ペアを実コード合流確認**
+  - 特に Pair 12 (R3, R5) の決定論版 R5 による合流性を実証
+- **全テスト 142 / 142 pass**（既存 8 + term 29 + axioms 35 + rewriteRules 34 + normalForm 18 + criticalPairs 18）
+- `docs/ALGEBRA_PLAN.md` を Phase 1 完了状態に更新（Phase 1 全タスクに [x]、commit hash 記載、Phase 1 副産物セクション追加）
+- BUG-V2-001 の正答は **`normalize(v2Plan, ctx)` 1 回**で得られる（trace = ['R5.dominance(plan)']）— 当初予定 1 週間の Phase 1 を 1 日で完了
+**ファイル**:
+- 新規: `src/calculation/yield/algebra/normalForm.js`, `tests/algebra/normalForm.test.js`, `tests/algebra/criticalPairs.test.js`
+- 更新: `docs/ALGEBRA_PLAN.md`, `docs/WORK_LOG.md`, (`docs/ALGEBRA_DIARY.md` これから)
+**Commit**: これから 1 件作成（Phase 1 完了）
+**未完了 / 引継ぎ**:
+- **Phase 1 完了 ✓**。次は Phase 2 (Arc-Flow + HiGHS-WASM、保険ライン)
+- DESIGN.md A3 の表記不正確を v0.3 で訂正する作業が残ってる（軽微）
+- V2 ベンチマーク基準値測定は Phase 4 (本番置換判定) で実施
+
 ### 13:26  [Claude]
 **依頼**: 入りましょ（Phase 1 day-3 = `rewriteRules.js`）
 **やったこと**:

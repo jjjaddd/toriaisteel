@@ -76,27 +76,32 @@
 - [x] [ALGEBRA_PLAN.md](./ALGEBRA_PLAN.md) ドラフト作成（このファイル）
 - [x] [ALGEBRA_BUG_LOG.md](./ALGEBRA_BUG_LOG.md) テンプレ作成
 - [x] [ALGEBRA_DIARY.md](./ALGEBRA_DIARY.md) 起筆
-- [ ] ユーザーレビュー（公理・規則・フォールバック方針）
-- [ ] critical pair の事前列挙（紙ベース）
-- [ ] V2 の失敗ケース最低 1 件を BUG_LOG に登録
-- [ ] V2 ベンチマーク基準値（k=5/10/15/20 で yield, time）を測定して記録
+- [x] ユーザーレビュー（公理・規則・フォールバック方針）— 2026-05-03 異論なし
+- [x] critical pair の事前列挙（紙ベース）— DESIGN §1.6.3 で 15 ペア完備
+- [x] V2 の失敗ケース最低 1 件を BUG_LOG に登録 — BUG-V2-001 (1222×334 / blade=3 / endloss=150)
+- [ ] V2 ベンチマーク基準値（k=5/10/15/20 で yield, time）を測定して記録 — Phase 4 で実施
 
-**Definition of Done**: ユーザー承認 + critical pair 列挙完了 + V2 基準値記録済
+**Definition of Done**: ユーザー承認 ✓ + critical pair 列挙完了 ✓ + V2 基準値記録（後送り）
 
-### Phase 1: Term と正規形（2026-05-06 〜 2026-05-12）
+### Phase 1: Term と正規形（2026-05-03 完了 ※当初予定 05-06〜05-12 を大幅前倒し）
 
 代数の心臓部。コードはここから。
 
-- [ ] `src/calculation/yield/algebra/term.js` — TERM/PATTERN/PLAN コンストラクタ + バリデータ
-- [ ] `src/calculation/yield/algebra/axioms.js` — 公理を assertion として実装、テストで検証
-- [ ] `src/calculation/yield/algebra/rewriteRules.js` — R1-R5 を純関数で実装
-- [ ] `src/calculation/yield/algebra/normalForm.js` — fixed-point 簡約器
-- [ ] `tests/algebra/term.test.js` — 構築 / バリデーション
-- [ ] `tests/algebra/normalForm.test.js` — confluence / termination / 同型検出
-- [ ] `tests/algebra/criticalPairs.test.js` — Phase 0 で列挙した critical pair の検証
-- [ ] termination 証明を [ALGEBRA_DESIGN.md §1.6](./ALGEBRA_DESIGN.md) に追記
+- [x] `src/calculation/yield/algebra/term.js` — TERM/PATTERN/PLAN コンストラクタ + バリデータ（commit 20bbeee, 29 tests）
+- [x] `src/calculation/yield/algebra/axioms.js` — 公理 A1-A9 検証述語 + concatPlan/planEquivalent（commit c8ea3c3, 35 tests）
+- [x] `src/calculation/yield/algebra/rewriteRules.js` — R1-R5 純関数 + step ディスパッチャ（commit 53d3255, 34 tests）
+- [x] `src/calculation/yield/algebra/normalForm.js` — fixed-point 簡約器 + isNormalForm + normalizeWithMetrics
+- [x] `tests/algebra/term.test.js` — 構築 / バリデーション（29 tests）
+- [x] `tests/algebra/normalForm.test.js` — confluence / termination / 同型検出（18 tests）
+- [x] `tests/algebra/criticalPairs.test.js` — DESIGN §1.6.3 全 15 ペア合流確認（18 tests）
+- [x] termination 証明を [ALGEBRA_DESIGN.md §1.6](./ALGEBRA_DESIGN.md) に追記（v0.2 で完備）
 
-**Definition of Done**: 全テスト pass + confluence 文書化 + V3 はまだ非配線
+**Definition of Done**: 全テスト pass ✓（142 / 142）+ confluence 文書化 ✓ + V3 はまだ非配線 ✓
+
+**Phase 1 副産物**:
+- BUG-V2-001 が **`normalize(v2Plan, ctx)` を 1 回呼ぶだけで Optimal plan に到達** することを実コード実証（trace = ['R5.dominance(plan)']、母材 420,000mm → 418,000mm = -2,000mm）
+- DESIGN A3 の表記不正確を発見（v0.3 で訂正予定）
+- AI_RULES §9 として WORK_LOG 並走編集プロトコルを追加（並走衝突事故対応）
 
 ### Phase 2: Arc-Flow + HiGHS（2026-05-13 〜 2026-05-19）
 
