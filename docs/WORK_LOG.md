@@ -36,7 +36,80 @@
 
 ---
 
-## 2026-05-03
+## 2026-05-04
+
+### 03:30  [Claude]  🔬 研究 6 — CSP Compatibility-Graph Decomposition (部分支持)
+
+**依頼**: 研究ベースなのはどれ？　まだまだやろうぜできることあるでしょ、発想、きっかけ、なにかあるよやってれば。
+
+**やったこと**:
+- 「algebra → 性能向上」5 連敗に対し、新角度として **構造分解 (decomposition)** をブレインストーム
+- 10 個の研究方向候補を列挙、その中から「Compatibility-Graph Decomposition」を選択
+  - 理由: CSP 文献に薄い角度、仮説 clean、6 ケースで graph 構造定量化可能
+- `docs/RESEARCH_DECOMP.md` 起草: 仮説 H1〜H3、formalization、Theorem (graph disjoint → 独立最適の和 = global 最適)
+- 実装 `src/calculation/yield/research/decomposition.js`:
+  - `buildCompatibilityGraph(spec, opts)` — basic feasibility + ε-efficient mode 両対応
+  - `decomposeCsp(spec)` — 連結成分でサブ問題に分解
+  - `solveDecomposed(spec, opts)` — 各成分を独立 solveColumnGen
+- テスト `tests/research/decomposition.test.js` (3 件 pass)
+- endLoss bug 発見・修正 (2×endLoss → endLoss、columnGen の規約に合わせる)
+
+**実測結果**:
+
+Basic mode 全 6 ケース 1 成分 → **H1 完全棄却**。
+
+ε-efficient mode (ε=0.03〜0.05):
+
+| Case | basic | ε=0.05 | normal solve | ε-decomposed | diff |
+|---|---|---|---:|---:|---:|
+| **CASE-3** | 1c | **2c [2,2]** | 239,000 (100ms) | **238,000 (6ms)** | **-1,000 (-0.42%)** |
+| CASE-4 | 1c | 1c (ε=0.03 で 3c) | 419,000 (10s) | 424,000 | +5,000 (+1.2%) |
+| **CASE-5** | 1c | **4c [23,1,1,1]** | 535,000 (22s) | **523,000** | **-12,000 (-2.24%)** |
+| CASE-6 | 1c | 45c (1 大 + 44 singleton) | 723,500 | (sub-CSP infeasible 多発) | — |
+
+→ **CASE-3 と CASE-5 で品質改善** (分解 solve が monolithic solve を上回る)
+
+**なぜ改善するか（理論的考察）**:
+- 大きな monolithic 問題は CG が `maxPatterns=80` cap、B&B が `nodelimit` で完全収束しない
+- 分解後の sub-CSP は小さく、各々 LP-tight に到達
+- **「大きな問題を最後まで解けない」より「小さな問題を完全に解いて合計」が勝る現象**
+
+**仮説評価**:
+- H1 (basic compat で分解可能): 棄却 ❌
+- H1' (ε-efficient で分解可能): 部分支持 △ (一部ケース)
+- H2 (分解 solve が高速 / 高品質): CASE-3, CASE-5 で支持 ✅、CASE-4 で棄却 ❌
+- H3 (lossless): basic のみ lossless、ε-efficient は cross-component を排除する trade-off
+
+**今日の研究 6 連続:**
+1. ❌ Algebra Dominance pre-solve
+2. ❌ Algebra-Guided branching
+3. ❌ Hardness 予測
+4. ❌ ナイーブ k-best v0.1 (バグ)
+5. ✅ k-best v0.2 — 機能拡張勝利
+6. △ **Decomposition** — 部分支持（一部 case で速度+品質改善）
+
+「algebra → 性能向上」は引き続き直接は難しいが、**構造分析を通じた間接的勝利**は可能と判明。
+特に CASE-3, CASE-5 で 0.42%-2.24% の改善は実測値として残る。
+
+**Qiita §11 追加素材**:
+> 「CSP は全 piece が密に連結している」という直感は basic feasibility では正しいが、
+> ε-efficient compatibility では一部の instance に hidden structure がある。
+> その構造を使えば、分解 solve が monolithic solve を品質・速度ともに上回ることがある。
+
+**ファイル**:
+- 新規: `docs/RESEARCH_DECOMP.md`, `docs/DECOMP_RESULTS.md`
+- 新規: `src/calculation/yield/research/decomposition.js`
+- 新規: `tests/research/decomposition.test.js`
+- 更新: `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**未完了 / 引継ぎ**:
+- ε の最適化: 各 case で異なる ε が良い → 自動チューニングロジック未実装
+- CASE-6 系の 45 components (1 big + 44 singletons) は実用的に解きにくい
+- HiGHS-WASM 連続使用での状態劣化問題（sub-CSP 連続解きで fresh load が必要）
+- TORIAI 本体への配線: 「分解 mode」を opt-in 機能として追加可能
+- 続く研究角度: explanation generation, anytime CSP, robust CSP, sensitivity analysis 等
 
 ### 25:30  [Claude]  ✨ 研究勝利 — Algebraic k-best 多様解列挙
 
