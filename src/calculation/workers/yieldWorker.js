@@ -1,12 +1,13 @@
 importScripts(
-  '/src/core/toriai-namespace.js?v=phase2',
-  '/src/data/steel/stockHelpers.js?v=phase2',
-  '/src/calculation/yield/barMetrics.js?v=phase2',
-  '/src/calculation/yield/patternPacking.js?v=phase2',
-  '/src/calculation/yield/repeatPlans.js?v=phase2',
-  '/src/calculation/yield/bundlePlan.js?v=phase2',
-  '/src/calculation/yield/calcCore.js?v=phase2',
-  '/src/calculation/yield/algorithmV2.js?v=phase2'
+  '/src/core/toriai-namespace.js?v=phase3',
+  '/src/data/steel/stockHelpers.js?v=phase3',
+  '/src/calculation/yield/barMetrics.js?v=phase3',
+  '/src/calculation/yield/patternPacking.js?v=phase3',
+  '/src/calculation/yield/repeatPlans.js?v=phase3',
+  '/src/calculation/yield/bundlePlan.js?v=phase3',
+  '/src/calculation/yield/calcCore.js?v=phase3',
+  '/src/calculation/yield/algorithmV2.js?v=phase3',
+  '/src/calculation/yield/algorithmV3.js?v=phase3'
 );
 
 (function(global) {

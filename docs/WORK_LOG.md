@@ -38,6 +38,30 @@
 
 ## 2026-05-03
 
+### 16:03  [Claude]  🚨 Phase 3 day-2 真の原因発見 — Web Worker が V3 を読み込んでなかった
+**依頼**: 母材数より歩留まりにフォーカス、TORIAI は定尺選べる、これ読み込めてない？
+**やったこと**:
+- スクリーンショット console を確認: `[TORIAI v3] algorithmV3 loaded` 出てる → メインスレッドでは V3 ロード済
+- Node テストで再現: V3 が正しく勝ってる (V3=2.42% / V2=3.11% lossRate)
+- だが画面は V2 の 96.9% のまま
+- **真の原因**: 計算は **Web Worker (`yieldWorker.js`)** で実行されてて、Worker の `importScripts` に algorithmV3.js が含まれてなかった
+  - メインスレッドの V3 patch は Worker からは見えない（独立 context）
+  - Worker は V2 の calcCore で計算 → 結果は V2 のまま
+  - メインスレッドでは V3 ロードログだけ出て実際の計算には未参加
+- 修正:
+  - `src/calculation/workers/yieldWorker.js` の `importScripts` に algorithmV3.js を追加（全 query を `?v=phase3` に統一）
+  - `src/calculation/yield/workerClient.js` の Worker URL query を `?v=phase3v3` にバンプ（古いキャッシュ無効化）
+  - `service-worker.js` CACHE_NAME を v161 → v162 にバンプ
+- **全テスト 260 / 260 pass**（変更は worker/cache のみ、テストは前と同じ）
+**ファイル**:
+- 更新: `src/calculation/workers/yieldWorker.js`, `src/calculation/yield/workerClient.js`, `service-worker.js`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- ユーザーがブラウザで Ctrl+Shift+R 強制リロード
+  - 期待結果: 1222×333 で desc に「10,000mm × 41本 + 7,000mm × 1本 [V3]」が yieldCard1 として表示、歩留まり 97.58%
+- まだダメなら DevTools → Application → Service Workers → Unregister を実行してから再リロード（service worker 強制更新）
+- ユーザー指摘「歩留まりにフォーカス」→ V3 設計は元々それで合ってる。今度こそ反映される
+
 ### 15:53  [Claude]  Phase 3 day-2 修正 — V3 が常に勝つ dual-strategy 採用
 **依頼**: V3 になってない、[V3] ついてない（スクリーンショット: 1222×333 で 10m×42 = 420,000mm）
 **やったこと**:
