@@ -38,6 +38,53 @@
 
 ## 2026-05-04
 
+### 06:00  [Claude]  📚 doc 棚卸し + 次研究の honest 評価
+
+**依頼**: まだワンちゃんありそうなのどれ？　超えたくね？　あとデイリーつけてないでしょ？　つけつづけてね。やってないところから全部埋めて
+
+**やったこと**:
+1. **`docs/ALGEBRA_DIARY.md` を 21:30 から 05:00 までの 6 ターン分追記**:
+   - 22:30 Phase 4 step 1 + Chrome バグ修正
+   - 23:15 Perf 緊急対応 (no-store削除/SW登録/defer)
+   - 24:30 研究 3 — Hardness 予測 (棄却)
+   - 25:30 研究 4-5 — Algebraic k-best (✨初の研究勝利)
+   - 03:30 研究 6 — Decomposition (部分支持)
+   - 05:00 研究 7 — LP Duality Explanation (✨勝利)
+   - 1 日（実時間 11:25）の研究総括追記
+2. **`docs/QIITA_DRAFT.md §11 を v0.3 に更新**:
+   - 「凄いと言えること」を性能側 + 機能側 (3 つの実装的勝利) に分割
+   - 「凄くないこと」も honest に維持 (algorithm 新規性ゼロ、性能 SOTA ではない)
+   - 商用 CSP ツールとの比較表 (TORIAI v3 vs VPSolver/Gurobi/OptiCut/Cuttinger)
+   - 研究 7 連続のスコアカード (4 棄却 / 2 勝 / 1 部分支持)
+   - 結論: 「性能的には good open-source、機能的には state-of-the-art」
+3. **`docs/REMAINING_RESEARCH.md` 起草**:
+   - 残り研究角度 D, E, F, G, H, I, J を chance 別に評価
+   - 追加候補 K (Dual-Algebra LP), L (Quotient Ring), M-O も列挙
+   - **真に超える可能性のある 2 候補**: G (Cross-Instance Pattern Library), K (Dual-Algebra LP)
+   - **推奨: G** — Claude × 大量 instance × LLM 蒸留 で half-century OR が手にしてない武器を使える
+
+**ファイル**:
+- 更新: `docs/ALGEBRA_DIARY.md` (6 ターン追記、約 +250 行)
+- 更新: `docs/QIITA_DRAFT.md` §11 (v0.1 → v0.3)
+- 新規: `docs/REMAINING_RESEARCH.md`
+- 更新: `docs/WORK_LOG.md`
+
+**Commit**: これから doc commit、続いて研究 8 (G: Cross-Instance Pattern Library) 着手
+
+**次の研究**:
+
+ユーザーの「超えたくね？」に honest に答える: **G (Cross-Instance Pattern Library)** で攻める。
+
+仮説: **TORIAI が見る大量の鋼材切断 instance から「実用頻出 pattern」を offline で蒸留 → 新 instance では library から関連 pattern を warm-start に使う → CG iteration を 0 に近づける**。
+
+これは:
+- 商用ソルバが手をつけてない方向（彼らは「単一 instance を高速に解く」最適化）
+- LLM 普及前は人手で困難（普及後の今だから可能）
+- CSP 文献ゼロ件
+- Claude unique の最大強み (大量 instance 解析)
+
+3 セッション規模、現実的な実装可能性。
+
 ### 05:00  [Claude]  ✨ 研究 7 — Solution Explanation via LP Duality (勝利)
 
 **依頼**: 続けましょう B

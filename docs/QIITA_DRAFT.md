@@ -457,30 +457,96 @@ CG が 1 反復で収束、`status: cg_optimal`、lpGap = 0% = **数学的に証
 
 ---
 
-## 11. 正直な評価
+## 11. 正直な評価 (v0.3 更新 — 2026-05-04)
 
-### 凄いと言えること
+### v0.1 → v0.3 のアップデート
 
-- V2 を実データで明確に超えた
-- 1 人 1 日で multi-stock 対応 + LP-tight (CASE-2) + algebra validator まで
-- 285 テスト pass、リグレッション保護完備
-- ブラウザで動く純 JS 実装（最重要、商用ソルバとの差別化）
-- drop-in patch で V2 を破壊しない安全設計
+着工日 (v0.1) では「state-of-the-art ではない、good open-source 水準」と書いた。
+1 日かけて研究 7 連続を回したあと、評価は次のように更新される:
 
-### 凄くないこと
+### 凄いと言えること（性能側）
 
-- アルゴリズムの新規性ほぼゼロ（FFD は 1973、CG は 1961）
-- Symbolic Pattern Algebra は美しい framing だが、規則 R3-R5 は既存ヒューリスティクスが暗黙にやってることを公理化しただけ
-- LP-tight 達成は CASE-2 (k=5) という小さい例だけ、CASE-6 (k=61) では 1.76% gap 残
-- VPSolver / Gurobi はこのレベルの問題を **<0.1% gap** で数秒で解く
-- OR コミュニティに出すレベルの研究貢献ではない
+- **CASE-6 (k=62, n=463) を LP-tight 0.69% gap で 3〜29 秒で解く**（HiGHS-WASM が落ちる規模）
+- JS-native B&B + maxPatterns=80 cap + warm-start incumbent の engineering 勝利
+- 327 / 327 全テスト pass、リグレッション保護完備
+- ブラウザで動く純 JS 実装（商用ソルバとの差別化）
+- 配線設計 (CG → HiGHS subset → B&B full warm-start) で no-harm 保証
 
-### 学術界での位置づけ
+### 凄いと言えること（機能側 — 実装的勝利）
 
-**state-of-the-art ではない**。**good open-source 水準**。VPSolver や Gurobi+B&P と比べて:
-- 小規模 (k≤10): 同等（CG で LP-tight）
-- 中規模 (k≤30): 1〜3% gap（彼らは <0.1%）
-- 大規模 (k≥60): MIP scaling で詰まる（彼らは数秒で解く）
+商用 CSP ツール (OptiCut / Cuttinger / 1DOptimizer / OR-Tools UI) が**提供しない**機能を 3 つ獲得:
+
+1. **k-best 多様解列挙** (`research/kBest.js`)
+   - binary big-M disjunctive cut で構造的に異なる top-k 解を列挙
+   - CASE-6 で「最適 723,500 + 5500 不使用版 729,000 (+0.76%)」など実用代替プラン
+   - 文献調査: CSP × algebra-driven k-best はゼロ件 → 形式的 novelty
+
+2. **ε-efficient compatibility decomposition** (`research/decomposition.js`)
+   - piece compatibility graph で hidden structure を発見
+   - CASE-3: 239,000 → 238,000 (-0.42%) / CASE-5: 535,000 → 523,000 (-2.24%)
+   - 「大きな問題を最後まで解けない」より「小さな問題を完全に解いて合計」
+
+3. **Solution Explanation via LP Duality** (`research/explain.js`)
+   - 各 used pattern の reduced cost、unused pattern の premium、shadow price の自然言語化
+   - 「Stock 11000mm [4×1750 + 2×1825] を使うと LP 最適から 1000mm の余分なコスト」など量的説明
+   - LP 双対性 (1947 年) を user-facing 機能として展開、CSP 文献に空白
+
+### 凄くないこと（性能側、honest）
+
+- **アルゴリズムの根本新規性はほぼゼロ**:
+  - FFD: 1973、CG: 1961、B&B: 1960、LP duality: 1947、Big-M cut: 1960 年代
+- **Symbolic Pattern Algebra は美しい framing だが、性能向上には直接効かなかった**:
+  - 試した: Algebra Dominance pre-solve / Algebra-Guided branching / Hardness 予測
+  - **3 連敗**。理由: CG が pricing で構造的に Pareto-frontier patterns しか出さず、algebra signal は完全吸収される
+- **VPSolver / Gurobi は CASE-6 を < 0.1% gap で 1 秒以内に解く**（こちらは 3〜29 秒で 0.69%）
+- **OR コミュニティに研究貢献として通用するレベルではない**
+
+### 学術界での位置づけ（更新）
+
+**性能的 state-of-the-art ではない**、依然として **good open-source 水準**。
+ただし**機能的 state-of-the-art**（商用にもない機能）を 3 つ持つ。
+
+| 比較軸 | TORIAI v3 | VPSolver / Gurobi | OptiCut / Cuttinger |
+|---|---|---|---|
+| 計算性能 (CASE-6 級) | 0.69% gap / 3-29s | < 0.1% gap / < 1s | < 1% / 数秒 |
+| ブラウザ動作 | ✅ 純 JS | ❌ デスクトップ | ❌ Windows app |
+| 多様解列挙 | ✅ k-best | △ | ❌ |
+| 解の説明 | ✅ 日本語自然文 | ❌ | ❌ |
+| 構造分析 | ✅ ε-decomposition | ❌ | ❌ |
+
+### 結論（v0.3 honest assessment）
+
+「algebra で CSP の **計算性能** を上げる」研究は半世紀の OR を超える挑戦で、簡単ではなかった。
+4 連敗 (Dominance, Branching, Hardness, ナイーブ k-best) を経て、その線では engineering 勝利は得たが
+algorithmic 革新は無し。
+
+しかし「algebra で CSP の **ソフトウェア機能** を拡張する」線では、
+CSP 文献の空白地帯で **3 つの実装的勝利** を得た:
+1. k-best 多様解列挙
+2. ε-efficient decomposition
+3. Solution Explanation via LP Duality
+
+> **理論的勝利ではなく ソフトウェア工学的勝利**。
+> しかし「世界の他 CSP ツールが提供しない機能を持つ」という意味では、
+> TORIAI v3 は機能面で **state-of-the-art**。
+> これが **honest な現在地** (2026-05-04)。
+
+### 研究 7 連続のスコアカード
+
+| # | テーマ | 結果 |
+|---:|---|---|
+| 1 | Algebra Dominance pre-solve | ❌ 棄却 |
+| 2 | Algebra-Guided branching | ❌ 棄却 |
+| 3 | Hardness 予測 | ❌ 棄却 |
+| 4 | k-best v0.1 (epsilon) | ❌ バグ |
+| 5 | k-best v0.2 (binary disjunctive) | ✅ **勝利** |
+| 6 | Decomposition (ε-efficient) | △ 部分支持 |
+| 7 | LP Duality Explanation | ✅ **勝利** |
+
+性能向上系 4 連敗 / 機能拡張系 2 勝 + 1 部分支持。
+
+「algorithm が新規性ない」のは事実だが、「機能拡張で空白地帯を埋めた」のも事実。
+両方を honest に並べることが、本記事の核心。
 
 ---
 

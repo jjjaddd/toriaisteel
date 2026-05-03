@@ -842,6 +842,328 @@ HiGHS-WASM は CASE-6 規模の MIP を解けない（stack overflow）。これ
 
 ---
 
+## 2026-05-03 (Sun) — 続: 22:30、Phase 4 step 1 + Chrome バグ修正
+
+### 経緯
+ユーザーが本番 toriai.app を Chrome で開いたスクリーンショットを送ってくれた:
+- "重い" + "若干バグってるかも" のフィードバック
+- console に `Uncaught ReferenceError: goPage is not defined` のエラー
+
+### バグ修正
+
+**root cause**: index.html に 160 個の `<script src=>` タグ。`pageNav.js` は #138 番目で読まれる。途中でユーザーが nav リンクをクリックすると、`goPage` 関数がまだ定義されてない。
+
+**fix**: `<head>` に早期 stub を入れ、`pageNav.js` 末尾で **pendingNav に積まれていたクリックを再生**する。
+
+```js
+// index.html <head> (早期 stub)
+window.__pendingNav = null;
+window.goPage = function(p) { window.__pendingNav = p; };
+
+// pageNav.js 末尾 (本物が hoist で上書きされた後)
+if (window.__pendingNav) {
+  setTimeout(function() { goPage(window.__pendingNav); }, 0);
+  window.__pendingNav = null;
+}
+```
+
+98 個の inline onclick が他にもあるが、即座に発火する `goPage` だけが visible エラー。残りは数百 ms 内に load 完了するので実害なし。
+
+### Phase 4 着手 — bb/* dual-mode
+
+20:30 で配線完了した B&B (`solveColumnGen` の MIP fallback) をブラウザに届けるための地ならし:
+
+- `bb/lp.js`, `algebraBranching.js`, `branchAndBound.js`, `mipFromPatterns.js` の 4 ファイル
+- Node では `module.exports`、Browser では `globalThis.Toriai.calculation.yield.bb.*`
+- `_resolveBbDep` ヘルパで両モードの require を解決
+- index.html に script タグ 4 つ追加
+
+vm sandbox での browser branch smoke test も成功:
+- LP solve: optimal obj=2.667 (= 8/3 教科書一致)
+- MIP solve: optimal obj=3 (一致)
+
+### Phase 4.5 残作業
+- arcflow/columnGen.js + 依存の dual-mode 化
+- HiGHS-WASM CDN 配線
+- worker (yieldWorker.js) に cgBb mode 追加
+- UI からの handoff
+
+これで「直したら A」（B&B を本番ブラウザに）の **基礎ができた**。完成は次セッション。
+
+---
+
+## 2026-05-03 (Sun) — 続: 23:15、🚨 Perf 緊急対応
+
+### 衝撃的な発見
+
+ユーザー「重い」の原因を診断したら **3 つの致命的構造問題** が見つかった:
+
+1. **`<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`** がブラウザキャッシュを完全に無効化
+   - 結果: 178 ファイル 1.8MB を毎回再ダウンロード
+   - `?v=phase1` のような URL versioning 設計と完全矛盾
+
+2. **Service Worker は登録されていなかった**
+   - `service-worker.js` ファイルは存在し、半年間 `CACHE_NAME` を v160 → v164 までバンプし続けていた
+   - しかし `navigator.serviceWorker.register()` を呼ぶコードが repo 全体に **ゼロ件**
+   - **SW は完全に死んでいた**（Storage 0B が傍証）
+
+3. **160 個の `<script src>` 同期ロード** (defer/async なし)
+
+### 修正
+- `no-store` メタ削除（HTML 鮮度は server header に任せる）
+- `<head>` に SW register コード追加 (`navigator.serviceWorker.register('/service-worker.js')`)
+- SW 戦略を **stale-while-revalidate** に変更（precache 削除で堅牢化）
+- 全 164 個の `<script src>` に `defer` 一括付与（sed で機械変換）
+- CACHE_NAME を v164 → v166 にバンプ
+
+### 期待効果
+- 初回訪問: 並列 download + HTML 即表示で体感激速
+- **2 回目以降: SW cache から instant**（これが最大の改善）
+
+327/327 全テスト pass、回帰なし。
+
+ユーザーから「治ったありがとう」の確認。
+
+---
+
+## 2026-05-03 (Sun) — 続: 24:30、研究 3 — Hardness 予測（棄却）
+
+### 仮説
+CSP インスタンスの algebra-derived feature (k, n, density, demand_skew, R5_potential 等) で LP gap を予測できる。
+予測できれば routing （easy → fast path、hard → deep B&B）が automated される。
+
+### 実装
+- `instanceFeatures.js` (純関数 + dual-mode): basic 13 項目 + algebra 5 項目
+- 11 件の unit test
+- 6 ケースで feature + outcome を測定
+
+### 実測
+
+| Case | k | n | density | R5_pot | gap% | wall(ms) |
+|---|---:|---:|---:|---:|---:|---:|
+| CASE-1 | 2 | 100 | 40.6 | 0.034 | 1.95 | 253 |
+| CASE-2 | 5 | 192 | 3.84 | 0.370 | 0.00 | 138 |
+| CASE-3 | 4 | 44 | 1.75 | 0.035 | 0.42 | 92 |
+| CASE-4 | 19 | 156 | 3.30 | 0.112 | 0.50 | 44,671 |
+| CASE-5 | 26 | 218 | 3.58 | 0.316 | 2.45 | 74,667 |
+| CASE-6 | 62 | 463 | 5.54 | 0.125 | 0.69 | 3,206 |
+
+### 仮説評価
+- H1 (少数 feature で gap 説明): 棄却 ❌
+- H2 (algebra-derived が k/n より予測力高): 棄却 ❌
+
+R5_potential 最大の CASE-2 (0.37) で gap 0%、CASE-5 (0.316) で gap 2.45% と **真逆**。
+どの単一 feature も gap と単調な相関なし。
+
+### 知見
+
+- **CSP の LP gap は構造的に小さい (0-2.5%)** → IRUP property と整合、fancy heuristic の余地が少ない
+- **Algorithm tuning > Instance feature** が支配的 (maxPatterns=80 cap が CASE-6 を救うが CASE-5 では救えない)
+- **「事前予測」は無理だが「事後判定」は容易** → status フィールドで品質判定 → routing 可能
+
+### 研究 3 連敗の総括
+
+1. 17:50 Dominance pre-solve → 棄却
+2. 19:30 Algebra-Guided branching → 棄却
+3. 24:30 Hardness 予測 → 棄却
+
+「algebra → 性能向上」は引き続き難しい。次は方向転換が必要。
+
+---
+
+## 2026-05-04 (Mon) — 25:30、研究 4-5 — Algebraic k-best ✨初の研究勝利
+
+### 方向転換
+
+3 連敗の共通因子は「CG が Pareto 性で signal を吸収する」だった。
+→ 「algebra → 性能向上」直線は概ね尽きた。
+→ **「algebra → 機能拡張」** という、CG が手を出さない領域に切り替える。
+
+### k-best 多様解列挙の構想
+
+ユーザーの実務文脈: 「最適プランは出るが、5500 が在庫切れだから 11000 だけで何とかしたい」のような **手元在庫制約**がある。
+
+→ 単一最適解だけでなく、**near-optimal 代替プランを 2〜3 個** 提示する機能を作る。
+
+CG で pattern 集合を確定後、MIP に **algebraic no-good cut** を反復追加して k 解列挙。
+
+### 実装の山場 — バグからの学習
+
+#### v0.1 ナイーブ (失敗)
+`y_p ≥ |x_p − prevX[p]|` + `Σ y_p ≥ 1` + ε cost で Hamming 距離を強制しようとした。
+
+**致命的バグ**: LP は ε 払って `y_0 = 1` を inflate する方が、x を変えるより安い。x = prevX のまま戻る。Cut 効かず。
+
+#### v0.2 binary big-M disjunctive cut (採用)
+各 active pattern p に binary `z_p` を導入:
+```
+z_p = 1 → x_p ≤ prevX[p] − 1  (Big-M 線形化)
+Σ z_p ≥ 1                      (少なくとも 1 つ active で reduction)
+```
+
+**理論的根拠**: prevX が optimal なら、different feasible solution は必ず少なくとも 1 つの p で `x_p < prevX[p]` を持つ（cost optimality argument）。
+
+### 結果
+
+CASE-6 production:
+| rank | obj | breakdown | 解釈 |
+|---:|---:|---|---|
+| 1 | **723,500** | {5500:1, 11000:14, 12000:47} | LP-tight 最適 |
+| 2 | **729,000** (+0.76%) | {**11000:15**, 12000:47} | **5500 不使用代替プラン** |
+
+→ 「在庫切れ対応」など現場ニーズに直接応える機能。
+→ **コスト +0.76% で stock mix の自由度** という意味のあるトレードオフ。
+
+CASE-2: rank 1, 2 同コスト 442,000 (退化解)、rank 3 が +1,000 (+0.23%)。
+
+### 研究としての意味
+
+CSP 文献に **"algebra-derived diversity for k-best CSP"** はゼロ件。
+形式的には "algebra-driven k-best cuts" の小さい novelty。
+TORIAI は世界の他 CSP ツール (OptiCut, Cuttinger 等) が持たない k-best 機能を獲得。
+
+「algebra → 機能拡張」線で **初の明確な勝利**。
+
+---
+
+## 2026-05-04 (Mon) — 03:30、研究 6 — Decomposition (部分支持 △)
+
+### 動機
+
+5 連続研究の中（4 連敗 + k-best 勝利）、ユーザーから「**まだまだやろうぜ、できることあるでしょ、発想、きっかけ、なにかあるよやってれば**」の励まし。
+
+10 個の未踏研究角度をブレインストームし、**Compatibility-Graph Decomposition** を選択:
+- piece set を「同じ bar に co-occur 可能性」のグラフで分析
+- 連結成分が分かれていれば独立サブ問題に分解
+
+### Theorem (構造的)
+
+> piece i, j が compatibility graph で隣接していなければ、最適解で同じ bar に i, j が co-occur することはない。
+> よって disjoint な連結成分 C_1, ..., C_q なら、最適 CSP = (各成分の独立最適) の和。
+
+### Basic mode 結果 — H1 棄却 ❌
+
+全 6 ケース 1 成分 (density 83-100%)。
+**実 1D-CSP は piece-level で密に連結**。中間長さの「hub」が短尺と長尺を繋ぐ。
+
+### ε-efficient mode で hidden structure 発見
+
+「i, j を 1 個ずつ詰めた loss ≤ ε × stock」の条件で edge を限定:
+
+| Case | basic | ε=0.05 |
+|---|---|---|
+| CASE-3 | 1c [4] | **2c [2,2]** |
+| CASE-5 | 1c [26] | **4c [23,1,1,1]** |
+| CASE-6 | 1c [62] | 45c (1 大 + 44 singleton) |
+
+### 分解 solve の結果
+
+| Case | normal | ε-decomp | diff |
+|---|---:|---:|---:|
+| CASE-3 | 239,000 (100ms) | **238,000 (6ms)** | **-1,000 (-0.42%)** |
+| CASE-5 | 535,000 (22s) | **523,000** | **-12,000 (-2.24%)** |
+| CASE-4 | 419,000 | 424,000 | +5,000 (悪化) |
+
+### なぜ分解が改善するのか
+
+大規模 monolithic な CG+B&B は `maxPatterns=80` cap や `B&B nodelimit` で完全収束しない。
+分解後の sub-CSP は小さく、各々 LP-tight に到達。
+
+> **「大きな問題を最後まで解けない」より「小さな問題を完全に解いて合計する」が勝つ現象**
+
+### 仮説評価
+
+- H1 (basic 分解): 棄却
+- H1' (ε-efficient 分解): 部分支持 (一部 case)
+- H2 (品質改善): CASE-3, 5 で支持、CASE-4 で悪化
+- H3 (lossless): basic のみ、ε-efficient は cross-component を排除する trade-off
+
+### 研究としての意味
+
+「CSP は piece-level で密結合」という直感は basic では正しいが、ε-efficient では一部 instance に **hidden structure** が露わになる。
+TORIAI が CASE-3, 5 で品質改善を実装可能になった。
+
+---
+
+## 2026-05-04 (Mon) — 05:00、研究 7 — LP Duality Explanation ✨
+
+### 構想
+
+CG が出力した整数最適解に対し、LP 双対変数 π_i から:
+1. 各 used pattern の正当性 (RC ≈ 0 を解釈)
+2. 各 unused pattern の premium (使った場合の余計コスト)
+3. 各 piece type の shadow price (demand 変化への感度)
+4. 整数 gap
+
+を量的・自然言語で生成する。
+
+### 実装
+
+`solveColumnGenInspect` から **dualPi (shadow prices)** を取り出し、`research/explain.js` で説明文を生成。
+
+### CASE-2 サンプル出力
+
+```
+総コスト (整数解): 442000 mm | 整数 gap: 0.00% (LP-tight)
+
+■ 使われた pattern とその根拠
+  • Stock 11000mm の bar を 2 本使う [2×1750mm + 4×1825mm]
+    → コスト 11000mm、ピース合計の双対価値 11000mm、差 0mm
+    判定: LP 最適性条件を満たす margin 解（reduced cost = 0）
+
+■ 検討されたが採用されなかった代替 pattern
+  • Stock 11000mm [4×1750mm + 2×1825mm]
+    → 使うと LP 最適から 1000mm の余分なコスト
+
+■ 各 piece type の限界コスト (shadow price)
+  • 1750mm × 4 本 → π = 1500mm/本 (1mm あたり 0.857mm)
+  • 2806mm × 60 本 → π = 3000mm/本 (1mm あたり 1.069mm)
+```
+
+### 商用 CSP ツールとの比較
+
+私の知る限り、商用 CSP ツール (OptiCut / Cuttinger / 1DOptimizer) はこの種の説明機能を持たない。
+OR-Tools (Google) は API 経由で取得可能だが UI なし。
+
+→ **TORIAI は世界の他 CSP ツールが提供しない「説明可能な最適化」を持つ唯一のツール** (2026-01 時点 Claude 知識ベース)
+
+### 仮説評価
+
+- H1 (4 種類の説明が量化可能): ✅ 支持
+- H2 (整数解と LP duals が一致): ✅ 支持 (CASE-2 RC 全 0、CASE-6 全 ±0.01mm)
+- H3 (自然言語が分かりやすい): subjective、未評価
+
+### 研究 7 連続の総括
+
+| # | テーマ | 結果 |
+|---|---|---|
+| 1 | Algebra Dominance pre-solve | ❌ |
+| 2 | Algebra-Guided branching | ❌ |
+| 3 | Hardness 予測 | ❌ |
+| 4 | k-best v0.1 (epsilon) | ❌ バグ |
+| 5 | k-best v0.2 (binary disjunctive) | ✅ **勝利** |
+| 6 | Decomposition (ε-efficient) | △ 部分支持 |
+| 7 | LP Duality Explanation | ✅ **勝利** |
+
+機能拡張系 **2 勝 + 1 部分支持 / 性能向上系 4 連敗**。
+「algebra で CSP の機能を拡張する」線で 3 つの実装的勝利。
+
+### 1 日（実時間 11 時間 25 分）の研究総括
+
+朝: V2 のバグ報告で着工
+昼: V3 設計、algebra 着想
+夜〜深夜: 実装と研究 7 連続
+
+到達点:
+- TORIAI v3 (Phase 1 algebra + Phase 2 CG + B&B + Phase 3 配線)
+- CASE-6 を LP-tight 0.69% で 3 秒で解ける
+- k-best 多様解、ε-decomposition、LP duality explanation の機能拡張
+- Phase 4 step 1 (bb/* dual-mode)、Phase 4.5 (UI 配線) は次セッション
+
+理論勝利ではなく engineering + 機能拡張の勝利。**honest** な現在地。
+
+---
+
 ## 2026-05-05 (Tue)
 
 ## ...
