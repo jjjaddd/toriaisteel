@@ -38,6 +38,37 @@
 
 ## 2026-05-03
 
+### 15:28  [Claude]  🚀 Phase 3 day-1 — algorithmV3.js drop-in patch
+**依頼**: 進みましょう。Claude が先にやりたいほうで
+**やったこと**:
+- Phase 3 (UI / ブラウザ配線) を選択（Phase 2 day-7+ MIP 化より価値直結）
+- AI_RULES §3 準拠の着手宣言、戦略提示
+- **発見**: multi-stock FFD は純 JS なので**ブラウザで HiGHS-WASM 不要** → Phase 3 の最大リスクが消滅
+- **罠**: solver.js は CommonJS、ブラウザ unable to load → multi-stock FFD を algorithmV3.js に IIFE インライン（80 行重複だが影響最小）
+- **`src/calculation/yield/algorithmV3.js` 実装**（230 行、IIFE、algorithmV2.js と同じ drop-in パターン）:
+  - `ffdPackMultiStockInline`: solver.js と同じアルゴリズム、純 JS
+  - `v3BarsToCalcCoreEntry`: V3 bars → V2 calcCore allDP entry 形式へ変換
+  - `calcCoreV3(options)` ラッパー: V2 origCalcCore → V3 augment → allDP に追加 → 再ソート → yieldCard1 自動更新
+  - `Y.v3Config.rollback() / .enable()` で V2 のみへ即ロールバック可
+  - V2 の patA/patB/patC/single/chgPlans 等は**完全無変更**
+- **`tests/algebra/algorithmV3.test.js`** 実装（10 テスト、全 pass）:
+  - インストール検証（calcCoreV3 公開、Y.calcCore 差替）
+  - V3 が allDP に v3_multi_ffd entry を追加
+  - rollback() で V2 に戻る
+  - 境界条件（空 pieces、stocks 無し）で V2 結果保持
+- **全テスト 259 / 259 pass**（algebra 178 + arcflow 73 + 既存 8）
+- **index.html 配線はまだしない** — 次ターン or ユーザー確認後
+**ファイル**:
+- 新規: `src/calculation/yield/algorithmV3.js`, `tests/algebra/algorithmV3.test.js`
+- 既存ファイル変更なし（V1/V2 凍結維持）
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 3 day-2: index.html に `<script src="...algorithmV3.js?v=...">` 追加 + service-worker キャッシュバンプ
+  - ユーザー確認ステップを推奨（V3 を本番化する判断は明示指示で）
+- Phase 3 day-3: UI 上で V3 結果が反映されるかブラウザ実機確認
+- Phase 3 day-4: feature flag UI（設定で V2/V3 切替可能に）
+- Phase 4: V1/V2 削除判定（V3 が安定動作確認後）
+
 ### 15:21  [Claude]  Phase 2 day-6 — multiStockGuard（解品質診断と縮退検知）
 **依頼**: DAY 6 行きましょう
 **やったこと**:
