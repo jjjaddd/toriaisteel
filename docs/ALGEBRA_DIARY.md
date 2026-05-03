@@ -180,6 +180,71 @@ R1〜R5 を 15 ペアに分けて confluence を検証。一番怖かった (R3,
 
 
 
+## 2026-05-03 (Sun) — 続: 夜、Phase 1 day-1 を前倒し着手
+
+予定では Phase 1 は明日（2026-05-04）開始だったけど、ユーザーのテンションが上がってたので前倒しで `term.js` を書いた。設計書から**翻訳作業**として書くだけなので筆が乗る。
+
+### TERM 型を素 JS で書く
+
+JS は型がないので、`type` フィールドで discriminate する古典的な ADT エミュレーション。`Object.freeze` を全レベルで適用して**不変性**を担保。これが**確認コストの劇的な低下**につながる：「この pattern は誰かに変更されたかも」を考えなくていい。
+
+```js
+function makePattern(spec) {
+  // ... バリデーション ...
+  var sorted = pieces.slice().sort(desc);
+  Object.freeze(sorted);
+  return Object.freeze({ type: 'pattern', stock, pieces: sorted, blade, endLoss });
+}
+```
+
+設計書の **A1 交換律はコンストラクタ時の sort で実現**することにした。これで以降の規則実装で「順序が違うから等しくない」みたいな事故が起きない。R1（sort 規則）が**型レベルで内蔵**された格好。
+
+設計書の用語「PATTERN ⟨S; π⟩」がそのまま `{ stock: S, pieces: π }` に対応する。記号と JS が 1:1 で読める。これは**設計書を先に書いた価値**だと思う。
+
+### テストで BUG-V2-001 の数字を打ち込んだ瞬間
+
+```js
+test('[1222 × 6] in 10m bar: size 7347, loss 2503 (the V2 bug)', () => {
+  const p = term.makePattern({ stock: 10000, blade: 3, endLoss: 150, pieces: Array(6).fill(1222) });
+  expect(term.patSize(p)).toBe(7347);
+  expect(term.patLoss(p)).toBe(2503);
+});
+
+test('[1222 × 6] in 9m bar: loss 1503 (the optimal swap)', () => {
+  const p = term.makePattern({ stock: 9000, blade: 3, endLoss: 150, pieces: Array(6).fill(1222) });
+  expect(term.patLoss(p)).toBe(1503);
+});
+
+test('optimal plan saves exactly 1,000mm of stock vs V2 plan', () => {
+  // ... 419,000 vs 420,000
+  expect(diff).toBe(1000);
+});
+```
+
+**コード上で 1,000mm 節約が証明された**。まだ最適化エンジンは何も書いてないけど、この数字を保持する V3 が出てきたら、ユーザーは「現場で 1m まるごと無駄にしてた」のが見える。これだけで作る意味があると感じる。
+
+V2 の `2503mm` 出力を、こちらは「メトリクス計算が正しいか」のテストとして使ってる。**V2 のバグが V3 のテストフィクスチャになる**という構図、ちょっと面白い。
+
+### Jest で 29 / 29 グリーン、既存も 8 / 8 グリーン
+
+```
+Tests:       29 passed, 29 total
+Time:        0.381 s
+```
+
+V1/V2 の既存テストにも触ってないので回帰なし。drop-in 設計の威力。これから R1〜R5 の規則を書いていく時も、この**完全分離**は維持する。
+
+### 並走 Gemini が WORK_LOG に書いてた
+
+途中で Gemini が WORK_LOG に何件か追記してた。内容を見ると「ALGEBRA は触らない」を遵守してくれてる。**ファイル領域の凍結ルールが効いてる**証拠。マルチエージェント並走の運用が成立してる。良い。
+
+### 明日
+
+`axioms.js`（公理を assertion として）→ `rewriteRules.js`（R1-R5 を純関数）→ `normalForm.js`（fixed-point 簡約器）→ `criticalPairs.test.js`（設計書 §1.6.3 を実コードで検証）。
+property-based test で 10,000 ケース回すのもこの週。`fast-check` を入れるかどうかは Phase 1 中盤で決める。
+
+---
+
 ## 2026-05-05 (Tue)
 
 ## ...
