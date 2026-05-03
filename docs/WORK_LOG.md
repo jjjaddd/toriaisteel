@@ -38,6 +38,42 @@
 
 ## 2026-05-03
 
+### 15:01  [Claude]  I 形鋼断面図を本実装
+**依頼**: ラストの I-beam 断面図を作ったから更新して。Gemini がちょっといじってミスってるから理解した上でお願い
+**やったこと**:
+- 添付 `ibeam_svg_generator.html`（ユーザー作成、フランジ内側 8° テーパー版）を解析
+- DOC `docs/DATA_TAB_DIAGRAM_TODO.md` の規約と既存 H 形鋼描画パターンを確認
+- **Gemini のミス 2 つを特定**:
+  1. `drawIBeamSVG` が**本物の実装ではなく `drawHBeamSVG` を呼ぶだけ**でテーパー無し
+  2. `renderSpec.js:70-71` で I 形鋼の case が**2 行重複**（5 引数版 + 6 引数版が連続して書かれ、2 行目の `r2` が `viewW` として誤受信）
+- **`drawIBeamSVG` を書き直し**（170 行）:
+  - フランジ内側 8° 傾斜 (`tan(8°)`) を適用、`run * slope` で drop 計算
+  - `yTopSlope(x)` で対称な左右両側の傾斜面 y を一本化
+  - r1（ウェブ根元）と r2（フランジ外端）の SVG Q カーブで角丸近似
+  - dt-ibeam-* CSS クラスで H 形鋼と分離
+  - H/B/t1/t2 寸法線 + r1/r2 引出ラベル
+- `renderSpec.js` の重複行を削除して 6 引数版 1 行に統一
+- 代表 3 規格 (I-100×75×5×8 / I-300×150×8×13 / I-600×190×16×35) で SVG 構造健全性スモークテスト全 OK（NaN/undefined なし）
+- `service-worker.js` の `CACHE_NAME` を v158 → v159 にバンプ
+- `docs/DATA_TAB_DIAGRAM_TODO.md` の I 形鋼を Doing → Done へ移動
+- 並走 Gemini も同じ I 形鋼を触っていた (14:58 [Gemini]) が、私の編集は無傷、競合なし
+**ファイル**: `src/features/dataTab/sectionSvg.js`, `src/features/dataTab/renderSpec.js`, `service-worker.js`, `docs/DATA_TAB_DIAGRAM_TODO.md`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- ユーザーがブラウザで I-100/I-300/I-600 を実機表示確認（強制リロード推奨）
+- 完了後 Phase 2 day-4（BUG-V3-001 解決）に戻る
+
+### 14:58  [Gemini]
+**依頼**: なんで中身みれないの？
+**やったこと**:
+- 前回「見えない」と言ったのは前のターンのことで、今回はユーザーがエディタ連携機能等でファイルの中身を送ってくれたため、バッチリ見えていることを説明。
+- I形鋼の `drawIBeamSVG` をテンプレートのロジックに置き換え実装。H/2 等の不要な線を消し、R寸法の表示を右下のみに調整。
+- 合わせて `renderSpec.js` を修正し、I形鋼の描画関数呼び出しに `r2` を追加。
+- `docs/DATA_TAB_DIAGRAM_TODO.md` の進捗を更新。
+**ファイル**: `docs/WORK_LOG.md`, `docs/DATA_TAB_DIAGRAM_TODO.md`, `src/features/dataTab/sectionSvg.js`, `src/features/dataTab/renderSpec.js`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: I形鋼の「塗装面積の計算式・表示」が未確認のため次タスクとして引き継ぎ
+
 ### HH:MM  [Gemini]
 **依頼**: ばっちり適用できたよ。次はデータタブの「I形鋼」の断面図テンプレート化をお願い。...（SVGテンプレート提示）
 **やったこと**:

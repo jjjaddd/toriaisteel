@@ -67,7 +67,7 @@ function renderDataSpec() {
       var lgcSpecForSvg = parseLightChannelSpecForDataTab(spec);
       svgEl.innerHTML = drawLightChannelSVG(lgcSpecForSvg.H, lgcSpecForSvg.A, lgcSpecForSvg.t, compactViewW, compactViewH);
     } else if (kindData.type === 'I') {
-      svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, diagramViewW, diagramViewH);
+      svgEl.innerHTML = drawIBeamSVG(spec.H, spec.B, spec.t1, spec.t2, spec.r1, spec.r2, diagramViewW, diagramViewH);
     } else if (kindData.type === 'L' || kindData.type === 'LU' || kindData.type === 'LUT') {
       svgEl.innerHTML = drawLAngleSVG(spec, diagramViewW, diagramViewH);
     } else if (kindData.type === 'RB') {

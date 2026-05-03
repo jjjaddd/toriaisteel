@@ -752,8 +752,184 @@ function getChannelFillet(point, u1, u2, radius) {
   };
 }
 
-function drawIBeamSVG(H, B, t1, t2, r1, viewW, viewH) {
-  return drawHBeamSVG(H, B, t1, t2, r1, viewW, viewH);
+function drawIBeamSVG(H, B, t1, t2, r1, r2, viewW, viewH) {
+  // I 形鋼: フランジ内側が 98°（垂直から 98°、つまり水平から約 8° の傾斜）でテーパー。
+  // 外形は H × B の矩形、ウェブ厚 t1、フランジ端部厚 t2。
+  // r1 = ウェブ根元 R、r2 = フランジ外端 R。
+  // 描画ロジックの正本は ibeam_svg_generator.html （ユーザー作成のひな形）。
+  H = Number(H || 0);
+  B = Number(B || 0);
+  t1 = Number(t1 || 0);
+  t2 = Number(t2 || 0);
+  r1 = Number(r1 || 0);
+  r2 = Number(r2 || 0);
+
+  const margin = { left: 116, top: 48, right: 136, bottom: 118 };
+  const sc = Math.min(
+    (viewW - margin.left - margin.right) / Math.max(B, 1),
+    (viewH - margin.top - margin.bottom) / Math.max(H, 1)
+  );
+  const h = H * sc;
+  const b = B * sc;
+  const w = Math.max(2.5, t1 * sc);
+  const f = Math.max(4, t2 * sc);
+
+  const x0 = margin.left + (viewW - margin.left - margin.right - b) / 2;
+  const y0 = margin.top + (viewH - margin.top - margin.bottom - h) / 2;
+  const fl = x0;
+  const fr = x0 + b;
+  const cx = x0 + b / 2;
+  const cy = y0 + h / 2;
+  const wl = cx - w / 2;
+  const wr = cx + w / 2;
+  const lfb = y0 + h;
+
+  // フランジ内側 8° 傾斜
+  const run = (b - w) / 2;
+  const slope = Math.tan(8 * Math.PI / 180);
+  const rawDrop = run * slope;
+  // 半分高さの中央付近で破綻しない上限（h/2 - f - 余白）
+  const maxDrop = Math.max(0, h / 2 - f - 2);
+  const drop = Math.min(rawDrop, maxDrop);
+
+  const rr1 = Math.max(0.01, Math.min(r1 * sc, run * 0.45, h * 0.08));
+  const rr2 = Math.max(0.01, Math.min(r2 * sc, run * 0.25, f * 0.7));
+
+  const rootY = y0 + f + drop;
+
+  // 上側フランジ内側の傾斜面 y（与えた x が外側端からどれだけ内側に入っているかで決まる）
+  const yTopSlope = (x) => y0 + f + (fr - x) * slope;
+
+  const path = [
+    `M ${fl} ${y0}`,
+    `L ${fr} ${y0}`,
+
+    // 右上外端 r2
+    `L ${fr} ${y0 + Math.max(0, f - rr2)}`,
+    `Q ${fr} ${y0 + f} ${fr - rr2} ${yTopSlope(fr - rr2)}`,
+
+    // 右上フランジ内側の傾斜
+    `L ${wr + rr1} ${yTopSlope(wr + rr1)}`,
+
+    // 右上 r1（傾斜面 → ウェブ）
+    `Q ${wr} ${rootY} ${wr} ${rootY + rr1}`,
+
+    // 右ウェブ
+    `L ${wr} ${lfb - (rootY - y0) - rr1}`,
+
+    // 右下 r1（ウェブ → 傾斜面）
+    `Q ${wr} ${lfb - (rootY - y0)} ${wr + rr1} ${lfb - (yTopSlope(wr + rr1) - y0)}`,
+
+    // 右下フランジ内側の傾斜
+    `L ${fr - rr2} ${lfb - (yTopSlope(fr - rr2) - y0)}`,
+
+    // 右下外端 r2
+    `Q ${fr} ${lfb - f} ${fr} ${lfb - Math.max(0, f - rr2)}`,
+
+    `L ${fr} ${lfb}`,
+    `L ${fl} ${lfb}`,
+
+    // 左下外端 r2
+    `L ${fl} ${lfb - Math.max(0, f - rr2)}`,
+    `Q ${fl} ${lfb - f} ${fl + rr2} ${lfb - (yTopSlope(fr - rr2) - y0)}`,
+
+    // 左下フランジ内側の傾斜
+    `L ${wl - rr1} ${lfb - (yTopSlope(wr + rr1) - y0)}`,
+
+    // 左下 r1
+    `Q ${wl} ${lfb - (rootY - y0)} ${wl} ${lfb - (rootY - y0) - rr1}`,
+
+    // 左ウェブ
+    `L ${wl} ${rootY + rr1}`,
+
+    // 左上 r1
+    `Q ${wl} ${rootY} ${wl - rr1} ${yTopSlope(wr + rr1)}`,
+
+    // 左上フランジ内側の傾斜
+    `L ${fl + rr2} ${yTopSlope(fr - rr2)}`,
+
+    // 左上外端 r2
+    `Q ${fl} ${y0 + f} ${fl} ${y0 + Math.max(0, f - rr2)}`,
+
+    `Z`
+  ].join(' ');
+
+  // 寸法線
+  const dimLeftX = fl - 56;
+  const dimBottomY = lfb + 50;
+  const t1Inset = Math.min(4, Math.max(1.5, w * 0.22));
+  const t2Inset = Math.min(4, Math.max(1.5, f * 0.22));
+  const t1LabelX = Math.min(viewW - 80, wr + 86);
+  const t2DimX = Math.min(viewW - 110, fr + 46);
+  const t2LabelX = Math.min(viewW - 66, t2DimX + 34);
+  // r1 / r2 ラベルの引出位置（H 形鋼と同じ流儀で右上根元・右上外端に出す）
+  const r1PointX = wr + rr1 * 0.6;
+  const r1PointY = rootY + rr1 * 0.4;
+  const r1LabelX = Math.min(viewW - 72, Math.max(fr + 28, r1PointX + 92));
+  const r1LabelY = Math.min(viewH - 86, r1PointY + 36);
+  const r2PointX = fr - rr2 * 0.6;
+  const r2PointY = y0 + f - rr2 * 0.4;
+  const r2LabelX = Math.min(viewW - 60, Math.max(fr + 18, r2PointX + 60));
+  const r2LabelY = Math.max(40, r2PointY - 28);
+  const dim = '#1f2937';
+  const guide = '#111111';
+  const text = '#111111';
+  const r1Anno = r1 ? `
+    <path class="dt-ibeam-guide" d="M ${r1PointX} ${r1PointY} L ${r1LabelX - 14} ${r1LabelY - 8}"/>
+    <text class="dt-ibeam-sub" x="${r1LabelX}" y="${r1LabelY + 14}">r1=${r1}</text>` : '';
+  const r2Anno = r2 ? `
+    <path class="dt-ibeam-guide" d="M ${r2PointX} ${r2PointY} L ${r2LabelX - 12} ${r2LabelY + 6}"/>
+    <text class="dt-ibeam-sub" x="${r2LabelX}" y="${r2LabelY}">r2=${r2}</text>` : '';
+
+  return `<svg width="${viewW}" height="${viewH}" viewBox="0 0 ${viewW} ${viewH}">
+    <defs>
+      <marker id="dtIBeamArrowEnd" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtIBeamArrowStart" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto">
+        <path d="M9,0 L0,4.5 L9,9 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtIBeamSmallArrowEnd" markerWidth="5" markerHeight="5" refX="4.4" refY="2.5" orient="auto">
+        <path d="M0,0 L5,2.5 L0,5 Z" fill="${dim}"></path>
+      </marker>
+      <marker id="dtIBeamSmallArrowStart" markerWidth="5" markerHeight="5" refX="0.6" refY="2.5" orient="auto">
+        <path d="M5,0 L0,2.5 L5,5 Z" fill="${dim}"></path>
+      </marker>
+      <style>
+        .dt-ibeam-shape { fill: #ffffff; stroke: #111111; stroke-width: 2.1; stroke-linejoin: round; }
+        .dt-ibeam-guide { stroke: ${guide}; stroke-width: 1.25; fill: none; }
+        .dt-ibeam-dim { stroke: ${dim}; stroke-width: 1.6; fill: none; marker-start: url(#dtIBeamArrowStart); marker-end: url(#dtIBeamArrowEnd); }
+        .dt-ibeam-thickness { stroke: ${dim}; stroke-width: 1.35; fill: none; marker-start: url(#dtIBeamSmallArrowStart); marker-end: url(#dtIBeamSmallArrowEnd); }
+        .dt-ibeam-label { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: ${text}; font-size: 20px !important; font-weight: 800; letter-spacing: 0; }
+        .dt-ibeam-sub { font-family: "Segoe UI", "Yu Gothic", sans-serif; fill: #555555; font-size: 18px !important; font-weight: 750; letter-spacing: 0; }
+      </style>
+    </defs>
+    <path class="dt-ibeam-shape" d="${path}"/>
+
+    <line class="dt-ibeam-guide" x1="${dimLeftX - 13}" y1="${y0}" x2="${dimLeftX + 13}" y2="${y0}"/>
+    <line class="dt-ibeam-guide" x1="${dimLeftX - 13}" y1="${lfb}" x2="${dimLeftX + 13}" y2="${lfb}"/>
+    <line class="dt-ibeam-dim" x1="${dimLeftX}" y1="${y0 + 12}" x2="${dimLeftX}" y2="${lfb - 12}"/>
+    <text class="dt-ibeam-label" x="${dimLeftX - 22}" y="${cy}" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 ${dimLeftX - 22} ${cy})">H=${H}</text>
+
+    <line class="dt-ibeam-guide" x1="${fl}" y1="${dimBottomY - 13}" x2="${fl}" y2="${dimBottomY + 13}"/>
+    <line class="dt-ibeam-guide" x1="${fr}" y1="${dimBottomY - 13}" x2="${fr}" y2="${dimBottomY + 13}"/>
+    <line class="dt-ibeam-dim" x1="${fl + 12}" y1="${dimBottomY}" x2="${fr - 12}" y2="${dimBottomY}"/>
+    <text class="dt-ibeam-label" x="${cx}" y="${dimBottomY + 28}" text-anchor="middle">B=${B}</text>
+
+    <line class="dt-ibeam-guide" x1="${wl}" y1="${cy - 28}" x2="${wl}" y2="${cy + 28}"/>
+    <line class="dt-ibeam-guide" x1="${wr}" y1="${cy - 28}" x2="${wr}" y2="${cy + 28}"/>
+    <line class="dt-ibeam-thickness" x1="${wl + t1Inset}" y1="${cy}" x2="${wr - t1Inset}" y2="${cy}"/>
+    <line class="dt-ibeam-guide" x1="${wr + 14}" y1="${cy}" x2="${t1LabelX - 14}" y2="${cy}"/>
+    <text class="dt-ibeam-sub" x="${t1LabelX}" y="${cy + 6}">t1=${t1}</text>
+
+    <line class="dt-ibeam-guide" x1="${t2DimX - 18}" y1="${y0}" x2="${t2DimX + 18}" y2="${y0}"/>
+    <line class="dt-ibeam-guide" x1="${t2DimX - 18}" y1="${y0 + f}" x2="${t2DimX + 18}" y2="${y0 + f}"/>
+    <line class="dt-ibeam-thickness" x1="${t2DimX}" y1="${y0 + t2Inset}" x2="${t2DimX}" y2="${y0 + f - t2Inset}"/>
+    <text class="dt-ibeam-sub" x="${t2LabelX}" y="${y0 + f / 2 + 6}">t2=${t2}</text>
+
+    ${r1Anno}
+    ${r2Anno}
+  </svg>`;
 }
 
 function drawRoundBarSVG(D, viewW, viewH) {
