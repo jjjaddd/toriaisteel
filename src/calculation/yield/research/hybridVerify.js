@@ -69,8 +69,8 @@ function reconstructPatternsFromBars(bars, items) {
     }
   });
 
-  // Convert to Rational
-  var xInt = xCount.map(function(c) { return R.fromInt(c); });
+  // Convert to Rational (Math.round で float drift 吸収: 0.9999... → 1)
+  var xInt = xCount.map(function(c) { return R.fromInt(Math.round(c)); });
   return { patterns: patterns, xInt: xInt };
 }
 
@@ -196,11 +196,116 @@ function solveAndVerifyHybrid(spec, floatCgResult, opts) {
 }
 
 // ============================================================================
+// solveAndVerifyFast(spec, opts) — K-6: clean fast path
+//
+// Bypass solveColumnGen 内部の HiGHS MIP 試行・LP 丸めフォールバック等の overhead。
+// 直接:
+//   1. solveColumnGenInspect で patterns を取得 (CG iterations のみ)
+//   2. bb.solveMIP で float B&B (warm-start なし、必要十分なら高速)
+//   3. hybridVerify で exact certificate
+//
+// CASE-6 で K-5 (29s) → K-6 (~100ms 級) を狙う。
+//
+// 注意: 内部で CG inspect が HiGHS-WASM に依存。HiGHS state が劣化していても
+//       FFD initial patterns だけで B&B が最適に到達する可能性あり。
+//       その場合 inspect は 1-2ms で終わり、B&B が真の探索を担う。
+// ============================================================================
+
+async function solveAndVerifyFast(spec, opts) {
+  opts = opts || {};
+  var totalStart = Date.now();
+
+  var bb = _resolveDep('../bb/branchAndBound.js', 'Toriai.calculation.yield.bb.branchAndBound');
+  var cg = _resolveDep('../arcflow/columnGen.js', 'Toriai.calculation.yield.arcflow.columnGen');
+  if (!bb || !cg) return { error: 'dep_missing' };
+
+  // 1. CG inspect (HiGHS LP iter のみ、MIP 試行・丸めは無し)
+  var inspectStart = Date.now();
+  var insp;
+  try {
+    insp = await cg.solveColumnGenInspect(spec, { maxIterations: opts.maxIterations || 30 });
+  } catch (e) {
+    return { error: 'inspect_failed', message: e.message };
+  }
+  var inspectDt = Date.now() - inspectStart;
+
+  if (!insp.patterns || insp.patterns.length === 0) {
+    return { error: 'no_patterns' };
+  }
+
+  // 2. Build LP / MIP and run float B&B
+  var items = spec.pieces.map(function(p) {
+    return { length: p.length, count: p.count, weight: p.length + (spec.blade || 0) };
+  });
+  var n = insp.patterns.length;
+  var m = items.length;
+  var c = insp.patterns.map(function(p) { return p.stock; });
+  var A = [];
+  for (var i = 0; i < m; i++) {
+    var row = new Array(n).fill(0);
+    for (var j = 0; j < n; j++) row[j] = insp.patterns[j].counts[i] || 0;
+    A.push(row);
+  }
+  var b = items.map(function(it) { return it.count; });
+  var types = items.map(function() { return '>='; });
+
+  var bbStart = Date.now();
+  var bbRes;
+  try {
+    bbRes = bb.solveMIP({ c: c, A: A, b: b, constraintTypes: types }, {
+      timeLimit: opts.bbTimeLimit != null ? opts.bbTimeLimit : 30000,
+      maxNodes: opts.maxNodes != null ? opts.maxNodes : 100000
+    });
+  } catch (e) {
+    return { error: 'bb_failed', message: e.message };
+  }
+  var bbDt = Date.now() - bbStart;
+
+  if (bbRes.status !== 'optimal' && bbRes.status !== 'timelimit' && bbRes.status !== 'nodelimit') {
+    return { error: 'bb_status_' + bbRes.status };
+  }
+
+  // 3. Build float bars 形式 → hybrid verify
+  var bars = [];
+  var stockTotal = 0;
+  insp.patterns.forEach(function(pat, k) {
+    var x = bbRes.x[k];
+    if (!x || x < 0.5) return;
+    var xRound = Math.round(x);
+    var pieces = [];
+    pat.counts.forEach(function(cnt, i) {
+      for (var jj = 0; jj < cnt; jj++) pieces.push(items[i].length);
+    });
+    pieces.sort(function(a, b) { return b - a; });
+    bars.push({ stock: pat.stock, pattern: pieces, count: xRound });
+    stockTotal += pat.stock * xRound;
+  });
+
+  var fakeFloat = { bars: bars, stockTotal: stockTotal };
+  var verifyStart = Date.now();
+  var hyb = solveAndVerifyHybrid(spec, fakeFloat, { lang: opts.lang || 'ja' });
+  var verifyDt = Date.now() - verifyStart;
+
+  if (hyb.error) return Object.assign({}, hyb, { _phase: 'verify' });
+
+  return Object.assign({}, hyb, {
+    timings: {
+      totalMs: Date.now() - totalStart,
+      inspectMs: inspectDt,
+      bbMs: bbDt,
+      verifyMs: verifyDt,
+      bbNodes: bbRes.nodeCount
+    }
+  });
+}
+
+// ============================================================================
 // 公開
 // ============================================================================
 
 var _exports = {
   solveAndVerifyHybrid: solveAndVerifyHybrid,
+  solveAndVerifyFast: solveAndVerifyFast,
   reconstructPatternsFromBars: reconstructPatternsFromBars
 };
 
