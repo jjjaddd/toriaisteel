@@ -130,12 +130,110 @@
     return bars.length;
   }
 
-  // 2 戦略並走、_pickBetter で良い方を選ぶ
-  //   - 母材差 5% 以上 → 母材優先
-  //   - それ以外 → バー本数優先
+  // ---------------------------------------------------------------------------
+  // Local Search 後処理 — バー削減
+  // FFD 結果に対し「このバーの中身を他バーに分散できるか」を試す。
+  // できれば 1 本削減。FFD の理論限界 (11/9) を一気に詰める。
+  // ---------------------------------------------------------------------------
+  function _canRedistribute(donorPieces, otherBars, blade, endLoss) {
+    var piecesDesc = donorPieces.slice().sort(function(a, b) { return b - a; });
+    var temp = otherBars.map(function(b) {
+      return { stock: b.stock, used: b.used, count: b.pieces.length };
+    });
+    for (var i = 0; i < piecesDesc.length; i++) {
+      var piece = piecesDesc[i];
+      var bestIdx = -1, bestRemain = Infinity;
+      for (var j = 0; j < temp.length; j++) {
+        var tb = temp[j];
+        var cost = tb.count === 0 ? piece : piece + blade;
+        var eff = tb.stock - endLoss;
+        var remain = eff - tb.used - cost;
+        if (remain >= 0 && remain < bestRemain) {
+          bestRemain = remain;
+          bestIdx = j;
+        }
+      }
+      if (bestIdx < 0) return false;
+      var t = temp[bestIdx];
+      t.used += (t.count === 0 ? piece : piece + blade);
+      t.count++;
+    }
+    return true;
+  }
+
+  function _redistributeInto(donorPieces, otherBars, blade, endLoss) {
+    var piecesDesc = donorPieces.slice().sort(function(a, b) { return b - a; });
+    for (var i = 0; i < piecesDesc.length; i++) {
+      var piece = piecesDesc[i];
+      var bestIdx = -1, bestRemain = Infinity;
+      for (var j = 0; j < otherBars.length; j++) {
+        var tb = otherBars[j];
+        var cost = tb.pieces.length === 0 ? piece : piece + blade;
+        var eff = tb.stock - endLoss;
+        var remain = eff - tb.used - cost;
+        if (remain >= 0 && remain < bestRemain) {
+          bestRemain = remain;
+          bestIdx = j;
+        }
+      }
+      if (bestIdx < 0) return false;
+      var t = otherBars[bestIdx];
+      var c = t.pieces.length === 0 ? piece : piece + blade;
+      t.used += c;
+      t.pieces.push(piece);
+    }
+    return true;
+  }
+
+  function _localSearchEliminate(rawBars, blade, endLoss, stocksAsc) {
+    if (rawBars.length <= 1) return rawBars;
+    var bars = rawBars.map(function(b) {
+      return { stock: b.stock, used: b.used, pieces: b.pieces.slice() };
+    });
+    var improved = true, safety = 0;
+    while (improved && safety++ < 1000) {
+      improved = false;
+      var sortedIdx = bars.map(function(b, i) {
+        var eff = b.stock - endLoss;
+        return { i: i, ratio: eff > 0 ? b.used / eff : 1 };
+      }).sort(function(a, b) { return a.ratio - b.ratio; });
+
+      for (var k = 0; k < sortedIdx.length; k++) {
+        var idx = sortedIdx[k].i;
+        var cand = bars[idx];
+        var others = bars.filter(function(_, j) { return j !== idx; });
+        if (_canRedistribute(cand.pieces, others, blade, endLoss)) {
+          _redistributeInto(cand.pieces, others, blade, endLoss);
+          bars.splice(idx, 1);
+          improved = true;
+          break;
+        }
+      }
+    }
+    // downsize
+    for (var bi = 0; bi < bars.length; bi++) {
+      var b2 = bars[bi];
+      for (var si = 0; si < stocksAsc.length; si++) {
+        if (stocksAsc[si] - endLoss >= b2.used) {
+          b2.stock = stocksAsc[si];
+          break;
+        }
+      }
+    }
+    return bars;
+  }
+
+  // 2 戦略並走 + 各々に local search 適用、_pickBetter で良い方
   function ffdPackMultiStockInline(spec) {
+    var blade = spec.blade || 0;
+    var endLoss = spec.endLoss || 0;
+    var stocksAsc = (spec.availableStocks || []).slice().sort(function(a, b) { return a - b; });
+
     var rawA = _packOneStrategy(spec, 'maxStock');
     var rawB = _packOneStrategy(spec, 'smartStock');
+    if (rawA.length > 0) rawA = _localSearchEliminate(rawA, blade, endLoss, stocksAsc);
+    if (rawB.length > 0) rawB = _localSearchEliminate(rawB, blade, endLoss, stocksAsc);
+
     if (rawA.length === 0 && rawB.length === 0) return [];
     if (rawA.length === 0) return rawB;
     if (rawB.length === 0) return rawA;

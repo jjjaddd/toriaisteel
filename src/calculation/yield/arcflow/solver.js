@@ -615,12 +615,125 @@ function _pickBetter(aggA, aggB) {
   return bcA <= bcB ? aggA : aggB;
 }
 
-// 公開: 2 戦略を並走させ、_pickBetter で最良を選ぶ
+// ============================================================================
+// Local Search 後処理: バー削減
+//
+// FFD 結果に対し「このバーの中身を他のバーの空きスペースに分散できるか？」を試す。
+// できれば そのバーを削除（1 本削減）。理論的にバー本数の改善余地がある場合に有効。
+//
+// 対象: 「使用率の低いバー」を優先的にチェック (削除しやすい)
+// 計算量: O(N² × maxPiecesPerBar) — N=バー数、実用的サイズで十分速い
+// ============================================================================
+
+function _canRedistribute(donorPieces, otherBars, blade, endLoss) {
+  // donorPieces を otherBars の空きスペースに first-fit decreasing で配置試行
+  const piecesDesc = donorPieces.slice().sort(function(a, b) { return b - a; });
+  const tempBars = otherBars.map(function(b) {
+    return { stock: b.stock, used: b.used, count: b.pieces.length };
+  });
+  for (let i = 0; i < piecesDesc.length; i++) {
+    const piece = piecesDesc[i];
+    let bestIdx = -1;
+    let bestRemain = Infinity;
+    for (let j = 0; j < tempBars.length; j++) {
+      const tb = tempBars[j];
+      const cost = tb.count === 0 ? piece : piece + blade;
+      const eff = tb.stock - endLoss;
+      const remain = eff - tb.used - cost;
+      if (remain >= 0 && remain < bestRemain) {
+        bestRemain = remain;
+        bestIdx = j;
+      }
+    }
+    if (bestIdx < 0) return false; // この piece が入らない
+    const tb = tempBars[bestIdx];
+    tb.used += (tb.count === 0 ? piece : piece + blade);
+    tb.count++;
+  }
+  return true;
+}
+
+function _redistributeInto(donorPieces, otherBars, blade, endLoss) {
+  // 実際に donor を消して otherBars に配置（_canRedistribute と同じロジック、副作用あり版）
+  const piecesDesc = donorPieces.slice().sort(function(a, b) { return b - a; });
+  for (let i = 0; i < piecesDesc.length; i++) {
+    const piece = piecesDesc[i];
+    let bestIdx = -1;
+    let bestRemain = Infinity;
+    for (let j = 0; j < otherBars.length; j++) {
+      const tb = otherBars[j];
+      const cost = tb.pieces.length === 0 ? piece : piece + blade;
+      const eff = tb.stock - endLoss;
+      const remain = eff - tb.used - cost;
+      if (remain >= 0 && remain < bestRemain) {
+        bestRemain = remain;
+        bestIdx = j;
+      }
+    }
+    if (bestIdx < 0) return false;
+    const tb = otherBars[bestIdx];
+    const cost = tb.pieces.length === 0 ? piece : piece + blade;
+    tb.used += cost;
+    tb.pieces.push(piece);
+  }
+  return true;
+}
+
+function _localSearchEliminate(rawBars, blade, endLoss, stocksAsc) {
+  if (rawBars.length <= 1) return rawBars;
+  const bars = rawBars.map(function(b) {
+    return { stock: b.stock, used: b.used, pieces: b.pieces.slice() };
+  });
+  let improved = true;
+  let safety = 0;
+  while (improved && safety++ < 1000) {
+    improved = false;
+    // 使用率（used / capacity）の低い順にトライ → 削除しやすい
+    const sortedIdx = bars.map(function(b, i) {
+      const eff = b.stock - endLoss;
+      return { i: i, ratio: eff > 0 ? b.used / eff : 1 };
+    }).sort(function(a, b) { return a.ratio - b.ratio; });
+
+    for (let k = 0; k < sortedIdx.length; k++) {
+      const cand = bars[sortedIdx[k].i];
+      const others = bars.filter(function(_, j) { return j !== sortedIdx[k].i; });
+      if (_canRedistribute(cand.pieces, others, blade, endLoss)) {
+        // 実際に分散
+        _redistributeInto(cand.pieces, others, blade, endLoss);
+        // bars から削除
+        bars.splice(sortedIdx[k].i, 1);
+        improved = true;
+        break; // 一つ削除したら最初からやり直し
+      }
+    }
+  }
+  // 最後に downsize (使用量に見合う最小定尺へ)
+  for (let i = 0; i < bars.length; i++) {
+    const bar = bars[i];
+    for (let s = 0; s < stocksAsc.length; s++) {
+      if (stocksAsc[s] - endLoss >= bar.used) {
+        bar.stock = stocksAsc[s];
+        break;
+      }
+    }
+  }
+  return bars;
+}
+
+// 公開: 2 戦略を並走させ、各々に local search 適用後、_pickBetter で最良を選ぶ
 //   maxStock 戦略: 多種 piece に強い (CASE-2 / CASE-6)
 //   smartStock 戦略: 単一 piece に強い (1222×333 のような均質入力)
+//   local search: 各戦略後にバー削減を試行 → さらに改善
 function ffdPackMultiStock(spec) {
-  const rawA = _ffdPackOneStrategy(spec, 'maxStock');
-  const rawB = _ffdPackOneStrategy(spec, 'smartStock');
+  const blade = spec.blade || 0;
+  const endLoss = spec.endLoss || 0;
+  const stocksAsc = (spec.availableStocks || []).slice().sort(function(a, b) { return a - b; });
+
+  let rawA = _ffdPackOneStrategy(spec, 'maxStock');
+  let rawB = _ffdPackOneStrategy(spec, 'smartStock');
+  if (rawA.length > 0) rawA = _localSearchEliminate(rawA, blade, endLoss, stocksAsc);
+  if (rawB.length > 0) rawB = _localSearchEliminate(rawB, blade, endLoss, stocksAsc);
+
   if (rawA.length === 0 && rawB.length === 0) return [];
   if (rawA.length === 0) return _aggregateBars(rawB);
   if (rawB.length === 0) return _aggregateBars(rawA);

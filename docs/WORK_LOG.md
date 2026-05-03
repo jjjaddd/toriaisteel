@@ -38,6 +38,32 @@
 
 ## 2026-05-03
 
+### 16:38  [Claude]  本筋強化 — Local Search 後処理（バー削減）
+**依頼**: UI 装飾はいらない、最強アルゴリズムにフォーカスして欲しい、クロードがやりやすい方法で進めて
+**やったこと**:
+- 戦略変更: ユーザー向け飾りはやめ、ソルバー素の強さだけ追求する方針に
+- **Local Search 後処理を実装**（`solver.js` + `algorithmV3.js` inline、各 ~80 行）:
+  - `_canRedistribute`: 指定バーの中身を他バーの空きに分散できるか判定
+  - `_redistributeInto`: 実際の分散処理
+  - `_localSearchEliminate`: 使用率の低いバーから順に削除試行 → 改善があれば再帰
+  - `ffdPackMultiStock` の最後で各戦略結果に local search を適用
+- ベンチマーク結果（CASE-2 / CASE-6 / USER-1222x333）:
+  - **数字に変化なし** = V3 は既にこれら 3 ケースで local optimal にいる
+  - 重要発見: **USER-1222x333 (V3=42/417,000) は数学的に厳密最適**（41×10m+1×7m 以外解なし）
+  - CASE-6 (62/723,500) のみ LB との gap 3 bars 残（MIP/CG が必要な領域）
+- Local search 自体は実害なし、改善余地のあるケース用セーフティネットとして温存
+- service-worker CACHE_NAME v163 → v164、algorithmV3.js / yieldWorker / workerClient を `?v=phase3v3ls` に統一
+- **全テスト 262 / 262 pass**（algebra 180 + arcflow 74 + 既存 8）
+- **Roadmap A の機能（V2比 / LP最適 desc 表示）はユーザー不要との判断 → 機能はコード上残す（既存 UI が表示しないだけ）**
+**ファイル**:
+- 更新: `src/calculation/yield/arcflow/solver.js`, `src/calculation/yield/algorithmV3.js`, `service-worker.js`, `index.html`, `src/calculation/workers/yieldWorker.js`, `src/calculation/yield/workerClient.js`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- **次の真の改善**: Phase 2 day-7 = MIP / Column Generation (Gilmore-Gomory) 実装
+- これで CASE-6 を 62 → 59 bars に詰められる見込み
+- 1222×333 と CASE-2 はもう数学的にほぼ最適（FFD で OK、CG は overhead）
+- 大規模 input (CASE-6 級 k=61) で CG が活きる
+
 ### 16:21  [Claude]  ✨ Roadmap A — V3 desc に最適性メタ表示
 **依頼**: A から行こうか TODO リスト忘れずに（ロードマップ A: 最適性ギャップ表示）
 **やったこと**:
