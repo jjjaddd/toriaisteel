@@ -113,6 +113,15 @@ function solveLPExact(spec) {
   var artIdx = n + slackCount;
   var basis = new Array(m);
   var artificialCols = [];
+  // dual 抽出のための各制約の補助変数 col 記録 + 符号反転判定
+  // dualMeta[i] = { col: number, type: '<=' | '>=' | '=', flippedRow: bool }
+  var dualMeta = [];
+  // この行は b 反転で type が swap された可能性。元の type を覚えておく
+  var origTypes = (spec.constraintTypes || A.map(function() { return '>='; })).slice();
+  var rowFlipped = new Array(m).fill(false);
+  for (var fi = 0; fi < m; fi++) {
+    if (origTypes[fi] !== types[fi]) rowFlipped[fi] = true;
+  }
 
   for (var ii = 0; ii < m; ii++) {
     var trow = tab[ii + 1];
@@ -122,9 +131,11 @@ function solveLPExact(spec) {
     if (types[ii] === '<=') {
       trow[slackIdx] = R.one();
       basis[ii] = slackIdx;
+      dualMeta.push({ col: slackIdx, type: '<=', flippedRow: rowFlipped[ii] });
       slackIdx++;
     } else if (types[ii] === '>=') {
       trow[slackIdx] = R.neg(R.one());  // surplus
+      dualMeta.push({ col: slackIdx, type: '>=', flippedRow: rowFlipped[ii] });
       slackIdx++;
       trow[artIdx] = R.one();
       basis[ii] = artIdx;
@@ -134,6 +145,7 @@ function solveLPExact(spec) {
       trow[artIdx] = R.one();
       basis[ii] = artIdx;
       artificialCols.push(artIdx);
+      dualMeta.push({ col: artIdx, type: '=', flippedRow: rowFlipped[ii] });
       artIdx++;
     }
   }
@@ -223,12 +235,41 @@ function solveLPExact(spec) {
   var xFloat = x.map(R.toNumber);
   var objFloat = R.toNumber(obj);
 
+  // ---- Dual 抽出 ----
+  // tab[0][j] = c_j - Σ y_i a_{i,j}  (reduced cost at optimum)
+  //
+  // For slack (<= 制約, A_slack = +e_i):
+  //   tab[0][slackCol] = 0 - y_i × (+1) = -y_i  →  y_i = -tab[0][slackCol]
+  // For surplus (>= 制約, A_surplus = -e_i):
+  //   tab[0][surplusCol] = 0 - y_i × (-1) = +y_i  →  y_i = +tab[0][surplusCol]
+  // For equality (artificial only):
+  //   y_i = -tab[0][artificialCol] (artificial の RC が y_i 込)
+  //   ただし Phase II で artificial は exclude されているため正確性 caveat あり
+  //
+  // row flipped: 元 b<0 で両辺反転されている場合、dual も符号反転
+  // sense='max': c を反転して min 化したので、dual も反転
+  var duals = new Array(m);
+  for (var di = 0; di < m; di++) {
+    var meta = dualMeta[di];
+    var rc = tab[0][meta.col];
+    var raw;
+    if (meta.type === '<=') raw = R.neg(rc);     // slack+, dual = -RC
+    else if (meta.type === '>=') raw = rc;        // surplus-, dual = +RC
+    else raw = R.neg(rc);                         // equality (近似)
+    if (meta.flippedRow) raw = R.neg(raw);
+    if (sense === 'max') raw = R.neg(raw);
+    duals[di] = raw;
+  }
+  var dualsFloat = duals.map(R.toNumber);
+
   return {
     status: 'optimal',
     x: x,
     xFloat: xFloat,
     objective: obj,
     objectiveFloat: objFloat,
+    duals: duals,
+    dualsFloat: dualsFloat,
     iterations: totalIter
   };
 }
