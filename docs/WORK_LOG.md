@@ -38,6 +38,75 @@
 
 ## 2026-05-03
 
+### 24:30  [Claude]  🔬 研究続行 — CSP インスタンス難易度の経験的分析（3 連敗目）
+
+**依頼**: 治ったありがとう 研究の続きしていいよ
+（perf 修正後にユーザーから "重さ問題は解決" 確認、研究線復帰の許可）
+
+**やったこと**:
+- 今日 2 連続失敗（Algebra Dominance、Algebra-Guided Branching）の共通因子は「CG が Pareto 性で signal を吸収する」だった
+- 新方向: **CG を走らせる前** に algebra-derived feature でインスタンス難易度を予測する
+- 研究設計書 `docs/RESEARCH_HARDNESS.md` 起草（仮説 H1〜H3、特徴量設計、6 ケース実測計画）
+- 実装:
+  - `src/calculation/yield/research/instanceFeatures.js` (新規、純関数 + dual-mode):
+    - `computeBasicFeatures` (k, n, L_span, density 等 13 項目)
+    - `computeAlgebraFeatures` (demand_skew Gini, length_clusters, R5_potential 等 5 項目)
+    - `computeAllFeatures` で merge
+  - `tests/research/instanceFeatures.test.js` (11 件 pass)
+  - `tests/research/hardness.test.js` (6 ケース実測、~2 分)
+- 6 ケース全実測（CASE-6 だけ HiGHS state 劣化で fail → 単独再測定）
+
+**結果（3 連敗のクリーンな negative result）**:
+
+| Case | k | n | density | R5_pot | gap% | wall(ms) | status |
+|---|---:|---:|---:|---:|---:|---:|---|
+| CASE-1 | 2 | 100 | 40.6 | 0.034 | 1.95 | 253 | cg_optimal |
+| CASE-2 | 5 | 192 | 3.84 | 0.370 | 0.00 | 138 | cg_optimal |
+| CASE-3 | 4 | 44 | 1.75 | 0.035 | 0.42 | 92 | cg_optimal |
+| CASE-4 | 19 | 156 | 3.30 | 0.112 | 0.50 | 44,671 | bb_nodelimit |
+| CASE-5 | 26 | 218 | 3.58 | 0.316 | 2.45 | 74,667 | lp_rounded |
+| CASE-6 | 62 | 463 | 5.54 | 0.125 | 0.69 | 3,206 | cg_optimal_bb |
+
+仮説評価:
+- **H1**（少数 feature で gap 説明可能）: 棄却 ❌ — gap 範囲が狭い (0-2.5%) ので「予測すべき分散」が小さい
+- **H2**（algebra-derived feature が k/n より予測力高い）: 棄却 ❌ — CASE-2 が R5_pot 最大 (0.37) で gap 0%、CASE-5 が R5_pot 0.316 で gap 2.45% と **真逆の相関**
+- **H3**（routing モデル構築）: 達成不可（H1/H2 棄却の帰結）
+
+**得られた honest な観察**:
+1. **CSP の LP gap は構造的に小さい** (0-2.5%) — IRUP property と整合。fancy な algebra heuristic が大きく効く余地は限られる
+2. **Algorithm tuning > Instance feature**: 同じ問題でも maxPatterns=80 cap が CASE-6 を救い、自然収束した CASE-5 では救えない。**サイズ k=62 が 3 秒、k=26 が 74 秒** という逆転現象も
+3. **「事前予測」は無理だが「事後判定」は容易**: status フィールド (cg_optimal_bb / cg_lp_rounded / cg_bb_nodelimit) で結果品質が分かる → routing は事後判定で実装可能
+
+**今日 1 日の研究 3 連敗総括**:
+1. 17:50 Algebra Dominance pre-solve → 棄却（CG が Pareto-aware）
+2. 19:30 Algebra-Guided branching → 棄却（CG が signal を消す）
+3. 24:30 Instance-hardness 予測 → 棄却（gap が構造的に小さく、相関が見えない）
+
+3 つとも「algebra → CSP 性能向上」直線の試み。**結論**: この線は概ね尽きた。
+
+しかし副産物として:
+- JS-native B&B 完成 → CASE-6 を LP-tight (0.69%) で解けるように
+- maxPatterns=80 cap + warm-start incumbent の engineering 勝利
+- Phase 4 dual-mode でブラウザにも届く土台
+
+理論勝利ではなく **engineering 勝利**。Qiita §11 素材の更新値。
+
+**ファイル**:
+- 新規: `docs/RESEARCH_HARDNESS.md`, `docs/HARDNESS_RESULTS.md`
+- 新規: `src/calculation/yield/research/instanceFeatures.js`
+- 新規: `tests/research/instanceFeatures.test.js`, `tests/research/hardness.test.js`
+- 更新: `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**未完了 / 引継ぎ — 次研究線の候補**:
+- (1) **Algorithm engineering**: revised simplex + LU、maxPatterns 動的調整、Strong Branching → 確実な ROI
+- (2) **別ドメイン algebra 応用**: 解の説明可能性、k-best 多様解列挙、Pareto front → 新規性あり
+- (3) **完全別線**: LLM-distilled patterns、NLP→algebra → 探索的
+- (4) **Phase 4.5 完遂**: ブラウザに B&B 届ける（実用価値最高、理論なし）
+
+ユーザーの好みで決める。
+
 ### 23:15  [Claude]  ⚡ Perf 緊急対応 — 致命的な 3 つの構造問題を修正
 
 **依頼**: 重さは先に何とかしないとやばいね　バグじゃなくてシンプルに重いの？　なら早急にやらないとだめだね
