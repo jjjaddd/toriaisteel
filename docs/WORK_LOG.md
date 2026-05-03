@@ -38,6 +38,40 @@
 
 ## 2026-05-03
 
+### 14:26  [Claude]  Phase 2 day-2
+**依頼**: つづけましょう（Phase 2 day-2 = arc-flow グラフ構築）
+**やったこと**:
+- AI_RULES §3 準拠の day-2 着手宣言、設計方針を提示
+  - Compact Arc-Flow (Valério de Carvalho 1999) 採用
+  - **Phantom blade trick**: 全 item arc 重みを length+blade に統一、容量を W+blade 拡張
+  - Per-bar item cap = min(demand, floor(extW/weight))
+- **`src/calculation/yield/arcflow/graph.js` 実装**（CommonJS、170 行）:
+  - `validateSpec`: 入力バリデーション（stock/blade/endLoss/pieces 全部）
+  - `_computeReachablePositions`: bounded multiple knapsack reachability で到達可能位置を Set 計算
+  - `buildArcFlowGraph(spec)`: 単一定尺グラフ構築
+    - nodes: 到達可能位置 + sink (extW)
+    - itemArcs: (p, p+weight, itemIdx) — both endpoints reachable のみ
+    - lossArcs: (p, sink) — sink 自身を除く全 reachable から
+  - 全戻り値 frozen
+- **`tests/arcflow/graph.test.js`** 実装（27 テスト）:
+  - validateSpec の各拒否ケース
+  - reachable position 計算の正当性（単一 item / 2 item 組合せ）
+  - **BUG-V2-001 micro (1222×6 in 10m/9m/8m)** で全数値検証
+    - 10m: nodes=[0,1225,2450,3675,4900,6125,7350,9853]、item arc 6 本、loss arc 7 本
+    - 8m: 7350 ≤ 7853 で全 6 ピース乗ること確認（最適スワップ先）
+  - multi-piece (1222×4 + 800×3) で複数 item 共存
+  - 不変性 (frozen)
+  - **CASE-2 L20 (k=5) のスケール感**: nodeCount < 5000、itemArcCount < 20000 確認
+- **全テスト 210 / 210 pass**（algebra 168 + arcflow 34 + 既存 8）
+**ファイル**:
+- 新規: `src/calculation/yield/arcflow/graph.js`, `tests/arcflow/graph.test.js`
+- 既存ファイル変更なし
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 2 day-3: graph + HiGHS を繋いで実際に LP/MIP を解く `lpRelaxation.js` (or `solver.js`)。Arc-Flow 制約系の生成 → CPLEX LP 文字列構築 → HiGHS 呼出 → TERM PLAN へ復元
+- Phase 2 day-4: multiStockGuard.js（複数定尺 → 単一定尺縮退検知）
+- Phase 2 完了後に CASE-2 / CASE-6 を実 V3 ソルバーで解いて BENCHMARK.md 更新
+
 ### 14:20  [Claude]  🚀 Phase 2 day-1
 **依頼**: GO（Phase 2 着手）
 **やったこと**:
