@@ -38,6 +38,39 @@
 
 ## 2026-05-03
 
+### 14:20  [Claude]  🚀 Phase 2 day-1
+**依頼**: GO（Phase 2 着手）
+**やったこと**:
+- AI_RULES §3 準拠の Phase 2 day-1 着手宣言
+- HiGHS-WASM 1.8.0 (`node_modules/highs/`) の API・型・README を確認
+- ディレクトリ作成: `src/calculation/yield/arcflow/`, `tests/arcflow/`
+- **`src/calculation/yield/arcflow/highsAdapter.js` 実装**（CommonJS、algebra と違い require が必要なため）:
+  - `loadHighs(opts)`: WASM lazy load + プロセス全体で promise キャッシュ
+  - `solve(lp, solveOpts, loadOpts)`: LP/MIP 文字列を解く async 関数
+  - `extractPrimal(sol)`: 解から `{varName: value}` を取り出す
+  - `isOptimal(sol)`: ステータス確認
+  - `_resetForTesting()`: キャッシュリセット用
+- **`tests/arcflow/highsAdapter.test.js`** 実装（7 テスト）:
+  - lazy load + キャッシュ動作
+  - README 例題（連続 LP, ObjectiveValue=87.5）
+  - MIP（整数制約、最安定尺選択）
+  - **BUG-V2-001 micro LP**: HiGHS が直接 8m を選択して loss=503mm を返す（V2 比 -2000mm）
+  - Infeasible 検知
+- **HiGHS-WASM 1.8.0 既知の罠を発見**:
+  - `output_flag: false` または `log_to_console: false` を solve に渡すと**解テキストも消えて parse 失敗** "Unable to parse solution. Too few lines."
+  - 修正: solveOptions が undefined のときはオプション無しで solve を呼ぶ。アダプタにコメントで罠を明記
+- **全テスト 183 / 183 pass**（algebra 168 + arcflow 7 + 既存 8）
+- HiGHS-WASM が Jest 環境で動くことを確認 → Phase 2 の最大リスクをクリア
+**ファイル**:
+- 新規: `src/calculation/yield/arcflow/highsAdapter.js`, `tests/arcflow/highsAdapter.test.js`
+- 既存ファイル変更なし
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 2 day-2: `arcflow/graph.js` で Arc-Flow グラフ構築（compact 版）
+- Phase 2 day-3: `arcflow/lpRelaxation.js` で LP 緩和 + 整数化
+- Phase 2 day-4: `arcflow/multiStockGuard.js` で単一定尺縮退検知
+- Phase 2 完了したら CASE-2 / CASE-6 の V3 結果を ALGEBRA_BENCHMARK に記入
+
 ### 14:09  [Claude]
 **依頼**: 実務 6 ケースを提供（うち 2 件は V2 結果付き、気になるやつ）
 **やったこと**:
