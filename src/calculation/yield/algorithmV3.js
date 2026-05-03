@@ -50,7 +50,8 @@
   //   2. 各バーを「中身が収まる最小定尺」へ downsize
   // ===========================================================================
 
-  function ffdPackMultiStockInline(spec) {
+  // 単一戦略の BFD パッキング
+  function _packOneStrategy(spec, strategy) {
     var blade = spec.blade || 0;
     var endLoss = spec.endLoss || 0;
     var stocksAsc = spec.availableStocks.slice().sort(function(a, b) { return a - b; });
@@ -65,6 +66,24 @@
     var maxEff = maxStock - endLoss;
     for (var fi = 0; fi < flat.length; fi++) {
       if (flat[fi] > maxEff) return [];
+    }
+
+    function chooseStock(len) {
+      if (strategy === 'maxStock') return maxStock;
+      var chosen = maxStock;
+      var bestRatio = Infinity;
+      for (var si = 0; si < stocksAsc.length; si++) {
+        var s = stocksAsc[si];
+        if (s - endLoss < len) continue;
+        var piecesPerBar = Math.floor((s - endLoss + blade) / (len + blade));
+        if (piecesPerBar === 0) continue;
+        var ratio = s / piecesPerBar;
+        if (ratio < bestRatio) {
+          bestRatio = ratio;
+          chosen = s;
+        }
+      }
+      return chosen;
     }
 
     var bars = [];
@@ -87,7 +106,7 @@
         b.used += cost2;
         b.pieces.push(len);
       } else {
-        bars.push({ stock: maxStock, used: len, pieces: [len] });
+        bars.push({ stock: chooseStock(len), used: len, pieces: [len] });
       }
     });
 
@@ -101,6 +120,34 @@
     });
 
     return bars;
+  }
+
+  function _stockTotal(bars) {
+    return bars.reduce(function(s, b) { return s + b.stock; }, 0);
+  }
+
+  function _barCount(bars) {
+    return bars.length;
+  }
+
+  // 2 戦略並走、_pickBetter で良い方を選ぶ
+  //   - 母材差 5% 以上 → 母材優先
+  //   - それ以外 → バー本数優先
+  function ffdPackMultiStockInline(spec) {
+    var rawA = _packOneStrategy(spec, 'maxStock');
+    var rawB = _packOneStrategy(spec, 'smartStock');
+    if (rawA.length === 0 && rawB.length === 0) return [];
+    if (rawA.length === 0) return rawB;
+    if (rawB.length === 0) return rawA;
+    var stA = _stockTotal(rawA);
+    var stB = _stockTotal(rawB);
+    var bcA = _barCount(rawA);
+    var bcB = _barCount(rawB);
+    var stockMin = Math.min(stA, stB);
+    if (stockMin > 0 && Math.abs(stA - stB) / stockMin > 0.05) {
+      return stA <= stB ? rawA : rawB;
+    }
+    return bcA <= bcB ? rawA : rawB;
   }
 
   // ===========================================================================

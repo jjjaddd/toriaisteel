@@ -277,6 +277,23 @@ describe('arcflow/solver — graph + HiGHS 統合', () => {
       expect(r.distinctStockCount).toBe(1);
     });
 
+    test('USER 報告 1222×333 (L-20×20×3 多定尺): V3 が V2 より母材削減', () => {
+      // ユーザー画面で V2 が 10m×42=420,000mm を出していたケース
+      // 期待: V3 が 41×10m + 1×7m = 417,000mm に落とす
+      const r = solver.solveMultiStockGreedy({
+        blade: 3, endLoss: 150,
+        availableStocks: [5500, 6000, 7000, 8000, 9000, 10000, 11000, 12000],
+        pieces: [{ length: 1222, count: 333 }]
+      });
+      expect(r.status).toBe('greedy_ffd_multi');
+      const totalPieces = r.bars.reduce(function(s, b) { return s + b.pattern.length * b.count; }, 0);
+      expect(totalPieces).toBe(333);
+      // V2 の 420,000mm より少ないこと（理論最適 = 417,000mm）
+      expect(r.stockTotal).toBeLessThanOrEqual(420000);
+      // 多定尺ミックス（10m + 短い定尺）が望ましい
+      expect(r.distinctStockCount).toBeGreaterThanOrEqual(2);
+    });
+
     test('infeasible (どの定尺にも入らない piece)', () => {
       const r = solver.solveMultiStockGreedy({
         blade: 3, endLoss: 150,

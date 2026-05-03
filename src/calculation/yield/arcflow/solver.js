@@ -498,32 +498,46 @@ async function solveSingleStockRobust(spec) {
 //   - 単一定尺に縮退しない（BUG-V2-002 の構造的回避）
 // ============================================================================
 
-function ffdPackMultiStock(spec) {
+// 内部: 単一戦略で BFD パッキング
+//   strategy = 'maxStock' | 'smartStock'
+//     maxStock: 新規バーは常に最大定尺で開く（heterogeneous 入力で強い）
+//     smartStock: 新規バーは stock/pieces-per-bar 比率が最小の定尺で開く（homogeneous 入力で強い）
+function _ffdPackOneStrategy(spec, strategy) {
   const blade = spec.blade;
   const endLoss = spec.endLoss;
   const stocksAsc = spec.availableStocks.slice().sort(function(a, b) { return a - b; });
   const maxStock = stocksAsc[stocksAsc.length - 1];
 
-  // 全 piece をフラット展開 + 降順ソート
   const flat = [];
   for (const p of spec.pieces) {
     for (let i = 0; i < p.count; i++) flat.push(p.length);
   }
   flat.sort(function(a, b) { return b - a; });
 
-  // 物理的不可能チェック: 最大定尺にも入らない piece があれば即 infeasible
   const maxEff = maxStock - endLoss;
   for (const len of flat) {
     if (len > maxEff) return [];
   }
 
-  // ---- Pass 1: BFD (Best Fit Decreasing) on largest-stock bars ----
-  // 最大定尺で全部詰める。最大定尺にすることで「次の piece も入る確率」が高まり、
-  // バー本数が最小化される。Best-fit でバーを選ぶことで余りスペースを少なくする。
-  const bars = []; // each: { stock, used (= size with blades), pieces: [length] }
+  function chooseNewBarStock(len) {
+    if (strategy === 'maxStock') return maxStock;
+    let chosen = maxStock;
+    let bestRatio = Infinity;
+    for (const s of stocksAsc) {
+      if (s - endLoss < len) continue;
+      const piecesPerBar = Math.floor((s - endLoss + blade) / (len + blade));
+      if (piecesPerBar === 0) continue;
+      const ratio = s / piecesPerBar;
+      if (ratio < bestRatio) {
+        bestRatio = ratio;
+        chosen = s;
+      }
+    }
+    return chosen;
+  }
 
+  const bars = [];
   for (const len of flat) {
-    // Best-fit: 入るバーのうち**残スペースが最小**のものを選ぶ
     let bestIdx = -1;
     let bestRemain = Infinity;
     for (let i = 0; i < bars.length; i++) {
@@ -542,14 +556,11 @@ function ffdPackMultiStock(spec) {
       bar.used += cost;
       bar.pieces.push(len);
     } else {
-      // 新規バーは最大定尺で開く（次の piece も入る余地を残す）
-      bars.push({ stock: maxStock, used: len, pieces: [len] });
+      bars.push({ stock: chooseNewBarStock(len), used: len, pieces: [len] });
     }
   }
 
-  // ---- Pass 2: downsize each bar to smallest valid stock ----
-  // bar.used (= size with blades) が収まる最小定尺へ downsize。
-  // 例: 12m バーに 5500mm 分しか入ってない → 6m か 7m に縮める → 母材総量削減
+  // Pass 2: downsize
   for (const bar of bars) {
     for (const s of stocksAsc) {
       if (s - endLoss >= bar.used) {
@@ -559,9 +570,12 @@ function ffdPackMultiStock(spec) {
     }
   }
 
-  // (stock, pattern) で集約
+  return bars;
+}
+
+function _aggregateBars(rawBars) {
   const map = new Map();
-  for (const bar of bars) {
+  for (const bar of rawBars) {
     const sorted = bar.pieces.slice().sort(function(a, b) { return b - a; });
     const key = bar.stock + '|' + sorted.join(',');
     if (!map.has(key)) {
@@ -570,6 +584,47 @@ function ffdPackMultiStock(spec) {
     map.get(key).count++;
   }
   return Array.from(map.values());
+}
+
+function _stockTotal(bars) {
+  return bars.reduce(function(s, b) { return s + b.count * b.stock; }, 0);
+}
+
+function _barCount(bars) {
+  return bars.reduce(function(s, b) { return s + b.count; }, 0);
+}
+
+/**
+ * 2 つの解を比較してより良い方を返す。
+ *   - 母材総量の差が 5% 以上 → 母材優先
+ *   - それ以外（同等） → バー本数優先（handling コスト削減）
+ *
+ * このルールにより:
+ *   - 1222×333 のような均質入力: smartStock が母材 -6.5% で勝つ
+ *   - CASE-2 / CASE-6: 母材差 < 1% → barCount 少ない maxStock が勝つ
+ */
+function _pickBetter(aggA, aggB) {
+  const stA = _stockTotal(aggA);
+  const stB = _stockTotal(aggB);
+  const bcA = _barCount(aggA);
+  const bcB = _barCount(aggB);
+  const stockMin = Math.min(stA, stB);
+  if (stockMin > 0 && Math.abs(stA - stB) / stockMin > 0.05) {
+    return stA <= stB ? aggA : aggB;
+  }
+  return bcA <= bcB ? aggA : aggB;
+}
+
+// 公開: 2 戦略を並走させ、_pickBetter で最良を選ぶ
+//   maxStock 戦略: 多種 piece に強い (CASE-2 / CASE-6)
+//   smartStock 戦略: 単一 piece に強い (1222×333 のような均質入力)
+function ffdPackMultiStock(spec) {
+  const rawA = _ffdPackOneStrategy(spec, 'maxStock');
+  const rawB = _ffdPackOneStrategy(spec, 'smartStock');
+  if (rawA.length === 0 && rawB.length === 0) return [];
+  if (rawA.length === 0) return _aggregateBars(rawB);
+  if (rawB.length === 0) return _aggregateBars(rawA);
+  return _pickBetter(_aggregateBars(rawA), _aggregateBars(rawB));
 }
 
 function summarizeMultiStockBars(spec, bars, status) {

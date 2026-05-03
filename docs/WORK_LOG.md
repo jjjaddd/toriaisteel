@@ -38,6 +38,36 @@
 
 ## 2026-05-03
 
+### 15:53  [Claude]  Phase 3 day-2 修正 — V3 が常に勝つ dual-strategy 採用
+**依頼**: V3 になってない、[V3] ついてない（スクリーンショット: 1222×333 で 10m×42 = 420,000mm）
+**やったこと**:
+- スクリーンショット解析 → 入力 1222×333、V2 が 42×10m=420,000mm/96.9% を出してた
+- **V3 アルゴリズム欠陥発見**: 「最大定尺で開く」戦略だと 1222 × 333 で 37×12m=444,000mm/91.65% と V2 より悪化（この入力では負ける）
+- 理論最適は 41×10m + 1×7m = 417,000mm/97.58%
+- 修正: **dual-strategy 並走**を実装
+  - `maxStock` 戦略: 多種 piece に強い (CASE-2 / CASE-6)
+  - `smartStock` 戦略: 同質 piece に強い (1222×333) — `stock/pieces-per-bar` 比率最小の定尺で新規バー開設
+  - 両戦略を並走して `_pickBetter` で良い方を選ぶ
+- **`_pickBetter` ルール**:
+  - 母材差 5% 以上 → 母材総量優先
+  - それ以外 → バー本数優先 (handling コスト)
+- `solver.js` (Node テスト用) と `algorithmV3.js` (browser 用 inline) 両方に同じ修正
+- **`tests/arcflow/solver.test.js`** にユーザー報告ケース (1222×333) を**リグレッションテスト**として追加
+- **数値結果**:
+  - 1222×333: V3 **42 bars / 417,000mm / 97.58%** (V2 420,000mm/96.9% から **-3,000mm**)
+  - CASE-2 L20: V3 37 bars / 443,000mm / 93.06% (前と同じ、勝ち維持)
+  - CASE-6 L65: V3 62 bars / 723,500mm / 95.21% (前と同じ、勝ち維持)
+- `service-worker.js` CACHE_NAME v160 → v161 にバンプ
+- `index.html` の algorithmV3.js script タグ version を `?v=phase3b` に更新
+- **全テスト 260 / 260 pass**（algebra 178 + arcflow 74 + 既存 8）
+**ファイル**:
+- 更新: `src/calculation/yield/arcflow/solver.js`, `src/calculation/yield/algorithmV3.js`, `tests/arcflow/solver.test.js`, `service-worker.js`, `index.html`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- ユーザーが Ctrl+Shift+R で強制リロード後、再度 1222×333 を計算
+- 期待: desc に「7,000mm × 1本 + 10,000mm × 41本 [V3]」が yieldCard1 として表示
+- 失敗時: DevTools で `Toriai.calculation.yield.v3Config.isEnabled()` 確認、false なら GitHub Pages の build 待ち（1-2 分）
+
 ### 15:31  [Claude]  🌟 Phase 3 day-2 — V3 を本番配線（toriai.app へ）
 **依頼**: day2 やろうぜ
 **やったこと**:
