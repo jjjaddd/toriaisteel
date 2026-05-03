@@ -25,16 +25,31 @@
 
 ## ケース一覧
 
-| ID | 鋼種・規格 | k | n | V2 結果 | V3 結果 (multi-stock FFD) | 改善 |
+### V3 multi-stock FFD（Phase 2 day-5、本番稼働中）
+
+| ID | 鋼種・規格 | k | n | V2 結果 | V3 FFD | 改善 |
 |---|---|---|---|---|---|---|
 | CASE-1 | 角パイプ □-175×175×12 | 2 | 100 | 未提供 | TBD | — |
-| **CASE-2** | **山形鋼 L-20×20×3** | **5** | **192** | **60 bars / 443,000mm / 93.1%** | **37 bars / 443,000mm / 93.06%** | **bars -38%** |
-| CASE-3 | H 形鋼 H-175×175×7.5×9 | 4 | 44 | 未提供 | TBD | — |
-| CASE-4 | H 形鋼 H-194×150 | 19 | 156 | 未提供 | TBD | — |
-| CASE-5 | 溝形鋼 C-100×50×5 | 26 | 218 | 未提供 | TBD | — |
-| **CASE-6** | **山形鋼 L-65×65×6** | **61** | **463** | **67 bars / 737,000mm / 93.5%** | **62 bars / 723,500mm / 95.21%** | **3 軸全勝** |
+| **CASE-2** | **L-20×20×3** | **5** | **192** | **60 bars / 443,000mm / 93.1%** | **37 bars / 443,000mm / 93.06%** | **bars -38%** |
+| CASE-3 | H-175×175×7.5×9 | 4 | 44 | 未提供 | TBD | — |
+| CASE-4 | H-194×150 | 19 | 156 | 未提供 | TBD | — |
+| CASE-5 | C-100×50×5 | 26 | 218 | 未提供 | TBD | — |
+| **CASE-6** | **L-65×65×6** | **61** | **463** | **67 bars / 737,000mm / 93.5%** | **62 bars / 723,500mm / 95.21%** | **3 軸全勝** |
 
-V3 ソルバー: 2026-05-03 Phase 2 day-5 時点 (`solveMultiStockGreedy`, BFD + downsize)。MIP / 列生成は今後の Phase で順次強化予定。
+### V3 + Column Generation（Phase 2 day-7、Node 限定）
+
+```
+arcflow/columnGen.js + arcflow/highsAdapter.js
+solveBest(spec) で CG と FFD 並走、より良い方を採用（CG が悪化したら FFD に戻る）
+```
+
+| ID | V3 FFD | V3 CG (Best) | LP 下界 | gap from LP |
+|---|---|---|---|---|
+| CASE-2 | 37 bars / 443,000mm | **37 bars / 442,000mm** ✨ (status `cg_optimal`) | 442,000mm | **0%（LP-tight 証明的最適）** |
+| CASE-6 | 62 bars / 723,500mm | 同（CG は LP rounding が overshoot するので FFD 採用） | 710,972mm | 1.76% (FFD だけで LP 最適に近い) |
+| BUG-V2-001 micro | 1 bar / 8000mm | 同（V3 FFD で既に LP-tight） | — | 0% |
+
+CG は **CASE-2 で 1,000mm さらに削減** し、解が **LP-tight (証明的に最適)** であることを示せた。CASE-6 の MIP は WASM stack 制限で fallback、LP rounding が over-coverage するため FFD が採用される。次の Phase で MIP 改善 (subset MIP / 対称性削減) で CASE-6 もさらに詰められる見込み。
 
 ---
 

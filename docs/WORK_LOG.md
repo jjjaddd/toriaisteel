@@ -38,6 +38,41 @@
 
 ## 2026-05-03
 
+### 17:02  [Claude]  🔥 Phase 2 day-7 — Column Generation 実装、CASE-2 で LP-tight 最適解
+**依頼**: Phase 2 day-7 行きましょう、ナイス主導権
+**やったこと**:
+- AI_RULES §3 準拠の day-7 着手宣言
+- **`src/calculation/yield/arcflow/columnGen.js` 実装**（450 行、async）:
+  - `boundedKnapsack(items, capacity)`: pricing subproblem 用 DP（O(N×C×max_d)）
+  - `_buildMasterLp(patterns, items, asMip)`: CPLEX LP 文字列構築（ラップ対応）
+  - `solveColumnGen(spec, opts)`: CG メインループ
+    - 初期パターン: FFD warm-start
+    - 各反復: Master LP 解く → dual prices π → 各 stock で knapsack → 改善 column 追加
+    - 収束 / maxIter (50) に達したら IP recovery
+  - IP recovery: subset MIP（active patterns x_p > 0.001 のみ）→ MIP fail なら LP floor + greedy 残需要
+  - `_roundLpInMemory`: LP 解からの floor 丸め + 効率優先 greedy
+  - `solveBest(spec)`: **CG と FFD を並走、demand 充足確認 + stockTotal で良い方を picked**
+- **`tests/arcflow/columnGen.test.js`** 実装（13 テスト、全 pass）:
+  - bounded knapsack 4 ケース
+  - Master LP 構造
+  - end-to-end: BUG-V2-001 micro / 1222×16 / USER 1222×333
+  - **CASE-2 ベンチマーク: V3 CG = 37 bars / 442,000mm / 93.27%、status `cg_optimal`、lpGap 0%（LP-tight 証明的最適）**
+  - CASE-6: CG は LP rounding overshoot で 779,500mm（FFD 723,500 より悪化）→ solveBest で FFD 採用される動作を確認
+  - solveBest 動作: CASE-2 は CG 採用、CASE-6 は FFD 採用 ✓
+- **重要発見**: CASE-6 の LP 下界 = **710,972mm**、V3 FFD = 723,500mm = **gap 1.76% のみ** → V3 FFD が既に「LP 下界に対し 98.2% 収束」した状態
+- 大規模ケースで CG が ineffective な原因: HiGHS-WASM の MIP が中規模 (~80 patterns × 60 demand 制約) で Aborted する (BUG-V3-001 と同根)
+- `docs/ALGEBRA_BENCHMARK.md` を CG 結果含む 2-tier 形式に更新
+- **全テスト 275 / 275 pass**（algebra 180 + arcflow 87 + 既存 8）
+- CG はまだ Node 限定（async、ブラウザ配線は計算層を async 化が必要、Phase 4）
+**ファイル**:
+- 新規: `src/calculation/yield/arcflow/columnGen.js`, `tests/arcflow/columnGen.test.js`
+- 更新: `docs/ALGEBRA_BENCHMARK.md`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 2 day-8 候補: subset MIP の対称性削減で CASE-6 規模の MIP が通るようにする
+- Phase 4: CG をブラウザに配線（calcCore async 化 or Worker 内 CG 実行）
+- Phase 4: 残りの CASE-1/3/4/5 で V2 ベースライン取得 → CG vs FFD 比較
+
 ### 16:38  [Claude]  本筋強化 — Local Search 後処理（バー削減）
 **依頼**: UI 装飾はいらない、最強アルゴリズムにフォーカスして欲しい、クロードがやりやすい方法で進めて
 **やったこと**:
