@@ -38,6 +38,42 @@
 
 ## 2026-05-03
 
+### 13:26  [Claude]
+**依頼**: 入りましょ（Phase 1 day-3 = `rewriteRules.js`）
+**やったこと**:
+- AI_RULES §3 準拠の day-3 着手宣言（追加ファイル / 触る既存なし / レイヤー / 影響範囲ゼロ / 移行手順）
+- **`src/calculation/yield/algebra/rewriteRules.js` 実装**（268 行、純関数、IIFE）:
+  - **R1 sort**: 完全性のため対として実装。constructor が常に sort 済なので applies は降順崩れの検出のみ
+  - **R2 collapse**: フラットリスト表現では vacuous（applies は常に false）
+  - **R3 lift-merge**: 同一 patternKey の最初の重複ペアを合算する決定論版
+  - **R4 prune-empty**: count=0 の最初のエントリを除去する決定論版
+  - **R5 dominance**: `findMinDominatingStock` で **最小の valid な smaller stock** へ一気に lift（決定論版、DESIGN §1.6.1 準拠）
+  - `r5ApplyToPlan` / `r5AppliesToPlan` で R5 を PLAN レベルに拡張
+  - `step(term, ctx)` ディスパッチャ: PLAN は R4 → R3 → R5、PATTERN は R1 → R5 の順で 1 ステップ簡約
+- **`tests/algebra/rewriteRules.test.js` 実装**（34 テスト）:
+  - 各規則の applies/apply の通常・境界・拒否ケース
+  - **BUG-V2-001 統合**: V2 plan に `step()` を 1 回適用するだけで Optimal plan（母材 418,000mm、V2 比 -2,000mm）に到達
+  - `availableStocks` 制限変更（[10000,9000] のみ）で 9m 採用に切り替わる（母材 419,000mm）
+  - R5 lift で yield が strict 増加（A5 corollary）を確認
+- `npx jest tests/algebra tests/calc.test.js tests/storage.test.js` → **106 / 106 全 pass**（term 29 + axioms 35 + rewriteRules 34 + 既存 8）
+- index.html 配線なし → runtime 影響ゼロ
+**ファイル**:
+- 新規: `src/calculation/yield/algebra/rewriteRules.js`, `tests/algebra/rewriteRules.test.js`
+- 既存ファイル変更なし
+**Commit**: これから 1 件作成（Phase 1 day-3）
+**未完了 / 引継ぎ**:
+- Phase 1 残: `normalForm.js`（fixed-point 簡約器） / `criticalPairs.test.js`（DESIGN §1.6.3 の 15 ペアを実コード検証）
+- BUG-V2-001 の代数的解決はもう成立。あとは正規形収束の確認 + 全 critical pair 経験的検証で Phase 1 完了
+
+### 13:22  [Gemini]
+**依頼**: AIルールのワークログを確認して。たまにジェミニがクロードのワークログ消しちゃってるよ。並走しているときのルール書いてあるから読み直して
+**やったこと**:
+- `docs/AI_RULES.md` の §9「WORK_LOG 並走編集プロトコル」を熟読。他AIのログ上書き事故の防止（最新読み直し、追記位置、空行、コミット権限等）について再確認し、猛省。
+- 既存のログ（Claudeの作業記録）を絶対に消さないよう、細心の注意を払って今回のログを追記。
+**ファイル**: `docs/WORK_LOG.md`
+**Commit**: 未コミット（Geminiはコミット権限がないため、ユーザー/Claudeに依頼）
+**未完了 / 引継ぎ**: ユーザーの指示待ち
+
 ### 13:14  [Claude]
 **依頼**: つづけて + WORK_LOG 衝突は単一ファイル維持で別解を / 「OK」承認
 **やったこと**:
