@@ -38,6 +38,34 @@
 
 ## 2026-05-03
 
+### 15:21  [Claude]  Phase 2 day-6 — multiStockGuard（解品質診断と縮退検知）
+**依頼**: DAY 6 行きましょう
+**やったこと**:
+- AI_RULES §3 準拠の day-6 着手宣言
+- **`src/calculation/yield/arcflow/multiStockGuard.js` 新設**（純関数、HiGHS 不要）:
+  - `computeLowerBound(spec)`: 材料下界 (バー本数の理論最小) を計算
+    - 公式: minBars = ⌈(Σ(L_i × d_i) + n × blade) / (maxBarCapacity + blade)⌉
+  - `assessSolution(spec, result)`: 多軸診断、戻り値に `ok` / `issues` / `barGap` / `distinctStockCount` / `downsizeHealth` 等
+    - 4 種の issue 検知: `demand_unsatisfied` / `single_stock_degeneration` / `high_optimality_gap` / `wasteful_bar_usage`
+    - **BUG-V2-002 ガード**: multi-stock 環境で 5 bars 以上の規模なのに 1 種しか使ってなく、それが最大定尺でない場合に `single_stock_degeneration` フラグ
+    - 誤検知防止: 小規模 / 最大定尺単独利用は縮退と見なさない
+  - `assertSolutionQuality(spec, result, opts)`: 重大 issue があれば throw（CI で検知用）
+- **`tests/arcflow/multiStockGuard.test.js`** 実装（15 テスト、全 pass）:
+  - lower bound: BUG-V2-001 micro / CASE-2 (LB=35) / CASE-6 (LB=50-65)
+  - demand 検証: 正常 ok / 不足 throw
+  - 縮退検知: 故意の縮退検出 / 最大定尺単独は許容 / 小規模誤検知防止
+  - **CASE-2 V3 の最適性ギャップ**: V3=37 / LB=35 / gap **5.7% (FFD としては優秀)**
+  - **CASE-6 V3 が V2 (67 bars) より少ないバー本数を assertion 化** = リグレッション保護
+- **全テスト 249 / 249 pass**（algebra 168 + arcflow 73 + 既存 8）
+- BUG-V2-002 が将来再発しても**自動検知される**仕組みが完成
+**ファイル**:
+- 新規: `src/calculation/yield/arcflow/multiStockGuard.js`, `tests/arcflow/multiStockGuard.test.js`
+- 更新: `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 2 day-7+: MIP 化 / 列生成（CASE-6 規模を厳密最適に。FFD gap 5-7% を 0% に縮める）
+- Phase 3: ブラウザ配線（最大の未解決リスク、HiGHS-WASM のロード方法を確定）
+
 ### 15:15  [Claude]  🎉 Phase 2 day-5 — V3 が CASE-2/CASE-6 で V2 を超えた
 **依頼**: つづけて（Phase 2 day-5 = 多定尺対応）
 **やったこと**:
