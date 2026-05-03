@@ -22,7 +22,23 @@
 
 'use strict';
 
-const { solveLP } = require('./lp.js');
+// Dual-mode dependency resolver: Node の require と Browser の Toriai global の両対応
+function _resolveBbDep(nodePath, browserNs) {
+  if (typeof require === 'function') {
+    try { return require(nodePath); } catch (e) { /* fall through */ }
+  }
+  var g = typeof self !== 'undefined' ? self : (typeof window !== 'undefined' ? window : globalThis);
+  var parts = browserNs.split('.');
+  var cur = g;
+  for (var i = 0; i < parts.length; i++) {
+    if (!cur) return null;
+    cur = cur[parts[i]];
+  }
+  return cur;
+}
+
+var _lp = _resolveBbDep('./lp.js', 'Toriai.calculation.yield.bb.lp');
+var solveLP = _lp.solveLP;
 
 const INT_EPS = 1e-6;
 const BOUND_EPS = 1e-6;
@@ -213,11 +229,22 @@ function range(n) {
 }
 
 // ============================================================================
-// 公開
+// 公開 — Node (CommonJS) と Browser (Toriai global namespace) の dual-mode
 // ============================================================================
 
-module.exports = {
+var _exports = {
   solveMIP: solveMIP,
   mostFractionalScore: mostFractionalScore,
   _internal: { solveBoundedLP: solveBoundedLP }
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = _exports;
+} else {
+  var _g = typeof self !== 'undefined' ? self : (typeof window !== 'undefined' ? window : globalThis);
+  _g.Toriai = _g.Toriai || {};
+  _g.Toriai.calculation = _g.Toriai.calculation || {};
+  _g.Toriai.calculation.yield = _g.Toriai.calculation.yield || {};
+  _g.Toriai.calculation.yield.bb = _g.Toriai.calculation.yield.bb || {};
+  _g.Toriai.calculation.yield.bb.branchAndBound = _exports;
+}

@@ -38,6 +38,60 @@
 
 ## 2026-05-03
 
+### 22:30  [Claude]  🐛 + 🔌 Chrome バグ修正 + Phase 4 着手 (bb/* dual-mode)
+
+**依頼**: クロームで開くとめっちゃ重いし若干バグってるかも、、、 直したらA やろ
+（A = JS-native B&B を本番ブラウザに配線）
+
+**やったこと**:
+
+1. **goPage バグ修正** (commit `bf75319`):
+   - 原因: 160 個ある script タグの中盤 (#138) で `pageNav.js` がロードされる。途中でユーザーが nav リンクをクリックすると `goPage is not defined` で throw
+   - 修正: `index.html <head>` に早期 stub を追加 (`window.goPage = function(p) { window.__pendingNav = p; }`)
+   - `pageNav.js` 末尾で本物の `goPage` が hoist 上書きされた後、`pendingNav` のクリックを再生
+   - Console に出ていた `Uncaught ReferenceError: goPage is not defined at HTMLAnchorElement.onclick` を解消
+
+2. **Phase 4 着手 — bb/* を dual-mode 化**:
+   - `bb/lp.js`, `bb/algebraBranching.js`, `bb/branchAndBound.js`, `bb/mipFromPatterns.js` の 4 ファイル
+   - Node では `module.exports`、Browser では `globalThis.Toriai.calculation.yield.bb.*` の両対応
+   - `_resolveBbDep` ヘルパで `require` と global namespace を両対応
+   - `index.html` に 4 つの script タグ追加（`algorithmV3.js` 直後、`?v=phase4`）
+   - **Node test 25/25 pass**、CASE-6 still 723,500（既存 columnGen.js 経由）
+   - vm sandbox での browser branch smoke test も成功:
+     - `Toriai.calculation.yield.bb.{lp,algebraBranching,branchAndBound,mipFromPatterns}` が公開
+     - LP solve: optimal obj=2.667 (= 8/3、教科書一致)
+     - MIP solve: optimal obj=3 (一致)
+
+3. **Phase 4.5 計画書作成** (`docs/PHASE_4_PLAN.md`):
+   - 残作業: arcflow/columnGen.js の dual-mode 化、HiGHS-WASM CDN 配線、worker 統合、UI handoff
+   - マイルストーン M1〜M5、推定 4-6 時間
+   - 次セッション 1-2 回で完遂可能
+
+**ファイル**:
+- 修正: `index.html` (goPage stub + bb/* script タグ)
+- 修正: `src/ui/pageNav.js` (pendingNav 再生)
+- 修正: `src/calculation/yield/bb/{lp,algebraBranching,branchAndBound,mipFromPatterns}.js` (dual-mode export)
+- 新規: `docs/PHASE_4_PLAN.md`
+
+**Commit**: `bf75319` (goPage 修正、push 済) + これから 1 件 (Phase 4)
+
+**未完了 / 引継ぎ (Phase 4.5)**:
+- arcflow/columnGen.js + 依存ファイルの dual-mode 化
+  - `solveMultiStockGreedy` を `solver.js` から抽出して `arcflow/multiStockFfd.js` 化（推奨案 A）
+  - `arcflow/highsAdapter.js` の export 部 dual-mode 化
+  - `arcflow/columnGen.js` 全体の require / module.exports dual-mode 化
+- HiGHS-WASM CDN 配線（CSP 既許可）
+- `yieldWorker.js` に `cgBb` mode 追加（async handler）
+- 大規模ケース判定 (k > 30 等) → worker に投げる UI handoff
+- 「直したら A」の最終形は **本番 toriai.app で CASE-6 入力 → 723,500 で解ける** こと
+
+**重さ問題について**:
+今回 goPage の早期エラーは解消したが、ページ自体の「重い」感は 160 個の script タグが順次ロードされるのが主因。
+Phase 5 候補として:
+  - script タグへの `defer` 一括付与（onclick 早期発火対策が要る）
+  - 本格的な bundling (esbuild 等)
+を検討。本セッションでは未着手。
+
 ### 21:30  [Claude]  🏆 本番勝利 — CASE-6 を 779,500 → 723,500 (LP-tight 0.69%)
 
 **依頼**: 続けましょう

@@ -118,11 +118,22 @@ function makeMostFractionalScore() {
 }
 
 // ============================================================================
-// 公開
+// 公開 — Node (CommonJS) と Browser (Toriai global namespace) の dual-mode
 // ============================================================================
 
-module.exports = {
+var _exports = {
   computePatternFeatures: computePatternFeatures,
   makeAlgebraBranchScore: makeAlgebraBranchScore,
   makeMostFractionalScore: makeMostFractionalScore
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = _exports;
+} else {
+  var _g = typeof self !== 'undefined' ? self : (typeof window !== 'undefined' ? window : globalThis);
+  _g.Toriai = _g.Toriai || {};
+  _g.Toriai.calculation = _g.Toriai.calculation || {};
+  _g.Toriai.calculation.yield = _g.Toriai.calculation.yield || {};
+  _g.Toriai.calculation.yield.bb = _g.Toriai.calculation.yield.bb || {};
+  _g.Toriai.calculation.yield.bb.algebraBranching = _exports;
+}

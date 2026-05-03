@@ -15,7 +15,23 @@
 
 'use strict';
 
-const { solveMIP } = require('./branchAndBound.js');
+// Dual-mode dependency resolver
+function _resolveBbDep(nodePath, browserNs) {
+  if (typeof require === 'function') {
+    try { return require(nodePath); } catch (e) { /* fall through */ }
+  }
+  var g = typeof self !== 'undefined' ? self : (typeof window !== 'undefined' ? window : globalThis);
+  var parts = browserNs.split('.');
+  var cur = g;
+  for (var i = 0; i < parts.length; i++) {
+    if (!cur) return null;
+    cur = cur[parts[i]];
+  }
+  return cur;
+}
+
+var _bb = _resolveBbDep('./branchAndBound.js', 'Toriai.calculation.yield.bb.branchAndBound');
+var solveMIP = _bb.solveMIP;
 
 // ============================================================================
 // solveMipFromPatterns(patterns, items, opts)
@@ -75,9 +91,20 @@ function solveMipFromPatterns(patterns, items, opts) {
 }
 
 // ============================================================================
-// 公開
+// 公開 — Node (CommonJS) と Browser (Toriai global namespace) の dual-mode
 // ============================================================================
 
-module.exports = {
+var _exports = {
   solveMipFromPatterns: solveMipFromPatterns
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = _exports;
+} else {
+  var _g = typeof self !== 'undefined' ? self : (typeof window !== 'undefined' ? window : globalThis);
+  _g.Toriai = _g.Toriai || {};
+  _g.Toriai.calculation = _g.Toriai.calculation || {};
+  _g.Toriai.calculation.yield = _g.Toriai.calculation.yield || {};
+  _g.Toriai.calculation.yield.bb = _g.Toriai.calculation.yield.bb || {};
+  _g.Toriai.calculation.yield.bb.mipFromPatterns = _exports;
+}
