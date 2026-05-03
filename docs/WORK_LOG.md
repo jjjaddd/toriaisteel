@@ -38,6 +38,50 @@
 
 ## 2026-05-03
 
+### 14:09  [Claude]
+**依頼**: 実務 6 ケースを提供（うち 2 件は V2 結果付き、気になるやつ）
+**やったこと**:
+- 実データを構造化保存:
+  - `tests/fixtures/realCases.js` — 6 ケース全部の pieces / availableStocks / blade / endLoss / V2 baseline
+  - 共通定数 (blade=3, endLoss=150) と各鋼種の実 stock 一覧 (`src/data/steel/<kind>/stockLengths.js` から取得)
+  - V2 結果は CASE-2 (L20) と CASE-6 (L65) のみ。残り 4 件 (CASE-1〜CASE-5 の □175/H175/H194/C100) は入力のみ
+- ベンチマーク追跡用ドキュメント `docs/ALGEBRA_BENCHMARK.md` 新規作成:
+  - V1/V2/V3 比較テーブル（V3 列は Phase 2 完成後に埋める）
+  - CASE-2 / CASE-6 の重点詳細（V2 縮退の指摘、V3 で検証したい仮説）
+  - V3 採用条件（歩留 >= V2 かつ bars or stockTotal が改善で合格）
+- スモークテスト `tests/algebra/realCases.test.js`（34 テスト）:
+  - 全ケースの pieces を ATOM として構築できる
+  - totalPieceCount が pieces 合計と一致（CASE-6 の数値ミスを発見・修正、472 → 463）
+  - V2 baseline の stockTotal / totalBars 整合確認
+  - CASE-2 yield 93.06% を手検算で再現、V2 報告 93.1% と整合
+  - CASE-6 が単一定尺 11m に縮退している事実を**テストで明示**（V3 改善ターゲット）
+- **全テスト 176 / 176 pass**（algebra 6 ファイル + 既存 calc/storage 8）
+- 並走 Gemini が ARCHITECTURE.md にディレクトリ詳細・ファイル責務セクションを追加（commit 44bd39c に既に取り込まれてる、追加 diff なし）
+**ファイル**:
+- 新規: `tests/fixtures/realCases.js`, `docs/ALGEBRA_BENCHMARK.md`, `tests/algebra/realCases.test.js`
+- 更新: `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 2 (Arc-Flow + HiGHS) で実 V3 ソルバーが動くようになったら、これら 6 ケースを直接解いて BENCHMARK.md の V3 列に記入する
+- 残り 4 ケース (□175/H175/H194/C100) の V2 結果を後でユーザーから取得できるとベンチマーク完備
+
+### HH:MM  [Gemini]
+**依頼**: あとディレクトリの詳細も追加して
+**やったこと**:
+- ユーザーの指示に従い、`docs/ARCHITECTURE.md` の「5. ディレクトリ構成（詳細版）」セクションのツリー構造に、各層（calculation, data, features, services, ui 等）のサブディレクトリ情報を追記してさらに詳細化。
+**ファイル**: `docs/WORK_LOG.md`, `docs/ARCHITECTURE.md`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: ユーザーのコミット操作待ち
+
+### HH:MM  [Gemini]
+**依頼**: できるよやってみて
+**やったこと**:
+- ユーザーの「（ファイル内の詳細まで）できるよやってみて」という指示を受け、`docs/ARCHITECTURE.md` に「主要ファイルの責務 (File Responsibilities)」セクションを新設。
+- `calcCore.js`, `orchestration.js`, `calcInit.js`, `sectionSvg.js` など、計算・UI・データ・ストレージ各層の主要ファイルが具体的に何をしているのかを詳細に記述。
+**ファイル**: `docs/WORK_LOG.md`, `docs/ARCHITECTURE.md`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: ユーザーのコミット操作待ち
+
 ### 13:35  [Claude]  🎉 Phase 1 完了
 **依頼**: 続けましょう！（Phase 1 day-4 = normalForm + criticalPairs で Phase 1 完了まで）
 **やったこと**:
