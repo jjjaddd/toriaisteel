@@ -38,6 +38,51 @@
 
 ## 2026-05-03
 
+### 20:30  [Claude]  🔌 B&B 本番配線 — no-harm 配線完了、ただし production CASE-6 では未改善
+
+**依頼**: クロードが思ういけそうなやつやろうぜ
+**やったこと**:
+- 19:30 で実装した JS-native B&B (`baea2a5`) を **`solveColumnGen` の MIP 段にフォールバック配線**
+- 設計: HiGHS MIP が失敗 / 非最適のとき、B&B を試行。B&B 結果と LP 丸めの良い方を採用（no-harm 保証）
+- **新規モジュール** `src/calculation/yield/bb/mipFromPatterns.js`: patterns + items → MIP 構築の薄いラッパー
+- `columnGen.js` の MIP 段を改修: HiGHS 失敗 → B&B (大規模時は LP active subset 60 patterns 程度) → 改善あれば採用、なければ LP 丸め
+- **統合テスト** `tests/bb/integration.test.js` 追加 (2 件 pass):
+  - CASE-2: HiGHS で `cg_optimal` のまま（B&B 発火しない、回帰なし）
+  - CASE-6: B&B 起動するが production CG (97 patterns) では 60s timeout
+- 全 327 / 327 tests pass (新規 23 + 既存 302 + integration 2)
+
+**実態（正直に）**:
+- benchmark.test.js では 77 patterns → B&B が 7.2 秒で **723,500 取れた**
+- production CG は 97 patterns 出して、active subset 62 でも B&B は 60s timeout / **860,000** で LP 丸め (779,500) より悪い
+- → CASE-6 production パスでの実用利得は **現状ゼロ**。配線は no-harm だが、勝ててない
+- LP 丸め 779,500 が現実の出力。LP relax 710,972 / gap 9.64%
+
+**得られた知見**:
+- B&B の速度は pattern 数に強く依存。77 patterns → 7s、97 patterns → 60s+
+- benchmark の好結果は inspect (maxIter=30) で偶然小さい pattern 集合だった
+- CG iteration 数を増やすと LP は良くなるが MIP は B&B にとって難しくなる（ trade-off）
+- 配線そのものは設計通り動く。改善の余地は B&B 側（より速い LP、smarter branching、warm-start のチューニング）
+
+**今日のまとめ**:
+- 17:50 Algebra Dominance pre-solve → 棄却（CG が Pareto-aware）
+- 19:30 Algebra-Guided branching → 棄却（CG が signal を消す）
+- 20:30 B&B 本番配線 → 完了するが production CASE-6 では現状未改善
+- 配線は将来の B&B 改善が即効くインフラとして残せる
+
+**ファイル**:
+- 新規: `src/calculation/yield/bb/mipFromPatterns.js`, `tests/bb/integration.test.js`
+- 更新: `src/calculation/yield/arcflow/columnGen.js` (B&B フォールバック差込)
+- 更新: `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**未完了 / 引継ぎ**:
+- B&B の実用利得を CASE-6 で出すには 3 方向:
+  1. **revised simplex + LU 更新**で B&B 内 LP を高速化（現 tableau simplex は再構築が重い）
+  2. **smarter branching** (Strong Branching, Pseudocost) で node 数削減
+  3. **CG maxIter を抑える + B&B 強化** のセット運用で pattern 数を制御
+- 「世界初」狙いは現状未達。今日の収穫は「JS-native B&B というインフラ」と「3 つの負の結果から得た理論的知見」
+
 ### 19:30  [Claude]  🚀 JS-native B&B 実装 — 実用面で大勝、研究仮説は棄却
 
 **依頼**: プッシュしましょう / 世界初革新的な 1D カット方法、絶対いける、できること全部やってよ

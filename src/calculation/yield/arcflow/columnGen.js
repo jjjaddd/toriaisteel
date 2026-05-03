@@ -20,6 +20,7 @@
 
 const highs = require('./highsAdapter.js');
 const ffdSolver = require('./solver.js');
+const { solveMipFromPatterns } = require('../bb/mipFromPatterns.js');
 
 // ============================================================================
 // Bounded Knapsack DP — Pricing Subproblem
@@ -351,25 +352,70 @@ async function solveColumnGen(spec, opts) {
 
   const mipStr = _buildMasterLp(mipPatterns, items, true);
   let mipSol;
+  let highsFailed = false;
   try {
     mipSol = await highs.solve(mipStr);
   } catch (e) {
-    if (lastLpSol) return _roundLpInMemory(spec, items, patterns, lastLpSol, lpObjective);
-    return { status: 'mip_failed', patterns: patterns, x: [], error: e.message };
+    highsFailed = true;
   }
 
-  if (!highs.isOptimal(mipSol)) {
-    if (lastLpSol) return _roundLpInMemory(spec, items, patterns, lastLpSol, lpObjective);
-    return { status: 'mip_not_optimal_' + mipSol.Status, patterns: patterns, x: [] };
+  if (!highsFailed && highs.isOptimal(mipSol)) {
+    // 整数解抽出（mipPatterns に対して）
+    const xInt = mipPatterns.map(function(_, k) {
+      const col = mipSol.Columns['x' + k];
+      return col ? Math.round(col.Primal || 0) : 0;
+    });
+    return _formatResult('cg_optimal', spec, items, mipPatterns, xInt, mipSol.ObjectiveValue, lpObjective, iter);
   }
 
-  // 整数解抽出（mipPatterns に対して）
-  const xInt = mipPatterns.map(function(_, k) {
-    const col = mipSol.Columns['x' + k];
-    return col ? Math.round(col.Primal || 0) : 0;
-  });
+  // ---- HiGHS MIP 失敗 → JS-native B&B フォールバック ----
+  // CASE-6 規模で HiGHS-WASM が stack overflow を起こすケースをここで救う
+  if (lastLpSol) {
+    // 比較用 LP 丸め解（後で B&B が悪化させたとき退避先）
+    const lpRounded = _roundLpInMemory(spec, items, patterns, lastLpSol, lpObjective);
 
-  return _formatResult('cg_optimal', spec, items, mipPatterns, xInt, mipSol.ObjectiveValue, lpObjective, iter);
+    // B&B を走らせる pattern 集合の選び方:
+    //   小規模 (<= 30) → 全 patterns
+    //   大規模 (> 30)  → active subset（HiGHS と同じ）に限定
+    //   理由: 大規模で全 patterns に B&B かけると探索木が大きすぎて time-out。
+    //        active subset は LP で実際に使われている patterns で、整数解候補
+    //        として十分な品質を持つ
+    const bbPatterns = (patterns.length > 30 && lastLpSol)
+      ? patterns.filter(function(p, k) {
+          const col = lastLpSol.Columns['x' + k];
+          return col && col.Primal > 0.001;
+        })
+      : patterns;
+
+    let bbRes;
+    try {
+      bbRes = solveMipFromPatterns(bbPatterns, items, {
+        timeLimit: opts.bbTimeLimit != null ? opts.bbTimeLimit : 15000,
+        maxNodes: opts.bbMaxNodes != null ? opts.bbMaxNodes : 50000
+      });
+      if (opts.verbose) {
+        console.log('[CG-BB] full=' + patterns.length + ' subset=' + bbPatterns.length
+          + ' bb_status=' + bbRes.status + ' bb_obj=' + (bbRes.objective != null ? bbRes.objective : 'N/A')
+          + ' bb_nodes=' + bbRes.nodeCount + ' lp_round=' + lpRounded.stockTotal);
+      }
+    } catch (e) {
+      return lpRounded;
+    }
+
+    if ((bbRes.status === 'optimal' || bbRes.status === 'timelimit' || bbRes.status === 'nodelimit')
+        && bbRes.x && isFinite(bbRes.objective)) {
+      if (bbRes.objective < lpRounded.stockTotal - 1e-6) {
+        const status = bbRes.status === 'optimal' ? 'cg_optimal_bb' : 'cg_bb_' + bbRes.status;
+        const xInt = bbRes.x.map(function(v) { return Math.round(v); });
+        return _formatResult(status, spec, items, bbPatterns, xInt, bbRes.objective, lpObjective, iter);
+      }
+    }
+
+    // B&B 改善なし → LP 丸めを採用
+    return lpRounded;
+  }
+
+  return { status: 'mip_failed', patterns: patterns, x: [], error: highsFailed ? 'highs_throw' : 'mip_not_optimal' };
 }
 
 // ============================================================================
