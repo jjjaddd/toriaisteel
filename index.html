@@ -71,6 +71,15 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
 <meta name="description" content="TORIAIはバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。H形鋼・山形鋼・角鋼など主要鋼材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
+
+<script>
+  // 早期 nav stub — src/ui/pageNav.js (約 160 番目の script) がロードされる前に
+  // ユーザーがナビ a 要素をクリックしたとき "goPage is not defined" を防ぐ。
+  // pageNav.js が読まれた時点で本物の goPage が hoist で上書きされ、
+  // pendingNav に積まれていたクリックを再生する（pageNav.js 末尾で実行）
+  window.__pendingNav = null;
+  window.goPage = function(p) { window.__pendingNav = p; };
+</script>
 <link rel="manifest" href="src/assets/manifest.json">
 <link rel="apple-touch-icon" href="src/assets/icon-512.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">

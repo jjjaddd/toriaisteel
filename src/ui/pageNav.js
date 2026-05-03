@@ -95,6 +95,18 @@ function goPage(p) {
 
 document.addEventListener('DOMContentLoaded', syncGearButtonVisibility);
 
+// 早期 stub (index.html <head>) によるクリック再生
+// pageNav.js のロードが遅れている間にクリックされた最後のナビ p を実行する
+if (typeof window !== 'undefined') {
+  window.goPage = goPage; // hoist で既に上書きされてるはずだが明示的に
+  if (window.__pendingNav) {
+    var __p = window.__pendingNav;
+    window.__pendingNav = null;
+    // 依存スクリプト (Toriai namespace 等) のロード完了を待ってから実行
+    setTimeout(function() { goPage(__p); }, 0);
+  }
+}
+
 // ============================================================
 // 初期化
 
