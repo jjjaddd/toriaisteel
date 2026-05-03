@@ -38,6 +38,25 @@
 
 ## 2026-05-03
 
+### 15:31  [Claude]  🌟 Phase 3 day-2 — V3 を本番配線（toriai.app へ）
+**依頼**: day2 やろうぜ
+**やったこと**:
+- リスク把握: 本番ライブ反映だが V2 既存挙動にゼロ侵襲 + `v3Config.rollback()` で即戻せる
+- **`index.html` の script 順に `algorithmV3.js?v=phase3` を追加**（algorithmV2.js の直後）
+- **`service-worker.js` の `CACHE_NAME` を v159 → v160 にバンプ**
+- precache (ASSETS) には yield/* が含まれないので algorithmV3.js 追加は不要（fetch 時に自動キャッシュ）
+- **全テスト 259 / 259 pass** で本番反映準備完了
+- Drop-in 構造: V2 origCalcCore → V3 augment → allDP に V3 entry 追加 → lossRate ソート → yieldCard1 自動更新
+**ファイル**:
+- 更新: `index.html` (script タグ追加), `service-worker.js` (cache バンプ), `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- ユーザーがブラウザで強制リロード (Ctrl+Shift+R) → 既存 5 鋼種で計算してみて V3 が反映されてるか確認
+  - 確認方法: 計算結果カード上に `[V3]` 表示があれば V3 augment 成功（desc 末尾に付与）
+  - もし不具合あれば DevTools で `Toriai.calculation.yield.v3Config.rollback()` を実行して V2 のみへ即時退避
+- Phase 3 day-3: 実機ブラウザ確認結果を BENCHMARK.md に追記
+- Phase 3 day-4: 設定 UI から V2/V3 切替（オプション、必須ではない）
+
 ### 15:28  [Claude]  🚀 Phase 3 day-1 — algorithmV3.js drop-in patch
 **依頼**: 進みましょう。Claude が先にやりたいほうで
 **やったこと**:
