@@ -69,26 +69,54 @@ Supabase
     assets/               # PWA用アイコン、ロゴ画像、manifest.json 等の静的リソース
     auth/                 # [凍結中] ログイン・セッション管理の旧ヘルパー
     calculation/          # 計算ロジック本体。純関数原則を守り、DOM/UI/localStorageには一切依存させない
-      yield/              # 歩留まり計算関連
+      common/             # 計算の共通処理（入力の正規化 normalizeInput.js、バリデーション等）
+      section/            # 断面寸法からの塗装面積計算 (paintArea.js)、規格名パーサ等
+      weight/             # 重量計算ロジック (calculateWeight.js 等)
+      yield/              # 歩留まり計算・切断最適化関連
         algebra/          # [進行中] V3「代数版」の心臓部（項書換系、等価類圧縮）。Claude専用
         arcflow/          # [進行中] V3の数値ソルバー基盤（HiGHS-WASM連携）。Claude専用
         columnGeneration.js # [秘匿] V2の列生成ロジック。Git公開禁止
-        algorithmV2.js    # 現在稼働中のV2（ヒューリスティクス）エントリポイント
+        algorithmV2.js    # 現在の計算V2エントリポイント。長考モード等を管理し calcCore を呼ぶ
         algorithmV3.js    # 開発中のV3エントリポイント。V2を後ろから上書きする(Drop-in patch)
-      orchestration.js    # 複数アルゴリズムの制御、結果の統合ラッパー
+        calcCore.js       # 歩留まり計算の中核。残材優先充当、DP割当等を統合し最適な切断計画を返す
+        patternPacking.js # 貪欲法(Greedy)やFFDによる1次元パッキングロジック群
+        repeatPlans.js    # パターンの繰り返しを抽出・評価するロジック
+        bundlePlan.js     # 束ね切りプランの計算ロジック
+      orchestration.js    # UIからの計算要求受付、Web Worker起動管理、複数アルゴリズムの制御と結果統合
     compat/               # 旧グローバル変数 (`window.xxx`) を維持するためのブリッジ。新規追加禁止
     core/                 # `Toriai` 名前空間の定義など、アプリの最も基礎となる基盤
     data/                 # 鋼種ごとの規格寸法や重量などの静的データ。計算ロジックはここに入れない
+      steel/              # 各鋼種（hBeam, pipe, flatBar 等）の specs.js (規格と重量) / stockLengths.js (定尺)
+        index.js          # 鋼材データアクセス用の共通API (getRowsByKind, getDefaultStockLengths 等)
+        registry.js       # 鋼材データの登録基盤
+      sectionDefinitions.js # データタブ断面図描画用の定義群
     features/             # 画面の機能単位（タブ等）でまとめたUI制御と業務フロー
-      calc/               # 「計算タブ」のUI、入力フォーム制御、計算初期化
-      dataTab/            # 「データタブ」のUI、SVG断面図の描画（sectionSvg.js等）
+      calc/               # 「取り合い計算タブ」のUI
+        calcInit.js       # 計算タブ（アプリ全体）の初期化エントリポイント
+        appState.js       # 計算タブの入力状態（規格、長さ、数量等）を収集・状態管理
+      dataTab/            # 「データタブ」のUI
+        sectionSvg.js     # 断面図描画ロジック。寸法データを受け取りSVG文字列を生成する
       weight/             # 「重量タブ」のUI
+        state.js          # 重量シミュレーターの状態管理
+        rowOps.js         # 行データの追加・削除・計算更新などの操作ロジック
+      cart/               # 出力トレイ・カートモーダルのUIとフロー
+      historyInventory/   # 履歴・在庫統合タブUI
+      materialStock/      # 在庫管理UI
+      orderHistory/       # 履歴UI
+      print/              # 印刷・帳票出力用機能
+      customMaterials/    # カスタム鋼材追加モーダル等のUI
     inventory/            # [凍結中] 在庫管理サービスのUIとロジック
-    services/             # 外部API通信（Supabase連携、Edge Functions呼出、Gateway等）
-    storage/              # localStorageの読み書きをラップし、オブジェクトとして扱うリポジトリ層
+    services/             # 外部API通信、および一部のブラウザストレージ操作
+      storage/            # ドメイン固有のデータを扱うリポジトリ群 (settingsStore.js, inventoryStore.js 等)
+      supabase/           # Supabase連携API
+    storage/              # localStorageの読み書きをラップする基盤・リポジトリ層
+      local-store.js      # localStorage に対する低レベルのラッパー（読み書き、パース）
     styles/               # UIを構成するCSSファイル群
     ui/                   # 複数機能（features）から使い回される汎用UIコンポーネント（ボタン、モーダル等）
-    utils/                # フォーマット変換や文字列処理など、UIに依存しない汎用ヘルパー関数
+      page-state.js       # ページ遷移やタブ切り替えの状態管理
+      interfaceChrome.js  # 画面の枠組み等のUI管理
+      toast.js            # トースト通知UI
+    utils/                # フォーマット変換等、UIに依存しない汎用ヘルパー関数 (html.js, dateUtils.js, jisRound.js 等)
   staging-auth-org/       # [凍結中] 事業所共有・ログイン機能再開用の試作コード原本
   supabase/               # [秘匿] Edge Functions等のバックエンド処理。Git管理対象外
   tests/                  # Jest による単体テスト、結合テスト群 (`npm run test`)
@@ -111,3 +139,4 @@ Supabase
 - UI イベント移行は次フェーズ扱い
 - Auth / org は凍結中
 - サーバーサイド計算は Pro / Business 版の設計として別フェーズ
+
