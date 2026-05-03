@@ -38,6 +38,42 @@
 
 ## 2026-05-03
 
+### 17:31  [Claude]  📝 Qiita 記事ドラフト v0.1 (589 行)
+**依頼**: 数学的評価率直に / Claude にしかできない革新可能か / **とりあえず先に Qiita ブログ書こう**
+**やったこと**:
+- 直前ターンで「Algebra Dominance for MIP」研究プランを着手しかけたが、ユーザー指示で Qiita 優先に切替
+- TodoWrite 更新（research を待機、Qiita を in_progress に）
+- **`docs/QIITA_DRAFT.md` 起草**（589 行、Markdown）:
+  - タイトル: 「1日で1D Cutting Stockソルバーを書き直した話 — 記号代数で「正しさ」を、列生成で「最適性」を、純JSで「実用性」を」
+  - 章立て 14 章 + 付録 commit 履歴
+    1. はじめに — TORIAI と 1D Cutting Stock
+    2. V2 の限界 — BUG-V2-001 の具体例
+    3. 既存研究のサーベイ
+    4. なぜ Symbolic Pattern Algebra を持ち込んだか
+    5. Phase 0: 設計と confluence 証明
+    6. Phase 1: Algebra エンジンの実装
+    7. Phase 2: Arc-Flow + HiGHS-WASM + FFD（罠 3 つの開示）
+    8. Phase 3: 本番配線 — Web Worker の罠
+    9. **クライマックス: 算法 Bridge**
+    10. 数値結果（CASE-2/CASE-6 + LP-tight）
+    11. **正直な評価**（凄い / 凄くないを忖度なしで）
+    12. 学んだこと
+    13. ソースコード公開
+    14. 謝辞
+  - 直前ターンの「率直な数学的評価」を §11 に組み込み（state-of-the-art ではないと明示）
+  - 失敗の系譜（BUG-V2-001, BUG-V3-001, dual-strategy 自爆, Web Worker 抜け, HiGHS option parser）も honest に書く
+  - コードスニペット 5 つ、ベンチマーク表 4 つ、commit 履歴 21 件
+- 本日 1 日のジャーニー全体を 1 つの読み物として整備
+- 推定読了 25-35 分
+**ファイル**:
+- 新規: `docs/QIITA_DRAFT.md`
+- 更新: `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- ユーザーレビュー: 内容、タイトル候補、強調ポイント
+- 公開可ならアカウント設定 + 図表追加 + Twitter/GitHub リンク補完
+- 公開後の研究ブランチ復帰: Algebra Dominance for MIP
+
 ### 17:15  [Claude]  📋 ALGEBRA_PLAN の TODO 更新
 **依頼**: PLAN の TODO 更新してなくない？
 **やったこと**:
