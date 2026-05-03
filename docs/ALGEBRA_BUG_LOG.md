@@ -115,7 +115,41 @@
 
 ## V3 開発中のバグ・エラー
 
-（Phase 1 開始後にここへ追記していく）
+### BUG-V3-001  🔍 調査中  🟠 High  2026-05-03 14:48  [Claude]
+**タイトル**: HiGHS-WASM 1.8.0 が中規模 MIP (約 1000 変数 / 326 制約) で `Aborted()` で落ちる
+**Phase**: Phase 2 day-3
+**再現入力**:
+```
+spec = { stock: 12000, blade: 3, endLoss: 150,
+         pieces: [{1750:4}, {1825:50}, {1830:60}, {1992:18}, {2806:60}] }  // CASE-2 全 5 種
+graph: nodes=326, itemArcs=843, lossArcs=325
+LP: 1168 整数変数, 326 制約, 約 46KB
+```
+**期待**: HiGHS が MIP を解いて barCount を返す
+**実際**:
+- LP 緩和（General セクション無し）は **Optimal, ObjectiveValue=36.83** が出る
+- General セクション付き MIP で `RuntimeError: Aborted(). Build with -sASSERTIONS for more info.`
+- 4 種までは MIP 動く、5 種で落ちる（規模の閾値あり）
+**原因（推定）**:
+1. WASM スタック制限を MIP 探索木が超える
+2. HiGHS-WASM で MIP 探索パラメータ (`mip_max_nodes` 等) を渡せない（1.8.0 既知の罠で options 渡すと parse 失敗）
+3. 圧縮 arc-flow に対称性削減が無く MIP 探索が冗長
+**対処（暫定）**:
+- 該当テスト (CASE-2 を 12m 単一定尺で解くやつ) を `describe.skip` で停止
+- BUG-V2-001 micro 等の小規模ケースは正常動作 → Phase 2 day-3 主目的は達成
+**対処（恒久案、Phase 2 day-4 以降）**:
+- LP 緩和の解を整数丸めしてフォールバック
+- 列生成 (Gilmore-Gomory) で局所最適解を逐次構築（メモリ効率が桁違い）
+- 対称性削減付き compact arc-flow へリファクタ
+- HiGHS-WASM の代わりに pure JS の MIP ソルバー (jsLPSolver 等) を試す
+**関連ファイル**: `src/calculation/yield/arcflow/solver.js`, `tests/arcflow/solver.test.js`
+**関連 Commit**: 未コミット
+**学び**:
+- WASM 環境では MIP ソルバーが想定より早くスケール限界に達する
+- LP 緩和は通っているので、列生成系のアプローチが有望
+- HiGHS-WASM は **小規模** (数百変数まで) なら高速、**中規模以上**では別戦略が必要
+
+
 
 <!-- 例:
 ### BUG-2026-001  🆕 新規  🟡 Mid  2026-05-06 14:30  [Claude]

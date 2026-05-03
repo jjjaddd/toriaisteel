@@ -38,99 +38,23 @@
 
 ## 2026-05-03
 
-### 14:26  [Claude]  Phase 2 day-2
-**依頼**: つづけましょう（Phase 2 day-2 = arc-flow グラフ構築）
+### HH:MM  [Gemini]
+**依頼**: ばっちり適用できたよ。次はデータタブの「I形鋼」の断面図テンプレート化をお願い。...（SVGテンプレート提示）
 **やったこと**:
-- AI_RULES §3 準拠の day-2 着手宣言、設計方針を提示
-  - Compact Arc-Flow (Valério de Carvalho 1999) 採用
-  - **Phantom blade trick**: 全 item arc 重みを length+blade に統一、容量を W+blade 拡張
-  - Per-bar item cap = min(demand, floor(extW/weight))
-- **`src/calculation/yield/arcflow/graph.js` 実装**（CommonJS、170 行）:
-  - `validateSpec`: 入力バリデーション（stock/blade/endLoss/pieces 全部）
-  - `_computeReachablePositions`: bounded multiple knapsack reachability で到達可能位置を Set 計算
-  - `buildArcFlowGraph(spec)`: 単一定尺グラフ構築
-    - nodes: 到達可能位置 + sink (extW)
-    - itemArcs: (p, p+weight, itemIdx) — both endpoints reachable のみ
-    - lossArcs: (p, sink) — sink 自身を除く全 reachable から
-  - 全戻り値 frozen
-- **`tests/arcflow/graph.test.js`** 実装（27 テスト）:
-  - validateSpec の各拒否ケース
-  - reachable position 計算の正当性（単一 item / 2 item 組合せ）
-  - **BUG-V2-001 micro (1222×6 in 10m/9m/8m)** で全数値検証
-    - 10m: nodes=[0,1225,2450,3675,4900,6125,7350,9853]、item arc 6 本、loss arc 7 本
-    - 8m: 7350 ≤ 7853 で全 6 ピース乗ること確認（最適スワップ先）
-  - multi-piece (1222×4 + 800×3) で複数 item 共存
-  - 不変性 (frozen)
-  - **CASE-2 L20 (k=5) のスケール感**: nodeCount < 5000、itemArcCount < 20000 確認
-- **全テスト 210 / 210 pass**（algebra 168 + arcflow 34 + 既存 8）
-**ファイル**:
-- 新規: `src/calculation/yield/arcflow/graph.js`, `tests/arcflow/graph.test.js`
-- 既存ファイル変更なし
-**Commit**: これから 1 件作成
-**未完了 / 引継ぎ**:
-- Phase 2 day-3: graph + HiGHS を繋いで実際に LP/MIP を解く `lpRelaxation.js` (or `solver.js`)。Arc-Flow 制約系の生成 → CPLEX LP 文字列構築 → HiGHS 呼出 → TERM PLAN へ復元
-- Phase 2 day-4: multiStockGuard.js（複数定尺 → 単一定尺縮退検知）
-- Phase 2 完了後に CASE-2 / CASE-6 を実 V3 ソルバーで解いて BENCHMARK.md 更新
+- I形鋼のSVGテンプレートを受領し、TORIAI仕様の描画関数への変換計画を立案。
+- `docs/DATA_TAB_DIAGRAM_TODO.md` のI形鋼タスクを ToDo から Doing に移動。
+- 実装に入る前に、`sectionSvg.js` の現状確認、不要な寸法線（H/2等）の削除可否、R寸法の描画位置についてユーザーに質問を実施。
+**ファイル**: `docs/WORK_LOG.md`, `docs/DATA_TAB_DIAGRAM_TODO.md`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: ユーザーからの質問回答および `sectionSvg.js` のコード提示待ち
 
-### 14:20  [Claude]  🚀 Phase 2 day-1
-**依頼**: GO（Phase 2 着手）
+### HH:MM  [Gemini]
+**依頼**: それらを今のディレクトリ構成　詳細版に組み込んでよ
 **やったこと**:
-- AI_RULES §3 準拠の Phase 2 day-1 着手宣言
-- HiGHS-WASM 1.8.0 (`node_modules/highs/`) の API・型・README を確認
-- ディレクトリ作成: `src/calculation/yield/arcflow/`, `tests/arcflow/`
-- **`src/calculation/yield/arcflow/highsAdapter.js` 実装**（CommonJS、algebra と違い require が必要なため）:
-  - `loadHighs(opts)`: WASM lazy load + プロセス全体で promise キャッシュ
-  - `solve(lp, solveOpts, loadOpts)`: LP/MIP 文字列を解く async 関数
-  - `extractPrimal(sol)`: 解から `{varName: value}` を取り出す
-  - `isOptimal(sol)`: ステータス確認
-  - `_resetForTesting()`: キャッシュリセット用
-- **`tests/arcflow/highsAdapter.test.js`** 実装（7 テスト）:
-  - lazy load + キャッシュ動作
-  - README 例題（連続 LP, ObjectiveValue=87.5）
-  - MIP（整数制約、最安定尺選択）
-  - **BUG-V2-001 micro LP**: HiGHS が直接 8m を選択して loss=503mm を返す（V2 比 -2000mm）
-  - Infeasible 検知
-- **HiGHS-WASM 1.8.0 既知の罠を発見**:
-  - `output_flag: false` または `log_to_console: false` を solve に渡すと**解テキストも消えて parse 失敗** "Unable to parse solution. Too few lines."
-  - 修正: solveOptions が undefined のときはオプション無しで solve を呼ぶ。アダプタにコメントで罠を明記
-- **全テスト 183 / 183 pass**（algebra 168 + arcflow 7 + 既存 8）
-- HiGHS-WASM が Jest 環境で動くことを確認 → Phase 2 の最大リスクをクリア
-**ファイル**:
-- 新規: `src/calculation/yield/arcflow/highsAdapter.js`, `tests/arcflow/highsAdapter.test.js`
-- 既存ファイル変更なし
-**Commit**: これから 1 件作成
-**未完了 / 引継ぎ**:
-- Phase 2 day-2: `arcflow/graph.js` で Arc-Flow グラフ構築（compact 版）
-- Phase 2 day-3: `arcflow/lpRelaxation.js` で LP 緩和 + 整数化
-- Phase 2 day-4: `arcflow/multiStockGuard.js` で単一定尺縮退検知
-- Phase 2 完了したら CASE-2 / CASE-6 の V3 結果を ALGEBRA_BENCHMARK に記入
-
-### 14:09  [Claude]
-**依頼**: 実務 6 ケースを提供（うち 2 件は V2 結果付き、気になるやつ）
-**やったこと**:
-- 実データを構造化保存:
-  - `tests/fixtures/realCases.js` — 6 ケース全部の pieces / availableStocks / blade / endLoss / V2 baseline
-  - 共通定数 (blade=3, endLoss=150) と各鋼種の実 stock 一覧 (`src/data/steel/<kind>/stockLengths.js` から取得)
-  - V2 結果は CASE-2 (L20) と CASE-6 (L65) のみ。残り 4 件 (CASE-1〜CASE-5 の □175/H175/H194/C100) は入力のみ
-- ベンチマーク追跡用ドキュメント `docs/ALGEBRA_BENCHMARK.md` 新規作成:
-  - V1/V2/V3 比較テーブル（V3 列は Phase 2 完成後に埋める）
-  - CASE-2 / CASE-6 の重点詳細（V2 縮退の指摘、V3 で検証したい仮説）
-  - V3 採用条件（歩留 >= V2 かつ bars or stockTotal が改善で合格）
-- スモークテスト `tests/algebra/realCases.test.js`（34 テスト）:
-  - 全ケースの pieces を ATOM として構築できる
-  - totalPieceCount が pieces 合計と一致（CASE-6 の数値ミスを発見・修正、472 → 463）
-  - V2 baseline の stockTotal / totalBars 整合確認
-  - CASE-2 yield 93.06% を手検算で再現、V2 報告 93.1% と整合
-  - CASE-6 が単一定尺 11m に縮退している事実を**テストで明示**（V3 改善ターゲット）
-- **全テスト 176 / 176 pass**（algebra 6 ファイル + 既存 calc/storage 8）
-- 並走 Gemini が ARCHITECTURE.md にディレクトリ詳細・ファイル責務セクションを追加（commit 44bd39c に既に取り込まれてる、追加 diff なし）
-**ファイル**:
-- 新規: `tests/fixtures/realCases.js`, `docs/ALGEBRA_BENCHMARK.md`, `tests/algebra/realCases.test.js`
-- 更新: `docs/WORK_LOG.md`
-**Commit**: これから 1 件作成
-**未完了 / 引継ぎ**:
-- Phase 2 (Arc-Flow + HiGHS) で実 V3 ソルバーが動くようになったら、これら 6 ケースを直接解いて BENCHMARK.md の V3 列に記入する
-- 残り 4 ケース (□175/H175/H194/C100) の V2 結果を後でユーザーから取得できるとベンチマーク完備
+- ユーザーの指示に従い、主要ファイルの責務（calcCore.js や sectionSvg.js の役割など）を別セクションに分けず、`docs/ARCHITECTURE.md` の「5. ディレクトリ構成（詳細版）」のツリーマップ内に直接組み込んで整理。
+**ファイル**: `docs/WORK_LOG.md`, `docs/ARCHITECTURE.md`
+**Commit**: 未コミット
+**未完了 / 引継ぎ**: ユーザーのコミット操作待ち
 
 ### HH:MM  [Gemini]
 **依頼**: あとディレクトリの詳細も追加して
@@ -148,6 +72,80 @@
 **ファイル**: `docs/WORK_LOG.md`, `docs/ARCHITECTURE.md`
 **Commit**: 未コミット
 **未完了 / 引継ぎ**: ユーザーのコミット操作待ち
+
+### 14:48  [Claude]  Phase 2 day-3
+**依頼**: つづけましょう（Phase 2 day-3 = graph + HiGHS 統合）
+**やったこと**:
+- AI_RULES §3 準拠の day-3 着手宣言
+- **`src/calculation/yield/arcflow/solver.js` 実装**（CommonJS、約 290 行）:
+  - `buildLp(graph)`: CPLEX LP 文字列生成（変数 x_i + z、保存則 + demand + min z）
+  - 長行ラップ helper (MAX_LINE=200) で大型 LP の parse 失敗回避
+  - 整数 MIP の上界を明示（`x_i ≤ item.count`、`loss_i ≤ totalDemand`、`z ≤ totalDemand`）
+  - `decodeFlow(graph, primal)`: source → sink パス分解 → 同パターン bar 集約
+  - `solveSingleStock(spec)`: end-to-end orchestration
+- **`tests/arcflow/solver.test.js`** 実装（10 テスト、9 pass + 1 skip）:
+  - buildLp 構造確認 (Minimize/Subject To/source/sink/demand/General)
+  - **BUG-V2-001 micro が end-to-end で正解**: [1222×6] in 8m → barCount=1, loss=503
+  - 複数バーケース (1222×14 → 2 bars, 1222×16 → 2 bars 同パターン×2)
+  - 複数 piece type (1222×4+800×2, 3000×2+2000×3)
+- **新規バグ発見 → BUG-V3-001 として登録**:
+  - HiGHS-WASM 1.8.0 が中規模 MIP (CASE-2 = 1168 変数 / 326 制約) で `Aborted()`
+  - LP 緩和は通る (ObjectiveValue=36.83) ので生 MIP のスケール問題
+  - 4 種まで動く、5 種で落ちる（規模閾値あり）
+  - 該当テストを `describe.skip` で待避、Phase 2 day-4 以降で対処（列生成、対称性削減、整数丸めフォールバック等）
+- **全テスト 219 / 220 pass + 1 skip**（algebra 168 + arcflow 44 + 既存 8）
+- WORK_LOG が並走編集で私の Phase 2 day-1/day-2 エントリ消失 → AI_RULES §9.8 復旧手順で git から復元
+**ファイル**:
+- 新規: `src/calculation/yield/arcflow/solver.js`, `tests/arcflow/solver.test.js`
+- 更新: `docs/ALGEBRA_BUG_LOG.md` (BUG-V3-001 追加), `docs/WORK_LOG.md` (復元 + 追記)
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- BUG-V3-001 解決を Phase 2 day-4 で実施（列生成 / 対称性削減 / LP 緩和フォールバック）
+- 多定尺対応 + multiStockGuard も day-4 スコープ
+- CASE-2 / CASE-6 を実 V3 で解くのは BUG-V3-001 解決後
+
+### 14:26  [Claude]  Phase 2 day-2
+**依頼**: つづけましょう（Phase 2 day-2 = arc-flow グラフ構築）
+**やったこと**:
+- AI_RULES §3 準拠の day-2 着手宣言、設計方針を提示
+  - Compact Arc-Flow (Valério de Carvalho 1999) 採用
+  - **Phantom blade trick**: 全 item arc 重みを length+blade に統一、容量を W+blade 拡張
+  - Per-bar item cap = min(demand, floor(extW/weight))
+- **`src/calculation/yield/arcflow/graph.js` 実装**（CommonJS、170 行）:
+  - `validateSpec`: 入力バリデーション
+  - `_computeReachablePositions`: bounded knapsack reachability で到達可能位置を Set 計算
+  - `buildArcFlowGraph(spec)`: 単一定尺グラフ構築（nodes / itemArcs / lossArcs）
+  - 全戻り値 frozen
+- **`tests/arcflow/graph.test.js`** 実装（27 テスト、全 pass）
+- **全テスト 210 / 210 pass**（commit 7a5680c）
+**ファイル**: `src/calculation/yield/arcflow/graph.js`, `tests/arcflow/graph.test.js`
+**Commit**: `7a5680c` (push 済)
+**未完了 / 引継ぎ**: Phase 2 day-3 = solver.js
+
+### 14:20  [Claude]  🚀 Phase 2 day-1
+**依頼**: GO（Phase 2 着手）
+**やったこと**:
+- HiGHS-WASM 1.8.0 (`node_modules/highs/`) の API・型・README を確認
+- **`src/calculation/yield/arcflow/highsAdapter.js` 実装**（CommonJS）:
+  - `loadHighs` lazy load + キャッシュ、`solve` async ラッパー、`extractPrimal`、`isOptimal`
+- **`tests/arcflow/highsAdapter.test.js`** 実装（7 テスト）
+  - README 例題、MIP 整数制約、**BUG-V2-001 micro LP** が直接 8m を選択して loss=503mm
+- **HiGHS-WASM 1.8.0 既知の罠を発見**: `output_flag: false` / `log_to_console: false` 渡すと解テキストも消えて parse 失敗
+- **全テスト 183 / 183 pass**（commit 38084a9）
+**ファイル**: `src/calculation/yield/arcflow/highsAdapter.js`, `tests/arcflow/highsAdapter.test.js`
+**Commit**: `38084a9` (push 済)
+**未完了 / 引継ぎ**: Phase 2 day-2 = graph.js
+
+### 14:09  [Claude]
+**依頼**: 実務 6 ケースを提供（うち 2 件は V2 結果付き）
+**やったこと**:
+- `tests/fixtures/realCases.js` — 6 ケース全部の構造化保存
+- `docs/ALGEBRA_BENCHMARK.md` 新規作成（V1/V2/V3 比較テーブル、V3 列は Phase 2 完成後）
+- `tests/algebra/realCases.test.js` 34 テスト（V2 baseline 数値整合確認、CASE-6 totalPieceCount 修正 472→463）
+- **全テスト 176 / 176 pass**（commit 93cd671）
+**ファイル**: `tests/fixtures/realCases.js`, `docs/ALGEBRA_BENCHMARK.md`, `tests/algebra/realCases.test.js`
+**Commit**: `93cd671` (push 済)
+**未完了 / 引継ぎ**: Phase 2 完成後に CASE-2 / CASE-6 を解いて BENCHMARK.md 更新
 
 ### 13:35  [Claude]  🎉 Phase 1 完了
 **依頼**: 続けましょう！（Phase 1 day-4 = normalForm + criticalPairs で Phase 1 完了まで）
