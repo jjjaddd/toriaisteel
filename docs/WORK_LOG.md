@@ -38,6 +38,33 @@
 
 ## 2026-05-03
 
+### 15:15  [Claude]  🎉 Phase 2 day-5 — V3 が CASE-2/CASE-6 で V2 を超えた
+**依頼**: つづけて（Phase 2 day-5 = 多定尺対応）
+**やったこと**:
+- AI_RULES §3 準拠の day-5 着手宣言、戦略提示
+- **`ffdPackMultiStock(spec)` 実装** — multi-stock 対応 BFD + downsize:
+  - Pass 1: 全 piece 降順、最大定尺で BFD（best-fit、残スペース最小バー優先）
+  - Pass 2: 各バーを「中身が収まる最小定尺」へ downsize → 母材総量削減
+  - Phase 1 で書いた最初の素直な実装 (smallest-stock-first) は CASE-2 で 96 bars / 528,000mm と V2 より大幅悪化、即座に **BFD + downsize に書き直し**
+- `solveMultiStockGreedy` / `solveMultiStockRobust` を solver.js に追加
+- **テスト追加** (multi-stock 7 件、全 pass):
+  - BUG-V2-001 micro が multi-stock で 8m を選ぶ
+  - 単一定尺セットで縮退、infeasible 検知
+  - **CASE-2 / CASE-6 を fixtures から直接読んで V2 baseline と比較**
+- **数値結果**:
+  - **CASE-2 L20**: V3 37 bars / 443,000mm / 93.06% (V2 60 bars / 443,000mm / 93.1%) → **bars -38%**
+  - **CASE-6 L65**: V3 **62 bars / 723,500mm / 95.21%** (V2 67 / 737,000 / 93.5%) → **3 軸全勝** (bars -7.5%, 母材 -1.8%, 歩留 +1.71%)
+  - CASE-6 で V2 が 11m 単一定尺に縮退してた件、V3 は 5.5m / 11m / 12m の 3 種ミックス → **BUG-V2-002 完全解消**
+- `docs/ALGEBRA_BENCHMARK.md` 更新（CASE-2 / CASE-6 の V3 数値、3 軸比較表、採用判定 ✓）
+- **全テスト 234 / 234 pass**（algebra 168 + arcflow 58 + 既存 8）
+**ファイル**:
+- 更新: `src/calculation/yield/arcflow/solver.js`, `tests/arcflow/solver.test.js`, `docs/ALGEBRA_BENCHMARK.md`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 2 day-6: multiStockGuard（縮退検知の自動ガード、V3 自身が万一縮退しないことの assertion）
+- Phase 2 day-7+: MIP 化 / 列生成で CASE-6 規模を厳密最適に解く（FFD は局所最適、より少ないバー本数の余地あり）
+- Phase 3: ブラウザ配線（HiGHS-WASM をブラウザでロードする方法を確定）
+
 ### 15:07  [Claude]  Phase 2 day-4 — BUG-V3-001 緩和（FFD フォールバック）
 **依頼**: I-beam 確認 OK、Phase 2 day-4 へ
 **やったこと**:

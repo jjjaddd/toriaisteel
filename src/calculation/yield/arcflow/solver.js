@@ -477,16 +477,192 @@ async function solveSingleStockRobust(spec) {
 }
 
 // ============================================================================
+// Phase 2 day-5 — Multi-stock FFD
+//
+// 複数定尺対応のフォールバック。Multi-stock MIP は LP 規模が単一の n_stocks 倍で
+// BUG-V3-001 を悪化させるので、まず FFD で実用解を出す（MIP 化は day-7+）。
+//
+// 入力:
+//   spec = { blade, endLoss, pieces, availableStocks: [s1, s2, ...] }
+//
+// アルゴリズム:
+//   1. piece を降順ソート、定尺を昇順ソート
+//   2. 各 piece に対し、既存バーに first-fit
+//   3. 入らなければ「入る最小定尺」で新規バー開設
+//      → 「最後の数本に短い定尺を当てる」最適化が自然発生（BUG-V2-001 の根治パターン）
+//   4. (stock, pattern) で集約
+//
+// 性質:
+//   - 必ず終わる（線形時間）
+//   - 単一定尺 FFD よりほぼ確実に優れる（短い定尺で端材削減可）
+//   - 単一定尺に縮退しない（BUG-V2-002 の構造的回避）
+// ============================================================================
+
+function ffdPackMultiStock(spec) {
+  const blade = spec.blade;
+  const endLoss = spec.endLoss;
+  const stocksAsc = spec.availableStocks.slice().sort(function(a, b) { return a - b; });
+  const maxStock = stocksAsc[stocksAsc.length - 1];
+
+  // 全 piece をフラット展開 + 降順ソート
+  const flat = [];
+  for (const p of spec.pieces) {
+    for (let i = 0; i < p.count; i++) flat.push(p.length);
+  }
+  flat.sort(function(a, b) { return b - a; });
+
+  // 物理的不可能チェック: 最大定尺にも入らない piece があれば即 infeasible
+  const maxEff = maxStock - endLoss;
+  for (const len of flat) {
+    if (len > maxEff) return [];
+  }
+
+  // ---- Pass 1: BFD (Best Fit Decreasing) on largest-stock bars ----
+  // 最大定尺で全部詰める。最大定尺にすることで「次の piece も入る確率」が高まり、
+  // バー本数が最小化される。Best-fit でバーを選ぶことで余りスペースを少なくする。
+  const bars = []; // each: { stock, used (= size with blades), pieces: [length] }
+
+  for (const len of flat) {
+    // Best-fit: 入るバーのうち**残スペースが最小**のものを選ぶ
+    let bestIdx = -1;
+    let bestRemain = Infinity;
+    for (let i = 0; i < bars.length; i++) {
+      const bar = bars[i];
+      const cost = bar.pieces.length === 0 ? len : len + blade;
+      const eff = bar.stock - endLoss;
+      const remainAfter = eff - bar.used - cost;
+      if (remainAfter >= 0 && remainAfter < bestRemain) {
+        bestRemain = remainAfter;
+        bestIdx = i;
+      }
+    }
+    if (bestIdx >= 0) {
+      const bar = bars[bestIdx];
+      const cost = bar.pieces.length === 0 ? len : len + blade;
+      bar.used += cost;
+      bar.pieces.push(len);
+    } else {
+      // 新規バーは最大定尺で開く（次の piece も入る余地を残す）
+      bars.push({ stock: maxStock, used: len, pieces: [len] });
+    }
+  }
+
+  // ---- Pass 2: downsize each bar to smallest valid stock ----
+  // bar.used (= size with blades) が収まる最小定尺へ downsize。
+  // 例: 12m バーに 5500mm 分しか入ってない → 6m か 7m に縮める → 母材総量削減
+  for (const bar of bars) {
+    for (const s of stocksAsc) {
+      if (s - endLoss >= bar.used) {
+        bar.stock = s;
+        break;
+      }
+    }
+  }
+
+  // (stock, pattern) で集約
+  const map = new Map();
+  for (const bar of bars) {
+    const sorted = bar.pieces.slice().sort(function(a, b) { return b - a; });
+    const key = bar.stock + '|' + sorted.join(',');
+    if (!map.has(key)) {
+      map.set(key, { stock: bar.stock, pieces: sorted, count: 0 });
+    }
+    map.get(key).count++;
+  }
+  return Array.from(map.values());
+}
+
+function summarizeMultiStockBars(spec, bars, status) {
+  const stockTotal = bars.reduce(function(s, b) { return s + b.count * b.stock; }, 0);
+  const pieceTotal = spec.pieces.reduce(function(s, p) { return s + p.length * p.count; }, 0);
+  const lossTotal = bars.reduce(function(s, b) {
+    const used = b.pieces.reduce(function(a, x) { return a + x; }, 0);
+    const sizeWithBlades = b.pieces.length > 0 ? used + (b.pieces.length - 1) * spec.blade : 0;
+    const lossPerBar = (b.stock - spec.endLoss) - sizeWithBlades;
+    return s + lossPerBar * b.count;
+  }, 0);
+  const barCount = bars.reduce(function(s, b) { return s + b.count; }, 0);
+  const distinctStocks = new Set(bars.map(function(b) { return b.stock; }));
+  // stockBreakdown: stock 長 → そのバー本数
+  const stockBreakdown = {};
+  bars.forEach(function(b) {
+    stockBreakdown[b.stock] = (stockBreakdown[b.stock] || 0) + b.count;
+  });
+  const barsWithStock = bars.map(function(b) {
+    return Object.freeze({
+      stock: b.stock,
+      pattern: Object.freeze(b.pieces.slice()),
+      count: b.count
+    });
+  });
+  return Object.freeze({
+    status: status,
+    barCount: barCount,
+    stockTotal: stockTotal,
+    pieceTotal: pieceTotal,
+    lossTotal: lossTotal,
+    bars: Object.freeze(barsWithStock),
+    distinctStockCount: distinctStocks.size,
+    stockBreakdown: Object.freeze(stockBreakdown)
+  });
+}
+
+/**
+ * solveMultiStockGreedy(spec) — 多定尺 FFD のみで解く
+ * spec.availableStocks が必須
+ */
+function solveMultiStockGreedy(spec) {
+  if (!spec || !Array.isArray(spec.pieces) || spec.pieces.length === 0
+    || !Array.isArray(spec.availableStocks) || spec.availableStocks.length === 0) {
+    return Object.freeze({
+      status: 'infeasible',
+      barCount: 0, stockTotal: 0, pieceTotal: 0, lossTotal: 0,
+      bars: Object.freeze([]),
+      distinctStockCount: 0,
+      stockBreakdown: Object.freeze({})
+    });
+  }
+  const bars = ffdPackMultiStock(spec);
+  if (bars.length === 0) {
+    return Object.freeze({
+      status: 'infeasible',
+      barCount: 0, stockTotal: 0, pieceTotal: 0, lossTotal: 0,
+      bars: Object.freeze([]),
+      distinctStockCount: 0,
+      stockBreakdown: Object.freeze({})
+    });
+  }
+  return summarizeMultiStockBars(spec, bars, 'greedy_ffd_multi');
+}
+
+/**
+ * solveMultiStockRobust(spec) — 多定尺の堅牢版
+ *
+ * Phase 2 day-5 時点では multi-stock MIP を持たないので、FFD のみ。
+ * Phase 2 day-7+ で multi-stock MIP を追加したらここに try/catch を挟む。
+ */
+async function solveMultiStockRobust(spec) {
+  // 将来 multi-stock MIP が追加されたらここで try → catch → fallback
+  return solveMultiStockGreedy(spec);
+}
+
+// ============================================================================
 // 公開
 // ============================================================================
 
 module.exports = {
+  // 単一定尺
   buildLp: buildLp,
   decodeFlow: decodeFlow,
   solveSingleStock: solveSingleStock,
   solveSingleStockGreedy: solveSingleStockGreedy,
   solveSingleStockRobust: solveSingleStockRobust,
+  // 多定尺 (Phase 2 day-5)
+  solveMultiStockGreedy: solveMultiStockGreedy,
+  solveMultiStockRobust: solveMultiStockRobust,
   // 内部 helper をテスト用に露出
   _ffdPack: ffdPack,
-  _summarizeBars: summarizeBars
+  _ffdPackMultiStock: ffdPackMultiStock,
+  _summarizeBars: summarizeBars,
+  _summarizeMultiStockBars: summarizeMultiStockBars
 };

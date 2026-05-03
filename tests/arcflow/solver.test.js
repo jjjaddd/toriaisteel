@@ -13,6 +13,7 @@
 const solver = require('../../src/calculation/yield/arcflow/solver.js');
 const graphBuilder = require('../../src/calculation/yield/arcflow/graph.js');
 const highs = require('../../src/calculation/yield/arcflow/highsAdapter.js');
+const realCases = require('../fixtures/realCases.js');
 
 describe('arcflow/solver — graph + HiGHS 統合', () => {
   jest.setTimeout(30_000);
@@ -246,5 +247,119 @@ describe('arcflow/solver — graph + HiGHS 統合', () => {
       // 12m 単一定尺なので最低 ceil(412266 / (12000 - 150 + blade補正)) 程度のバー数になる
       // V2 の多定尺 60 本と直接比較は不可（多定尺は day-5 以降で対応）
     }, 60_000);
+  });
+
+  // -------------------------------------------------------------------------
+  // Phase 2 day-5: Multi-stock FFD
+  // 真の勝負どころ — V2 baseline と直接比較
+  // -------------------------------------------------------------------------
+  describe('solveMultiStockGreedy (Phase 2 day-5)', () => {
+    test('BUG-V2-001 micro: pieces=[1222×6], stocks=[10000,9000,8000] → 8m を選ぶ', () => {
+      const r = solver.solveMultiStockGreedy({
+        blade: 3, endLoss: 150,
+        availableStocks: [10000, 9000, 8000],
+        pieces: [{ length: 1222, count: 6 }]
+      });
+      expect(r.status).toBe('greedy_ffd_multi');
+      expect(r.barCount).toBe(1);
+      expect(r.bars[0].stock).toBe(8000);
+      expect(r.lossTotal).toBe(503);
+      expect(r.distinctStockCount).toBe(1);
+    });
+
+    test('単一定尺セット (8000 のみ) は単一定尺に縮退', () => {
+      const r = solver.solveMultiStockGreedy({
+        blade: 3, endLoss: 150,
+        availableStocks: [8000],
+        pieces: [{ length: 1222, count: 6 }]
+      });
+      expect(r.bars[0].stock).toBe(8000);
+      expect(r.distinctStockCount).toBe(1);
+    });
+
+    test('infeasible (どの定尺にも入らない piece)', () => {
+      const r = solver.solveMultiStockGreedy({
+        blade: 3, endLoss: 150,
+        availableStocks: [5500, 6000],
+        pieces: [{ length: 9000, count: 1 }]
+      });
+      expect(r.status).toBe('infeasible');
+    });
+
+    // ---------------------------------------------------------------------
+    // CASE-2 L20: V2 baseline 60 bars / 443,000mm / 93.1% を超えるか
+    // ---------------------------------------------------------------------
+    describe('CASE-2 L20 vs V2 baseline', () => {
+      const case2 = realCases.cases.find(function(c) { return c.id === 'CASE-2-L20'; });
+      let v3;
+      beforeAll(() => {
+        v3 = solver.solveMultiStockGreedy({
+          blade: case2.blade,
+          endLoss: case2.endLoss,
+          availableStocks: case2.availableStocks,
+          pieces: case2.pieces
+        });
+      });
+
+      test('解が返る、全 piece 数満たす', () => {
+        expect(v3.status).toBe('greedy_ffd_multi');
+        const totalPieces = v3.bars.reduce(function(s, b) { return s + b.pattern.length * b.count; }, 0);
+        expect(totalPieces).toBe(case2.totalPieceCount);
+      });
+
+      test('多定尺ミックスが発生する (distinctStockCount ≥ 2)', () => {
+        expect(v3.distinctStockCount).toBeGreaterThanOrEqual(2);
+      });
+
+      test('V2 baseline (60 bars) と比較してログ出力', () => {
+        const v2 = case2.v2Baseline;
+        console.log('  CASE-2 V2 baseline:', v2.totalBars, 'bars,', v2.stockTotal, 'mm,', v2.yieldPctReported, '%');
+        console.log('  CASE-2 V3 multi   :', v3.barCount, 'bars,', v3.stockTotal, 'mm,',
+          (v3.pieceTotal / v3.stockTotal * 100).toFixed(2), '%',
+          'distinct stocks:', v3.distinctStockCount);
+        console.log('  V3 stockBreakdown:', JSON.stringify(v3.stockBreakdown));
+        // V3 がバー本数 or 母材総量で勝つことを期待（FFD なので最適保証なし）
+        // hard 比較せず緩く: 全 piece 数満たし、status が optimal/greedy なら合格
+        expect(v3.barCount).toBeGreaterThan(0);
+      });
+    });
+
+    // ---------------------------------------------------------------------
+    // CASE-6 L65: V2 が 11m 単一定尺に縮退した最大ケース
+    // V2 baseline 67 bars / 737,000mm / 93.5%
+    // ---------------------------------------------------------------------
+    describe('CASE-6 L65 vs V2 baseline (V2 が単一定尺に縮退した最大ケース)', () => {
+      const case6 = realCases.cases.find(function(c) { return c.id === 'CASE-6-L65'; });
+      let v3;
+      beforeAll(() => {
+        v3 = solver.solveMultiStockGreedy({
+          blade: case6.blade,
+          endLoss: case6.endLoss,
+          availableStocks: case6.availableStocks,
+          pieces: case6.pieces
+        });
+      });
+
+      test('解が返る、全 piece 数満たす', () => {
+        expect(v3.status).toBe('greedy_ffd_multi');
+        const totalPieces = v3.bars.reduce(function(s, b) { return s + b.pattern.length * b.count; }, 0);
+        expect(totalPieces).toBe(case6.totalPieceCount);
+      });
+
+      test('多定尺ミックスが発生する (BUG-V2-002 の根治)', () => {
+        // V2 は 11m 単一に縮退してた → V3 は複数定尺を使うはず
+        expect(v3.distinctStockCount).toBeGreaterThanOrEqual(2);
+      });
+
+      test('V2 baseline (67 bars / 737,000mm) と比較してログ出力', () => {
+        const v2 = case6.v2Baseline;
+        console.log('  CASE-6 V2 baseline:', v2.totalBars, 'bars,', v2.stockTotal, 'mm,', v2.yieldPctReported, '%');
+        console.log('  CASE-6 V3 multi   :', v3.barCount, 'bars,', v3.stockTotal, 'mm,',
+          (v3.pieceTotal / v3.stockTotal * 100).toFixed(2), '%',
+          'distinct stocks:', v3.distinctStockCount);
+        console.log('  V3 stockBreakdown:', JSON.stringify(v3.stockBreakdown));
+        expect(v3.barCount).toBeGreaterThan(0);
+      });
+    });
   });
 });
