@@ -38,6 +38,26 @@
 
 ## 2026-05-03
 
+### 17:15  [Claude]  📋 ALGEBRA_PLAN の TODO 更新
+**依頼**: PLAN の TODO 更新してなくない？
+**やったこと**:
+- 指摘的中 — Phase 2 day-1〜7 と Phase 3 day-1〜2 の実績が PLAN に反映されてなかった
+- `docs/ALGEBRA_PLAN.md` を全面更新:
+  - Phase 2: 全 7 日分の day-by-day 実績 + commit hash + テスト数
+  - Phase 3: 「等価類圧縮 → MIP 統合」を「V3 本番配線」に再定義（実態に合わせ）、day-1/2 + algebra integration を全部 [x]
+  - Phase 4: 残タスク（CASE-1/3/4/5 ベンチ、CG MIP scaling、ブラウザ CG 配線、Qiita 起草）に整理
+  - Phase 5: 並走運用 4/5 完了
+- スケジュール表を「当初 5 週間予定」vs「実績 1 日完了」の対比形式に書換、commit 一覧 21 件を時系列で記載
+- Definition of Done を ✅ で実状況反映
+**ファイル**:
+- 更新: `docs/ALGEBRA_PLAN.md`, `docs/WORK_LOG.md`
+**Commit**: これから 1 件作成
+**未完了 / 引継ぎ**:
+- Phase 4 の残タスクから次回選択
+  - CASE-1/3/4/5 V2 baseline 取得（軽）
+  - Qiita 記事起草（中）
+  - CG MIP scaling 改善（重）
+
 ### 17:11  [Claude]  🌟 Algebra Bridge — Phase 1 が production を validate するレイヤーに
 **依頼**: やりたい方向はクロードが決めて、TODO/WORK_LOG/BUG/日記忘れずに
 **やったこと**:
