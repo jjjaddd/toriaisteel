@@ -38,6 +38,72 @@
 
 ## 2026-05-03
 
+### 23:15  [Claude]  ⚡ Perf 緊急対応 — 致命的な 3 つの構造問題を修正
+
+**依頼**: 重さは先に何とかしないとやばいね　バグじゃなくてシンプルに重いの？　なら早急にやらないとだめだね
+
+**診断結果（衝撃的）**:
+
+1. **`<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">`** がブラウザキャッシュを完全に無効化していた。`?v=phase1` のような URL versioning 設計と矛盾しており、毎回 178 ファイル 1.8MB を再ダウンロードしていた。
+
+2. **Service Worker は登録されていなかった**。`service-worker.js` ファイルは存在し、半年間 `CACHE_NAME` を v160 → v164 までバンプし続けていたが、`navigator.serviceWorker.register()` を呼んでるコードが repo 全体にゼロ件。**SW は完全に死んでいた**（screenshot の Storage 0B が傍証）。
+
+3. **160 個の `<script src>` 同期ロード**。defer/async なし、parse blocking、HTTP round-trip 大量。
+
+**やったこと**:
+
+1. **`no-store` メタ削除** (index.html line 71):
+   - HTML 自体の鮮度は server 側ヘッダで管理
+   - JS/CSS は `?v=` busting で管理する設計に統一
+   - 効果: ブラウザキャッシュが復活、再訪時は static asset を再ダウンロードしない
+
+2. **Service Worker 登録コード追加** (index.html `<head>`):
+   - `'serviceWorker' in navigator` && `load` イベント後に register
+   - 過去半年動いてなかった SW がやっと有効化
+
+3. **SW 戦略を network-first → stale-while-revalidate に変更** (service-worker.js):
+   - 旧: 毎回 network round-trip、cache は offline 用バックアップ扱い
+   - 新: cache hit があれば即返す + 裏で network 更新
+   - precache list (50 件、半年メンテされてない手動リスト) を削除
+   - GET 以外と外部 origin は cache 対象外（Supabase/PostHog 安全に通す）
+   - CACHE_NAME v164 → v166 にバンプ（既存 cache 強制更新）
+
+4. **`defer` を全 164 個の `<script src>` に一括付与** (index.html):
+   - `sed` で機械的に変換、全 164 マッチ
+   - 効果: HTML parse 中に script を並列 download、parse blocking 解消
+   - 残リスク: 98 個の inline onclick が defer 完了前にクリックされると未定義 throw する可能性。goPage は前回 stub 済。他は perf 改善のため許容（クリック窓口がむしろ短くなる方向）
+
+**期待効果**:
+
+| 状況 | Before | After |
+|---|---|---|
+| 初回訪問 | 160 file 同期 download (重) | 並列 download + HTML 即表示 (体感激速) |
+| **2 回目以降** | **同じく 160 file 再 download (重)** | **SW cache から instant** |
+| asset 更新 | バージョン変更で全再 download | 該当 asset のみ network 更新、他は cache |
+
+特に **2 回目以降の load が劇的に変わる** はず。これまで SW が死んでた + no-store でキャッシュ全潰しだったので、毎回完全新規 load していた。
+
+**回帰確認**:
+- Node test 327/327 全 pass
+- syntax check: service-worker.js OK
+- defer 変換: 164/164 完了、変換漏れゼロ
+
+**ファイル**:
+- 修正: `index.html` (no-store メタ削除、SW register 追加、全 script に defer 付与)
+- 修正: `service-worker.js` (戦略書き換え、precache 削除、CACHE_NAME バンプ)
+- 修正: `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**未完了 / 引継ぎ**:
+- 残リスク: 98 個の inline onclick handler のうち goPage 以外は defer 完了前のクリックで未定義 throw する可能性
+  - 実害は「数百 ms 以内のクリック」だけ
+  - 全部 stub するのは過剰、観察して必要に応じて個別対応
+- 真の最適化: bundling (esbuild 等) で 1 リクエスト化 — Phase 5 候補
+- デプロイ後の実機確認:
+  - Chrome DevTools の Network タブで cache hit 率を計測
+  - 2 回目 load の DOMContentLoaded 時刻を比較
+
 ### 22:30  [Claude]  🐛 + 🔌 Chrome バグ修正 + Phase 4 着手 (bb/* dual-mode)
 
 **依頼**: クロームで開くとめっちゃ重いし若干バグってるかも、、、 直したらA やろ

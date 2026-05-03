@@ -68,7 +68,9 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="鋼材計算">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<!-- 旧: <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+     no-store がブラウザキャッシュを完全に無効化していた最大のパフォーマンス殺し。
+     2026-05-03 削除。HTML 自体は server 側のヘッダ、JS/CSS は ?v= で busting する設計に統一 -->
 
 <meta name="description" content="TORIAIはバンドソー歩留まり計算・鋼材取り合い最適化が無料で使えるWebツールです。H形鋼・山形鋼・角鋼など主要鋼材の切断計画・重量計算・残材管理に対応。インストール不要でスマホ対応。">
 
@@ -79,6 +81,18 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   // pendingNav に積まれていたクリックを再生する（pageNav.js 末尾で実行）
   window.__pendingNav = null;
   window.goPage = function(p) { window.__pendingNav = p; };
+
+  // Service Worker 登録（2026-05-03 perf 改修）
+  //   - 過去半年 service-worker.js は存在したが register が呼ばれてなかった (cache 0B)
+  //   - stale-while-revalidate 戦略で 2 回目以降の load を爆速化
+  //   - load イベント後に登録し、main resource ロードと競合させない
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/service-worker.js').catch(function(err) {
+        if (window.console && console.warn) console.warn('[TORIAI] SW register failed:', err);
+      });
+    });
+  }
 </script>
 <link rel="manifest" href="src/assets/manifest.json">
 <link rel="apple-touch-icon" href="src/assets/icon-512.png">
@@ -1037,164 +1051,164 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
   </div>
 </div>
 
-<script src="src/core/toriai-namespace.js?v=phase1"></script>
-<script src="src/ui/page-state.js?v=phase1"></script>
-<script src="src/utils/html.js?v=phase1"></script>
-<script src="src/utils/validation.js?v=phase1"></script>
-<script src="src/auth/session.js?v=phase1"></script>
-<script src="src/inventory/inventory-service.js?v=phase1"></script>
-<script src="src/storage/keys.js?v=phase1"></script>
-<script src="src/storage/local-store.js?v=phase1"></script>
-<script src="src/storage/repositories.js?v=phase1"></script>
-<script src="src/storage/weight-store.js?v=phase2"></script>
-<script src="src/data/steel/registry.js?v=phase4"></script>
-<script src="src/data/steel/index.js?v=phase5"></script>
-<script src="src/data/steel/hBeam/specs.js?v=phase5"></script>
-<script src="src/data/steel/hBeam/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/hBeam/specStockLengths.js?v=phase2"></script>
-<script src="src/data/steel/equalAngle/specs.js?v=phase4"></script>
-<script src="src/data/steel/equalAngle/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/unequalAngle/specs.js?v=phase3"></script>
-<script src="src/data/steel/unequalAngle/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/unequalUnequalAngle/specs.js?v=phase3"></script>
-<script src="src/data/steel/unequalUnequalAngle/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/channel/specs.js?v=phase3"></script>
-<script src="src/data/steel/channel/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/cShape/specs.js?v=phase3"></script>
-<script src="src/data/steel/cShape/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/lightChannel/specs.js?v=phase3"></script>
-<script src="src/data/steel/lightChannel/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/iBeam/specs.js?v=phase3"></script>
-<script src="src/data/steel/iBeam/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/flatBar/specs.js?v=phase3"></script>
-<script src="src/data/steel/flatBar/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/roundBar/specs.js?v=phase3"></script>
-<script src="src/data/steel/roundBar/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/squareBar/specs.js?v=phase3"></script>
-<script src="src/data/steel/squareBar/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/pipe/specs.js?v=phase3"></script>
-<script src="src/data/steel/pipe/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/squarePipe/specs.js?v=phase3"></script>
-<script src="src/data/steel/squarePipe/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/smallSquarePipe/specs.js?v=phase3"></script>
-<script src="src/data/steel/smallSquarePipe/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/bcr295/specs.js?v=phase3"></script>
-<script src="src/data/steel/bcr295/stockLengths.js?v=phase1"></script>
-<script src="src/data/steel/stockHelpers.js?v=phase2"></script>
-<script src="src/ui/calc/resultState.js?v=phase1"></script>
-<script src="src/ui/calc/resultMeta.js?v=phase1"></script>
-<script src="src/ui/calc/inputState.js?v=phase1"></script>
-<script src="src/ui/calc/executionFlow.js?v=phase1"></script>
-<script src="src/ui/calc/specPanelBehavior.js?v=phase1"></script>
+<script src="src/core/toriai-namespace.js?v=phase1" defer></script>
+<script src="src/ui/page-state.js?v=phase1" defer></script>
+<script src="src/utils/html.js?v=phase1" defer></script>
+<script src="src/utils/validation.js?v=phase1" defer></script>
+<script src="src/auth/session.js?v=phase1" defer></script>
+<script src="src/inventory/inventory-service.js?v=phase1" defer></script>
+<script src="src/storage/keys.js?v=phase1" defer></script>
+<script src="src/storage/local-store.js?v=phase1" defer></script>
+<script src="src/storage/repositories.js?v=phase1" defer></script>
+<script src="src/storage/weight-store.js?v=phase2" defer></script>
+<script src="src/data/steel/registry.js?v=phase4" defer></script>
+<script src="src/data/steel/index.js?v=phase5" defer></script>
+<script src="src/data/steel/hBeam/specs.js?v=phase5" defer></script>
+<script src="src/data/steel/hBeam/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/hBeam/specStockLengths.js?v=phase2" defer></script>
+<script src="src/data/steel/equalAngle/specs.js?v=phase4" defer></script>
+<script src="src/data/steel/equalAngle/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/unequalAngle/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/unequalAngle/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/unequalUnequalAngle/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/unequalUnequalAngle/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/channel/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/channel/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/cShape/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/cShape/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/lightChannel/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/lightChannel/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/iBeam/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/iBeam/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/flatBar/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/flatBar/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/roundBar/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/roundBar/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/squareBar/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/squareBar/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/pipe/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/pipe/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/squarePipe/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/squarePipe/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/smallSquarePipe/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/smallSquarePipe/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/bcr295/specs.js?v=phase3" defer></script>
+<script src="src/data/steel/bcr295/stockLengths.js?v=phase1" defer></script>
+<script src="src/data/steel/stockHelpers.js?v=phase2" defer></script>
+<script src="src/ui/calc/resultState.js?v=phase1" defer></script>
+<script src="src/ui/calc/resultMeta.js?v=phase1" defer></script>
+<script src="src/ui/calc/inputState.js?v=phase1" defer></script>
+<script src="src/ui/calc/executionFlow.js?v=phase1" defer></script>
+<script src="src/ui/calc/specPanelBehavior.js?v=phase1" defer></script>
 <!-- deepModeToggle.js は v2 単一化で除去（2026-05-01） -->
-<script src="src/ui/calc/progressIndicator.js?v=phase2"></script>
-<script src="src/ui/inventory/remnantSelection.js?v=phase1"></script>
-<script src="src/ui/inventory/page.js?v=phase1"></script>
-<script src="src/ui/cart/purchaseSection.js?v=phase1"></script>
-<script src="src/ui/cart/chromeCleanup.js?v=phase1"></script>
-<script src="src/ui/header/navOrder.js?v=phase1"></script>
-<script src="src/ui/contact/feedback.js?v=phase1"></script>
-<script src="src/ui/history/renderHistory.js?v=phase1"></script>
-<script src="src/ui/history/preview.js?v=phase4"></script>
-<script src="src/calculation/common/normalizeInput.js?v=phase1"></script>
-<script src="src/calculation/common/validateCalculationInput.js?v=phase1"></script>
-<script src="src/calculation/weight/calculateWeight.js?v=phase1"></script>
-<script src="src/calculation/weight/calculateTotalWeight.js?v=phase1"></script>
-<script src="src/calculation/yield/barMetrics.js?v=phase2"></script>
-<script src="src/calculation/yield/workerClient.js?v=phase2"></script>
-<script src="src/calculation/yield/patternPacking.js?v=phase1"></script>
-<script src="src/calculation/yield/repeatPlans.js?v=phase1"></script>
-<script src="src/calculation/yield/bundlePlan.js?v=phase1"></script>
-<script src="src/calculation/yield/calcCore.js?v=phase1"></script>
-<script src="src/calculation/yield/algorithmV2.js?v=phase2"></script>
-<script src="src/calculation/yield/algorithmV3.js?v=phase3v3ls"></script>
+<script src="src/ui/calc/progressIndicator.js?v=phase2" defer></script>
+<script src="src/ui/inventory/remnantSelection.js?v=phase1" defer></script>
+<script src="src/ui/inventory/page.js?v=phase1" defer></script>
+<script src="src/ui/cart/purchaseSection.js?v=phase1" defer></script>
+<script src="src/ui/cart/chromeCleanup.js?v=phase1" defer></script>
+<script src="src/ui/header/navOrder.js?v=phase1" defer></script>
+<script src="src/ui/contact/feedback.js?v=phase1" defer></script>
+<script src="src/ui/history/renderHistory.js?v=phase1" defer></script>
+<script src="src/ui/history/preview.js?v=phase4" defer></script>
+<script src="src/calculation/common/normalizeInput.js?v=phase1" defer></script>
+<script src="src/calculation/common/validateCalculationInput.js?v=phase1" defer></script>
+<script src="src/calculation/weight/calculateWeight.js?v=phase1" defer></script>
+<script src="src/calculation/weight/calculateTotalWeight.js?v=phase1" defer></script>
+<script src="src/calculation/yield/barMetrics.js?v=phase2" defer></script>
+<script src="src/calculation/yield/workerClient.js?v=phase2" defer></script>
+<script src="src/calculation/yield/patternPacking.js?v=phase1" defer></script>
+<script src="src/calculation/yield/repeatPlans.js?v=phase1" defer></script>
+<script src="src/calculation/yield/bundlePlan.js?v=phase1" defer></script>
+<script src="src/calculation/yield/calcCore.js?v=phase1" defer></script>
+<script src="src/calculation/yield/algorithmV2.js?v=phase2" defer></script>
+<script src="src/calculation/yield/algorithmV3.js?v=phase3v3ls" defer></script>
 <!-- cgClient.js は CG/B&P 不採用方針で除去（2026-05-01 セキュリティ対応） -->
 <!-- JS-native B&B (Phase 4): browser でも Toriai.calculation.yield.bb.* で利用可能。
      Phase 4.5 で columnGen.js / HiGHS-WASM CDN と組み合わせ予定 -->
-<script src="src/calculation/yield/bb/lp.js?v=phase4"></script>
-<script src="src/calculation/yield/bb/algebraBranching.js?v=phase4"></script>
-<script src="src/calculation/yield/bb/branchAndBound.js?v=phase4"></script>
-<script src="src/calculation/yield/bb/mipFromPatterns.js?v=phase4"></script>
+<script src="src/calculation/yield/bb/lp.js?v=phase4" defer></script>
+<script src="src/calculation/yield/bb/algebraBranching.js?v=phase4" defer></script>
+<script src="src/calculation/yield/bb/branchAndBound.js?v=phase4" defer></script>
+<script src="src/calculation/yield/bb/mipFromPatterns.js?v=phase4" defer></script>
 
-<script src="src/services/storage/storageKeys.js?v=phase1"></script>
-<script src="src/services/storage/settingsStore.js?v=phase1"></script>
-<script src="src/services/storage/remnantsStore.js?v=phase1"></script>
-<script src="src/services/storage/piecesHistoryStore.js?v=phase1"></script>
-<script src="src/services/storage/inventoryStore.js?v=phase1"></script>
-<script src="src/services/storage/cutHistoryStore.js?v=phase1"></script>
-<script src="src/services/storage/cartStore.js?v=phase1"></script>
-<script src="src/services/storage/weightHistoryStore.js?v=phase1"></script>
-<script src="src/services/storage/importExportStore.js?v=phase1"></script>
-<script src="src/utils/jisRound.js?v=phase1"></script>
-<script src="src/utils/escapeHtml.js?v=phase1"></script>
-<script src="src/utils/dateUtils.js?v=phase1"></script>
-<script src="src/utils/uiHelpers.js?v=phase1"></script>
-<script src="src/calculation/section/paintArea.js?v=phase1"></script>
-<script src="src/calculation/section/specParsers.js?v=phase1"></script>
-<script src="src/data/sectionDefinitions.js?v=ui40"></script>
-<script src="src/features/dataTab/sectionSvg.js?v=phase14"></script>
-<script src="src/features/dataTab/state.js?v=phase2"></script>
-<script src="src/features/dataTab/init.js?v=phase1"></script>
-<script src="src/features/dataTab/kindSidebar.js?v=phase3"></script>
-<script src="src/features/dataTab/specPicker.js?v=phase2"></script>
-<script src="src/features/dataTab/renderSpec.js?v=phase9"></script>
-<script src="src/features/dataTab/stdLengths.js?v=phase1"></script>
-<script src="src/features/dataTab/notes.js?v=phase1"></script>
-<script src="src/calculation/orchestration.js?v=ui28"></script>
-<script src="src/ui/header/headerMenu.js?v=phase2"></script>
-<script src="src/features/gearPopup/gearPopup.js?v=phase1"></script>
-<script src="src/features/changelogModal/changelogModal.js?v=phase3"></script>
-<script src="src/features/calcOnboarding/calcOnboarding.js?v=phase2"></script>
-<script src="src/features/calc/appState.js?v=phase1"></script>
-<script src="src/features/calc/calcInit.js?v=phase1"></script>
-<script src="src/features/calc/partsTable.js?v=phase2"></script>
-<script src="src/ui/pageNav.js?v=phase2"></script>
-<script src="src/ui/interfaceChrome.js?v=phase1"></script>
-<script src="src/ui/customSelect.js?v=phase1"></script>
-<script src="src/features/historyInventory/sidebar.js?v=phase1"></script>
-<script src="src/ui/toast.js?v=phase1"></script>
-<script src="src/ui/sectionToggle.js?v=phase1"></script>
-<script src="src/features/calc/steelCatalog.js?v=phase1"></script>
-<script src="src/features/calc/specStockInput.js?v=phase1"></script>
-<script src="src/features/calc/commandPalette.js?v=phase2"></script>
-<script src="src/features/calc/calcRender.js?v=phase1"></script>
-<script src="src/features/calc/calcResultActions.js?v=phase1"></script>
-<script src="src/features/calc/stockControls.js?v=phase1"></script>
-<script src="src/features/calc/cutFlow.js?v=phase2"></script>
-<script src="src/features/calc/manualRemnants.js?v=phase1"></script>
-<script src="src/features/calc/calcToolbar.js?v=phase1"></script>
-<script src="src/features/calc/calcUtils.js?v=phase1"></script>
-<script src="src/features/calc/clearParts.js?v=phase2"></script>
-<script src="src/features/calc/cardDisplay.js?v=phase1"></script>
-<script src="src/features/materialStock/inventoryDropdowns.js?v=phase1"></script>
-<script src="src/features/materialStock/inventorySettings.js?v=phase1"></script>
-<script src="src/features/materialStock/inventoryRemnantState.js?v=phase1"></script>
-<script src="src/features/orderHistory/historyRows.js?v=phase1"></script>
-<script src="src/features/print/printPages.js?v=phase1"></script>
-<script src="src/features/print/printHeader.js?v=phase1"></script>
-<script src="src/features/print/buildPrintBarHtml.js?v=phase1"></script>
-<script src="src/features/materialStock/inventoryRender.js?v=phase1"></script>
-<script src="src/features/orderHistory/historyRender.js?v=phase1"></script>
-<script src="src/features/cart/cartModal.js?v=phase3"></script>
-<script src="src/features/cart/cartFlow.js?v=phase3"></script>
-<script src="src/features/cart/cartActions.js?v=phase2"></script>
-<script src="src/features/cart/cartCopy.js?v=phase1"></script>
-<script src="src/ui/calc/specPanelInit.js?v=phase1"></script>
-<script src="src/ui/history/historyInit.js?v=phase1"></script>
-<script src="src/ui/history/printPayload.js?v=phase1"></script>
-<script src="src/features/calc/cardRemnants.js?v=phase1"></script>
-<script src="src/ui/history/printCard.js?v=phase1"></script>
-<script src="src/compat/legacyGlobals.js?v=phase1"></script>
-<script src="src/features/weight/state.js?v=phase1"></script>
-<script src="src/features/weight/init.js?v=phase3"></script>
-<script src="src/features/weight/undoOptions.js?v=phase1"></script>
-<script src="src/features/weight/kindSpecPreview.js?v=phase5"></script>
-<script src="src/features/weight/rowOps.js?v=phase2"></script>
-<script src="src/features/weight/render.js?v=phase1"></script>
-<script src="src/features/weight/saveLoad.js?v=phase1"></script>
-<script src="src/features/weight/commandPalette.js?v=phase3"></script>
-<script src="src/features/weight/printCart.js?v=phase1"></script>
-<script src="src/features/contact/contactPage.js?v=ui29"></script>
+<script src="src/services/storage/storageKeys.js?v=phase1" defer></script>
+<script src="src/services/storage/settingsStore.js?v=phase1" defer></script>
+<script src="src/services/storage/remnantsStore.js?v=phase1" defer></script>
+<script src="src/services/storage/piecesHistoryStore.js?v=phase1" defer></script>
+<script src="src/services/storage/inventoryStore.js?v=phase1" defer></script>
+<script src="src/services/storage/cutHistoryStore.js?v=phase1" defer></script>
+<script src="src/services/storage/cartStore.js?v=phase1" defer></script>
+<script src="src/services/storage/weightHistoryStore.js?v=phase1" defer></script>
+<script src="src/services/storage/importExportStore.js?v=phase1" defer></script>
+<script src="src/utils/jisRound.js?v=phase1" defer></script>
+<script src="src/utils/escapeHtml.js?v=phase1" defer></script>
+<script src="src/utils/dateUtils.js?v=phase1" defer></script>
+<script src="src/utils/uiHelpers.js?v=phase1" defer></script>
+<script src="src/calculation/section/paintArea.js?v=phase1" defer></script>
+<script src="src/calculation/section/specParsers.js?v=phase1" defer></script>
+<script src="src/data/sectionDefinitions.js?v=ui40" defer></script>
+<script src="src/features/dataTab/sectionSvg.js?v=phase14" defer></script>
+<script src="src/features/dataTab/state.js?v=phase2" defer></script>
+<script src="src/features/dataTab/init.js?v=phase1" defer></script>
+<script src="src/features/dataTab/kindSidebar.js?v=phase3" defer></script>
+<script src="src/features/dataTab/specPicker.js?v=phase2" defer></script>
+<script src="src/features/dataTab/renderSpec.js?v=phase9" defer></script>
+<script src="src/features/dataTab/stdLengths.js?v=phase1" defer></script>
+<script src="src/features/dataTab/notes.js?v=phase1" defer></script>
+<script src="src/calculation/orchestration.js?v=ui28" defer></script>
+<script src="src/ui/header/headerMenu.js?v=phase2" defer></script>
+<script src="src/features/gearPopup/gearPopup.js?v=phase1" defer></script>
+<script src="src/features/changelogModal/changelogModal.js?v=phase3" defer></script>
+<script src="src/features/calcOnboarding/calcOnboarding.js?v=phase2" defer></script>
+<script src="src/features/calc/appState.js?v=phase1" defer></script>
+<script src="src/features/calc/calcInit.js?v=phase1" defer></script>
+<script src="src/features/calc/partsTable.js?v=phase2" defer></script>
+<script src="src/ui/pageNav.js?v=phase2" defer></script>
+<script src="src/ui/interfaceChrome.js?v=phase1" defer></script>
+<script src="src/ui/customSelect.js?v=phase1" defer></script>
+<script src="src/features/historyInventory/sidebar.js?v=phase1" defer></script>
+<script src="src/ui/toast.js?v=phase1" defer></script>
+<script src="src/ui/sectionToggle.js?v=phase1" defer></script>
+<script src="src/features/calc/steelCatalog.js?v=phase1" defer></script>
+<script src="src/features/calc/specStockInput.js?v=phase1" defer></script>
+<script src="src/features/calc/commandPalette.js?v=phase2" defer></script>
+<script src="src/features/calc/calcRender.js?v=phase1" defer></script>
+<script src="src/features/calc/calcResultActions.js?v=phase1" defer></script>
+<script src="src/features/calc/stockControls.js?v=phase1" defer></script>
+<script src="src/features/calc/cutFlow.js?v=phase2" defer></script>
+<script src="src/features/calc/manualRemnants.js?v=phase1" defer></script>
+<script src="src/features/calc/calcToolbar.js?v=phase1" defer></script>
+<script src="src/features/calc/calcUtils.js?v=phase1" defer></script>
+<script src="src/features/calc/clearParts.js?v=phase2" defer></script>
+<script src="src/features/calc/cardDisplay.js?v=phase1" defer></script>
+<script src="src/features/materialStock/inventoryDropdowns.js?v=phase1" defer></script>
+<script src="src/features/materialStock/inventorySettings.js?v=phase1" defer></script>
+<script src="src/features/materialStock/inventoryRemnantState.js?v=phase1" defer></script>
+<script src="src/features/orderHistory/historyRows.js?v=phase1" defer></script>
+<script src="src/features/print/printPages.js?v=phase1" defer></script>
+<script src="src/features/print/printHeader.js?v=phase1" defer></script>
+<script src="src/features/print/buildPrintBarHtml.js?v=phase1" defer></script>
+<script src="src/features/materialStock/inventoryRender.js?v=phase1" defer></script>
+<script src="src/features/orderHistory/historyRender.js?v=phase1" defer></script>
+<script src="src/features/cart/cartModal.js?v=phase3" defer></script>
+<script src="src/features/cart/cartFlow.js?v=phase3" defer></script>
+<script src="src/features/cart/cartActions.js?v=phase2" defer></script>
+<script src="src/features/cart/cartCopy.js?v=phase1" defer></script>
+<script src="src/ui/calc/specPanelInit.js?v=phase1" defer></script>
+<script src="src/ui/history/historyInit.js?v=phase1" defer></script>
+<script src="src/ui/history/printPayload.js?v=phase1" defer></script>
+<script src="src/features/calc/cardRemnants.js?v=phase1" defer></script>
+<script src="src/ui/history/printCard.js?v=phase1" defer></script>
+<script src="src/compat/legacyGlobals.js?v=phase1" defer></script>
+<script src="src/features/weight/state.js?v=phase1" defer></script>
+<script src="src/features/weight/init.js?v=phase3" defer></script>
+<script src="src/features/weight/undoOptions.js?v=phase1" defer></script>
+<script src="src/features/weight/kindSpecPreview.js?v=phase5" defer></script>
+<script src="src/features/weight/rowOps.js?v=phase2" defer></script>
+<script src="src/features/weight/render.js?v=phase1" defer></script>
+<script src="src/features/weight/saveLoad.js?v=phase1" defer></script>
+<script src="src/features/weight/commandPalette.js?v=phase3" defer></script>
+<script src="src/features/weight/printCart.js?v=phase1" defer></script>
+<script src="src/features/contact/contactPage.js?v=ui29" defer></script>
 
 <!-- カートモーダル -->
 <div id="cartModal" onclick="if(event.target===this)closeCartModal()">
@@ -1248,17 +1262,17 @@ posthog.init('phc_CBrYMEE88DPS7MfaqozGkV4FxxwdJfXNaTAb5zzGediC', {
 </div><!-- /#cartModal -->
 
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1e0c6bf1-9e00-4c1b-9913-b5f34f04bae1"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="src/services/public-config.js?v=phase1"></script>
-<script src="src/services/supabase/gateway.js?v=phase1"></script>
-<script src="src/services/supabase/client.js?v=ui27"></script>
-<script src="src/services/supabase/sync.js?v=ui27"></script>
-<script src="src/services/supabase/authService.js?v=phase3"></script>
-<script src="src/services/supabase/orgService.js?v=phase2"></script>
-<script src="src/services/supabase/orgStorage.js?v=phase2"></script>
-<script src="src/features/auth/authUi.js?v=phase4"></script>
-<script src="src/features/auth/authBoot.js?v=phase4"></script>
-<script src="src/features/customMaterials/customMaterials.js?v=ui27"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="src/services/public-config.js?v=phase1" defer></script>
+<script src="src/services/supabase/gateway.js?v=phase1" defer></script>
+<script src="src/services/supabase/client.js?v=ui27" defer></script>
+<script src="src/services/supabase/sync.js?v=ui27" defer></script>
+<script src="src/services/supabase/authService.js?v=phase3" defer></script>
+<script src="src/services/supabase/orgService.js?v=phase2" defer></script>
+<script src="src/services/supabase/orgStorage.js?v=phase2" defer></script>
+<script src="src/features/auth/authUi.js?v=phase4" defer></script>
+<script src="src/features/auth/authBoot.js?v=phase4" defer></script>
+<script src="src/features/customMaterials/customMaterials.js?v=ui27" defer></script>
 <!-- 更新履歴モーダル -->
 <div id="changelogModal" class="changelog-modal" onclick="if(event.target===this)closeChangelog()">
   <div class="changelog-card">

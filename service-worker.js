@@ -1,68 +1,17 @@
-const CACHE_NAME = 'steel-optimizer-v164';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/benchmark.html',
-  '/src/styles/core.css',
-  '/src/styles/calc.css',
-  '/src/styles/historyInventory.css',
-  '/src/styles/refresh2026.css',
-  '/src/styles/contact.css',
-  '/src/styles/settings.css',
-  '/src/styles/cartModal.css',
-  '/src/styles/dataPage.css',
-  '/src/styles/darkMode.css',
-  '/src/styles/dataTabLayout.css',
-  '/src/styles/changelog.css',
-  '/src/styles/gearPopup.css',
-  '/src/styles/weightTable.css',
-  '/src/styles/overrideLayers.css',
-  '/src/styles/theme.css',
-  '/src/styles/themeCalc.css',
-  '/src/styles/themeHistoryInventory.css',
-  '/src/styles/themeDataWeight.css',
-  '/src/styles/themeContact.css',
-  '/src/styles/themeSidebar.css',
-  '/src/styles/themeCartSettings.css',
-  '/src/styles/themeDarkSupplement.css',
-  '/src/styles/themePolish.css',
-  '/src/styles/authUi.css',
-  '/src/auth/session.js',
-  '/src/inventory/inventory-service.js',
-  '/src/services/public-config.js',
-  '/src/services/supabase/gateway.js',
-  '/src/services/supabase/client.js',
-  '/src/services/supabase/sync.js',
-  '/src/services/supabase/authService.js',
-  '/src/services/supabase/orgService.js',
-  '/src/services/supabase/orgStorage.js',
-  '/src/services/storage/storageKeys.js',
-  '/src/services/storage/settingsStore.js',
-  '/src/services/storage/remnantsStore.js',
-  '/src/services/storage/piecesHistoryStore.js',
-  '/src/services/storage/inventoryStore.js',
-  '/src/services/storage/cutHistoryStore.js',
-  '/src/services/storage/cartStore.js',
-  '/src/services/storage/weightHistoryStore.js',
-  '/src/services/storage/importExportStore.js',
-  '/src/calculation/orchestration.js',
-  '/src/calculation/section/specParsers.js',
-  '/src/features/calc/appState.js',
-  '/src/features/calc/calcInit.js',
-  '/src/features/calc/cardRemnants.js',
-  '/src/features/auth/authUi.js',
-  '/src/features/auth/authBoot.js',
-  '/src/calculation/workers/yieldWorker.js',
-  '/src/assets/manifest.json',
-];
+// v165: 戦略を network-first から stale-while-revalidate に変更（2026-05-03 perf 改修）
+//   - 旧: 毎回 network round-trip 発生、キャッシュは offline 用バックアップ扱いで意味なし
+//   - 新: cache hit があれば即返す + 裏で network 更新 → 体感速度を劇的に改善
+//   - register コードも index.html に追加（過去半年 navigator.serviceWorker.register が
+//     呼ばれてなかったので SW 自体動いてなかった）
+const CACHE_NAME = 'steel-optimizer-v166';
 
+// install: 即 activate に進む（古い cache はあれば残しておいて、activate で削除）。
+// 旧版にあった precache list は削除した:
+//   - addAll は atomic、リスト中 1 つでも 404 で install 全失敗
+//   - 過去半年メンテされてない手動リスト（実際 178 ファイル中 50 件しか入ってなかった）
+//   - stale-while-revalidate で初回訪問時に各 asset が cache される（次回以降爆速）
 self.addEventListener('install', function(e) {
   self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(ASSETS);
-    })
-  );
 });
 
 self.addEventListener('message', function(event) {
@@ -84,17 +33,43 @@ self.addEventListener('activate', function(e) {
   self.clients.claim();
 });
 
+// stale-while-revalidate: cache hit を即座に返し、裏で network 更新する
+//   - GET 以外（POST 等）と外部 origin はキャッシュ対象外
+//   - cache miss 時は通常の network fetch にフォールバック
+//   - network 更新が成功したら次回以降に反映される
 self.addEventListener('fetch', function(e) {
+  var req = e.request;
+
+  // POST / PUT / DELETE 等は network 直行（キャッシュしない）
+  if (req.method !== 'GET') return;
+
+  // 外部 origin（Supabase / PostHog / fonts.gstatic 等）はキャッシュしない
+  // CSP で許可された外部 host への通信は SW で介入しないのが安全
+  try {
+    var reqUrl = new URL(req.url);
+    if (reqUrl.origin !== self.location.origin) return;
+  } catch (_) { return; }
+
   e.respondWith(
-    fetch(e.request).then(function(res) {
-      var clone = res.clone();
-      caches.open(CACHE_NAME).then(function(cache) {
-        cache.put(e.request, clone);
-      });
-      return res;
-    }).catch(function() {
-      return caches.match(e.request).then(function(cached) {
-        return cached || caches.match('/index.html');
+    caches.open(CACHE_NAME).then(function(cache) {
+      return cache.match(req).then(function(cached) {
+        // 裏で network 更新（失敗しても無視。次回 cache 残存）
+        var networkPromise = fetch(req).then(function(res) {
+          // opaque や error は cache しない
+          if (res && res.status === 200 && res.type === 'basic') {
+            cache.put(req, res.clone());
+          }
+          return res;
+        }).catch(function() { return null; });
+
+        if (cached) {
+          // cache hit: 即返す。network は裏で進む
+          return cached;
+        }
+        // cache miss: network を待つ。失敗したら index.html を返す
+        return networkPromise.then(function(res) {
+          return res || cache.match('/index.html');
+        });
       });
     })
   );
