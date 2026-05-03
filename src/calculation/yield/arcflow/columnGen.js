@@ -692,16 +692,17 @@ async function solveColumnGenInspect(spec, opts) {
 
   let lpObjective = Infinity;
   let lastLpSol = null;
+  let lastDualPi = null;  // 最終 LP iteration の dual prices
   for (let iter = 0; iter < maxIter; iter++) {
     const lpStr = _buildMasterLp(patterns, items, false);
     let sol;
     try {
       sol = await highs.solve(lpStr);
     } catch (e) {
-      return { status: 'lp_error', patterns: patterns, error: e.message, iter: iter };
+      return { status: 'lp_error', patterns: patterns, error: e.message, iter: iter, dualPi: lastDualPi };
     }
     if (!highs.isOptimal(sol)) {
-      return { status: 'lp_not_optimal', patterns: patterns, iter: iter };
+      return { status: 'lp_not_optimal', patterns: patterns, iter: iter, dualPi: lastDualPi };
     }
     lpObjective = sol.ObjectiveValue;
     lastLpSol = sol;
@@ -716,6 +717,7 @@ async function solveColumnGenInspect(spec, opts) {
         }
       }
     }
+    lastDualPi = dualPi;
 
     let bestPat = null;
     let bestRC = 1e-9;
@@ -737,7 +739,12 @@ async function solveColumnGenInspect(spec, opts) {
     if (patterns.some(function(p) { return _patternKey(p) === newKey; })) break;
     patterns.push(bestPat);
   }
-  return { status: 'cg_inspected', patterns: patterns, lpObjective: lpObjective };
+  return {
+    status: 'cg_inspected',
+    patterns: patterns,
+    lpObjective: lpObjective,
+    dualPi: lastDualPi  // 最終 LP iteration の π_i (ピース type ごとの shadow price)
+  };
 }
 
 module.exports = {

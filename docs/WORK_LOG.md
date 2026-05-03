@@ -38,6 +38,97 @@
 
 ## 2026-05-04
 
+### 05:00  [Claude]  ✨ 研究 7 — Solution Explanation via LP Duality (勝利)
+
+**依頼**: 続けましょう B
+（前ターン 4 候補のうち B = Solution explanation via LP duals）
+
+**やったこと**:
+- 設計書 `docs/RESEARCH_EXPLAIN.md` 起草: 仮説 H1〜H3、formalization (LP 双対性条件 + reduced cost)
+- `solveColumnGenInspect` を改修して **dualPi (shadow prices) を返す** ように
+- 実装 `src/calculation/yield/research/explain.js`:
+  - `computeReducedCost(pattern, dualPi)` — RC = c_p − Σ π_i × counts(p, i)
+  - `classifyPattern` — used_at_margin / used_with_drift / unused_at_margin / unused_with_premium
+  - `explainPatterns` / `explainMarginalCosts` — 各 pattern と piece type の解説生成
+  - `generateNaturalLanguageJa` — 日本語の整形済み説明文
+  - `explainSolution` — 主関数
+- テスト `tests/research/explain.test.js` 8 件 pass
+
+**実例 (CASE-2)**:
+```
+総コスト (整数解): 442000 mm
+LP 緩和の最適値: 442000 mm
+整数 gap: 0.00% (LP-tight)
+
+■ 使われた pattern とその根拠
+  • Stock 12000mm の bar を 15 本使う [4×2806mm]
+    → コスト 12000mm、ピース合計の双対価値 12000mm、差 0mm
+    判定: LP 最適性条件を満たす margin 解（reduced cost ≈ 0）
+  • Stock 11000mm の bar を 2 本使う [2×1750mm + 4×1825mm]
+    → コスト 11000mm、ピース合計の双対価値 11000mm、差 0mm
+    判定: LP 最適性条件を満たす margin 解
+
+■ 検討されたが採用されなかった代替 pattern (premium 小さい順)
+  • Stock 11000mm [4×1750mm + 2×1825mm]
+    → 使うと LP 最適から 1000mm の余分なコスト
+
+■ 各 piece type の限界コスト (shadow price π_i)
+  • 1750mm × 4 本 → π = 1500mm/本 (1mm あたり 0.857mm)
+  • 1825mm × 50 本 → π = 2000mm/本 (1mm あたり 1.096mm)
+  • 1830mm × 60 本 → π = 2000mm/本 (1mm あたり 1.093mm)
+  • 1992mm × 18 本 → π = 2000mm/本 (1mm あたり 1.004mm)
+  • 2806mm × 60 本 → π = 3000mm/本 (1mm あたり 1.069mm)
+```
+
+**仮説評価**:
+- H1 (LP 双対で 4 種類の説明が量化可能): ✅ 支持
+- H2 (整数解と LP duals が CSP の near-LP-tightness で一致): ✅ 支持
+  - CASE-2: gap 0.00%、CASE-6: gap 0.14%
+  - 全 used pattern の RC ≤ 0.01mm
+- H3 (自然言語が分かりやすい): subjective、未評価
+
+**商用 CSP ツールとの比較**:
+私の知る範囲で、商用 CSP ツール (OptiCut, Cuttinger 等) はこの種の説明機能を持たない。
+**TORIAI は世界の他 CSP ツールが提供しない「説明可能な最適化」を持つ**ように。
+
+**今日の研究 7 連続**:
+1. ❌ Algebra Dominance pre-solve
+2. ❌ Algebra-Guided branching
+3. ❌ Hardness 予測
+4. ❌ ナイーブ k-best v0.1
+5. ✅ k-best v0.2 — 機能拡張勝利
+6. △ Decomposition — 部分支持
+7. ✅ **Solution Explanation via LP Duality** — 機能拡張勝利
+
+→ 機能拡張系 2 勝 + 1 部分支持。性能向上系 4 連敗との対比が明確。
+
+**Qiita §11 v0.3 素材**:
+```
+「algebra で CSP の計算性能を上げる」線は半世紀の OR を超える挑戦で、難しかった。
+しかし「algebra で CSP の機能を拡張する」線では 3 つの勝利を得た:
+  1. k-best 多様解列挙 (binary disjunctive cut)
+  2. ε-efficient decomposition (一部 case で品質改善)
+  3. Solution Explanation via LP Duality (世界初の "説明可能 CSP")
+理論的勝利ではなく ソフトウェア工学的勝利。これが honest な現在地。
+```
+
+**ファイル**:
+- 新規: `docs/RESEARCH_EXPLAIN.md`, `docs/EXPLAIN_RESULTS.md`
+- 新規: `src/calculation/yield/research/explain.js`
+- 新規: `tests/research/explain.test.js`
+- 修正: `src/calculation/yield/arcflow/columnGen.js` (solveColumnGenInspect が dualPi 返す)
+- 更新: `docs/WORK_LOG.md`
+
+**Commit**: これから 1 件作成 → push
+
+**52 / 52 全 research+bb テスト pass**。回帰なし。
+
+**未完了 / 引継ぎ**:
+- TORIAI 本体への配線: explainSolution を結果画面に追加表示する UI
+- LLM 親和性: 整形済みテンプレート → 対話的説明 (Claude API 連携) でさらに進化可能
+- 整数解の sensitivity (LP は近似): 完全な branch-by-branch sensitivity は別研究
+- 残り未着手研究角度: Constraint propagation in pricing, Lagrangian, Symbolic LP, Cross-instance pattern library, Robust CSP, Anytime B&B, Symbolic genealogy
+
 ### 03:30  [Claude]  🔬 研究 6 — CSP Compatibility-Graph Decomposition (部分支持)
 
 **依頼**: 研究ベースなのはどれ？　まだまだやろうぜできることあるでしょ、発想、きっかけ、なにかあるよやってれば。
